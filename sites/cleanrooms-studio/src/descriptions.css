@@ -1,0 +1,22 @@
+/* Descriptions remain long-form plain text; calendar rows only indicate presence. */
+#cleanrooms-studio #cs-edit-note{
+  display:block;width:100%;min-width:0;min-height:192px;max-height:65vh;
+  padding:12px;resize:vertical;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;
+  font-family:inherit;font-size:14px;line-height:22px;tab-size:2;
+}
+#cleanrooms-studio .cs-field-help{display:block;margin-top:8px;color:#68717d;font-size:11px;line-height:17px;font-weight:400}
+#cleanrooms-studio .cs-description-indicator{display:inline-flex;align-items:center;justify-content:center;flex:0 0 12px;width:12px;height:14px;color:#798595;vertical-align:middle}
+#cleanrooms-studio .cs-description-indicator svg{display:block;width:12px;height:12px}
+#cleanrooms-studio .cs-event-meta>.cs-event-site{min-width:0;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-series-description{display:inline-flex;align-items:center;gap:6px}
+
+/* Full before/after descriptions open independently of the navigation action. */
+#cleanrooms-studio .cs-change-open{display:block;width:100%;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font-family:inherit;text-align:left;cursor:pointer}
+#cleanrooms-studio .cs-change-open:hover{background:#f8fafd}
+#cleanrooms-studio .cs-change-open:focus-visible{outline-offset:-2px}
+#cleanrooms-studio .cs-change-descriptions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:12px;min-width:0}
+#cleanrooms-studio .cs-change-description{min-width:0;border-top:1px solid #e5eaf0}
+#cleanrooms-studio .cs-change-description summary{padding:8px 0;color:#566579;font-size:12px;line-height:20px;cursor:pointer}
+#cleanrooms-studio .cs-change-description summary:hover{color:#303b4b}
+#cleanrooms-studio .cs-change-note{margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;font-size:12px;line-height:20px}
+@media(max-width:760px),(pointer:coarse){#cleanrooms-studio #cs-edit-note{font-size:16px;line-height:24px}}

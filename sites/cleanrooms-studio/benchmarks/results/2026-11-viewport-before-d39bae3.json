@@ -1,0 +1,3821 @@
+{
+  "schema": 1,
+  "label": "viewport-before-d39bae3",
+  "revision": "d39bae3",
+  "sourceHash": "89cc0178babb14f94cb60cd78244d1a466420ea7e0b0905ed85e4baa236d677a",
+  "sourceFiles": {
+    "drizzle/0000_amusing_earthquake.sql": "516f5371d2384537343b64fd0949149330cc3bc42a9eee978ef5d4e1d3e9fbdf",
+    "drizzle/0001_heavy_orphan.sql": "325f1c00ddf2978202205a1bee3d05a4ec21b4e88919bd8d20615280c1e19627",
+    "drizzle/0002_plain_vector.sql": "d8acf4ddc01e68b8f080054fad500b87ab2f02e6805ab1977c72ed2b2a8ca1e3",
+    "drizzle/0003_lame_maginty.sql": "44d242c587ec736e33f6799c06e4a1fc27c344811d4ae5d8c5ba58687b97323b",
+    "drizzle/0004_plain_ezekiel_stane.sql": "0b0a4b6018bf2f6ec6236b6fbe47ffdaf2d14840dba018a68ab011ab10ed5d47",
+    "drizzle/0005_special_cassandra_nova.sql": "625d6f6c30f90027bf4c0300d24c69e8c66c2f3c6bdb00b9560452899228ba36",
+    "drizzle/0006_sudden_anthem.sql": "0d4b01cca9b948512ef59276a4b0ba04c616a7c24b40f58ab9cde35644177ccf",
+    "drizzle/0007_short_war_machine.sql": "f28e426cad74124b0338f5a14fa1c301291e7a99080d43ecf923f0bcb0995c2c",
+    "drizzle/0008_durable_activity.sql": "931daa8e21e2625882c3a22874c912e0f1ff9c4d40857356eff6b93f15a687b5",
+    "drizzle/0009_message_receipts.sql": "4dbc46a4f808226630ca3d986742c59825549a0343cac22ded473364dd908f31",
+    "drizzle/0010_yummy_clea.sql": "a44988f4b6cf18f2571c6acc847a3c0a42cb6082e7011d8464c0edaf5c2a304c",
+    "drizzle/0011_tearful_katie_power.sql": "42e1241d5d24b424fdfceb2263d669dc4be801f1ad0b7ab2f3361fbf74156e56",
+    "drizzle/0012_organic_blockbuster.sql": "07ff95c10202f4cbb8a040f7abbfa0ac0d5d3610b31543074fd044ee5cf032a1",
+    "drizzle/0013_old_sharon_carter.sql": "f44dc003d318d991d3ea39f95eebc8dcdc8fd7ae866ffb46f1b8be4f3102ffbf",
+    "drizzle/0014_mature_kid_colt.sql": "a6eea6b33994ac1d23c739ad655fc78207d4badd5181bfb665d49ac8e7576bfb",
+    "drizzle/0015_yellow_toro.sql": "2d88e38d3114e1b5470ad3d1937342a3943492056aafd87440c1dfaa6a34336f",
+    "drizzle/0016_eager_scream.sql": "b6c0668ea53caef574699fb47ae880b6172681baabf11a6aed04192f1460cf07",
+    "drizzle/0017_cold_blur.sql": "b298e137f00ce7d38b20564548fe49fbc55f65aa0bf47107999525f5f4d3d6bd",
+    "drizzle/0018_famous_kulan_gath.sql": "73065e64757f5a75c6f4e63c75d88c2e17722b3b99ac5b7fdbb9e84077a99045",
+    "drizzle/0019_wealthy_rockslide.sql": "e027d131ffe2ffe7f476950d47c060bfe6f20106dc2712229a53a98d57e22799",
+    "drizzle/0020_fresh_kabuki.sql": "51951b0f4d268682764326dd015f3294232cea009b6ce0e4503837614dc0dae8",
+    "drizzle/0021_third_korg.sql": "0c2c85d94bf7437fe06232bf767c115f5e6bdd4f967dfc75678ef1adc408abe1",
+    "drizzle/0022_naive_jackal.sql": "f1105c24e1ac2445962a6e9b90b06f2ac34be81068ca26750daaeaeb719bd1a6",
+    "drizzle/0023_greedy_robin_chapel.sql": "5a9eb2d7f6b8febed8b745044562914d0a453107eda6ef406698751485a779d9",
+    "drizzle/0024_confused_zemo.sql": "b8d91217b1fb979b1590529e384d68b52fc8f9480ef1d017a95ed8742a0e2cae",
+    "lib/absence-store.mjs": "e9e721cba0120a913be72f3be838618d3660c9a4b7e54c5f0b4e85b50dfcbbdf",
+    "lib/account-audit.mjs": "3fabcd1c6af434e7ca4aa793ffebc73dd9cf907623ae4767f7ac1aa2ca239889",
+    "lib/activity-store.mjs": "c594a6d3736ca8c82beb2439099d90956f732fc59cfbce3b700095098ee17f08",
+    "lib/directory-references.mjs": "50e7382a57cf0ffc6820bd7e50babfed4ac5a71271ed76459345872f16ce9eba",
+    "lib/directory-store.mjs": "19aad4afd5d345165fc83dbc44768737029356567fbcfede5fe4f6bb056052d9",
+    "lib/employee-read-store.mjs": "dbec0d02a709a0b12bfabd4646a75a38f380be3125bce4b31c6dbc2ae31320c7",
+    "lib/engagement-store.mjs": "f79f51e6233aee163f7bc250301f09c41d8e1db34c36cfd1dfed690b71fc318e",
+    "lib/payroll-history.mjs": "00b9c2cfcdcc4e5f096968bf1cb8d2438359985de18d3d910d7281999d623718",
+    "lib/planner-detail-store.mjs": "1eed5bc2e76bd6f1cdf942c025ff5e60d4101cb68c52f4c0d0c1766da22c5f42",
+    "lib/planning-calendar-summary.mjs": "e3d124857b591bf33dcce191af0276cd4de1859b6cd6f3fe0fa70c76416b3c14",
+    "lib/planning-command-store.mjs": "a7e07655094010e1986ec76a7f8570f183795aab0f40c8b094abc01f92c1d1e5",
+    "lib/planning-selection-store.mjs": "e9f583f8481e030c18b04e3e42aaa1ad431822e64055637bab66170ba430f90b",
+    "lib/planning-store.mjs": "4f4ee56914e654303d44aeace74bdbe4f4850d493de20d85a3ffa6200e7ad74c",
+    "lib/planning-window-store.mjs": "40c8203fd68e7a1be2f58ca874fd8d26fca5c0a46b9033d9892d48dffd0d033d",
+    "lib/planning-write.mjs": "2770e6be83f11c1790adb139a3fcdc84d223ed39b4c6c9692a52b533519aa01a",
+    "lib/publication-command.mjs": "2ad928ba56ae7fb3b933d07d55ab01f105e1074f82881809b658b428b4f2c035",
+    "lib/publication-store.mjs": "74b2497d90c7c26c0ca42fad310ce0ca05de441f2852d4e4f2a4d91c0af7eedd",
+    "lib/publication-time-store.mjs": "bf2742c46f1d94a31f17b296e423c3db28453f01063ad042277d4dafe5d475c5",
+    "lib/published-employee-index.mjs": "de315a0516ea993ab3ac7506fce5984ef7eaf832e12b095ca9345ef10dc93380",
+    "lib/shift-workflow-demo-store.mjs": "54a7235ddec40d592d5b174dcac98cc9a47fa76b0b53dd4039cc3c68c00f2a01",
+    "lib/shift-workflow-store.mjs": "ea7422ab58321217dbc623f9ab743b5355ffafe4d78c0eb65f068fa6d7910754",
+    "lib/studio-store.mjs": "4137ba8feda46df3ad20ac50e5dd2047369fb495d38718098f9c61386202ae7b",
+    "lib/time-entry-store.mjs": "bd0e9e2f375e2c10bd78b807d786cd17e2fc9bbf5f7e2048f8ca856648964c8b",
+    "lib/timekeeping-context.mjs": "904302a6604267e16890db07d81cd42b8983c07ac94155fe98a8c047f572d298",
+    "lib/timekeeping-store.mjs": "cbe5610bd2303b7ec11593ac695e30e32628501e9aca782d5c583670471db589",
+    "lib/workflow-context.mjs": "3d869797f90cd6e3fa7c57ff00ecc3411cabe647d7f0622ef09a1755397cc031",
+    "lib/workspace-store.mjs": "57532469ff5384915bbc00d945297dabf6c74df8b288e54a071b3e2a0104d8fc",
+    "src/checklist-progress.js": "848715a063e803ae9a16d88ba8ce0f4085d7657b4409954396e89c56affa107b",
+    "src/department-model.js": "be3a7950d8dc70c91deca0dcb5b06d3019d5e564bb2b0a9e22983ec557818dc7",
+    "src/description-model.js": "dc7639e5f97d17e4d6ae486cef7ee1e03e334ba8a89f968c85a8459ebd50e3ee",
+    "src/directory-records.js": "f95b8438915243b399436570bad02428da0d4030e3acfad509589a04b4945cf1",
+    "src/employee-calendar.js": "bd2a068d8ff747b0a4f0f98f52d9606ab1706b50f59e4b81338931d1d6c01e8f",
+    "src/instruction-state.js": "2e26a16c3707c260ddedd7ec5959b73ec6866de31a37da9450eadd4730989332",
+    "src/payroll-groups-model.js": "c82f1ce723b80c895e25214f5945650c62a229f0f2843fbdea0dd470e4fa6b88",
+    "src/payroll-model.js": "b1718339aab102593835b9dc75a0ad5169a58aa79ce9a08d72daffd08ce6162a",
+    "src/plan-changes.js": "00a53ee456bf8ecca9447bec75fb2dae010d3fd3c0ad8839104d4c58e0f9153d",
+    "src/planning-records.js": "8773290f7bc910f6a38618818a4dd963d0732ca269c74698c6745fb8ca5d667b",
+    "src/planning-scope.js": "ca6f3ee32f42b2405a33c0a76c87eac843e868f0e9816b60c4f88f99ec166400",
+    "src/planning-window.js": "ebbc0973a318f1e33b97141bbb8aee48097e521bf8ccffeea30bb6afd09b62ca",
+    "src/publication-model.js": "24368ca2ef0b238cde03887f180417c09ef7ef832d437ef35e982a79eef8c0b6",
+    "src/role-model.js": "dd8fe2dd880a09d990f52517720a0d5e9e5d046ae845669b981dbb3e604bc825",
+    "src/roster-model.js": "fdc34fd49b7eb98f294c10261d01de8c638a7f240ffbc30207662067015186a8",
+    "src/schedule-actions.js": "f09e29a03bb0cb89f48d4d23976d6fbb6e80f7af6b220db3ea390078cc8e78e0",
+    "src/series-engine.js": "b19668a21fea28d902c11988b3a3ab624bef22edc4d8ccb04f4ed849fa62d220",
+    "src/series-lifecycle.js": "4975c616da1948e781b29f8611194e1a91f54cade89fad20c7fc1d859ce43eb9",
+    "src/series-planner.js": "d1f628974ffcf0e27911d07fb6ac6c3141546c791e611128e3067461308be9a8",
+    "src/shift-workflow-model.js": "bbcd81c680a9e3b1d504482cf1126306d46cd14e0b58c1a3fc3e0b99ab9105b3",
+    "src/studio-data.js": "6f1e78cb835836c869a7fc1c826eaf57c5d79dcaea5d33d6ef8ad3efbb4cbcc4",
+    "src/studio-persistence.js": "cdc40cf5d20a5181187c5858da7d392d33c0faf8edd8312324427d1420826a9a",
+    "src/timekeeping-model.js": "1ca4a9db875aafb3fc22c0623b17404cd3b7b1d1b68a2d44a189f515199c7664"
+  },
+  "sourceRoot": "/tmp/cleanrooms-viewport-baseline-PChij7",
+  "employeeProtocol": "scoped",
+  "plannerProtocol": "deferred",
+  "calendarProtocol": "bulk",
+  "plannerDetailContract": "Actual plannerDetail request after a calendar receipt",
+  "fixedClock": "2026-11-03T10:00:00.000Z",
+  "repetitions": 5,
+  "generatedAt": "2026-11-03T20:17:05.011Z",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "methodology": "Sequential actual route calls over isolated migrated node:sqlite databases. Timing includes route work and HTTP JSON serialization/reading, excludes fixture seeding. Local process.cpuUsage milliseconds include native SQLite and Node work and are not Cloudflare Worker CPU billing. SQL rows/bytes are values returned to JavaScript, not engine rows scanned or Cloudflare billed rows. First call is not an OS cold-cache guarantee. p95 with <=7 samples is descriptive only.",
+  "fixtures": [
+    {
+      "fixture": {
+        "workspaceId": "ws-19ff04e4-57cd-4598-8d56-6c68f2c4051c",
+        "employees": 100,
+        "series": 100,
+        "publishedShifts": 15652,
+        "openShifts": 52,
+        "attendanceEntries": 6600,
+        "checkedTasks": 780,
+        "messages": 2400,
+        "requests": 400,
+        "absences": 300,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "expectedDetailHashes": {
+          "note": "sha256:1dcb5bbfc585d4939921dd0f442e8b9c2b08b3662cdb77fee9c3cde98c57988d",
+          "noteRich": "sha256:2985d43b9df8e6ca9f848cbe029288ee4371dadaa068eaf09d82113650d85e9b"
+        },
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 2244.42575,
+        "coldImport": {
+          "batches": 56,
+          "statements": 279,
+          "resultRows": 552,
+          "resultBytes": 738575,
+          "writeStatements": 221,
+          "elapsedMs": 59.504249999999985,
+          "payloadBytes": 149820,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 96.06,
+            "localCpuMs": 110.43,
+            "batches": 222,
+            "statements": 301,
+            "resultRows": 9296,
+            "resultBytes": 3401826,
+            "writeStatements": 46,
+            "status": 200,
+            "payloadBytes": 898454,
+            "pages": 6,
+            "rssMiB": 219.23
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 84.09,
+            "p95Ms": 88.73,
+            "localCpuP50Ms": 98,
+            "localCpuP95Ms": 100.8,
+            "payloadBytes": 898454,
+            "statements": 295,
+            "resultRows": 9297,
+            "resultBytes": 2869506,
+            "batches": 219,
+            "samples": [
+              {
+                "elapsedMs": 85.56,
+                "localCpuMs": 100.8,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 221.14
+              },
+              {
+                "elapsedMs": 83.54,
+                "localCpuMs": 98,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 221.42
+              },
+              {
+                "elapsedMs": 81.68,
+                "localCpuMs": 89,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 221.75
+              },
+              {
+                "elapsedMs": 84.09,
+                "localCpuMs": 88.64,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 221.78
+              },
+              {
+                "elapsedMs": 88.73,
+                "localCpuMs": 98.03,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 221.64
+              }
+            ]
+          }
+        },
+        {
+          "name": "planner_detail_extra",
+          "firstCall": {
+            "elapsedMs": 3.23,
+            "localCpuMs": 4.57,
+            "batches": 22,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 20276,
+            "instructionsVerified": true,
+            "taskCount": 6,
+            "rssMiB": 221.41
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.91,
+            "p95Ms": 0.93,
+            "localCpuP50Ms": 0.93,
+            "localCpuP95Ms": 1.71,
+            "payloadBytes": 20276,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 0.93,
+                "localCpuMs": 0.93,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 221.41
+              },
+              {
+                "elapsedMs": 0.91,
+                "localCpuMs": 1.19,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 221.47
+              },
+              {
+                "elapsedMs": 0.93,
+                "localCpuMs": 1.71,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 221.53
+              },
+              {
+                "elapsedMs": 0.82,
+                "localCpuMs": 0.87,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 221.59
+              },
+              {
+                "elapsedMs": 0.79,
+                "localCpuMs": 0.82,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 221.66
+              }
+            ]
+          }
+        },
+        {
+          "name": "calendar_client_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 100.99,
+            "localCpuMs": 106.09,
+            "batches": 219,
+            "statements": 295,
+            "resultRows": 9297,
+            "resultBytes": 2869506,
+            "writeStatements": 42,
+            "status": 200,
+            "payloadBytes": 898454,
+            "pages": 6,
+            "requests": [
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": false,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              }
+            ],
+            "cache": {
+              "maxWeeks": 0,
+              "maxSerializedBytes": 0,
+              "retained": null,
+              "maxAuthoritySerializedBytes": 629624,
+              "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+            },
+            "rssMiB": 224.7
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 101.96,
+            "p95Ms": 104.62,
+            "localCpuP50Ms": 115.02,
+            "localCpuP95Ms": 118.42,
+            "payloadBytes": 898454,
+            "statements": 295,
+            "resultRows": 9297,
+            "resultBytes": 2869506,
+            "batches": 219,
+            "samples": [
+              {
+                "elapsedMs": 101.96,
+                "localCpuMs": 116.26,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 629624,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 225.77
+              },
+              {
+                "elapsedMs": 97.99,
+                "localCpuMs": 102.87,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 629624,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 226.88
+              },
+              {
+                "elapsedMs": 103.17,
+                "localCpuMs": 115.02,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 629624,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 227.72
+              },
+              {
+                "elapsedMs": 99.24,
+                "localCpuMs": 114.26,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 629624,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 230.34
+              },
+              {
+                "elapsedMs": 104.62,
+                "localCpuMs": 118.42,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 629624,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 232.47
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 113.24,
+            "localCpuMs": 167.26,
+            "batches": 32,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 648996,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 428521,
+            "responseCounts": {
+              "entries": 300
+            },
+            "rssMiB": 226.91
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 104.84,
+            "p95Ms": 106.53,
+            "localCpuP50Ms": 110.66,
+            "localCpuP95Ms": 143.47,
+            "payloadBytes": 428521,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 648996,
+            "batches": 32,
+            "samples": [
+              {
+                "elapsedMs": 106.53,
+                "localCpuMs": 143.47,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 227.39
+              },
+              {
+                "elapsedMs": 104.84,
+                "localCpuMs": 110.66,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 236.89
+              },
+              {
+                "elapsedMs": 103.17,
+                "localCpuMs": 106.89,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 237.53
+              },
+              {
+                "elapsedMs": 105.17,
+                "localCpuMs": 125.16,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 236.77
+              },
+              {
+                "elapsedMs": 104.31,
+                "localCpuMs": 108.32,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 237.25
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.46,
+            "localCpuMs": 2.71,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 4932,
+            "responseCounts": {
+              "requests": 15
+            },
+            "rssMiB": 235.98
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.71,
+            "p95Ms": 1.05,
+            "localCpuP50Ms": 0.78,
+            "localCpuP95Ms": 1.14,
+            "payloadBytes": 4932,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 1.05,
+                "localCpuMs": 1.14,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.98
+              },
+              {
+                "elapsedMs": 0.86,
+                "localCpuMs": 0.86,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.98
+              },
+              {
+                "elapsedMs": 0.71,
+                "localCpuMs": 0.72,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 236
+              },
+              {
+                "elapsedMs": 0.71,
+                "localCpuMs": 0.78,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 236.02
+              },
+              {
+                "elapsedMs": 0.67,
+                "localCpuMs": 0.68,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 236.03
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 3.42,
+            "localCpuMs": 4.59,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33674,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10277,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 236.03
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.28,
+            "p95Ms": 2.41,
+            "localCpuP50Ms": 2.32,
+            "localCpuP95Ms": 2.58,
+            "payloadBytes": 10277,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33674,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.25,
+                "localCpuMs": 2.32,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.03
+              },
+              {
+                "elapsedMs": 2.41,
+                "localCpuMs": 2.58,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.05
+              },
+              {
+                "elapsedMs": 2.28,
+                "localCpuMs": 2.28,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.14
+              },
+              {
+                "elapsedMs": 2.22,
+                "localCpuMs": 2.29,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.23
+              },
+              {
+                "elapsedMs": 2.35,
+                "localCpuMs": 2.36,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.31
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.05,
+            "localCpuMs": 2.11,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21790,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 236.33
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.55,
+            "p95Ms": 1.63,
+            "localCpuP50Ms": 1.55,
+            "localCpuP95Ms": 1.68,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21790,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.63,
+                "localCpuMs": 1.68,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 1.55,
+                "localCpuMs": 1.66,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 1.55,
+                "localCpuMs": 1.55,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.34
+              },
+              {
+                "elapsedMs": 1.5,
+                "localCpuMs": 1.55,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.36
+              },
+              {
+                "elapsedMs": 1.47,
+                "localCpuMs": 1.48,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.27,
+            "localCpuMs": 1.98,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16880,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 236.38
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.78,
+            "p95Ms": 0.85,
+            "localCpuP50Ms": 0.78,
+            "localCpuP95Ms": 0.85,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16880,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.85,
+                "localCpuMs": 0.85,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              },
+              {
+                "elapsedMs": 0.78,
+                "localCpuMs": 0.78,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              },
+              {
+                "elapsedMs": 0.77,
+                "localCpuMs": 0.77,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              },
+              {
+                "elapsedMs": 0.76,
+                "localCpuMs": 0.76,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              },
+              {
+                "elapsedMs": 0.78,
+                "localCpuMs": 0.79,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.38
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 15.18,
+            "localCpuMs": 16.65,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 186722,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 52248,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 236.38
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 13.16,
+            "p95Ms": 13.66,
+            "localCpuP50Ms": 13.53,
+            "localCpuP95Ms": 14.64,
+            "payloadBytes": 52248,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 186722,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 13.66,
+                "localCpuMs": 13.82,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.39
+              },
+              {
+                "elapsedMs": 13.44,
+                "localCpuMs": 13.53,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.42
+              },
+              {
+                "elapsedMs": 13.16,
+                "localCpuMs": 14.64,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.47
+              },
+              {
+                "elapsedMs": 13.11,
+                "localCpuMs": 13.25,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.58
+              },
+              {
+                "elapsedMs": 13,
+                "localCpuMs": 13.12,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.77
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 5.98,
+            "localCpuMs": 6.26,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 97497,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26162,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 236.81
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 5.27,
+            "p95Ms": 5.38,
+            "localCpuP50Ms": 5.44,
+            "localCpuP95Ms": 5.65,
+            "payloadBytes": 26162,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 97497,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 5.38,
+                "localCpuMs": 5.44,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 236.89
+              },
+              {
+                "elapsedMs": 5.28,
+                "localCpuMs": 5.48,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 236.97
+              },
+              {
+                "elapsedMs": 5.12,
+                "localCpuMs": 5.14,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.09
+              },
+              {
+                "elapsedMs": 5.27,
+                "localCpuMs": 5.65,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.23
+              },
+              {
+                "elapsedMs": 4.99,
+                "localCpuMs": 5,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.5
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.64,
+            "localCpuMs": 0.65,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 237.52
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.35,
+            "p95Ms": 0.44,
+            "localCpuP50Ms": 0.35,
+            "localCpuP95Ms": 0.44,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.44,
+                "localCpuMs": 0.44,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.52
+              },
+              {
+                "elapsedMs": 0.35,
+                "localCpuMs": 0.35,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.52
+              },
+              {
+                "elapsedMs": 0.35,
+                "localCpuMs": 0.36,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.52
+              },
+              {
+                "elapsedMs": 0.35,
+                "localCpuMs": 0.35,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.52
+              },
+              {
+                "elapsedMs": 0.33,
+                "localCpuMs": 0.33,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.52
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "workspaceId": "ws-977a4f5c-c5b4-498f-88c7-ecbaf8f2d1d5",
+        "employees": 500,
+        "series": 500,
+        "publishedShifts": 78052,
+        "openShifts": 52,
+        "attendanceEntries": 33000,
+        "checkedTasks": 3900,
+        "messages": 12000,
+        "requests": 2000,
+        "absences": 1500,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "expectedDetailHashes": {
+          "note": "sha256:1dcb5bbfc585d4939921dd0f442e8b9c2b08b3662cdb77fee9c3cde98c57988d",
+          "noteRich": "sha256:2985d43b9df8e6ca9f848cbe029288ee4371dadaa068eaf09d82113650d85e9b"
+        },
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 11545.029416000001,
+        "coldImport": {
+          "batches": 65,
+          "statements": 1091,
+          "resultRows": 2560,
+          "resultBytes": 3641153,
+          "writeStatements": 1024,
+          "elapsedMs": 243.7582080000002,
+          "payloadBytes": 742747,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 601.62,
+            "localCpuMs": 637.64,
+            "batches": 1115,
+            "statements": 1446,
+            "resultRows": 67308,
+            "resultBytes": 22563832,
+            "writeStatements": 193,
+            "status": 200,
+            "payloadBytes": 4477848,
+            "pages": 27,
+            "rssMiB": 280.72
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 523.23,
+            "p95Ms": 534.41,
+            "localCpuP50Ms": 551.61,
+            "localCpuP95Ms": 587.83,
+            "payloadBytes": 4477848,
+            "statements": 1440,
+            "resultRows": 67305,
+            "resultBytes": 19898588,
+            "batches": 1112,
+            "samples": [
+              {
+                "elapsedMs": 534.41,
+                "localCpuMs": 556.53,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 279.81
+              },
+              {
+                "elapsedMs": 523.23,
+                "localCpuMs": 547.69,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 279.56
+              },
+              {
+                "elapsedMs": 526.85,
+                "localCpuMs": 587.83,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 280.73
+              },
+              {
+                "elapsedMs": 517.1,
+                "localCpuMs": 539.27,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 280.42
+              },
+              {
+                "elapsedMs": 523.2,
+                "localCpuMs": 551.61,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 281.17
+              }
+            ]
+          }
+        },
+        {
+          "name": "planner_detail_extra",
+          "firstCall": {
+            "elapsedMs": 1.47,
+            "localCpuMs": 3.23,
+            "batches": 22,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 20276,
+            "instructionsVerified": true,
+            "taskCount": 6,
+            "rssMiB": 280.3
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.78,
+            "p95Ms": 0.95,
+            "localCpuP50Ms": 0.79,
+            "localCpuP95Ms": 1.06,
+            "payloadBytes": 20276,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 0.95,
+                "localCpuMs": 0.95,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 280.31
+              },
+              {
+                "elapsedMs": 0.82,
+                "localCpuMs": 1.06,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 280.31
+              },
+              {
+                "elapsedMs": 0.78,
+                "localCpuMs": 0.79,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 280.31
+              },
+              {
+                "elapsedMs": 0.75,
+                "localCpuMs": 0.75,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 280.31
+              },
+              {
+                "elapsedMs": 0.75,
+                "localCpuMs": 0.75,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 280.31
+              }
+            ]
+          }
+        },
+        {
+          "name": "calendar_client_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 633.71,
+            "localCpuMs": 720.11,
+            "batches": 1112,
+            "statements": 1440,
+            "resultRows": 67305,
+            "resultBytes": 19898588,
+            "writeStatements": 189,
+            "status": 200,
+            "payloadBytes": 4477848,
+            "pages": 27,
+            "requests": [
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": false,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              },
+              {
+                "from": "2026-11-02",
+                "to": "2026-12-27",
+                "cursor": true,
+                "status": 200
+              }
+            ],
+            "cache": {
+              "maxWeeks": 0,
+              "maxSerializedBytes": 0,
+              "retained": null,
+              "maxAuthoritySerializedBytes": 3132759,
+              "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+            },
+            "rssMiB": 301.47
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 614.35,
+            "p95Ms": 690.09,
+            "localCpuP50Ms": 674.52,
+            "localCpuP95Ms": 730.12,
+            "payloadBytes": 4477848,
+            "statements": 1440,
+            "resultRows": 67305,
+            "resultBytes": 19898588,
+            "batches": 1112,
+            "samples": [
+              {
+                "elapsedMs": 682.48,
+                "localCpuMs": 723.13,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 3132759,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 301.77
+              },
+              {
+                "elapsedMs": 690.09,
+                "localCpuMs": 730.12,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 3132759,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 309.14
+              },
+              {
+                "elapsedMs": 614.35,
+                "localCpuMs": 654.27,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 3132759,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 310.45
+              },
+              {
+                "elapsedMs": 605.81,
+                "localCpuMs": 674.52,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 3132759,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 310.78
+              },
+              {
+                "elapsedMs": 599.97,
+                "localCpuMs": 641.32,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "requests": [
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": false,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  },
+                  {
+                    "from": "2026-11-02",
+                    "to": "2026-12-27",
+                    "cursor": true,
+                    "status": 200
+                  }
+                ],
+                "cache": {
+                  "maxWeeks": 0,
+                  "maxSerializedBytes": 0,
+                  "retained": null,
+                  "maxAuthoritySerializedBytes": 3132759,
+                  "measurement": "UTF-8 JSON working-set proxy; not JavaScript heap or browser rendering memory"
+                },
+                "rssMiB": 312.88
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 210.9,
+            "localCpuMs": 235.86,
+            "batches": 40,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1872548,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 893221,
+            "responseCounts": {
+              "entries": 500
+            },
+            "rssMiB": 300.03
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 206.03,
+            "p95Ms": 207.65,
+            "localCpuP50Ms": 214.52,
+            "localCpuP95Ms": 224.22,
+            "payloadBytes": 893221,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1872548,
+            "batches": 40,
+            "samples": [
+              {
+                "elapsedMs": 206.65,
+                "localCpuMs": 214.52,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 300.97
+              },
+              {
+                "elapsedMs": 207.65,
+                "localCpuMs": 224.22,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 300.13
+              },
+              {
+                "elapsedMs": 202.12,
+                "localCpuMs": 208.82,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 300.98
+              },
+              {
+                "elapsedMs": 206.03,
+                "localCpuMs": 220.67,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 300.13
+              },
+              {
+                "elapsedMs": 201.44,
+                "localCpuMs": 205.48,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 300.98
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.89,
+            "localCpuMs": 3.26,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 14411,
+            "responseCounts": {
+              "requests": 40
+            },
+            "rssMiB": 298.17
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.28,
+            "p95Ms": 1.33,
+            "localCpuP50Ms": 1.33,
+            "localCpuP95Ms": 1.58,
+            "payloadBytes": 14411,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 1.33,
+                "localCpuMs": 1.33,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 298.17
+              },
+              {
+                "elapsedMs": 1.29,
+                "localCpuMs": 1.29,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 298.17
+              },
+              {
+                "elapsedMs": 1.28,
+                "localCpuMs": 1.58,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 298.22
+              },
+              {
+                "elapsedMs": 1.26,
+                "localCpuMs": 1.42,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 298.23
+              },
+              {
+                "elapsedMs": 1.21,
+                "localCpuMs": 1.21,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 298.25
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 3.31,
+            "localCpuMs": 4.47,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33684,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10278,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 298.25
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.41,
+            "p95Ms": 2.55,
+            "localCpuP50Ms": 2.56,
+            "localCpuP95Ms": 2.71,
+            "payloadBytes": 10278,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33684,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.55,
+                "localCpuMs": 2.56,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 2.4,
+                "localCpuMs": 2.48,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 2.46,
+                "localCpuMs": 2.63,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 2.41,
+                "localCpuMs": 2.71,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 2.41,
+                "localCpuMs": 2.49,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 298.25
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.07,
+            "localCpuMs": 2.08,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21795,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 298.25
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.59,
+            "p95Ms": 1.68,
+            "localCpuP50Ms": 1.59,
+            "localCpuP95Ms": 2.88,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21795,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.68,
+                "localCpuMs": 2.88,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 1.59,
+                "localCpuMs": 1.6,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 1.57,
+                "localCpuMs": 1.58,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 1.52,
+                "localCpuMs": 1.53,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 1.59,
+                "localCpuMs": 1.59,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.25,
+            "localCpuMs": 1.93,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16881,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 298.25
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.85,
+            "p95Ms": 0.89,
+            "localCpuP50Ms": 0.9,
+            "localCpuP95Ms": 1.29,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16881,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.89,
+                "localCpuMs": 0.9,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 0.85,
+                "localCpuMs": 1.29,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 0.88,
+                "localCpuMs": 0.88,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 0.84,
+                "localCpuMs": 0.85,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 0.83,
+                "localCpuMs": 1.24,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 298.25
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 50.73,
+            "localCpuMs": 52.74,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 237697,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 51737,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 298.25
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 50.52,
+            "p95Ms": 52.49,
+            "localCpuP50Ms": 50.96,
+            "localCpuP95Ms": 53.02,
+            "payloadBytes": 51737,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 237697,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 50.06,
+                "localCpuMs": 50.08,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 298.25
+              },
+              {
+                "elapsedMs": 52.49,
+                "localCpuMs": 53.02,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 298.27
+              },
+              {
+                "elapsedMs": 50.52,
+                "localCpuMs": 50.76,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 298.27
+              },
+              {
+                "elapsedMs": 50.57,
+                "localCpuMs": 51.42,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 298.3
+              },
+              {
+                "elapsedMs": 50.18,
+                "localCpuMs": 50.96,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 298.3
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 13.07,
+            "localCpuMs": 14.37,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 98484,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26163,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 298.34
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 11.84,
+            "p95Ms": 12.16,
+            "localCpuP50Ms": 11.85,
+            "localCpuP95Ms": 12.2,
+            "payloadBytes": 26163,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 98484,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 12.16,
+                "localCpuMs": 12.17,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 11.84,
+                "localCpuMs": 11.85,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 11.58,
+                "localCpuMs": 11.6,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 11.96,
+                "localCpuMs": 12.2,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 11.73,
+                "localCpuMs": 11.78,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 298.36
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.84,
+            "localCpuMs": 0.85,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 298.36
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.37,
+            "p95Ms": 0.41,
+            "localCpuP50Ms": 0.37,
+            "localCpuP95Ms": 0.41,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.41,
+                "localCpuMs": 0.41,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 0.38,
+                "localCpuMs": 0.38,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 0.37,
+                "localCpuMs": 0.37,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 0.36,
+                "localCpuMs": 0.36,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 298.36
+              },
+              {
+                "elapsedMs": 0.36,
+                "localCpuMs": 0.36,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 298.36
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "changedSourceFiles": [],
+  "sourceChangedDuringRun": false
+}

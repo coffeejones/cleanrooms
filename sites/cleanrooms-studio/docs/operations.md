@@ -1,0 +1,116 @@
+# Development, release and recovery
+
+## What is verified and what is not
+
+The repository tests the domain models, real migration SQL, guarded D1-shaped transactions and an isolated SQLite backup/restore fixture. It does not prove that production backups, a restore permission, retention, monitoring alerts or recovery timing are configured in the Sites account.
+
+Before a live-data pilot, record and demonstrate the actual database identifier, hosting audience, operator access, backup retention, recovery point, restore workflow and incident contact. Agree recovery-point and recovery-time objectives and measure a restore against them. These are open deployment prerequisites, not settings this code has silently enabled.
+
+The protected UI plan export contains only a subset of application state. A complete recovery must include attendance, payroll revisions, checklist rows, absence, messages, receipts, membership, roles, audit, plan metadata/chunks, normalized draft records/chunks, publication state/scopes/occurrences/chunks/summaries, directory state/employee/department/site rows and chunks, and migration/import markers from one consistent database point.
+
+## Clean checkout and verification
+
+Use a supported Node version with `node:sqlite` and `node:sqlite.backup` (at least Node 22.16; use the version required by `package.json` if it is newer), npm and Python 3. Install the locked dependencies at the repository root:
+
+```sh
+npm ci
+npm test
+npx tsc --noEmit
+npm run build
+```
+
+`npm run build` runs the prebuild, regenerates the rich editor/export and invokes the checked-in framework wrapper. Do not edit generated HTML to bypass its source files, sandbox or CSP checks.
+
+In the managed Sites runtime, run commands through its environment helper when required by that runtime:
+
+```sh
+bash scripts/sites-env.sh -- npm test
+bash scripts/sites-env.sh -- npx tsc --noEmit
+bash scripts/sites-env.sh -- npm run build
+```
+
+The managed Linux build path uses `scripts/build-verified.sh` with a bounded Vinext build. Portable/local development uses the execution profile selected for that checkout. A clean checkout defaults to the portable profile. Do not copy a different environment's private runtime directory or change hosting IDs to make a build pass.
+
+`npm run dev` prepares only the local D1 schema and opens the local preview. The local sign-in adapter is development-only. Keep preview services local and use the normal Sites ingress for authenticated deployed testing.
+
+A green test suite and build are necessary checks, not a provider load test. Test plan/employee visibility, login/invitation, clocking, approval and one publication in a non-production environment before release. Confirm that a description's formatting, CSP and iframe restrictions remain intact.
+
+## Migrations and release
+
+1. Record the release/source revision, dependency lockfile, current migration journal and actual target database.
+2. Create or verify a consistent recoverable backup using the hosting provider's supported workflow. Verify the export can be accessed; the existence of a menu or backup claim is insufficient.
+3. Apply new additive migrations to a disposable database containing a representative copy first. Run integrity/foreign-key checks, legacy-import tests and the domain smoke flow. Exercise the first mapped-workspace read: it must import draft and publication children in one source-fenced transaction and leave the shared `workspace_plan_imports` marker. Exercise the first calendar window as well: operational imports precede snapshot trimming; the window-index upgrade atomically records its source token and trims redundant collections without changing business record versions. Repeat the same window and verify that authoritative versions and payloads do not change or hydrate unrelated descriptions.
+4. Use the supported Sites deployment/migration workflow for the intended environment. This document deliberately provides no guessed production `wrangler` command or database ID.
+5. Confirm the deployed schema and release match. Observe application errors, conflict rates and response times; verify a read and a small reversible business action with authorized test accounts.
+
+The migration SQL in `drizzle/` is forward-only. Do not modify a migration already applied to an environment. Add a corrective migration. Local preview migration checksums detect changes to its own applied SQL; they do not certify the production provider's migration state.
+
+A code rollback is safe only when the older release understands the already-migrated schema and data ownership. In particular, do not roll back to code that writes whole legacy planning/publication/attendance/workflow/checklist snapshots after row-store migration. Choose a forward fix or a coordinated full restore. Schema rollback and plan undo are different operations. A plan undo uses new expected-version commands and increments row versions; it does not restore an earlier database generation. Publishing still requires a fresh review of the exact global plan revision, even when unrelated draft edits can be merged.
+
+Do not delete an import marker to force migration or reconstruct normalized records from stale compatibility fields. Once imported, the rows are authoritative; the retained snapshot collections may be stale or already trimmed. An incomplete namespace, payload checksum failure or unchanged-generation read error needs diagnosis or a consistent restore. A transient mixed-generation read is retried automatically and can return a conflict under sustained writes. Keep the affected records and diagnostic request ID intact rather than resetting them to empty.
+
+The calendar-index migration adds derived date/origin/parent columns, compact publication headings and version-dirtying triggers. Deploy these additive migrations before the window reader. A first upgraded window can take longer while older records are indexed; selected publication headings can also need one version-checked repair. Validate that path on a representative disposable copy, not first on an unmeasured large live workspace. Do not clear window/index markers or manually mark dirty rows current to bypass an error.
+
+For calendar smoke testing, follow every continuation cursor and confirm that the full requested period appears only after completion. Test a move across the period boundary, an absence decision between pages and a scoped save while another planner edits an unloaded week. A conflict requires restarting the requested window. An existing long instruction may legitimately exceed the soft page-size budget; it must arrive intact. Calendar requests remain capped at 56 days and the client working set at 64 MiB/50,000 records, so shorten the selected period when those explicit limits are reached.
+
+The deferred-instruction update adds versioned publication instruction tokens and version-fenced compact schedule caches. Apply its additive migration before deploying the new reader. Smoke-test an existing database, including old week summaries whose value was null, selected dirty rows and large chunked week baselines. A warm `instructions=deferred` calendar must not read instruction payload chunks or checklist completion rows. Opening one occurrence must fetch intact instructions and only its progress; opening a second occurrence of the same series must fetch that occurrence's own progress. Closing or changing page during a delayed point read must not reopen the editor.
+
+Opening and closing a shift must not advance the plan or mark it changed. Test a description-only edit, distinct descriptions in a group, copying a completed checklist into a new occurrence, moving the original, and undo. Publication review must retain its full selected instructions and existing validation. Try a point-read race with another plan/directory edit and verify that no mixed source is adopted. Compact markers sent in a write must fail before any commit. Include the derived `workspace_plan_calendar_chunks` rows in a consistent recovery point; they remain rebuildable indexes, never the authoritative week record.
+
+The operation-selection migration adds compact schedule summaries and a publication-link index. Apply it before deploying the selection reader. On a representative disposable copy, verify one cold upgrade and repeat warm reads of a series agreement, the catalog and a publication review. The agreement must include every phase and moved/suppressed exception, while unrelated instruction chunks stay unread. Related publication weeks must include both ends of a move, replacement-series links and empty intermediate scopes. Other-site published conflicts must remain visible through compact availability, without leaking salary or employee comments.
+
+Schedule and link indexes carry their source versions. A repair that loses its source fence must retry or fail; do not manually advance a marker, clear an authoritative import marker or treat an incomplete index as an empty plan. Test an unrelated plan change after review, a role revocation while paging and an absence approval during publication. They must leave no partial publication, orphaned messages or phantom publication audit. Scoped reads do not change the immutable reviewed global revision or the authoritative transaction guards.
+
+Modern clients opt into targeted saves with `commandReceipt:'records'` and `metadataChanged:false`. On a warm representative workspace, verify that a single shift/series save and a selected publication do not fetch unrelated instruction chunks, the background calendar, notification history or checklist projections. A publication reads the entire dependency closure and selected published scopes, plus compact same-person/date neighbors at other sites. A series save derives lineage from the changed source families' published identity/time headers. It still reads one global publication metadata record to preserve the sequence, complete scope-link graph and legacy metadata; this header has not been partitioned into independent per-field authorities.
+
+The command acknowledgment carries exact committed draft rows/versions rather than a replacement company plan. Check queued edits, disjoint planner saves, target/version conflicts and the refresh after publication. Clients without the receipt opt-in retain their compatible response and full-model path. A publication must save its draft first; the normal client flushes before review/confirmation. Metadata-changing operations, isolated demo sessions, older full-snapshot clients and account/payroll administration can still use full contexts. Neither the targeted command path nor the scoped reader is a capacity certification.
+
+For a publication smoke flow, preserve an untouched employee's checklist/attendance receipt while changing another shift, and verify new messages and changed-task cleanup commit atomically with publication and audit. Include the first publication when no prior publication property exists. Test long valid checklists as well as long text: task-signature cleanup uses byte-bounded parameter documents rather than one oversized D1 binding. Publication scope limits, notification limits, the global plan commit fence and the selected working-set limits remain in force.
+
+The directory migration adds independent, versioned employee, department and site rows. Apply it before deploying directory readers. Exercise a first mapped-workspace read on a representative disposable copy: the source-fenced import must preserve unknown employee/profile and organization fields, commit directory authority, and only then remove redundant roster/organization fields from the plan snapshot in the same transaction. A snapshot already marked as imported without its directory header is an error, not permission to rebuild default employees. Include the directory header, row versions and payload chunks in the same recovery point as the plan and operational records.
+
+Directory edits do not increment the plan revision. Calendar/selection pages therefore carry a separate directory revision, and their continuation cursors reject a changed directory generation. Test a rename between pages and an employee archive between publication review and commit; both must force a reload or conflict without partial effects. Publication uses the directory revision observed during review. A legacy full-snapshot directory edit must also carry its observed directory revision; do not fetch the current token merely to force an old edit through. Modern profile edits use point reads and expected entity versions, preserving unknown fields without downloading other employees' private profile bodies.
+
+Site IDs and their allocated numeric indices are permanent: new sites append through the directory allocator, and indices must not be reassigned or reused. Employee archival preserves account bindings and existing attendance, payroll, assignments and history; normal UI commands do not physically delete employees. Test that an archive racing with a new absence or transfer request leaves no new request or phantom audit, while existing history remains readable. Never fix a missing reference by deleting historical records or restoring a stale roster copy.
+
+The first planning page still includes the complete compact directory catalog, although profile bodies are point-loaded. Several operational/full-compatibility paths still use broader contexts. Existing directory limits remain 5,000 employees, 2,000 sites and 1,000 departments per workspace; the independent row store and targeted edits do not remove those limits or establish million-employee capacity.
+
+Attendance and absence operations now resolve warm workspace access from account/role rows, the plan header and point employee records rather than decoding the whole plan. Their first legacy import is different: it lazily reads the original source once before recording authority. Verify direct first-use requests without opening the calendar first, including an existing legacy absence decision. The absence import must be guarded by the source revision/token, directory generation and actor access. Losing that fence leaves no import marker or partial legacy requests; do not replace the missing source with an empty object or demo defaults.
+
+Absence lists filter dates, employee, name, type and status in SQL, then load a byte-bounded page of request bodies. The `people` field contains only names and initials for that page's employees, not company profiles. Modern continuation cursors pin the query, workspace, absence version and directory version; a concurrent decision or rename requires restarting the list. Legacy tuple cursors remain accepted for rolling compatibility but do not certify a stable multi-page generation. Include long comments, more than 5,000 historical requests, an employee searching another person's name, and role revocation in the smoke checks.
+
+The attendance pause-index migration adds `time_config` and `time_version` to published occurrences. Deploy it before the new attendance reader. New publication writes populate the small agreed-pause summary in the same transaction as the occurrence. An older writer's version update invalidates it through the migration trigger. Only selected dirty occurrences may read their original instruction body once to repair that derived summary, using an occurrence version/token fence; repeat reads must use typed assignment fields and the compact summary without reading instruction chunks, publication history or unrelated periods. A checksum failure is an error, not permission to assume a zero-minute pause. Repairs never increment business versions or alter frozen/approved attendance receipts.
+
+These changes reduce data read for the selected period and records; they do not make all employee projections, payroll policy reads or compatibility operations local. Attendance period and working-set limits remain enforced. Check a first cold period and repeat warm period separately, and preserve the existing approval, overlapping registration, absence, payroll and role checks while measuring query volume.
+
+Employee publication descriptors add note-free shift fingerprints and current checklist structure/task counts. Apply their additive migration before using the new employee/workflow readers. New publication writes maintain those descriptors atomically; an older writer's occurrence-version change makes them dirty. A selected legacy repair may read the original long instruction once, but warm calendar and open-shift summaries must not read it. Fingerprints are optimistic display/version tokens; transfer approval also compares the complete authoritative draft and published shift, including instructions.
+
+Workflow badge reads use `workflowRead` with `summary:true` and return counts without loading schedules, messages or people. Normal workflow pages filter by actor and, when supplied, a period of at most 56 days. Message/request bodies are loaded through byte/row-bounded metadata pages. The optional future own/open-shift views and eligible-colleague picker have independent continuation cursors; follow each stream rather than treating its first page as the full history or full colleague list. Period filters currently use SQL projections of stored request/message dates, so a response-size bound alone is not evidence of an indexed-history throughput limit.
+
+Offers and responses resolve their exact request and occurrence, compact same-person/day draft and published neighbors, selected people/accounts and approved absence. Approval additionally reads the affected published week/site and one global publication metadata record so its scope checksum, sequence and lineage stay complete. It commits one draft occurrence plus that publication scope, request versions, competing claims, messages, checklist cleanup and audit atomically. This remains a scope replacement, not a single-row publication write: other instruction bodies inside the affected scope can be needed, while unrelated scopes and employee profiles stay unread. Test competing claims arriving at commit, account/role revocation, a new attendance entry, an absence approval and a directory change; every losing approval must leave all of those effects uncommitted. The explicitly isolated workflow demo retains its separate compatibility context.
+
+## Recovery drill
+
+`node --test tests/restore.test.cjs` creates disposable databases, applies the repository migrations, completes plan/publication import for both tenants, backs up the complete fixtures using SQLite's backup API, changes the source, copies the backup to a new location and verifies the restored database. The drill checks that restored reads use the backed-up authoritative rows and versions without performing a new import or changing authority after the recovery point. Temporary files are removed after the test.
+
+That drill confirms the local schema and application records survive a consistent SQLite backup. It does not exercise Sites credentials, Cloudflare Time Travel, SQL export/import tooling, regional failure, provider retention, encrypted off-platform storage or a real production recovery time. Perform and record a separate provider-level drill before real payroll/attendance depends on recovery.
+
+For a provider recovery:
+
+1. Restrict writes using the provider's supported traffic/access controls and coordinate users. There is no application-wide maintenance switch implemented here. Record the cutoff and preserve diagnostic evidence without copying secrets into tickets.
+2. Restore to an isolated environment first. Match the compatible application release and migration journal. Do not merge unrelated rows from different backup timestamps.
+3. Verify SQL integrity/foreign keys; plan metadata/header/chunk consistency; the shared plan-import marker and all draft/publication child rows; per-record versions, tombstones and payload checksums; directory header/row versions and chunks, employee bindings and permanent site indices; frozen published assignment/site context; payroll revisions/current versions; approved attendance snapshots; checklist templates/assignees; requests/messages/receipts; absence and durable audit. Verify two tenants independently, including reused entity IDs.
+4. Compare the recovery point with the agreed objective. Identify later clockings, approvals and payroll actions requiring reconciliation. Avoid automatically replaying notifications or repeating payroll approval after recovery.
+5. Only after validation, switch the supported hosting binding/traffic to the recovered environment, restore access and record the actual downtime and lost/reconciled interval.
+
+A single-tenant recovery from a shared database is a separate, unimplemented tool: rows reference tenant-owned roles, members and records, while plans reference snapshot owners. Do not improvise production per-tenant recovery with a handful of INSERT/DELETE statements. A full consistent restore is the tested local primitive.
+
+## Observability and retention
+
+The November 2026 stabilization updates Next/React/Vinext/Vite/Cloudflare tooling, Zod and Drizzle, including the development image parser override. The verified npm audit has no critical/high advisories and 24 moderate transitive advisories remaining (including tooling and unused image-generation dependencies). That count is not an exploitation test. Preserve the lockfile; review compatible upstream fixes rather than applying npm's suggested framework downgrades or global major-version overrides blindly. Re-run audit and assess the deployed bundle when dependencies change.
+
+Business audit is durable application data; infrastructure logs are diagnostics. Unexpected API storage errors return a request ID and emit a structured event containing that ID and error type. Do not add full invitation tokens, credentials, descriptions, employee comments or salary data to diagnostic logs.
+
+Provider dashboards, log retention, alert destinations and access are deployment configuration and remain to be verified. At minimum, measure unexpected errors, p95/p99 API duration, D1 overload/query limits, conflict/retry rates, clock-command failures, database size and background job lag if jobs are introduced. Establish baselines before choosing alert thresholds.
+
+Publication summaries, messages/requests and durable audit currently remain in the database rather than being discarded by a small client history cap. Define an explicit retention, archival and erasure policy before storage or privacy obligations demand one. Backups, exports and diagnostic logs need their own policy and access controls. No automated pruning or off-platform backup schedule is claimed by this repository.

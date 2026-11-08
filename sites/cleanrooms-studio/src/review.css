@@ -1,0 +1,92 @@
+/* Shared filter and review rhythm; content stays on the open white canvas. */
+#cleanrooms-studio .cs-review-tools{display:flex;align-items:end;flex-wrap:wrap;gap:16px 12px;margin:0 0 24px}
+#cleanrooms-studio .cs-review-field{display:flex;flex-direction:column;gap:8px;min-width:120px;flex:1 1 140px;margin:0}
+#cleanrooms-studio .cs-review-label{font-size:12px;font-weight:500;color:#67747c;line-height:18px}
+#cleanrooms-studio :is(.cs-review-input,.cs-review-textarea){box-sizing:border-box;width:100%;min-width:0;border:1px solid #cfd6da;border-radius:7px;background:#fff;color:#28353d;font:inherit;font-size:13px;line-height:20px;box-shadow:0 1px 2px #182c3b05}
+#cleanrooms-studio .cs-review-input{height:40px;padding:9px 12px}
+#cleanrooms-studio .cs-review-textarea{padding:12px;resize:vertical;min-height:120px}
+#cleanrooms-studio :is(.cs-review-input,.cs-review-textarea):focus-visible{outline:2px solid #738b9a;outline-offset:2px}
+#cleanrooms-studio :is(.cs-review-muted,.cs-review-empty){margin:0;color:#78838a;font-size:12px;line-height:20px}
+#cleanrooms-studio .cs-review-error{color:#a43d36;font-size:13px;line-height:21px;margin:12px 0 20px}
+#cleanrooms-studio .cs-leave-review-page{box-sizing:border-box;min-height:0;overflow:auto;padding-inline-end:20px;scrollbar-gutter:stable}
+#cleanrooms-studio .cs-review-statuses{display:flex;gap:24px;border-bottom:1px solid #e3e7e9;margin-bottom:24px}
+#cleanrooms-studio .cs-review-status{min-height:44px;padding:0 2px;border:0;border-bottom:2px solid transparent;background:transparent;color:#78838a;font:inherit;font-size:13px;cursor:pointer}
+#cleanrooms-studio .cs-review-status[aria-pressed="true"]{border-bottom-color:#364951;color:#25343d;font-weight:600}
+#cleanrooms-studio .cs-review-result-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 20px}
+#cleanrooms-studio .cs-review-result-head h3{margin:0;font-size:18px;line-height:26px;font-weight:600;letter-spacing:-.3px}
+#cleanrooms-studio .cs-review-table-wrap{min-width:0;overflow:auto}
+#cleanrooms-studio .cs-review-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px;color:#35434c}
+#cleanrooms-studio .cs-review-table th{padding:12px 16px;border-block:1px solid #dce2e5;color:#7b858b;font-size:11px;font-weight:500;white-space:nowrap}
+#cleanrooms-studio .cs-review-table td{padding:20px 16px;border-bottom:1px solid #e5e9eb;vertical-align:top;line-height:22px}
+#cleanrooms-studio .cs-review-table :is(th,td):first-child{padding-left:0}
+#cleanrooms-studio .cs-review-table :is(th,td):last-child{padding-right:0}
+#cleanrooms-studio .cs-review-person{display:flex;align-items:center;gap:12px;min-width:150px}
+#cleanrooms-studio .cs-review-person strong{font-size:13px;font-weight:600}
+#cleanrooms-studio .cs-review-row-actions{min-width:170px;text-align:right}
+#cleanrooms-studio .cs-review-row-actions>.cs-button+.cs-button{margin-left:8px}
+#cleanrooms-studio .cs-review-period{white-space:nowrap}
+#cleanrooms-studio .cs-review-badge{display:inline-block;font-size:12px;white-space:nowrap;color:#815f2c}
+#cleanrooms-studio .cs-review-badge[data-state="approved"]{color:#42715a}
+#cleanrooms-studio .cs-review-badge[data-state="rejected"]{color:#a25a52}
+#cleanrooms-studio .cs-review-decision{text-align:left;max-width:380px;font-size:12px}
+#cleanrooms-studio .cs-review-decision summary{cursor:pointer;color:#526874}
+#cleanrooms-studio .cs-review-reason{white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0;line-height:22px}
+#cleanrooms-studio .cs-review-empty{padding:32px 0;border-top:1px solid #e3e7e9}
+#cleanrooms-studio .cs-review-pager{display:flex;justify-content:flex-end;align-items:center;gap:16px;margin-top:24px}
+#cleanrooms-studio .cs-history-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 12px}
+#cleanrooms-studio .cs-history-filters .cs-review-field{min-width:0}
+#cleanrooms-studio .cs-history-filters .cs-review-field:nth-child(7){grid-column:span 2}
+#cleanrooms-studio .cs-history-filters .cs-button{align-self:end}
+#cleanrooms-studio .cs-history-review .cs-activity-list{margin-top:16px}
+#cleanrooms-studio .cs-history-notice{margin-bottom:16px;font-size:11px}
+#cleanrooms-studio .cs-review-modal{position:fixed;inset:0;z-index:400;display:grid;place-items:center;padding:24px;background:#16252e59;backdrop-filter:blur(3px)}
+#cleanrooms-studio .cs-review-dialog{box-sizing:border-box;width:min(100%,520px);max-height:calc(100dvh - 48px);overflow:auto;padding:28px;border:1px solid #dce2e5;border-radius:12px;background:white;box-shadow:0 24px 80px #15232d33;color:#2d3a43}
+#cleanrooms-studio .cs-review-dialog h3{margin:0 0 8px;font-size:21px;line-height:28px;font-weight:600;letter-spacing:-.4px}
+#cleanrooms-studio .cs-review-dialog>.cs-review-muted{margin-bottom:24px}
+#cleanrooms-studio .cs-review-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid #e3e7e9}
+#cleanrooms-studio .cs-employee-absence{margin:24px 0;padding:24px 0;border-top:1px solid #e1e6e9}
+#cleanrooms-studio .cs-employee-absence h3{font-size:16px;margin:0 0 16px}
+#cleanrooms-studio .cs-employee-absence-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 20px;padding:16px 0;border-bottom:1px solid #e5e9eb;font-size:13px}
+#cleanrooms-studio .cs-employee-absence-item p{grid-column:1/-1;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:22px}
+#cleanrooms-studio .cs-sidebar-bottom>.cs-nav-button{margin-bottom:12px;width:100%}
+@media(max-width:1000px){#cleanrooms-studio .cs-history-filters{grid-template-columns:repeat(3,minmax(0,1fr))}#cleanrooms-studio .cs-history-filters .cs-review-field:nth-child(7){grid-column:auto}}
+@media(max-width:760px){#cleanrooms-studio .cs-history-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#cleanrooms-studio .cs-review-statuses{gap:16px;overflow:auto}#cleanrooms-studio .cs-review-status{white-space:nowrap}#cleanrooms-studio .cs-review-modal{padding:16px}#cleanrooms-studio .cs-review-dialog{padding:24px}#cleanrooms-studio .cs-review-tools{gap:16px}#cleanrooms-studio .cs-review-field{flex-basis:calc(50% - 8px)}#cleanrooms-studio .cs-sidebar-bottom>.cs-nav-button{display:none}}
+
+/* Native modality prevents background interaction, including while a decision saves. */
+#cleanrooms-studio dialog.cs-review-modal{box-sizing:border-box;width:100%;max-width:none;height:100%;max-height:none;margin:0;border:0;color:inherit}
+#cleanrooms-studio dialog.cs-review-modal::backdrop{background:transparent}
+#cleanrooms-studio .cs-review-dialog[aria-busy="true"]:focus{outline:none}
+
+#cleanrooms-studio[data-page="activity"] .cs-activity-changes li>.cs-review-reason,
+#cleanrooms-studio[data-page="activity"] .cs-activity-changes li>.cs-review-muted{grid-column:2;min-width:0;margin-block:0 8px}
+#cleanrooms-studio .cs-employee-absence>summary{cursor:pointer;font-size:14px;font-weight:600;color:#344650;line-height:24px}
+@media(max-width:760px){#cleanrooms-studio[data-page="activity"] .cs-activity-changes li>.cs-review-reason,#cleanrooms-studio[data-page="activity"] .cs-activity-changes li>.cs-review-muted{grid-column:1}}
+
+#cleanrooms-studio[data-page="leave"] #cs-page-content>.cs-secondary-page{display:flex;flex:1;min-height:0}
+#cleanrooms-studio[data-page="leave"] .cs-leave-review-page{flex:1;min-width:0}
+
+/* One compact filter row; less frequent controls appear only when requested. */
+#cleanrooms-studio .cs-review-tools.cs-review-compact-tools{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+#cleanrooms-studio .cs-review-compact-tools>.cs-review-field{flex:0 1 190px;min-width:150px;gap:0}
+#cleanrooms-studio .cs-review-compact-tools>.cs-review-field:first-child{flex:1 1 280px;max-width:420px}
+#cleanrooms-studio .cs-review-compact-tools>.cs-review-field>.cs-review-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#cleanrooms-studio .cs-review-compact-tools>.cs-button{flex:0 0 auto;white-space:nowrap}
+#cleanrooms-studio .cs-review-extra-filters{display:flex;align-items:end;flex-wrap:wrap;gap:16px 12px;padding:16px 0 20px;margin:-2px 0 20px;border-bottom:1px solid #e1e6e9}
+#cleanrooms-studio .cs-review-extra-filters>.cs-review-field{flex:1 1 150px;max-width:230px}
+#cleanrooms-studio .cs-history-extra{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+#cleanrooms-studio .cs-history-extra>.cs-review-field{max-width:none}
+#cleanrooms-studio .cs-review-filter-chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+#cleanrooms-studio .cs-review-filter-chip{min-height:28px;padding:3px 9px;border:1px solid #dfe5e8;border-radius:5px;background:#f6f8f9;color:#51636f;font:inherit;font-size:11px;line-height:20px;cursor:pointer}
+#cleanrooms-studio .cs-history-archive-info{margin-top:24px;color:#7b858c;font-size:12px;line-height:20px}
+#cleanrooms-studio .cs-history-archive-info summary{width:fit-content;cursor:pointer}
+#cleanrooms-studio .cs-history-archive-info .cs-history-notice{margin:12px 0 0;max-width:680px}
+#cleanrooms-studio .cs-history-review>.cs-review-muted{font-size:11px}
+#cleanrooms-studio[data-page="activity"] .cs-activity-entry>details+details{grid-row:auto}
+@media(max-width:760px){
+  #cleanrooms-studio .cs-review-compact-tools>.cs-review-field:first-child{max-width:none;flex-basis:100%}
+  #cleanrooms-studio .cs-review-compact-tools>.cs-review-field{flex:1 1 140px;min-width:120px}
+  #cleanrooms-studio .cs-history-extra{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #cleanrooms-studio .cs-review-extra-filters>.cs-review-field{min-width:0;max-width:none}
+}
+.cs-leave-create-actions { display:flex; justify-content:flex-end; margin-bottom:16px; }
+.cs-review-dialog form, form.cs-review-dialog { display:flex; flex-direction:column; gap:16px; }

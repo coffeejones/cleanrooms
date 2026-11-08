@@ -1,0 +1,242 @@
+/* One control scale. Calendar rows, time bands and data surfaces stay flat. */
+#cleanrooms-studio{
+  --cs-control-size:32px;
+  --cs-control-compact-size:28px;
+  --cs-control-nav-size:36px;
+  --cs-control-radius:5px;
+  --cs-control-compact-radius:4px;
+  --cs-control-font-size:12px;
+  --cs-control-line-height:18px;
+  --cs-control-padding:10px;
+  --cs-control-compact-padding:8px;
+}
+
+/* Explicit action contexts override the earlier sheet and mobile variants. */
+#cleanrooms-studio .cs-button,
+#cleanrooms-studio .cs-head-actions .cs-button,
+#cleanrooms-studio .cs-editor-actions .cs-button,
+#cleanrooms-studio .cs-review-footer .cs-button,
+#cleanrooms-studio .cs-operations-footer .cs-button,
+#cleanrooms-studio .cs-series-actions .cs-button,
+#cleanrooms-studio .cs-demo-intro-actions .cs-button,
+#cleanrooms-studio .cs-demo-case-actions .cs-button,
+#cleanrooms-studio .cs-date-jump-panel .cs-button,
+#cleanrooms-studio #cs-edit-find-replacement.cs-replacement-shortcut{
+  box-sizing:border-box;
+  min-width:0;
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding-block:0;
+  padding-inline:var(--cs-control-padding);
+  border-radius:var(--cs-control-radius);
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-group-editor .cs-editor-actions .cs-button{
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+}
+
+/* Context actions share the smaller scale rather than individual sizes. */
+#cleanrooms-studio .cs-planning-tools .cs-button,
+#cleanrooms-studio .cs-selection-actions .cs-button,
+#cleanrooms-studio .cs-demo-session-actions .cs-button,
+#cleanrooms-studio .cs-ops-actions .cs-button,
+#cleanrooms-studio .cs-review-item .cs-button,
+#cleanrooms-studio .cs-undo,
+#cleanrooms-studio .cs-six-months{
+  box-sizing:border-box;
+  height:var(--cs-control-compact-size);
+  min-height:var(--cs-control-compact-size);
+  padding-block:0;
+  padding-inline:var(--cs-control-compact-padding);
+  border-radius:var(--cs-control-compact-radius);
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio #cs-reset-filters{
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding-block:0;
+  padding-inline:6px;
+  border-radius:var(--cs-control-radius);
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+
+/* A standard icon button occupies exactly the same square as an action. */
+#cleanrooms-studio .cs-icon-button,
+#cleanrooms-studio .cs-nav-pair .cs-icon-button,
+#cleanrooms-studio .cs-operations-head>.cs-icon-button,
+#cleanrooms-studio #cs-date-jump{
+  box-sizing:border-box;
+  flex-shrink:0;
+  width:var(--cs-control-size);
+  min-width:var(--cs-control-size);
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding:0;
+  border-radius:var(--cs-control-radius);
+}
+#cleanrooms-studio .cs-icon-button svg,
+#cleanrooms-studio .cs-button svg,
+#cleanrooms-studio #cs-person-picker-close svg{width:14px;height:14px}
+#cleanrooms-studio .cs-selection-actions .cs-icon-button,
+#cleanrooms-studio .cs-pager .cs-icon-button,
+#cleanrooms-studio #cs-person-picker-close{
+  box-sizing:border-box;
+  width:var(--cs-control-compact-size);
+  min-width:var(--cs-control-compact-size);
+  height:var(--cs-control-compact-size);
+  min-height:var(--cs-control-compact-size);
+  padding:0;
+  border-radius:var(--cs-control-compact-radius);
+}
+#cleanrooms-studio .cs-nav-pair button:first-child{border-radius:var(--cs-control-radius) 0 0 var(--cs-control-radius)}
+#cleanrooms-studio .cs-nav-pair button:last-child{border-radius:0 var(--cs-control-radius) var(--cs-control-radius) 0}
+
+/* The border is part of the segmented control's32px overall height. */
+#cleanrooms-studio .cs-view-switch,
+#cleanrooms-studio .cs-zoom-controls,
+#cleanrooms-studio .cs-group-switch{
+  box-sizing:border-box;
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding:0;
+  overflow:hidden;
+  border-radius:var(--cs-control-radius);
+}
+#cleanrooms-studio .cs-view-switch button,
+#cleanrooms-studio .cs-zoom-controls button,
+#cleanrooms-studio .cs-group-switch button{
+  box-sizing:border-box;
+  height:calc(var(--cs-control-size) - 2px);
+  min-height:calc(var(--cs-control-size) - 2px);
+  padding-block:0;
+  padding-inline:var(--cs-control-padding);
+  border-radius:0;
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-view-switch button:focus-visible,
+#cleanrooms-studio .cs-zoom-controls button:focus-visible,
+#cleanrooms-studio .cs-group-switch button:focus-visible{outline-offset:-2px}
+
+/* Navigation and weekday choices use the same geometry at every entry point. */
+#cleanrooms-studio .cs-nav-button{
+  box-sizing:border-box;
+  height:var(--cs-control-nav-size);
+  min-height:var(--cs-control-nav-size);
+  padding-block:0;
+  border-radius:var(--cs-control-radius);
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-repeat-days{border-radius:var(--cs-control-radius)}
+#cleanrooms-studio .cs-repeat-days button{
+  box-sizing:border-box;
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding-block:0;
+  border-radius:0;
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-repeat-days button:first-child{border-radius:var(--cs-control-radius) 0 0 var(--cs-control-radius)}
+#cleanrooms-studio .cs-repeat-days button:last-child{border-radius:0 var(--cs-control-radius) var(--cs-control-radius) 0}
+#cleanrooms-studio .cs-need-days{
+  box-sizing:border-box;
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  overflow:hidden;
+  border-radius:var(--cs-control-radius);
+}
+#cleanrooms-studio .cs-need-days button{
+  box-sizing:border-box;
+  height:calc(var(--cs-control-size) - 2px);
+  min-height:calc(var(--cs-control-size) - 2px);
+  padding-block:0;
+  border-radius:0;
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-repeat-days button:focus-visible,
+#cleanrooms-studio .cs-need-days button:focus-visible{position:relative;outline-offset:-2px;z-index:1}
+#cleanrooms-studio .cs-operations-tabs button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:var(--cs-control-size);
+  min-height:var(--cs-control-size);
+  padding-block:0;
+  border-radius:var(--cs-control-compact-radius) var(--cs-control-compact-radius) 0 0;
+  font-size:var(--cs-control-font-size);
+  line-height:var(--cs-control-line-height);
+}
+#cleanrooms-studio .cs-repeat-options .cs-field-pair .cs-field-label{min-height:var(--cs-control-compact-size)}
+#cleanrooms-studio .cs-search input,#cleanrooms-studio #cs-site-filter{height:var(--cs-control-size);min-height:var(--cs-control-size);padding-block:0}
+
+/* Single-line editor fields share a comfortable target; employee copy stays two-line. */
+#cleanrooms-studio #cs-edit-form .cs-field>input:not([hidden]),
+#cleanrooms-studio #cs-edit-form .cs-field>select:not([hidden]){
+  box-sizing:border-box;
+  height:44px;
+  min-height:44px;
+  padding:0 12px;
+  font-size:14px;
+  line-height:20px;
+}
+#cleanrooms-studio #cs-edit-form .cs-field>select:not([hidden]){
+  appearance:none;
+  padding-right:36px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2368717d' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:14px;
+}
+@media(max-width:760px),(pointer:coarse){
+  #cleanrooms-studio #cs-edit-form .cs-field>input:not([hidden]),
+  #cleanrooms-studio #cs-edit-form .cs-field>select:not([hidden]){font-size:16px}
+}
+
+/* Inputs and their surrounding controls share the same corner treatment. */
+#cleanrooms-studio .cs-search input,
+#cleanrooms-studio .cs-select,
+#cleanrooms-studio .cs-field input,
+#cleanrooms-studio .cs-field select,
+#cleanrooms-studio .cs-field textarea,
+#cleanrooms-studio .cs-person-trigger,
+#cleanrooms-studio #cs-site-filter,
+#cleanrooms-studio #cs-jump-date,
+#cleanrooms-studio #cs-person-search,
+#cleanrooms-studio #cs-replacement-search,
+#cleanrooms-studio #cs-needs-form input,
+#cleanrooms-studio #cs-needs-form select{border-radius:var(--cs-control-radius)}
+
+@media(max-width:760px){
+  #cleanrooms-studio{
+    --cs-control-font-size:11px;
+    --cs-control-padding:8px;
+    --cs-control-compact-padding:6px;
+  }
+  #cleanrooms-studio .cs-nav-button{height:var(--cs-control-size);min-height:var(--cs-control-size);border-radius:var(--cs-control-compact-radius)}
+  #cleanrooms-studio #cs-review{
+    width:var(--cs-control-size);
+    min-width:var(--cs-control-size);
+    height:var(--cs-control-size);
+    min-height:var(--cs-control-size);
+    padding:0;
+    border-radius:var(--cs-control-radius);
+  }
+  #cleanrooms-studio .cs-week-toolbar{gap:4px;padding-top:4px;padding-bottom:4px}
+  #cleanrooms-studio .cs-filters{padding-bottom:8px}
+  #cleanrooms-studio .cs-planning-tools .cs-button{padding-inline:5px}
+}
+@media(max-width:400px){
+  #cleanrooms-studio .cs-nav-button{font-size:10px}
+}
+@media(max-width:375px){
+  #cleanrooms-studio .cs-head-actions .cs-button{padding-inline:5px;font-size:10px}
+  #cleanrooms-studio #cs-review{padding:0}
+  #cleanrooms-studio .cs-demo-session-actions .cs-button{padding-inline:5px}
+}

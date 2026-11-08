@@ -1,0 +1,68 @@
+/* The staffing picker stays inside the existing, scrollable shift editor. */
+#cleanrooms-studio #cs-editor-layer>.cs-editor{width:min(480px,100%);max-height:100%;min-width:0}
+#cleanrooms-studio #cs-edit-form{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;margin:0}
+#cleanrooms-studio #cs-edit-form>.cs-editor-fields{flex:1;min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#cleanrooms-studio #cs-edit-form>.cs-editor-actions{flex-shrink:0;background:#fff}
+#cleanrooms-studio #cs-edit-form .cs-field{min-width:0}
+#cleanrooms-studio #cs-edit-form .cs-field-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+#cleanrooms-studio #cs-edit-form .cs-field input,#cleanrooms-studio #cs-edit-form .cs-field select,#cleanrooms-studio #cs-edit-form .cs-field textarea{min-width:0;max-width:100%}
+#cleanrooms-studio .cs-staffing-field{margin-bottom:20px}
+#cleanrooms-studio .cs-person-trigger{display:grid;grid-template-columns:minmax(0,1fr) 14px;align-items:center;gap:10px;width:100%;min-width:0;min-height:52px;margin:0;padding:8px 10px;border:1px solid #cbd3dd;border-radius:0;background:#fff;color:#354257;text-align:left;font-family:inherit;cursor:pointer;box-shadow:none}
+#cleanrooms-studio .cs-person-trigger:hover{border-color:#9eacbd;background:#fbfcfd}
+#cleanrooms-studio .cs-person-trigger[aria-expanded="true"]{border-color:#8798ad}
+#cleanrooms-studio .cs-person-selected-copy{display:block;min-width:0}
+#cleanrooms-studio .cs-person-selected-name{display:block;min-width:0;color:#303b4b;font-size:13px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-selected-meta{display:block;min-width:0;margin-top:3px;color:#68717d;font-size:11px;font-weight:400;line-height:16px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-trigger>svg,#cleanrooms-studio .cs-person-trigger>i{justify-self:end;width:14px;height:14px;color:#79869a}
+
+#cleanrooms-studio .cs-person-summary{min-width:0;margin:0;padding:9px 0 0;color:#626f82;font-size:11px;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-summary:empty{display:none}
+#cleanrooms-studio .cs-person-summary-title{display:block;min-width:0;color:#4b5b70;font-size:12px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-summary-hours{display:block;min-width:0;margin-top:3px;color:#68717d;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-person-summary-warning{display:block;min-width:0;margin-top:4px;color:#8a6c3f;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-title,#cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-warning,#cleanrooms-studio .cs-person-summary-warning[data-state="blocked"]{color:#925f54}
+#cleanrooms-studio .cs-person-summary[data-state="over-target"] .cs-person-summary-hours,#cleanrooms-studio .cs-person-summary-hours[data-state="over-target"],#cleanrooms-studio .cs-person-summary-hours[data-over-target="true"]{color:#8a6c3f}
+
+/* The list is bounded independently of the editor's outer scroller. */
+#cleanrooms-studio .cs-person-picker{position:relative;display:block;min-width:0;max-width:100%;margin-top:12px;padding:0;overflow:hidden;border:1px solid #cbd3dd;border-radius:0;background:#fff;color:#354257}
+#cleanrooms-studio .cs-person-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;min-height:40px;padding:8px 10px;border-bottom:1px solid #e1e6ed;color:#354257;font-size:12px;font-weight:500;line-height:18px}
+#cleanrooms-studio .cs-person-picker-head>span{min-width:0;overflow-wrap:anywhere}
+#cleanrooms-studio #cs-person-picker-close{flex-shrink:0;width:24px;min-height:24px;padding:4px;border:0;border-radius:0}
+#cleanrooms-studio #cs-person-picker-close svg{width:13px;height:13px}
+#cleanrooms-studio .cs-person-context{min-width:0;margin:0;padding:8px 10px 0;color:#68717d;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio #cs-person-search{display:block;width:calc(100% - 20px);min-width:0;max-width:calc(100% - 20px);min-height:32px;margin:8px 10px;padding:6px 8px;border:1px solid #cbd3dd;border-radius:0;background:#fff;color:#354257;font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-person-results{display:block;min-width:0;max-height:290px;margin:0;padding:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border-top:1px solid #e1e6ed;background:#fff}
+#cleanrooms-studio .cs-person-option{display:block;width:100%;min-width:0;margin:0;padding:10px;border:0;border-bottom:1px solid #e4e8ee;border-radius:0;background:#fff;color:#354257;text-align:left;font-family:inherit;font-size:12px;font-weight:400;line-height:18px;cursor:pointer;box-shadow:none}
+#cleanrooms-studio .cs-person-option:last-child{border-bottom:0}
+#cleanrooms-studio .cs-person-option:hover{background:#f5f7f9}
+#cleanrooms-studio .cs-person-option[aria-pressed="true"]{background:#eef1f5;color:#303b4b}
+#cleanrooms-studio .cs-person-option:focus-visible{outline-offset:-2px}
+#cleanrooms-studio .cs-person-option-main{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0}
+#cleanrooms-studio .cs-person-picker .cs-person-name{display:block;flex:1;min-width:0;color:#303b4b;font-size:13px;font-weight:500;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-state{display:block;flex-shrink:0;max-width:100%;color:#68717d;font-size:11px;font-weight:400;line-height:17px;white-space:nowrap}
+#cleanrooms-studio .cs-person-option-hours{display:block;min-width:0;margin-top:3px;color:#68717d;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-person-option-detail{display:block;min-width:0;margin-top:4px;color:#778294;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-option[data-status="blocked"] .cs-person-state,#cleanrooms-studio .cs-person-option[data-status="blocked"] .cs-person-option-detail{color:#925f54}
+#cleanrooms-studio .cs-person-option[data-status="incomplete"] .cs-person-state{color:#7a8492}
+#cleanrooms-studio .cs-person-option[aria-disabled="true"]{cursor:default;opacity:1}
+#cleanrooms-studio .cs-person-option[aria-disabled="true"]:hover{background:#fafbfc}
+#cleanrooms-studio .cs-person-option[data-over-target="true"] .cs-person-option-hours,#cleanrooms-studio .cs-person-option-hours[data-over-target="true"],#cleanrooms-studio .cs-person-option-hours[data-state="over-target"]{color:#8a6c3f}
+#cleanrooms-studio .cs-person-empty{min-width:0;margin:0;padding:16px 10px;color:#68717d;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-footnote{min-width:0;margin:0;padding:9px 10px;border-top:1px solid #e1e6ed;background:#fff;color:#737c88;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
+
+@media(max-width:760px){
+  #cleanrooms-studio #cs-editor-layer>.cs-editor{width:100%;border-left:0}
+  #cleanrooms-studio .cs-person-results{max-height:240px}
+}
+@media(max-width:375px){
+  #cleanrooms-studio .cs-person-option-main{gap:7px}
+  #cleanrooms-studio .cs-person-option{padding-left:8px;padding-right:8px}
+}
+@media(max-height:540px){
+  #cleanrooms-studio .cs-person-results{max-height:190px}
+}
+@media(pointer:coarse){
+  #cleanrooms-studio #cs-person-search{font-size:16px;line-height:20px}
+}
+
+#cleanrooms-studio #cs-edit-form #cs-save{margin-left:auto}

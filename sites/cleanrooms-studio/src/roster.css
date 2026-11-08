@@ -1,0 +1,151 @@
+/* The roster is an operational directory; the side panel exists only on request. */
+#cleanrooms-studio[data-page="people"] .cs-roster-page{display:flex;flex-direction:column;gap:20px;width:100%;height:100%;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overflow-anchor:none;padding-bottom:12px;color:var(--cs-access-ink,#29343c);font-size:14px;line-height:1.5;scrollbar-width:thin}
+#cleanrooms-studio[data-page="people"] .cs-roster-page [hidden]{display:none!important}
+#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-heading{margin:0;color:var(--cs-access-ink,#29343c);font-size:16px;font-weight:600;line-height:24px;letter-spacing:-.2px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-count{margin:4px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-actions,.cs-roster-form-actions,.cs-roster-profile-actions){display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-page .cs-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--cs-ui-height,40px);max-width:100%;padding:0 12px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:var(--cs-ui-radius,8px);background:var(--cs-access-surface,#fff);color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:13px;font-weight:500;line-height:20px;white-space:nowrap}
+#cleanrooms-studio[data-page="people"] .cs-roster-page .cs-button:hover:not(:disabled){border-color:var(--cs-access-control-edge,#c1cbce);background:var(--cs-access-soft,#f2f4f4)}
+#cleanrooms-studio[data-page="people"] .cs-roster-page .cs-primary{border-color:var(--cs-access-primary,#303e46);background:var(--cs-access-primary,#303e46);color:#fff}
+#cleanrooms-studio[data-page="people"] .cs-roster-page .cs-primary:hover:not(:disabled){background:var(--cs-access-primary-hover,#25333b)}
+#cleanrooms-studio[data-page="people"] .cs-roster-page :is(button,input,select,textarea):focus-visible{outline:2px solid var(--cs-access-blue,#476276);outline-offset:3px}
+#cleanrooms-studio[data-page="people"] .cs-roster-page :disabled{opacity:.5;cursor:default}
+#cleanrooms-studio[data-page="people"] .cs-roster-workspace{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:20px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-workspace[data-aside-open="true"]{grid-template-columns:minmax(0,1fr) 320px}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-directory,.cs-roster-editor,.cs-roster-profile,.cs-roster-import){min-width:0;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-surface,#fff);box-shadow:var(--cs-shadow-surface,0 2px 12px #25303b08)}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory{container-name:roster-directory;container-type:inline-size;overflow:hidden}
+#cleanrooms-studio[data-page="people"] .cs-roster-side{position:sticky;top:0;min-width:0;max-width:100%;max-height:calc(100dvh - 146px);overflow-y:auto;scrollbar-width:thin}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px 20px;padding:20px;background:var(--cs-access-surface,#fff)}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory-head > .cs-roster-status-tabs{grid-column:1;grid-row:1}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory-head > .cs-roster-filter-row{grid-column:2;grid-row:1}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory-head > .cs-roster-shown{grid-column:3;grid-row:1}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tabs{display:flex;align-items:center;gap:4px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab{display:block;min-height:var(--cs-ui-height,40px);min-width:0;padding:0 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--cs-access-muted,#687076);font-family:inherit;font-size:13px;line-height:20px;cursor:pointer;white-space:nowrap}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab[aria-pressed="true"]{border-color:var(--cs-access-border,#d5dcde);background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-ink,#29343c);font-weight:600;box-shadow:inset 0 1px 1px #25303b04}
+#cleanrooms-studio[data-page="people"] .cs-roster-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,.7fr);gap:12px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-shown{color:var(--cs-access-muted,#687076);font-size:12px;line-height:18px;white-space:nowrap;text-align:right}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-context{grid-column:1/-1;grid-row:2;min-width:0;padding-top:12px;border-top:1px solid var(--cs-access-line,#e5eaeb);color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="people"] .cs-roster-planning-notice{grid-column:1/-1;grid-row:3;margin:0;color:#89601e;font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-table{width:100%;margin:0;border-collapse:collapse;table-layout:fixed;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-table th{padding:11px 16px;border-top:1px solid var(--cs-access-line,#e5eaeb);border-bottom:1px solid var(--cs-access-border,#d5dcde);background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;text-align:left;vertical-align:middle}
+#cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-col-person{width:30%}
+#cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-col-site{width:18%}
+#cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-col-week{width:20%;text-align:right}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-legend{display:block;margin-top:2px;color:var(--cs-access-muted,#687076);font-size:10px;font-weight:400;line-height:14px}
+#cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-col-status{width:86px}
+#cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-col-action{width:92px}
+#cleanrooms-studio[data-page="people"] .cs-roster-table td{padding:16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);vertical-align:middle;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-table tr:last-child td{border-bottom:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-table tr[data-selected="true"] > td{background:var(--cs-access-blue-soft,#edf2f4)}
+#cleanrooms-studio[data-page="people"] .cs-roster-name-button{display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:44px;margin:0;padding:0;border:0;border-radius:4px;background:transparent;color:inherit;font-family:inherit;text-align:left;cursor:pointer;box-shadow:none}
+#cleanrooms-studio[data-page="people"] .cs-roster-name-button:hover .cs-roster-person-name{text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio[data-page="people"] .cs-roster-avatar{display:flex;flex:0 0 38px;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-body,#4b575d);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page="people"] .cs-roster-identity-copy{min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-person-name{display:block;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-person-role{display:block;margin-top:3px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-cell{text-align:right;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-value{display:block;color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:600;line-height:21px}
+#cleanrooms-studio[data-page="people"] .cs-roster-meter{display:block;width:100%;max-width:130px;height:4px;margin:8px 0 0 auto;overflow:hidden;border-radius:2px;background:var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page="people"] .cs-roster-meter > span{display:block;height:100%;background:#76848b;border-radius:inherit}
+#cleanrooms-studio[data-page="people"] .cs-roster-meter[data-state="over"] > span{background:#a47a35}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-over{display:block;margin-top:5px;color:#89601e;font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="people"] .cs-roster-next-cell strong{display:block;color:var(--cs-access-ink,#29343c);font-size:12px;font-weight:500;line-height:19px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="people"] .cs-roster-next-cell span{display:block;margin-top:3px;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="people"] .cs-roster-state{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:3px 6px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:4px;background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px;white-space:nowrap}
+#cleanrooms-studio[data-page="people"] .cs-roster-state[data-state="active"]{border-color:var(--cs-access-success-edge,#cce3d4);background:var(--cs-access-success-soft,#eef7f1);color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page="people"] .cs-roster-row-action{text-align:right}
+#cleanrooms-studio[data-page="people"] .cs-roster-empty{padding:24px 20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-empty-title{margin:0 0 8px;font-size:15px;font-weight:600;line-height:22px}
+#cleanrooms-studio[data-page="people"] .cs-roster-copy{margin:12px 0 0;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px;overflow-wrap:anywhere}
+/* Selected-person details have their own identity, not a permanent empty column. */
+#cleanrooms-studio[data-page="people"] .cs-roster-profile{overflow:hidden;animation:cs-roster-profile-enter 140ms ease-out}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px;background:#eaf0f2;border-bottom:1px solid var(--cs-access-border,#d5dcde)}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-identity{display:flex;align-items:flex-start;gap:12px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-avatar{display:flex;flex:0 0 48px;align-items:center;justify-content:center;width:48px;height:48px;border:1px solid #c7d1d6;border-radius:8px;background:#fff;color:var(--cs-access-ink,#29343c);font-size:16px;font-weight:600}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-name{margin:0;color:var(--cs-access-ink,#29343c);font-size:16px;font-weight:600;line-height:23px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-role{margin:4px 0 8px;color:var(--cs-access-body,#4b575d);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-head > .cs-icon-button{flex-shrink:0;font-size:22px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-body{display:flex;flex-direction:column;gap:20px;min-width:0;padding:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-details{display:grid;gap:12px;margin:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-details dt{margin:0 0 4px;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-details dd{margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-profile-week,.cs-roster-profile-upcoming){min-width:0;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-section-title{margin:0 0 8px;color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:600;line-height:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-period{margin:0 0 12px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-hours{margin:0;font-size:12px;line-height:24px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-hours strong{font-size:20px;font-weight:600;color:var(--cs-access-ink,#29343c)}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-week .cs-roster-meter{max-width:none;margin-left:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-difference{margin:8px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-difference[data-state="over"]{color:#89601e}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-difference[data-state="balanced"]{color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page="people"] .cs-roster-upcoming-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+#cleanrooms-studio[data-page="people"] .cs-roster-upcoming-list li{min-width:0;margin:0;padding:0;list-style:none}
+#cleanrooms-studio[data-page="people"] .cs-roster-upcoming-list strong{display:block;color:var(--cs-access-ink,#29343c);font-size:12px;font-weight:500;line-height:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-upcoming-list span{display:block;margin-top:3px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-actions{justify-content:flex-start;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-actions > .cs-button{flex:1 1 100%}
+/* Existing forms and CSV validation keep their review/save semantics. */
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-editor,.cs-roster-import){padding:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-form{display:flex;flex-direction:column;gap:20px;margin:20px 0 0;padding:0;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-field{display:block;min-width:0;margin:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-label{display:block;margin:0 0 8px;color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:19px}
+#cleanrooms-studio[data-page="people"] .cs-roster-input{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:var(--cs-ui-height,40px);min-height:var(--cs-ui-height,40px);padding:0 12px;border:1px solid var(--cs-access-control-edge,#c1cbce);border-radius:var(--cs-ui-radius,8px);background:#fff;color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:var(--cs-ui-field-font,14px);line-height:22px}
+#cleanrooms-studio[data-page="people"] select.cs-roster-input{padding-right:36px}
+#cleanrooms-studio[data-page="people"] .cs-roster-field-pair{display:grid;grid-template-columns:85px minmax(0,1fr);gap:16px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-check{display:flex;align-items:center;gap:12px;margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-check input{appearance:auto;flex-shrink:0;width:16px;height:16px;min-height:16px;margin:0;padding:0;accent-color:var(--cs-access-blue,#476276)}
+#cleanrooms-studio[data-page="people"] .cs-roster-help{margin:8px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-form-actions{margin-top:0;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-status,.cs-roster-error){margin:0;padding:12px;border:1px solid var(--cs-access-blue-edge,#c6d3da);border-radius:6px;background:var(--cs-access-blue-soft,#edf2f4);color:var(--cs-access-blue,#476276);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-error{border-color:var(--cs-access-danger-edge,#efcdc8);background:var(--cs-access-danger-soft,#fff4f2);color:var(--cs-access-danger,#a83029)}
+#cleanrooms-studio[data-page="people"] .cs-roster-import{display:flex;flex-direction:column;gap:20px;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-import > .cs-roster-copy{margin:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-import input[type="file"]{height:auto;min-height:var(--cs-ui-height,40px);font-size:13px}
+#cleanrooms-studio[data-page="people"] .cs-roster-import input[type="file"]::file-selector-button{padding:8px 12px;margin-right:10px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:6px;background:#fff;color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:12px;cursor:pointer}
+#cleanrooms-studio[data-page="people"] .cs-roster-csv{height:auto;min-height:140px;padding-block:10px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:20px;white-space:pre}
+#cleanrooms-studio[data-page="people"] .cs-roster-import > .cs-button{align-self:flex-start}
+#cleanrooms-studio[data-page="people"] .cs-roster-preview{min-width:0;padding:16px;border:1px solid var(--cs-access-line,#e5eaeb);border-radius:6px;background:var(--cs-access-soft,#f2f4f4)}
+#cleanrooms-studio[data-page="people"] .cs-roster-preview-title{margin:0 0 10px;font-size:14px;font-weight:600;line-height:21px}
+#cleanrooms-studio[data-page="people"] .cs-roster-preview-list{max-height:250px;overflow-y:auto;margin:0;padding-left:18px;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:24px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="people"] .cs-roster-error ul{margin:0;padding-left:18px}
+@container roster-directory (max-width:1000px){
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head{grid-template-columns:minmax(0,1fr) auto}
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head > .cs-roster-filter-row{grid-column:1/-1;grid-row:2}
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head > .cs-roster-shown{grid-column:2;grid-row:1}
+  #cleanrooms-studio[data-page="people"] .cs-roster-week-context{grid-row:3}
+  #cleanrooms-studio[data-page="people"] .cs-roster-planning-notice{grid-row:4}
+}
+@container roster-directory (max-width:900px){
+  #cleanrooms-studio[data-page="people"] :is(.cs-roster-col-next,.cs-roster-next-cell){display:none}
+}
+@media(max-width:1279px){
+  #cleanrooms-studio[data-page="people"] .cs-roster-side{position:static;max-height:none;overflow:visible}
+  #cleanrooms-studio[data-page="people"] .cs-roster-workspace[data-aside-open="true"]{grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page="people"] .cs-roster-workspace[data-aside-open="true"] .cs-roster-side{grid-row:1}
+  #cleanrooms-studio[data-page="people"] .cs-roster-workspace[data-aside-open="true"] .cs-roster-directory{grid-row:2}
+}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:flex-start;flex-direction:column;gap:12px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-actions{width:100%;justify-content:flex-start}
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head{padding:16px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-filter-row{grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page="people"] .cs-roster-status-tab{padding-inline:8px;font-size:12px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table thead{display:none}
+  #cleanrooms-studio[data-page="people"] :is(.cs-roster-table,.cs-roster-table tbody){display:block}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;padding:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table td{display:block;min-width:0;padding:0;border:0;text-align:left;background:transparent}
+  #cleanrooms-studio[data-page="people"] .cs-roster-person-cell{grid-column:1/-1}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table td[data-label]::before{display:block;margin-bottom:4px;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px;content:attr(data-label)}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-next-cell{display:none}
+  #cleanrooms-studio[data-page="people"] .cs-roster-table .cs-roster-week-cell{text-align:left}
+  #cleanrooms-studio[data-page="people"] .cs-roster-meter{margin-left:0}
+  #cleanrooms-studio[data-page="people"] .cs-roster-row-action{align-self:end;justify-self:end}
+  #cleanrooms-studio[data-page="people"] :is(.cs-roster-profile-head,.cs-roster-profile-body,.cs-roster-editor,.cs-roster-import){padding:16px}
+}
+@media(max-width:375px){
+  #cleanrooms-studio[data-page="people"] .cs-roster-actions .cs-button{padding-inline:9px;font-size:12px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-field-pair{grid-template-columns:75px minmax(0,1fr);gap:12px}
+}
+@keyframes cs-roster-profile-enter{from{opacity:.5;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page="people"] .cs-roster-profile{animation:none}}

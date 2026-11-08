@@ -1,0 +1,7 @@
+#cleanrooms-studio .cs-settings-payroll-preview {margin:10px 0 0;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-settings-payroll-clamp {margin:5px 0 0;font-size:12px}
+#cleanrooms-studio .cs-settings-form .cs-product-field[hidden],
+#cleanrooms-studio .cs-settings-payroll-clamp[hidden] {display:none}
+#cleanrooms-studio .cs-person-summary-warning[data-kind="unavailable"],
+#cleanrooms-studio .cs-person-option[data-unavailable="true"] .cs-person-state,
+#cleanrooms-studio .cs-replacement-option[data-unavailable="true"] .cs-replacement-state {color:#896032}

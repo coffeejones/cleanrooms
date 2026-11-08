@@ -1,0 +1,5 @@
+# Origin only: no path, query, fragment or URL credentials.
+STUDIO_ORIGIN=https://your-private-studio.example.com
+# Server-only secrets; configure actual values outside Git.
+MOBILE_GATEWAY_KEY=
+STUDIO_SITE_ACCESS_TOKEN=

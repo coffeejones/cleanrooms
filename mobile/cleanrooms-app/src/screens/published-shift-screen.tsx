@@ -1,0 +1,259 @@
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useMobileAuth } from '@/auth/mobile-auth';
+import { MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
+import { ScheduleFeedback } from '@/components/schedule-feedback';
+import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
+import { Avatar, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
+import { cardColors, cardStyles } from '@/constants/card-styles';
+import { colors } from '@/constants/palette';
+import { addDays, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
+import { readClockInLocation } from '@/location/clock-in-location';
+import { useNow } from '@/state/app-store';
+import { usePublishedResource, usePublishedShift } from '@/state/published-schedule';
+import { useEmployeeHours } from '@/state/employee-data';
+
+export default function PublishedShiftScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const resource = usePublishedShift(id);
+  const { readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
+  const [form, setForm] = useState<ShiftConfirmationKind | null>(null);
+  const [saved, setSaved] = useState<{ shiftId: string; entry: ShiftTimeEntry }>();
+  const [actionError, setActionError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const [descriptionOpen, setDescriptionOpen] = useState(false);
+  const [taskPending, setTaskPending] = useState(false);
+  const taskLock = useRef(false);
+  const [taskReceipt, setTaskReceipt] = useState<{
+    shiftId: string; checklistToken: string; source: PublishedShiftDetail; completedTaskIds: string[];
+  } | null>(null);
+  const [taskError, setTaskError] = useState<string>();
+  const [leave, setLeave] = useState(false);
+  const [leaveSaved, setLeaveSaved] = useState(false);
+  const pending = useRef(false);
+  const insets = useSafeAreaInsets();
+  const now = useNow();
+
+  const detail = resource.data;
+  const hours = useEmployeeHours(detail?.shift.date ?? '', detail ? addDays(detail.shift.date, 2) : '');
+  const pay = hours.data?.rows.find(row => row.shift.id === id)?.pay;
+  const readColleagues = useCallback(() => employeeRequest<CoworkerPage>({ action: 'employeeColleagues', shiftId: id, cursor: null, limit: 50 }), [employeeRequest, id]);
+  const coworkers = usePublishedResource('colleagues:' + id, readColleagues, Boolean(detail));
+  const [extraCoworkers, setExtraCoworkers] = useState<{ shiftId: string; source: CoworkerPage; page: CoworkerPage } | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [coworkerError, setCoworkerError] = useState<string>();
+  const coworkerGeneration = useRef(0);
+  const coworkerPage = extraCoworkers?.shiftId === id && extraCoworkers.source === coworkers.data
+    ? extraCoworkers.page : coworkers.data;
+  // A successful refresh is authoritative even if the checklist structure is unchanged.
+  const completed = taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
+    ? taskReceipt.completedTaskIds : detail?.completedTaskIds ?? [];
+  const lastSaved = saved?.shiftId === id ? saved.entry : undefined;
+  const entry = lastSaved && lastSaved.version > (detail?.entry?.version ?? 0) ? lastSaved : detail?.entry;
+  const running = entry?.status === 'running' || entry?.status === 'paused';
+  const canStart = detail && !entry && detail.shift.date === copenhagenDate(now);
+  const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'rejected' ? 'Sendt retur' :
+    entry?.status === 'paused' ? 'På pause' : entry?.status === 'running' ? 'I gang' : entry ? 'Afsluttet' : 'Planlagt';
+  const statusColor = entry?.status === 'rejected' ? colors.danger : entry?.status === 'paused' ? colors.warning :
+    entry ? colors.success : colors.muted;
+
+  async function register(operation: ShiftTimeOperation, comment: string | null = null, signal?: AbortSignal): Promise<Result> {
+    if (!detail || pending.current || signal?.aborted) return { ok: false };
+    pending.current = true;
+    setBusy(true);
+    setActionError(undefined);
+    try {
+      let location: ClockInLocation | null = null;
+      if (operation === 'start' && signal) {
+        const latest = await readPublishedShift(id);
+        if (signal.aborted) return { ok: false };
+        if (!latest) {
+          resource.refresh();
+          return { ok: false, error: 'Vagten er ikke længere udgivet til dig.' };
+        }
+        if (latest.clockInRadius !== null) {
+          const reading = await readClockInLocation(signal, latest.clockInRadius);
+          if ('error' in reading) return { ok: false, error: reading.error };
+          location = reading.location;
+        }
+      }
+      if (signal?.aborted) return { ok: false };
+      const result = await writeShiftTime({ shiftId: id, operation, version: entry?.version ?? 0, location, comment });
+      setSaved({ shiftId: id, entry: result });
+      resource.refresh();
+      hours.refresh();
+      return { ok: true };
+    } catch (error) {
+      if (error instanceof MobileAuthError && error.status === 409) resource.refresh();
+      return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Stemplingen kunne ikke bekræftes. Prøv igen.' };
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function togglePause() {
+    const result = await register(entry?.status === 'paused' ? 'resume' : 'pause');
+    if (!result.ok) setActionError(result.error);
+  }
+
+  async function toggleTask(taskId: string) {
+    if (taskLock.current || !detail?.checklistToken) return;
+    taskLock.current = true; setTaskPending(true); setTaskError(undefined);
+    try {
+      const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.includes(taskId), checklistToken: detail.checklistToken });
+      setTaskReceipt({ shiftId: id, checklistToken: detail.checklistToken, source: detail, completedTaskIds: result.completedTaskIds });
+      resource.refresh();
+    } catch (error) {
+      setTaskReceipt(null);
+      setTaskError(error instanceof MobileAuthError ? error.message : 'Opgaven kunne ikke gemmes. Prøv igen.');
+      resource.refresh();
+    } finally { taskLock.current = false; setTaskPending(false); }
+  }
+  function refreshColleagues() {
+    coworkerGeneration.current++;
+    setExtraCoworkers(null); setLoadingMore(false); setCoworkerError(undefined);
+    coworkers.refresh();
+  }
+  function refreshShift() {
+    setTaskReceipt(null); setTaskError(undefined);
+    refreshColleagues(); resource.refresh(); hours.refresh();
+  }
+  async function loadMoreColleagues() {
+    if (!coworkerPage?.nextCursor || !coworkers.data || loadingMore || coworkers.loading || coworkers.error) return;
+    const generation = ++coworkerGeneration.current;
+    const source = coworkers.data;
+    setLoadingMore(true); setCoworkerError(undefined);
+    try {
+      const next = await employeeRequest<CoworkerPage>({ action: 'employeeColleagues', shiftId: id, cursor: coworkerPage.nextCursor, limit: 50 });
+      if (coworkerGeneration.current !== generation) return;
+      const colleagues = [...new Map([...coworkerPage.colleagues, ...next.colleagues].map(person => [person.id, person])).values()];
+      setExtraCoworkers({ shiftId: id, source, page: { ...next, colleagues } });
+    } catch (error) {
+      if (coworkerGeneration.current !== generation) return;
+      setCoworkerError(error instanceof MobileAuthError ? error.message : 'Kollegaerne kunne ikke hentes. Prøv igen.');
+      if (error instanceof MobileAuthError && error.status === 409) { setExtraCoworkers(null); coworkers.refresh(); }
+    }
+    finally { if (coworkerGeneration.current === generation) setLoadingMore(false); }
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: cardColors.canvas }}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}
+        refreshControl={<RefreshControl refreshing={resource.refreshing} onRefresh={refreshShift} />}
+      >
+        <ScheduleFeedback loading={resource.loading && detail === undefined} error={resource.error} onRetry={refreshShift} />
+        {detail === null && <EmptyState title="Vagten er ikke længere udgivet til dig" />}
+        {detail && <>
+          <Surface style={[cardStyles.listSurface, { gap: 20, padding: 18 }]}>
+            <View style={{ gap: 10 }}>
+              <Row gap={12} style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                <Txt size={13} weight="500" color={colors.muted} style={{ flexShrink: 1 }}>
+                  {dateLabel(detail.shift.date, { weekday: 'long', month: 'long' })}
+                </Txt>
+                <Row gap={5}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusColor }} />
+                  <Txt size={12} weight="500" color={colors.muted}>{status}</Txt>
+                </Row>
+              </Row>
+              <Txt size={32} weight="600" accessibilityRole="header" style={{ letterSpacing: -1.2 }}>
+                {detail.shift.start}–{detail.shift.end}
+              </Txt>
+            </View>
+            <View style={{ gap: 7 }}>
+              <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
+              {detail.site.address ? <Row gap={7} style={{ alignItems: 'flex-start' }}>
+                <Icon name="map-pin" color={colors.muted} size={14} />
+                <Txt size={13} color={colors.muted} style={{ flex: 1 }}>{detail.site.address}</Txt>
+              </Row> : null}
+              {detail.shift.breakMinutes > 0 && <Txt size={13} color={colors.muted}>
+                Planlagt pause · {minutesLabel(detail.shift.breakMinutes)}
+              </Txt>}
+            </View>
+            <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}><Txt size={12} color={colors.muted}>{pay?.kind === 'registered' ? 'Løn før skat' : 'Forventet løn før skat'}</Txt><Txt size={16} weight="600">{pay && !pay.unavailableReason ? currency(pay.totalCents) : '—'}</Txt></Row>
+            {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
+            {!entry && !leaveSaved && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>Ønsk fri</Txt></Pressable>}
+            {leaveSaved && <Txt size={13} color={colors.muted}>Friønsket afventer godkendelse.</Txt>}
+            {entry?.clockIn && <View style={[cardStyles.divider, { paddingTop: 18, gap: 12 }]}>
+              <Row gap={16} style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
+                  <Txt size={12} color={colors.muted}>Stemplet ind</Txt>
+                  <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockIn))}</Txt>
+                </View>
+                {entry.clockOut && <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
+                  <Txt size={12} color={colors.muted}>Stemplet ud</Txt>
+                  <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockOut))}</Txt>
+                </View>}
+              </Row>
+              {running && <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: busy }}
+                onPress={() => void togglePause()}
+                disabled={busy}
+                style={({ pressed }) => ({
+                  alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 12, justifyContent: 'center',
+                  backgroundColor: colors.white, borderWidth: 1, borderColor: cardColors.border,
+                  borderRadius: 8, borderCurve: 'continuous', opacity: busy ? 0.45 : pressed ? 0.65 : 1,
+                })}
+              >
+                <Row gap={8}>
+                  <Icon name={entry.status === 'paused' ? 'play' : 'pause'} size={15} color={colors.ink} />
+                  <Txt size={14} weight="600">{entry.status === 'paused' ? 'Genoptag' : 'Start pause'}</Txt>
+                </Row>
+              </Pressable>}
+            </View>}
+          </Surface>
+          {!!(detail.shift.description || detail.shift.checklist.length) && <Surface style={[cardStyles.listSurface, { gap: 14, padding: 18 }]}>
+            <Pressable accessibilityRole="button" accessibilityState={{ expanded: descriptionOpen }} onPress={() => setDescriptionOpen(value => !value)} style={{ minHeight: 44, justifyContent: 'center' }}><Row gap={10}>
+              <Icon name="file" size={18} color={colors.muted} />
+              <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
+              {!!detail.shift.checklist.length && <Txt size={12} color={colors.muted}>{completed.length} af {detail.shift.checklist.length}</Txt>}
+              <Icon name="chevron-down" size={12} color={colors.muted} />
+            </Row></Pressable>
+            {descriptionOpen && <>
+              {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
+              {detail.shift.checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.includes(task.id), disabled: taskPending || !detail.checklistToken }} disabled={taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
+                <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.includes(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.includes(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
+                <Txt size={14} color={completed.includes(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
+              </Row></Pressable>)}
+              {taskError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{taskError}</Txt>}
+            </>}
+          </Surface>}
+          <Surface style={[cardStyles.listSurface, { padding: 18, gap: 14 }]}>
+            <Txt size={15} weight="600" accessibilityRole="header">Kollegaer den dag</Txt>
+            <ScheduleFeedback loading={coworkers.loading && !coworkerPage} error={coworkerError ?? coworkers.error} onRetry={refreshColleagues} />
+            {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{person.start}–{person.end}</Txt></Row>)}
+            {coworkerPage?.colleagues.length === 0 && <Txt size={13} color={colors.muted}>Ingen andre på arbejdsstedet den dag.</Txt>}
+            {coworkerPage?.nextCursor && <Pressable accessibilityRole="button" accessibilityState={{ disabled: loadingMore || coworkers.loading || Boolean(coworkers.error), busy: loadingMore }} disabled={loadingMore || coworkers.loading || Boolean(coworkers.error)} onPress={() => void loadMoreColleagues()} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={13} weight="600" color={colors.accent}>{loadingMore ? 'Henter…' : 'Vis flere'}</Txt></Pressable>}
+          </Surface>
+        </>}
+      </ScrollView>
+      {(canStart || running) && <View style={{
+        backgroundColor: colors.surface, borderTopWidth: 1, borderColor: colors.line, gap: 8,
+        boxShadow: '0 -3px 12px rgba(0, 30, 43, 0.035)',
+        paddingTop: 12, paddingBottom: Math.max(12, insets.bottom),
+        paddingLeft: Math.max(16, insets.left), paddingRight: Math.max(16, insets.right),
+      }}>
+        {actionError && <Txt color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
+        <ShiftActionButton label={running ? 'Stempl ud' : 'Stempl ind'} onPress={() => setForm(running ? 'clock-out' : 'clock-in')} disabled={busy} />
+      </View>}
+      <ShiftConfirmation
+        kind={form}
+        summary={detail ? `${detail.site.name} · ${detail.shift.start}–${detail.shift.end}` : ''}
+        locationCheck={detail?.clockInRadius ? 'required' : undefined}
+        onConfirm={(comment, signal) => form === 'clock-in' ? register('start', null, signal) : register('finish', comment, signal)}
+        onDismiss={() => setForm(null)}
+      />
+      <ShiftConfirmation kind={leave ? 'leave' : null} summary="Anmod om fri hele dagen. Vagten gælder, indtil ønsket er godkendt." onDismiss={() => setLeave(false)} onConfirm={async comment => {
+        try { await employeeRequest({ action: 'shiftLeave', shiftId: id, comment }); setLeaveSaved(true); return { ok: true }; }
+        catch (error) { return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Friønsket kunne ikke sendes.' }; }
+      }} />
+    </View>
+  );
+}
+
+type CoworkerPage = { colleagues: { id: string; personId: string; name: string; role: string; start: string; end: string }[]; nextCursor: string | null };

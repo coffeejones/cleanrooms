@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `workspace_members_active_person_unique` ON `workspace_members` (`workspace_id`,`person_id`) WHERE "workspace_members"."status" = 'active' AND "workspace_members"."role" = 'employee' AND "workspace_members"."person_id" IS NOT NULL;

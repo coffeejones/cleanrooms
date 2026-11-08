@@ -1,0 +1,115 @@
+#cleanrooms-studio[data-page] .cs-sidebar {
+  --cs-nav-ink:#001e2b;
+  --cs-nav-text:#1c2d38;
+  --cs-nav-muted:#5c6c75;
+  --cs-nav-divider:#e2e8e6;
+  --cs-nav-selected:#e8edeb;
+  background:#f9fbfa;
+  border-color:var(--cs-nav-divider);
+  box-shadow:none;
+  font-family:"Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif;
+}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-nav-button {
+  color:var(--cs-nav-text);
+  font-family:inherit;
+  font-weight:500;
+}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-nav-button svg {
+  flex-shrink:0;
+  color:var(--cs-nav-text);
+  stroke-width:1.9;
+}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-nav-button:not([aria-current="page"]):hover {
+  background:#eff3f1;
+  color:var(--cs-nav-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-sidebar .cs-nav-button[aria-current="page"] {
+  background:var(--cs-nav-selected);
+  color:var(--cs-nav-ink);
+  border-radius:5px;
+  box-shadow:none;
+  font-weight:700;
+}
+#cleanrooms-studio[data-page][data-role] .cs-sidebar .cs-nav-button[aria-current="page"] svg {
+  color:var(--cs-nav-ink);
+}
+#cleanrooms-studio .cs-sidebar .cs-nav-button:focus-visible {
+  outline:2px solid #016bf8;
+  outline-offset:-2px;
+}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-logo {
+  background:var(--cs-nav-ink);
+  border-color:transparent;
+  border-radius:6px;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page] .cs-sidebar :is(.cs-account-role,.cs-nav-count) {color:var(--cs-nav-muted)}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-account {border-color:var(--cs-nav-divider)}
+#cleanrooms-studio[data-page] .cs-sidebar .cs-account-name {color:var(--cs-nav-ink)}
+
+@media(min-width:761px) {
+  #cleanrooms-studio .cs-sidebar .cs-workspace > #cs-settings-nav {
+    display:grid;
+    flex:0 0 34px;
+    place-items:center;
+    width:34px;
+    min-height:34px;
+    padding:0;
+    border-radius:5px;
+  }
+  #cleanrooms-studio .cs-sidebar .cs-workspace > #cs-settings-nav svg {
+    width:19px;
+    height:19px;
+    color:var(--cs-nav-muted);
+  }
+  #cleanrooms-studio .cs-sidebar .cs-workspace > #cs-settings-nav :is(.cs-nav-text,.cs-mobile-label) {display:none}
+}
+@media(min-width:761px) and (max-width:1080px) {
+  #cleanrooms-studio .cs-sidebar .cs-workspace {flex-direction:column;gap:4px;padding-block:8px}
+}
+@media(min-width:1081px) {
+  #cleanrooms-studio .cs-sidebar {--cs-nav-padding:16px;padding:0 0 16px}
+  #cleanrooms-studio .cs-sidebar .cs-workspace {
+    justify-content:space-between;
+    gap:6px;
+    min-height:66px;
+    padding-inline:var(--cs-nav-padding) 10px;
+  }
+  #cleanrooms-studio .cs-sidebar .cs-workspace > .cs-logo {display:none!important}
+  #cleanrooms-studio .cs-sidebar .cs-workspace-caption {display:none}
+  #cleanrooms-studio[data-page] .cs-sidebar .cs-workspace-name {
+    color:var(--cs-nav-ink);
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:-.2px;
+  }
+  #cleanrooms-studio .cs-sidebar .cs-nav {
+    gap:0;
+    margin-inline:0;
+    padding-inline:0;
+    scrollbar-gutter:auto;
+  }
+  #cleanrooms-studio[data-page] .cs-sidebar :is(.cs-nav-label,.cs-nav-divider) {
+    color:var(--cs-nav-ink);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.035em;
+  }
+  #cleanrooms-studio .cs-sidebar .cs-nav-label {padding:10px var(--cs-nav-padding) 6px}
+  #cleanrooms-studio[data-page] .cs-sidebar .cs-nav-divider {
+    margin:12px 0 4px;
+    padding:13px var(--cs-nav-padding) 6px;
+    border-color:var(--cs-nav-divider);
+  }
+  #cleanrooms-studio .cs-sidebar .cs-nav > .cs-nav-button {
+    min-height:36px;
+    padding:7px var(--cs-nav-padding);
+    border-radius:0;
+  }
+  #cleanrooms-studio[data-page][data-role] .cs-sidebar .cs-nav > .cs-nav-button[aria-current="page"] {border-radius:0}
+  #cleanrooms-studio .cs-sidebar .cs-sidebar-bottom {padding:16px var(--cs-nav-padding) 0}
+}
+@media(min-width:1280px) {
+  #cleanrooms-studio {grid-template-columns:220px minmax(0,1fr)}
+}

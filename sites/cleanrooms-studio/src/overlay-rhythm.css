@@ -1,0 +1,99 @@
+/* Shared form rhythm, independent of the page underneath a sheet. */
+#cleanrooms-studio[data-page]{
+  --cs-overlay-gutter:24px;
+  --cs-overlay-section:20px;
+  --cs-overlay-label:8px;
+  --cs-overlay-row:12px;
+  --cs-overlay-actions:8px;
+  --cs-overlay-edge:16px;
+  --cs-overlay-columns:16px;
+  --cs-panel-gutter:var(--cs-overlay-gutter);
+}
+
+/* Header, scrolling body and pinned actions share one text edge. */
+#cleanrooms-studio[data-page] :is(.cs-editor-head,.cs-review-head,.cs-operations-head){
+  padding:var(--cs-overlay-edge) var(--cs-overlay-gutter);
+  gap:var(--cs-overlay-row);
+}
+#cleanrooms-studio[data-page] :is(.cs-editor-fields,.cs-group-fields,.cs-review-body,.cs-operations-body){
+  padding:var(--cs-overlay-section) var(--cs-overlay-gutter);
+}
+#cleanrooms-studio[data-page] :is(.cs-editor-actions,.cs-group-editor .cs-editor-actions,.cs-review-footer,.cs-operations-footer){
+  padding:var(--cs-overlay-edge) var(--cs-overlay-gutter);
+  gap:var(--cs-overlay-actions);
+}
+
+/* A single gap owns the space between editor sections, including optional ones. */
+#cleanrooms-studio[data-page] .cs-editor-fields{
+  display:flex;
+  flex-direction:column;
+  gap:var(--cs-overlay-section);
+}
+#cleanrooms-studio[data-page] .cs-editor-fields > :not([hidden]){
+  flex-shrink:0;
+  margin-block:0;
+}
+#cleanrooms-studio[data-page] #cs-edit-find-replacement.cs-replacement-shortcut{margin-block:0}
+#cleanrooms-studio[data-page] :is(.cs-editor-fields,.cs-group-fields,#cs-needs-form) .cs-field-label{
+  margin-bottom:var(--cs-overlay-label);
+  gap:var(--cs-overlay-label);
+}
+#cleanrooms-studio[data-page] :is(.cs-editor-fields,.cs-group-fields,#cs-needs-form) .cs-field-pair{
+  column-gap:var(--cs-overlay-columns);
+  row-gap:var(--cs-overlay-row);
+}
+#cleanrooms-studio[data-page] :is(.cs-editor-fields,.cs-group-fields,#cs-needs-form) .cs-field-pair > .cs-field:not([hidden]){margin:0}
+#cleanrooms-studio[data-page] .cs-editor-fields .cs-field-help{margin-top:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] .cs-exceptions-field{
+  padding:var(--cs-overlay-row);
+  gap:var(--cs-overlay-row);
+}
+
+/* Recurrence labels have one label gap; nested fields never add a second section margin. */
+#cleanrooms-studio[data-page] .cs-repeat-toggle{padding:var(--cs-overlay-row)}
+#cleanrooms-studio[data-page] .cs-repeat-toggle > label{gap:var(--cs-overlay-row)}
+#cleanrooms-studio[data-page] .cs-repeat-options{padding:0;border-bottom:0}
+#cleanrooms-studio[data-page] .cs-repeat-days{margin:0 0 var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] .cs-repeat-options > .cs-field-pair:not([hidden]){margin:0}
+#cleanrooms-studio[data-page] .cs-series-preview:not([hidden]){padding:var(--cs-overlay-row) 0}
+
+/* Group edits, changes and validation use the same section rhythm. */
+#cleanrooms-studio[data-page] .cs-group-fields :is(.cs-field,.cs-field-pair,.cs-group-footnote):not([hidden]){margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] :is(#cs-group-caption,#cs-bulk-caption,#cs-changes-period){margin-bottom:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] .cs-group-fields > :nth-last-child(1 of :not([hidden])){margin-bottom:0}
+#cleanrooms-studio[data-page] #cs-group-error{padding:var(--cs-overlay-row)}
+#cleanrooms-studio[data-page] .cs-review-section{margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] .cs-review-section:last-child{margin-bottom:0}
+#cleanrooms-studio[data-page] .cs-review-section :is(h3,h4){margin-bottom:var(--cs-overlay-label)}
+
+/* Operational forms keep help with its field and separate actions from explanations. */
+#cleanrooms-studio[data-page] .cs-operations-period{margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] #cs-needs-form{margin-top:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] #cs-need-form-title{margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] #cs-needs-form :is(.cs-field,.cs-field-pair):not([hidden]){margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] #cs-needs-form .cs-field:has(> #cs-need-count){margin-bottom:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] .cs-ops-actions{gap:var(--cs-overlay-actions);margin-top:var(--cs-overlay-row)}
+#cleanrooms-studio[data-page] .cs-replacement-search-label{margin-bottom:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] #cs-replacement-search{margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] .cs-date-jump-panel{padding:16px}
+#cleanrooms-studio[data-page] .cs-date-jump-panel > div{gap:var(--cs-overlay-actions)}
+
+/* Employee shift details use the same sheet edge, retaining their information hierarchy. */
+#cleanrooms-studio[data-page] .cs-employee-detail-head{padding:var(--cs-overlay-edge) var(--cs-overlay-gutter)}
+#cleanrooms-studio[data-page] .cs-employee-detail-head-top{gap:var(--cs-overlay-row);margin-bottom:var(--cs-overlay-section)}
+#cleanrooms-studio[data-page] .cs-employee-detail-body{padding:var(--cs-overlay-section) var(--cs-overlay-gutter)}
+
+@media(max-width:760px){
+  #cleanrooms-studio[data-page]{
+    --cs-overlay-gutter:20px;
+    --cs-overlay-section:16px;
+    --cs-overlay-edge:12px;
+    --cs-overlay-columns:12px;
+  }
+}
+@media(max-width:375px){
+  #cleanrooms-studio[data-page]{--cs-overlay-gutter:16px}
+}
+@media(max-height:540px){
+  #cleanrooms-studio[data-page]{--cs-overlay-edge:8px;--cs-overlay-section:12px}
+}

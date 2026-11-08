@@ -1,0 +1,94 @@
+/* Shared rhythm: page context, tools, then the working surface. */
+#cleanrooms-studio{
+  --cs-space-1:4px;--cs-space-2:8px;--cs-space-3:12px;--cs-space-4:16px;
+  --cs-space-5:20px;--cs-space-6:24px;--cs-space-8:32px;
+  --cs-page-gutter:24px;--cs-panel-gutter:24px;
+}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-page-head{min-height:0;padding:24px var(--cs-page-gutter) 20px;gap:24px;align-items:center}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-title-block{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+#cleanrooms-studio:not([data-page="schedule"]) #cs-title{margin:0;white-space:normal}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-page-description{display:block;max-width:100%;overflow:visible;color:#68717d;font-size:12px;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-content{padding:24px var(--cs-page-gutter) 0;min-height:0}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-filters{min-height:0;margin:0;padding:0 0 20px;gap:12px;align-items:flex-start}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-filter-left{flex:1;gap:12px;align-items:center}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-filter-right{gap:12px}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-filter-right:has(#cs-reset-filters[hidden]){display:none}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-search{width:280px;max-width:100%}
+#cleanrooms-studio:not([data-page="schedule"]) #cs-site-filter{width:180px;max-width:100%}
+#cleanrooms-studio[data-page="hours"] .cs-week-toolbar{min-height:0;margin:0;padding:0 0 16px}
+#cleanrooms-studio:not([data-page="schedule"]) #cs-page-content{min-height:0;border-bottom:1px solid #dfe3e7}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-footer{min-height:60px;margin:0;padding:16px 0;border-top:0;gap:16px}
+#cleanrooms-studio:not([data-page="schedule"]) .cs-pager{margin-left:auto;gap:12px}
+#cleanrooms-studio[data-page="series"] .cs-footer{display:none}
+#cleanrooms-studio:is([data-page="series"],[data-page="demo"]) .cs-content{padding-bottom:24px}
+
+/* Tables use matching header/body insets and readable two-line employee rows. */
+#cleanrooms-studio .cs-list th,#cleanrooms-studio .cs-list tr>*:first-child{padding-left:16px}
+#cleanrooms-studio .cs-list th{padding:12px 16px;line-height:18px}
+#cleanrooms-studio .cs-list td{padding:16px;line-height:20px;vertical-align:middle}
+#cleanrooms-studio .cs-list .cs-person-row{gap:12px}
+#cleanrooms-studio .cs-list .cs-person-row>div{min-width:0}
+#cleanrooms-studio .cs-list .cs-person-hours{margin-top:4px;line-height:16px}
+#cleanrooms-studio .cs-request-actions{gap:8px}
+#cleanrooms-studio .cs-secondary-page{padding-bottom:0;min-height:0}
+#cleanrooms-studio .cs-zero{gap:16px;padding:32px 24px}
+#cleanrooms-studio .cs-zero p{margin:0;line-height:20px}
+
+/* Series and examples follow the same section rhythm, without extra wrappers. */
+#cleanrooms-studio .cs-series-card{padding:24px}
+#cleanrooms-studio .cs-series-card-top{align-items:flex-start;gap:16px;margin-bottom:16px}
+#cleanrooms-studio .cs-series-pattern{margin-top:8px;line-height:22px}
+#cleanrooms-studio .cs-series-meta{gap:8px 16px;margin-top:0;line-height:20px}
+#cleanrooms-studio .cs-series-actions{gap:8px;margin-top:24px;padding-top:16px}
+#cleanrooms-studio .cs-demo-intro{padding:24px;gap:16px 24px}
+#cleanrooms-studio .cs-demo-case{padding:24px;gap:24px}
+#cleanrooms-studio .cs-demo-index{margin-bottom:4px;padding-top:0}
+#cleanrooms-studio .cs-demo-case-copy p{margin-top:8px}
+#cleanrooms-studio .cs-demo-case-actions{gap:8px}
+#cleanrooms-studio[data-view="day"] .cs-day-strip{padding-bottom:16px}
+
+@media(max-width:760px){
+  #cleanrooms-studio{--cs-page-gutter:20px;--cs-panel-gutter:20px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-page-head{padding:20px var(--cs-page-gutter);gap:16px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-title-block{gap:8px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-content{padding-top:16px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-filters{padding-bottom:16px;gap:8px;flex-direction:column;align-items:stretch}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-filter-left{display:grid;grid-template-columns:minmax(0,1fr) auto;width:100%;gap:12px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-filter-right{align-self:flex-end}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-search,#cleanrooms-studio:not([data-page="schedule"]) #cs-site-filter-label{grid-area:auto}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-search{width:100%;min-width:0}
+  #cleanrooms-studio:not([data-page="schedule"]) #cs-site-filter{width:168px;max-width:100%}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-footer{min-height:52px;padding:12px 0;gap:12px}
+  #cleanrooms-studio:is([data-page="series"],[data-page="demo"]) .cs-content{padding-bottom:16px}
+  #cleanrooms-studio .cs-list th,#cleanrooms-studio .cs-list td,#cleanrooms-studio .cs-list tr>*:first-child{padding:12px}
+  #cleanrooms-studio .cs-list .cs-person-name{white-space:normal;overflow-wrap:anywhere;line-height:18px}
+  #cleanrooms-studio .cs-list .cs-person-hours{overflow-wrap:anywhere}
+  #cleanrooms-studio[data-page="people"] .cs-list{table-layout:fixed;min-width:0!important}
+  #cleanrooms-studio[data-page="people"] .cs-list tr>*{padding:16px 12px}
+  #cleanrooms-studio[data-page="people"] .cs-list tr>*:first-child{width:46%}
+  #cleanrooms-studio[data-page="people"] .cs-list tr>*:nth-child(2){display:table-cell;width:28%}
+  #cleanrooms-studio[data-page="people"] .cs-list tr>*:nth-child(3){width:26%}
+  #cleanrooms-studio[data-page="people"] .cs-list .cs-tag{padding:0;white-space:normal}
+  #cleanrooms-studio[data-page="hours"] .cs-list{table-layout:fixed;min-width:0!important}
+  #cleanrooms-studio[data-page="hours"] .cs-list tr>*:first-child{width:40%}
+  #cleanrooms-studio[data-page="hours"] .cs-list tr>*:not(:first-child){width:20%}
+  #cleanrooms-studio[data-page="hours"] .cs-list .cs-number{white-space:nowrap}
+  #cleanrooms-studio .cs-list .cs-person-row{gap:8px}
+  #cleanrooms-studio[data-page="hours"] .cs-list .cs-avatar{display:none}
+  #cleanrooms-studio[data-page="leave"] .cs-list{min-width:520px!important}
+  #cleanrooms-studio[data-page="leave"] .cs-request-actions{flex-direction:column;align-items:flex-start;gap:8px}
+  #cleanrooms-studio .cs-series-card,#cleanrooms-studio .cs-demo-intro,#cleanrooms-studio .cs-demo-case{padding:20px}
+  #cleanrooms-studio .cs-series-card-top{flex-wrap:wrap;gap:12px}
+  #cleanrooms-studio .cs-series-actions{justify-content:flex-start}
+  #cleanrooms-studio .cs-demo-case{gap:16px}
+}
+@media(max-width:400px){
+  #cleanrooms-studio{--cs-page-gutter:16px;--cs-panel-gutter:16px}
+  #cleanrooms-studio:not([data-page="schedule"]) .cs-filter-left{grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio:not([data-page="schedule"]) #cs-site-filter-label,#cleanrooms-studio:not([data-page="schedule"]) #cs-site-filter{width:100%}
+  #cleanrooms-studio .cs-list th,#cleanrooms-studio .cs-list td,#cleanrooms-studio .cs-list tr>*:first-child{padding:12px 8px}
+  #cleanrooms-studio[data-page="people"] .cs-list tr>*{padding:16px 8px}
+  #cleanrooms-studio[data-page="people"] .cs-list .cs-avatar{display:none}
+  #cleanrooms-studio[data-page="hours"] .cs-list tr>*{padding-left:4px;padding-right:4px}
+  #cleanrooms-studio .cs-series-card,#cleanrooms-studio .cs-demo-intro,#cleanrooms-studio .cs-demo-case{padding:16px}
+}

@@ -1,0 +1,63 @@
+#cleanrooms-studio .cs-sickness-layer {position:absolute;inset:0;z-index:35;display:grid;place-items:center;padding:24px;isolation:isolate}
+#cleanrooms-studio .cs-sickness-layer > .cs-backdrop {position:absolute;inset:0;z-index:-1;background:#001e2b38}
+#cleanrooms-studio .cs-sickness-dialog {width:min(500px,100%);max-height:calc(100% - 24px);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--cs-access-control-edge,#c1c7c6);border-radius:9px;background:#fff;color:var(--cs-access-ink,#001e2b);box-shadow:0 18px 55px #001e2b24;font-size:13px}
+#cleanrooms-studio .cs-sickness-head {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid var(--cs-compass-rule,#e2e8e6)}
+#cleanrooms-studio .cs-sickness-head h3 {margin:0;font-size:17px;font-weight:650;line-height:24px}
+#cleanrooms-studio .cs-sickness-head .cs-icon-button {width:32px;height:32px;min-height:32px;border:0;font-size:23px;background:transparent;color:var(--cs-access-muted,#5c6c75)}
+#cleanrooms-studio .cs-sickness-body {padding:20px;min-height:0;overflow:auto;overscroll-behavior:contain}
+#cleanrooms-studio .cs-sickness-person {margin:0 0 18px;font-weight:650;font-size:14px}
+#cleanrooms-studio .cs-sickness-dates {display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#cleanrooms-studio .cs-sickness-dates .cs-field {margin:0;gap:6px}
+#cleanrooms-studio .cs-sickness-dates input {width:100%;min-width:0;height:36px;padding:0 10px;border:1px solid var(--cs-access-control-edge,#89979b);border-radius:6px;background:#fff;color:var(--cs-access-body,#243943);font:inherit;color-scheme:light}
+#cleanrooms-studio .cs-sickness-help {margin:14px 0 0;color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-sickness-error {margin:14px 0 0;color:#9d4534;font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-sickness-summary {margin:0 0 10px;color:var(--cs-access-body,#243943);font-weight:600}
+#cleanrooms-studio .cs-sickness-shift {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--cs-compass-rule,#e2e8e6)}
+#cleanrooms-studio .cs-sickness-shift > div {min-width:0;display:grid;gap:4px}
+#cleanrooms-studio .cs-sickness-shift strong {font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-sickness-shift span {color:var(--cs-access-muted,#5c6c75);font-size:12px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-sickness-footer {display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--cs-compass-rule,#e2e8e6)}
+#cleanrooms-studio .cs-sickness-dialog .cs-button {height:36px;min-height:36px;border:1px solid var(--cs-access-control-edge,#89979b);border-radius:6px;padding:0 12px;background:var(--cs-access-soft,#f9fbfa);font:inherit;font-weight:600;white-space:nowrap;box-shadow:none}
+#cleanrooms-studio .cs-sickness-dialog .cs-button.cs-primary {background:var(--cs-access-primary,#00684a);color:#fff;border-color:var(--cs-access-primary,#00684a)}
+#cleanrooms-studio .cs-sickness-layer [hidden] {display:none}
+#cleanrooms-studio .cs-sickness-layer :focus-visible {outline:2px solid var(--cs-access-blue,#016bf8);outline-offset:2px}
+@media(max-width:600px){#cleanrooms-studio .cs-sickness-layer{padding:12px}#cleanrooms-studio .cs-sickness-dialog{max-height:calc(100% - 12px)}#cleanrooms-studio .cs-sickness-head,#cleanrooms-studio .cs-sickness-body{padding:16px}#cleanrooms-studio .cs-sickness-footer{padding:12px 16px}#cleanrooms-studio .cs-sickness-dialog .cs-button{height:40px;min-height:40px}}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px 12px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row:not(:has(> .cs-editor-caption:not([hidden]),> .cs-shift-availability-actions > button:not([hidden]))) {display:none}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row > .cs-editor-caption {
+  min-width:0;
+  margin:0;
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row > .cs-shift-availability-actions {
+  display:flex;
+  flex-wrap:nowrap;
+  justify-self:end;
+  gap:6px;
+  margin:0;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row > .cs-shift-availability-actions:not(:has(> button:not([hidden]))) {display:none}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row :is(#cs-edit-sickness,#cs-edit-find-replacement) {
+  flex:0 0 auto;
+  width:auto;
+  height:32px;
+  min-height:32px;
+  padding:0 9px;
+  margin:0;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:500;
+  line-height:18px;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row :is(#cs-edit-sickness,#cs-edit-find-replacement)[hidden] {display:none}
+@media(max-width:360px) {
+  #cleanrooms-studio[data-page][data-role] .cs-editor-context-row {grid-template-columns:minmax(0,1fr)}
+}

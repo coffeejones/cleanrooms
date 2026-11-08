@@ -1,0 +1,48 @@
+/* Directory and record navigation share the planner's quiet command hierarchy. */
+#cleanrooms-studio[data-page="people"] .cs-roster-filter-row.cs-filter-rail{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,.7fr);gap:0;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-filter-site{position:relative;min-width:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-filter-site::before{content:"";position:absolute;z-index:1;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9;pointer-events:none}
+#cleanrooms-studio[data-page="people"] .cs-roster-filter-site>.cs-roster-input{width:100%}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab{color:#73818b}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab[aria-pressed="true"]{color:#344d5c;font-weight:600}
+
+/* Filter rails affect filter controls only; salary edits retain their labelled fields. */
+#cleanrooms-studio[data-page="payroll"] :is(.cs-paygroups-directory-tools,.cs-paygroups-members-tools)>.cs-paygroups-field.cs-filter-rail{position:relative;display:block;min-width:0;gap:0}
+#cleanrooms-studio[data-page="payroll"] :is(.cs-paygroups-directory-tools,.cs-paygroups-members-tools,.cs-paygroups-assignment-tools)>.cs-paygroups-field>.cs-paygroups-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-tools.cs-filter-rail{display:grid;grid-template-columns:minmax(220px,1.5fr) repeat(2,minmax(180px,1fr));gap:0;padding:0;border:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-tools.cs-filter-rail>.cs-paygroups-field{position:relative;gap:0;min-width:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools.cs-filter-rail{grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0;padding:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-member-filters{gap:4px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-member-filter{border-color:transparent;background:transparent;box-shadow:none;color:#6b7b86}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-member-filter[aria-pressed="true"]{border-color:transparent;border-radius:0;background:transparent;box-shadow:inset 0 -2px 0 #526b7b;color:#344d5c;font-weight:600}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-member-filter:hover:not(:disabled){background:#f3f6f8;color:#344d5c}
+
+@media(min-width:761px){
+ #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-heading{color:#526673;font-weight:500}
+ #cleanrooms-studio[data-page="people"] .cs-roster-actions{align-items:center}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-breadcrumb{gap:12px;margin-bottom:12px;color:#7b8992}
+ #cleanrooms-studio[data-page="people"][data-role] .cs-employee-profile-breadcrumb .cs-employee-profile-back{padding-inline:8px;border-radius:5px}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-header{padding-bottom:16px}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-tabs{gap:24px;min-height:40px}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-tab{height:40px;min-height:40px;color:#73818b}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-tab[aria-pressed="true"]{color:#344d5c}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-content{margin-top:20px}
+ #cleanrooms-studio[data-page="people"] .cs-employee-profile-calendar-tools{gap:4px}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-breadcrumb{gap:12px;color:#7b8992}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-back{padding-inline:8px;border-radius:5px}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-detail-tabs{gap:24px}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-detail-tab{display:inline-flex;align-items:center;height:40px;min-height:40px;padding:0 2px;color:#73818b}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-detail-tab[aria-pressed="true"]{color:#344d5c}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools>.cs-paygroups-field.cs-filter-rail{width:360px;max-width:100%}
+}
+@media(min-width:761px) and (max-width:1100px){
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools.cs-filter-rail{grid-template-columns:minmax(200px,1.4fr) repeat(2,minmax(0,1fr))}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools.cs-filter-rail>.cs-paygroups-field:first-child{grid-column:auto}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page="people"] .cs-roster-filter-row.cs-filter-rail{grid-template-columns:minmax(0,1fr);gap:8px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-filter-site::before{display:none}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-tools.cs-filter-rail,
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools.cs-filter-rail{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0}
+ #cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-tools.cs-filter-rail>.cs-paygroups-field:first-child{grid-column:1/-1}
+}

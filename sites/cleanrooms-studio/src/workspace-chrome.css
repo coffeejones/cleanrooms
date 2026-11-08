@@ -1,0 +1,52 @@
+/* Shared workspace controls. Filter materials are scoped to explicit rails,
+   leaving editing, approval and payroll forms on their existing surfaces. */
+#cleanrooms-studio[data-page] .cs-filter-rail{
+ --cs-ui-field-border:transparent;
+ --cs-ui-field-background:transparent;
+ --cs-ui-field-shadow:none;
+ --cs-ui-radius:6px;
+ display:flex;
+ align-items:center;
+ gap:0;
+ min-width:0;
+ border-radius:6px;
+ background:#f5f7f8;
+ box-shadow:inset 0 0 0 1px #e1e6ea;
+}
+#cleanrooms-studio[data-page] .cs-filter-rail>*{min-width:0}
+#cleanrooms-studio[data-page] .cs-filter-rail>:is(label,.cs-filter-slot){position:relative;margin:0}
+#cleanrooms-studio[data-page] .cs-filter-rail>:is(label,.cs-filter-slot)+:is(label,.cs-filter-slot)::before{content:"";position:absolute;z-index:1;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9;pointer-events:none}
+#cleanrooms-studio[data-page][data-role] .cs-chrome-quiet:not(.cs-primary){border-color:transparent;background:transparent;box-shadow:none;color:#657580;transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease}
+#cleanrooms-studio[data-page][data-role] .cs-chrome-quiet:not(.cs-primary):hover:not(:disabled){background:#f1f5f7;color:#344d5c}
+#cleanrooms-studio[data-page][data-role] .cs-chrome-quiet:not(.cs-primary)[aria-pressed="true"]{border-color:#b6c7d2;background:#e5edf2;color:#35566c;font-weight:600}
+
+@media(min-width:761px){
+ #cleanrooms-studio[data-page]:not([data-page="schedule"]) .cs-main>.cs-page-head .cs-page-description:not(:empty){padding-left:14px;border-left:1px solid #e2e7eb}
+ /* A single date control matches the planner's period navigation. */
+ #cleanrooms-studio[data-page="hours"][data-role] #cs-date-jump{display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;width:auto;min-width:0;height:40px;min-height:40px;padding:0 10px;border-color:transparent;border-radius:6px;background:transparent;box-shadow:none}
+ #cleanrooms-studio[data-page="hours"][data-role] #cs-date-jump:hover{background:#f2f5f7}
+ #cleanrooms-studio[data-page="hours"] #cs-date-jump>.cs-week-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
+ #cleanrooms-studio[data-page="hours"][data-role] #cs-date-jump>svg{width:15px;height:15px;color:#74848e}
+ #cleanrooms-studio[data-page="hours"][data-role] .cs-nav-pair .cs-icon-button{border:0;border-radius:5px;background:transparent;box-shadow:none;color:#6d7d87}
+ #cleanrooms-studio[data-page="hours"][data-role] .cs-nav-pair .cs-icon-button:hover{background:#f2f5f7;color:#2e4553}
+ #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail{flex:1 1 260px;min-width:220px}
+ #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-filter-rail>.cs-time-search{flex:1 1 140px;min-width:100px;margin:0}
+ #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter{position:relative;flex:0 0 auto;border-radius:0 6px 6px 0}
+ #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9}
+ #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter[aria-pressed="true"]::before{display:none}
+ #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-tools{flex-basis:380px}
+ /* Series share the filter surface already established in the calendar. */
+ #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar .cs-filter-left{--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;gap:0;flex:0 1 660px;max-width:100%;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
+ #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar .cs-search{flex:1 1 360px;min-width:180px;max-width:none;border:0;border-radius:6px 0 0 6px;background:transparent;box-shadow:none}
+ #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter-label{position:relative;flex:0 1 240px;min-width:180px}
+ #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter{width:100%}
+ #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter-label::before{content:"";position:absolute;z-index:1;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9;pointer-events:none}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page] .cs-filter-rail{--cs-ui-field-border:var(--cs-access-control-edge,#c1cbce);--cs-ui-field-background:#fff;--cs-ui-field-shadow:none;flex-wrap:wrap;gap:8px;background:transparent;box-shadow:none}
+ #cleanrooms-studio[data-page] .cs-filter-rail>:is(label,.cs-filter-slot)+:is(label,.cs-filter-slot)::before{display:none}
+ #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail{display:contents}
+ #cleanrooms-studio[data-page="hours"][data-role] #cs-date-jump{flex:1 1 auto;align-items:center;justify-content:flex-start;gap:6px;width:auto;min-width:0;padding-inline:6px}
+ #cleanrooms-studio[data-page="hours"] #cs-date-jump>.cs-week-title{min-width:0;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page][data-role] .cs-chrome-quiet:not(.cs-primary){transition:none}}

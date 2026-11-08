@@ -1,0 +1,41 @@
+#cleanrooms-studio[data-page] .cs-person-pay-group{display:flex;flex-direction:column;gap:20px;min-width:0;padding:24px;border:1px solid var(--cs-access-line,#e2e7eb);border-radius:8px;background:#fff;color:var(--cs-access-ink,#26333d)}
+#cleanrooms-studio[data-page] .cs-person-pay-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-head>div{min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-title{margin:0 0 6px;font-size:16px;font-weight:600;line-height:24px}
+#cleanrooms-studio[data-page] .cs-person-pay-help{display:block;margin:0;color:var(--cs-access-muted,#65727c);font-size:13px;font-weight:400;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-person-pay-group strong{font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-person-pay-summary{display:flex;flex-direction:column;gap:6px;padding:16px 20px;border:1px solid var(--cs-access-line,#e2e7eb);border-radius:6px;background:#f8fafb;font-size:14px;line-height:22px}
+#cleanrooms-studio[data-page] .cs-person-pay-field{display:flex;flex-direction:column;gap:8px;min-width:0;margin:0}
+#cleanrooms-studio[data-page] .cs-person-pay-group>.cs-person-pay-field{max-width:240px}
+#cleanrooms-studio[data-page] .cs-person-pay-label{display:block;color:var(--cs-access-muted,#65727c);font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-person-pay-input{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:40px!important;margin:0;padding:8px 11px;border:1px solid #cdd6dd;border-radius:6px;background:#fff;color:var(--cs-access-ink,#26333d);font:inherit;font-size:14px;line-height:22px}
+#cleanrooms-studio[data-page] .cs-person-pay-input:focus-visible,#cleanrooms-studio[data-page] .cs-person-pay-button:focus-visible{outline:2px solid #4b83bd;outline-offset:2px}
+#cleanrooms-studio[data-page] .cs-person-pay-group .cs-person-pay-button{flex-shrink:0;height:auto!important;min-height:40px!important;margin:0;padding:8px 14px!important;border:1px solid #cdd6dd;border-radius:6px;background:#fff;color:#33434f;font-size:14px;font-weight:500;line-height:22px;white-space:normal;text-align:center}
+#cleanrooms-studio[data-page] .cs-person-pay-group .cs-person-pay-primary{border-color:#344652;background:#344652;color:#fff}
+#cleanrooms-studio[data-page] .cs-person-pay-button:hover:not(:disabled){background:#f0f4f7}
+#cleanrooms-studio[data-page] .cs-person-pay-primary:hover:not(:disabled){background:#263a47}
+#cleanrooms-studio[data-page] .cs-person-pay-group :disabled{cursor:default;opacity:.55}
+#cleanrooms-studio[data-page] .cs-person-pay-form{display:flex;flex-direction:column;gap:24px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-read-rules{display:flex;flex-direction:column;gap:0;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-read-rule{display:flex;justify-content:space-between;align-items:flex-start;gap:16px 24px;min-width:0;padding:14px 0;border-top:1px solid var(--cs-access-line,#e2e7eb)}
+#cleanrooms-studio[data-page] .cs-person-pay-read-rule>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-read-amount{flex-shrink:0;max-width:48%;text-align:right}
+#cleanrooms-studio[data-page] .cs-person-pay-state{color:var(--cs-access-muted,#65727c);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page] .cs-person-pay-read-rule[data-state=off] .cs-person-pay-read-amount>strong{color:var(--cs-access-muted,#65727c);text-decoration:line-through}
+#cleanrooms-studio[data-page] .cs-person-pay-rules{display:flex;flex-direction:column;gap:16px;min-width:0;margin:0;padding:0;border:0}
+#cleanrooms-studio[data-page] .cs-person-pay-subtitle{margin:0 0 12px;padding:0;font-size:14px;font-weight:600;line-height:22px}
+#cleanrooms-studio[data-page] .cs-person-pay-rule{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,220px);gap:16px 24px;align-items:start;min-width:0;padding:16px 0;border-top:1px solid var(--cs-access-line,#e2e7eb)}
+#cleanrooms-studio[data-page] .cs-person-pay-rule>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-check{display:flex;align-items:flex-start;gap:12px;min-width:0;padding:12px 0;border-top:1px solid var(--cs-access-line,#e2e7eb);cursor:pointer}
+#cleanrooms-studio[data-page] .cs-person-pay-check input{flex:0 0 18px;width:18px;height:18px;margin:3px 0 0;accent-color:#467eae}
+#cleanrooms-studio[data-page] .cs-person-pay-check>span{min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:12px;min-width:0;padding-top:4px}
+#cleanrooms-studio[data-page] .cs-person-pay-preview{display:flex;flex-direction:column;gap:16px;min-width:0;padding:20px;border:1px solid #cddbe7;border-radius:6px;background:#f7fafc}
+#cleanrooms-studio[data-page] .cs-person-pay-preview-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-preview-columns>div{display:flex;flex-direction:column;gap:8px;min-width:0}
+#cleanrooms-studio[data-page] .cs-person-pay-preview>.cs-person-pay-button{align-self:flex-end}
+#cleanrooms-studio[data-page] .cs-person-pay-error,#cleanrooms-studio[data-page] .cs-person-pay-warning{margin:0;padding:14px 16px;border:1px solid #e8d6b8;border-radius:6px;background:#fffaf1;color:#7c571e;font-size:13px;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-person-pay-error>p{margin:0 0 8px}
+#cleanrooms-studio[data-page] .cs-person-pay-success{margin:0;color:#3d6658;font-size:13px;line-height:21px}
+@media(max-width:760px){#cleanrooms-studio[data-page] .cs-person-pay-group{gap:20px;padding:20px}#cleanrooms-studio[data-page] .cs-person-pay-head{flex-direction:column;gap:16px}#cleanrooms-studio[data-page] .cs-person-pay-input,#cleanrooms-studio[data-page] .cs-person-pay-group .cs-person-pay-button{min-height:44px!important}#cleanrooms-studio[data-page] .cs-person-pay-rule{grid-template-columns:minmax(0,1fr);gap:16px}#cleanrooms-studio[data-page] .cs-person-pay-preview-columns{grid-template-columns:minmax(0,1fr);gap:20px}#cleanrooms-studio[data-page] .cs-person-pay-preview{padding:16px}#cleanrooms-studio[data-page] .cs-person-pay-actions>.cs-person-pay-button{flex:1 1 140px}#cleanrooms-studio[data-page] .cs-person-pay-preview>.cs-person-pay-button{align-self:stretch;width:100%}#cleanrooms-studio[data-page] .cs-person-pay-read-rule{flex-direction:column;gap:8px}#cleanrooms-studio[data-page] .cs-person-pay-read-amount{max-width:100%;text-align:left}}
+@media(max-width:375px){#cleanrooms-studio[data-page] .cs-person-pay-group{padding:16px}#cleanrooms-studio[data-page] .cs-person-pay-summary{padding:14px}}

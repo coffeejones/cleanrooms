@@ -1,0 +1,1 @@
+CREATE INDEX `workspace_published_shifts_window` ON `workspace_published_shifts` (`workspace_id`,`work_date`,`id`);

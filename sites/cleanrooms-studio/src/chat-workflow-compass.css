@@ -1,0 +1,371 @@
+/* Chat uses a light directory rail, a white conversation, and outlined controls. */
+#cleanrooms-studio[data-page][data-role] .cs-chat-workspace {
+  --chat-rule:var(--cs-compass-rule);
+  --chat-ink:var(--cs-access-ink);
+  --chat-muted:var(--cs-access-muted);
+  border:1px solid var(--chat-rule);
+  border-radius:7px;
+  background:var(--cs-access-surface);
+  font-family:var(--cs-compass-font);
+}
+#cleanrooms-studio[data-page="chat"] .cs-main .cs-chat-host {
+  padding-block:16px;
+}
+#cleanrooms-studio[data-page="chat"] #cs-page-content:has(>.cs-chat-host) {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-sidebar {
+  border-start-start-radius:inherit;
+  border-end-start-radius:inherit;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-sidebar-head {
+  border-bottom:1px solid var(--chat-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-sidebar-head h2 {
+  color:var(--chat-ink);
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room-list {
+  padding-inline:0;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room {
+  margin:0;
+  padding-inline:16px;
+  border:0;
+  border-radius:0;
+  color:var(--chat-ink);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room + .cs-chat-room {
+  border-top:1px solid var(--chat-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room:is(:hover,[data-selected="true"]) {
+  background:var(--cs-compass-selected);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room[data-selected="true"] .cs-chat-room-top strong {
+  color:var(--cs-access-primary);
+  font-weight:700;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-room-mark,.cs-chat-empty-mark,.cs-chat-avatar) {
+  border-color:var(--chat-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--chat-muted);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-room[data-selected="true"] .cs-chat-room-mark,.cs-chat-message[data-own="true"]>.cs-chat-avatar) {
+  border-color:var(--chat-rule);
+  background:var(--cs-access-surface);
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-unread {
+  background:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-thread {
+  border-start-end-radius:inherit;
+  border-end-end-radius:inherit;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-thread-head {
+  min-height:68px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-thread-identity h2,.cs-chat-empty h3,.cs-chat-dialog-head h3,.cs-chat-message-meta strong) {
+  color:var(--chat-ink);
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-list-status,.cs-chat-room-department,.cs-chat-room-snippet,.cs-chat-room-muted,.cs-chat-affiliation,.cs-chat-thread-identity p,.cs-chat-thread-status,.cs-chat-empty p,.cs-chat-no-rooms,.cs-chat-date-divider,.cs-chat-message-meta time,.cs-chat-compose-hint,.cs-chat-feed-empty,.cs-chat-dialog-hint) {
+  color:var(--chat-muted);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-pinned,.cs-chat-preview-note,.cs-chat-dialog-foot) {
+  border-color:var(--chat-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-pinned-label,.cs-chat-message-pinned,.cs-chat-text-button) {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-date-divider::before,
+#cleanrooms-studio[data-page][data-role] .cs-chat-date-divider::after {
+  background:var(--chat-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-message-text {
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-message[data-own="true"] .cs-chat-message-text {
+  border-color:var(--chat-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-button,.cs-chat-retry,.cs-chat-new-messages,.cs-chat-message-menu-action,.cs-chat-sidebar-head>.cs-chat-icon-button) {
+  border-color:var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--chat-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-button,.cs-chat-retry,.cs-chat-new-messages,.cs-chat-message-menu-action,.cs-chat-icon-button):hover:not(:disabled) {
+  background:var(--cs-compass-selected);
+  color:var(--chat-ink);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-icon-button {
+  color:var(--chat-muted);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-input,.cs-chat-composer-frame) {
+  border-color:var(--cs-access-control-edge);
+  border-radius:6px;
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-compose-input {
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-compose-input::placeholder {
+  color:var(--chat-muted);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-chat-input:focus,.cs-chat-composer-frame:focus-within) {
+  border-color:var(--cs-access-blue);
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-workspace :is(button,summary,.cs-chat-feed):focus-visible {
+  outline-color:var(--cs-access-blue);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-room:focus-visible {
+  outline-offset:-3px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-send:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  border-radius:6px;
+  background:var(--cs-access-primary);
+  color:#fff;
+  font-weight:700;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-send:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-send:disabled {
+  border-color:var(--chat-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-disabled);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-dialog {
+  border-color:var(--chat-rule);
+  border-radius:7px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-dialog-head {
+  min-height:58px;
+  border-color:var(--chat-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-chat-dialog .cs-field-label {
+  color:var(--cs-access-body);
+  font-weight:600;
+}
+
+/* Both the manager directory and employee workflow use the same controls. */
+#cleanrooms-studio .cs-workflow {
+  --cs-workflow-rule:var(--cs-compass-rule);
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  font-family:var(--cs-compass-font);
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-host {
+  padding:12px 0 0;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-requests-directory,.cs-read-status,.cs-workflow-row-summary,.cs-workflow-detail-summary,.cs-workflow-note>p,.cs-workflow-request-people dd,.cs-workflow-message-metadata dd,.cs-workflow-decision-note>p) {
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-title,.cs-workflow-shift-time,.cs-workflow-row-copy>strong,.cs-requests-person>strong,.cs-requests-shift>strong,.cs-read-person>strong,.cs-read-progress>strong,.cs-read-change>strong,.cs-read-title,.cs-workflow-decision>.cs-workflow-section-title) {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-muted,.cs-workflow-detail-subtitle,.cs-workflow-label,.cs-workflow-receipt,.cs-workflow-timestamp,.cs-workflow-section-title,.cs-workflow-shift-date,.cs-workflow-request-people dt,.cs-workflow-message-metadata dt,.cs-workflow-change-context,.cs-requests-secondary,.cs-requests-summary,.cs-requests-type,.cs-read-muted,.cs-read-overview,.cs-read-date,.cs-read-message-summary) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-workflow .cs-workflow-tabs {
+  gap:4px;
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-tab {
+  position:relative;
+  height:44px!important;
+  min-height:44px!important;
+  margin:0;
+  padding:0 14px!important;
+  border:0;
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-tab:is([aria-selected="true"],:hover) {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-tab[aria-selected="true"]::after {
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:4px;
+  border-radius:4px 4px 0 0;
+  background:var(--cs-compass-indicator);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queues,.cs-read-filters,.cs-workflow-filters) {
+  padding:0;
+  border-bottom:1px solid var(--cs-workflow-rule);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter) {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--cs-access-muted);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter)[aria-pressed="true"] {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  box-shadow:inset 0 -2px var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-count,.cs-read-count) {
+  min-width:0;
+  padding:0;
+  background:transparent;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-search,.cs-read-search,.cs-workflow-search) {
+  background:transparent;
+  box-shadow:none;
+  --cs-ui-field-border:var(--cs-access-control-edge);
+  --cs-ui-field-background:var(--cs-access-surface);
+  --cs-ui-field-shadow:none;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-requests-input,.cs-read-input),
+#cleanrooms-studio[data-role] .cs-workflow-demo-person select {
+  border-color:var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(button,input,select,textarea):focus-visible,
+#cleanrooms-studio[data-role] .cs-workflow-demo-tools :is(button,select):focus-visible {
+  outline-color:var(--cs-access-blue);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-button,.cs-requests-button,.cs-read-button) {
+  border-color:var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-ink);
+  font-weight:700;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-button,.cs-requests-button,.cs-read-button):hover:not(:disabled) {
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-compass-selected);
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:#fff;
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-back,.cs-read-back) {
+  color:var(--cs-access-primary);
+  font-weight:700;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) {
+  border:1px solid var(--cs-workflow-rule);
+  border-collapse:separate;
+  border-spacing:0;
+  border-radius:7px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) :is(th,td) {
+  border-color:var(--cs-workflow-rule);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) thead th {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:700;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) thead th:first-child {
+  border-start-start-radius:6px;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) thead th:last-child {
+  border-start-end-radius:6px;
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table,.cs-workflow-change-table) tbody tr:last-child :is(th,td) {
+  border-bottom:0;
+}
+#cleanrooms-studio .cs-workflow .cs-read-table :is(th,td):first-child {
+  padding-inline-start:12px;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-requests-table,.cs-read-table) :is(th,td):last-child {
+  padding-inline-end:12px;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-state,.cs-requests-status)[data-state="approved"],
+#cleanrooms-studio .cs-workflow .cs-workflow-state[data-state="read"] {
+  color:var(--cs-access-success);
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-state,.cs-requests-status)[data-state="approved"]::before,
+#cleanrooms-studio .cs-workflow .cs-workflow-state[data-state="read"]::before {
+  background:currentColor;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-request-summary,.cs-workflow-note,.cs-workflow-shift-facts,.cs-workflow-preview) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-workflow .cs-workflow-request-summary,
+#cleanrooms-studio .cs-workflow .cs-workflow-preview {
+  border:1px solid var(--cs-workflow-rule);
+}
+#cleanrooms-studio .cs-workflow-request-summary>.cs-workflow-shift-facts,
+#cleanrooms-studio .cs-workflow-request-detail>.cs-workflow-note {
+  background:transparent;
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-decision,.cs-workflow-related,.cs-workflow-message-marker) {
+  border-color:var(--cs-workflow-rule);
+}
+#cleanrooms-studio .cs-workflow .cs-workflow-success {
+  border-color:var(--cs-access-success-edge);
+  background:var(--cs-access-success-soft);
+  color:var(--cs-access-success);
+}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-message-row,.cs-workflow-request-row):hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-workflow-demo-detail {
+  border-color:var(--cs-compass-rule);
+  border-radius:7px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  font-family:var(--cs-compass-font);
+}
+#cleanrooms-studio .cs-workflow-demo-detail :is(h3,.cs-workflow-shift-time) {
+  color:var(--cs-access-ink);
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="chat"] .cs-main .cs-chat-host {
+    padding-block:12px;
+  }
+  #cleanrooms-studio[data-page][data-role] :is(.cs-chat-sidebar,.cs-chat-thread) {
+    border-radius:inherit;
+  }
+  #cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table) tbody tr {
+    padding:14px 12px;
+    border-color:var(--cs-workflow-rule);
+  }
+  #cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-table,.cs-read-table) tbody tr:first-child {
+    border-top:0;
+  }
+}

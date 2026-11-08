@@ -1,0 +1,41 @@
+/* Motion explains a change of context; the calendar's data stays still. */
+#cleanrooms-studio{--cs-motion-enter:200ms;--cs-motion-exit:140ms;--cs-motion-small:140ms;--cs-motion-ease:cubic-bezier(.22,.68,0,1)}
+#cleanrooms-studio button:enabled{transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease,box-shadow 120ms ease}
+#cleanrooms-studio .cs-time-group .cs-event,#cleanrooms-studio .cs-board-day{transition:background-color 120ms ease,box-shadow 120ms ease}
+#cleanrooms-studio .cs-event-select-mark{transition:background-color 120ms ease,border-color 120ms ease}
+
+/* Older engines keep immediate dismissal and a small entrance animation. */
+#cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden])>:is(.cs-editor,.cs-review-panel,.cs-operations-panel){animation:cs-sheet-enter var(--cs-motion-enter) var(--cs-motion-ease)}
+#cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden])>.cs-backdrop{animation:cs-backdrop-enter var(--cs-motion-small) ease-out}
+#cleanrooms-studio :is(.cs-person-picker,.cs-date-jump-panel):not([hidden]){animation:cs-popover-enter var(--cs-motion-small) ease-out}
+#cleanrooms-studio :is(.cs-toast,.cs-selection-bar):not([hidden]){animation:cs-feedback-enter var(--cs-motion-small) ease-out}
+#cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer)[hidden]{pointer-events:none}
+
+/* Display transitions preserve hidden state and synchronous focus restoration. */
+@supports (transition-behavior:allow-discrete){
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer){
+    --cs-sheet-duration:var(--cs-motion-enter);opacity:1;
+    transition:opacity var(--cs-sheet-duration) ease,display var(--cs-sheet-duration) allow-discrete;
+  }
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer)>:is(.cs-editor,.cs-review-panel,.cs-operations-panel){
+    transform:translateX(0);transition:transform var(--cs-sheet-duration) var(--cs-motion-ease);
+  }
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden])>:is(.cs-editor,.cs-review-panel,.cs-operations-panel),
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden])>.cs-backdrop{animation:none}
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer)[hidden]{--cs-sheet-duration:var(--cs-motion-exit);opacity:0;pointer-events:none}
+  #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer)[hidden]>:is(.cs-editor,.cs-review-panel,.cs-operations-panel){transform:translateX(16px)}
+  /* A handoff paints only the new sheet, including higher-z replacements. */
+  #cleanrooms-studio:has(>:is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden]))>:is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer)[hidden]{transition:none}
+  @starting-style{
+    #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden]){opacity:0}
+    #cleanrooms-studio :is(.cs-editor-layer,.cs-review-layer,.cs-group-layer,.cs-operations-layer):not([hidden])>:is(.cs-editor,.cs-review-panel,.cs-operations-panel){transform:translateX(16px)}
+  }
+}
+@keyframes cs-sheet-enter{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cs-backdrop-enter{from{opacity:0}to{opacity:1}}
+@keyframes cs-popover-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cs-feedback-enter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+@media(prefers-reduced-motion:reduce){
+  #cleanrooms-studio *,#cleanrooms-studio *::before,#cleanrooms-studio *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

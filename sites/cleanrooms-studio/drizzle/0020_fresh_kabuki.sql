@@ -1,0 +1,1 @@
+ALTER TABLE `studio_states` ADD `demo_seed` integer;

@@ -1,0 +1,43 @@
+#cleanrooms-studio .cs-gps-address-control {
+  display:grid;
+  gap:7px;
+}
+#cleanrooms-studio .cs-gps-address-anchor {
+  position:relative;
+}
+#cleanrooms-studio .cs-gps-address-suggestions {
+  position:absolute;
+  z-index:3;
+  inset:calc(100% + 4px) 0 auto;
+  max-height:276px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:4px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  box-shadow:0 5px 16px #001e2b1a;
+}
+#cleanrooms-studio .cs-gps-address-option {
+  display:block;
+  width:100%;
+  min-height:36px;
+  padding:8px 10px;
+  border:0;
+  border-radius:3px;
+  background:transparent;
+  color:var(--cs-access-ink);
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-gps-address-option:hover,
+#cleanrooms-studio .cs-gps-address-option[aria-selected="true"] {
+  background:var(--cs-compass-selected);
+}
+#cleanrooms-studio .cs-gps-address-undo {
+  justify-self:start;
+}
+@media (pointer:coarse) {
+  #cleanrooms-studio .cs-gps-address-option {min-height:44px}
+}

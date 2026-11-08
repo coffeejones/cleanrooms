@@ -1,0 +1,125 @@
+#cleanrooms-studio .cs-week-planned-cost {
+  display:inline-flex;
+  align-items:baseline;
+  gap:2px;
+  padding:2px 0;
+  border:0;
+  border-radius:2px;
+  background:transparent;
+  color:var(--cs-access-body,#34454f);
+  font:inherit;
+  font-size:12px;
+  font-weight:550;
+  font-variant-numeric:tabular-nums;
+  line-height:20px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-week-planned-cost::before {
+  content:'·';
+  margin-inline:0 5px;
+  color:var(--cs-access-muted,#5c6c75);
+}
+#cleanrooms-studio .cs-week-planned-cost:hover {color:var(--cs-access-primary,#00684a);text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio .cs-week-planned-cost:focus-visible {outline:2px solid var(--cs-access-blue,#016bf8);outline-offset:4px}
+#cleanrooms-studio .cs-week-planned-cost[data-state]:not([data-state="ready"]) {color:var(--cs-access-muted,#5c6c75);font-weight:400}
+#cleanrooms-studio .cs-week-cost-incomplete {font-size:12px;font-weight:650}
+#cleanrooms-studio .cs-planning-cost-layer {
+  position:fixed;
+  inset:0;
+  z-index:350;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+#cleanrooms-studio .cs-planning-cost-layer[hidden] {display:none}
+#cleanrooms-studio .cs-planning-cost-backdrop {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  border-radius:0;
+  background:rgba(0,30,43,.24);
+  cursor:default;
+}
+#cleanrooms-studio .cs-planning-cost-dialog {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  width:min(780px,100%);
+  max-height:min(760px,calc(100dvh - 48px));
+  min-width:0;
+  border:1px solid var(--cs-compass-rule,#dfe5e3);
+  border-radius:9px;
+  background:var(--cs-access-surface,#fff);
+  color:var(--cs-access-body,#34454f);
+  box-shadow:0 16px 64px rgba(0,30,43,.18),0 2px 8px rgba(0,30,43,.08);
+  overflow:hidden;
+}
+#cleanrooms-studio .cs-planning-cost-header {
+  display:flex;
+  flex:none;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--cs-compass-rule,#dfe5e3);
+}
+#cleanrooms-studio .cs-planning-cost-title {margin:0;color:var(--cs-access-ink,#001e2b);font-size:18px;font-weight:650;line-height:25px;letter-spacing:-.2px}
+#cleanrooms-studio .cs-planning-cost-context {margin:5px 0 0;font-size:12px;color:var(--cs-access-muted,#5c6c75);line-height:19px}
+#cleanrooms-studio .cs-planning-cost-close {
+  display:grid;
+  flex:none;
+  place-items:center;
+  width:32px;
+  height:32px;
+  padding:0;
+  border:1px solid var(--cs-access-control-edge,#89979d);
+  border-radius:6px;
+  background:var(--cs-access-surface,#fff);
+  color:var(--cs-access-body,#34454f);
+  font-size:22px;
+  font-weight:400;
+  line-height:1;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-planning-cost-close:hover {background:var(--cs-access-soft,#f7faf9)}
+#cleanrooms-studio .cs-planning-cost-body {min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 24px;scrollbar-gutter:stable}
+#cleanrooms-studio .cs-planning-cost-search {width:min(320px,100%);height:36px;margin:0 0 16px;padding:0 11px;border:1px solid var(--cs-access-control-edge,#89979d);border-radius:6px;background:#fff;color:inherit;font:inherit;font-size:13px}
+#cleanrooms-studio .cs-planning-cost-table-scroll {overflow-x:auto}
+#cleanrooms-studio .cs-planning-cost-table {width:100%;border-collapse:collapse;font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-planning-cost-table :is(th,td) {padding:11px 9px;text-align:right;white-space:nowrap;vertical-align:middle}
+#cleanrooms-studio .cs-planning-cost-table :is(th,td):first-child {padding-left:0;text-align:left;white-space:normal;min-width:155px}
+#cleanrooms-studio .cs-planning-cost-table :is(th,td):last-child {padding-right:0}
+#cleanrooms-studio .cs-planning-cost-table thead th {padding-top:0;padding-bottom:10px;border-bottom:1px solid var(--cs-compass-rule,#dfe5e3);color:var(--cs-access-muted,#5c6c75);font-size:12px;font-weight:550}
+#cleanrooms-studio .cs-planning-cost-table tbody tr+tr {border-top:1px solid var(--cs-compass-rule,#e7ecea)}
+#cleanrooms-studio .cs-planning-cost-person {font-weight:550;color:var(--cs-access-ink,#001e2b)}
+#cleanrooms-studio .cs-planning-cost-person-note {display:block;margin-top:2px;color:var(--cs-access-muted,#5c6c75);font-size:11px;font-weight:400;line-height:17px}
+#cleanrooms-studio .cs-planning-cost-person-total {font-weight:550;color:var(--cs-access-ink,#001e2b)}
+#cleanrooms-studio .cs-planning-cost-state,#cleanrooms-studio .cs-planning-cost-empty {margin:6px 0;color:var(--cs-access-muted,#5c6c75);font-size:13px;line-height:21px}
+#cleanrooms-studio .cs-planning-cost-warning {margin:16px 0 0;padding-top:14px;border-top:1px solid var(--cs-compass-rule,#dfe5e3);color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-planning-cost-pagination {display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;font-size:12px}
+#cleanrooms-studio .cs-planning-cost-pagination>span {margin-right:auto;color:var(--cs-access-muted,#5c6c75)}
+#cleanrooms-studio .cs-planning-cost-footer {flex:none;padding:18px 24px 20px;border-top:1px solid var(--cs-compass-rule,#dfe5e3);background:var(--cs-access-soft,#f9fbfa)}
+#cleanrooms-studio .cs-planning-cost-footer:empty {display:none}
+#cleanrooms-studio .cs-planning-cost-total {display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:13px}
+#cleanrooms-studio .cs-planning-cost-total strong {font-size:19px;line-height:26px;font-weight:650;color:var(--cs-access-ink,#001e2b);font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-planning-cost-total-detail {margin:5px 0 0;text-align:right;color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:19px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-planning-cost-footnote {margin:14px 0 0;color:var(--cs-access-muted,#5c6c75);font-size:11px;line-height:17px}
+#cleanrooms-studio .cs-planning-cost-dialog .cs-button {min-height:34px;height:34px;padding:0 12px;border:1px solid var(--cs-access-control-edge,#89979d);border-radius:6px;background:var(--cs-access-surface,#fff);color:var(--cs-access-body,#34454f);box-shadow:none;font-size:12px;cursor:pointer}
+#cleanrooms-studio .cs-planning-cost-dialog .cs-button:disabled {opacity:.45;cursor:default}
+#cleanrooms-studio .cs-planning-cost-dialog :is(button,input):focus-visible {outline:2px solid var(--cs-access-blue,#016bf8);outline-offset:3px}
+@media(max-width:650px){
+  #cleanrooms-studio .cs-planning-cost-layer {padding:12px}
+  #cleanrooms-studio .cs-planning-cost-dialog {max-height:calc(100dvh - 24px)}
+  #cleanrooms-studio .cs-planning-cost-header {padding:18px 16px 16px}
+  #cleanrooms-studio .cs-planning-cost-body {padding:16px;scrollbar-gutter:auto}
+  #cleanrooms-studio .cs-planning-cost-footer {padding:16px}
+  #cleanrooms-studio .cs-planning-cost-close {width:36px;height:36px}
+  #cleanrooms-studio .cs-planning-cost-dialog .cs-button {min-height:40px;height:40px}
+}
+@media(prefers-reduced-motion:no-preference){
+  #cleanrooms-studio .cs-planning-cost-layer:not([hidden]) .cs-planning-cost-dialog {animation:cs-planning-cost-enter 150ms ease-out}
+  @keyframes cs-planning-cost-enter {from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `workspace_roles` ADD `write_token` text DEFAULT '' NOT NULL;

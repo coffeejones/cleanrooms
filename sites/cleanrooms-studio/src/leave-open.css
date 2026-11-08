@@ -1,0 +1,30 @@
+/* Leave decisions use the same open rows as the employee directory. */
+#cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:first-child{width:31%}
+#cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:nth-child(2){width:25%}
+#cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:nth-child(3){width:16%}
+#cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:last-child{width:28%}
+#cleanrooms-studio[data-page="leave"] .cs-admin-period-cell{color:#39474f;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="leave"] .cs-admin-type-cell{color:#737c82}
+#cleanrooms-studio[data-page="leave"] .cs-admin-status[data-state]{gap:7px;padding:0;border:0;border-radius:0;background:transparent;font-size:12px;line-height:20px;white-space:normal}
+#cleanrooms-studio[data-page="leave"] .cs-admin-status::before{content:"";display:inline-block;flex:0 0 4px;width:4px;height:4px;border-radius:50%;background:currentColor}
+#cleanrooms-studio[data-page="leave"] .cs-admin-status[data-state="pending"]{color:#8b641f}
+#cleanrooms-studio[data-page="leave"] .cs-admin-status[data-state="approved"]{color:var(--cs-access-success)}
+#cleanrooms-studio[data-page="leave"] .cs-admin-status[data-state="rejected"]{color:var(--cs-access-danger)}
+#cleanrooms-studio[data-page="leave"] .cs-request-actions{align-items:center;flex-direction:row;gap:8px;margin:12px 0 0}
+#cleanrooms-studio[data-page="leave"] .cs-request-actions .cs-button{height:40px;min-height:40px;padding-inline:12px;font-size:13px}
+#cleanrooms-studio[data-page="leave"] .cs-request-actions .cs-button:focus-visible{outline-offset:-2px}
+
+@media(min-width:1380px){
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:first-child{width:31%}
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:nth-child(2){width:22%}
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:nth-child(3){width:16%}
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tr>:last-child{width:31%}
+ #cleanrooms-studio[data-page="leave"] .cs-request-actions{display:inline-flex;vertical-align:middle;margin:0 0 0 18px}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list tbody>tr{row-gap:18px}
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list td.cs-admin-status-cell{padding-top:2px}
+ #cleanrooms-studio[data-page="leave"] .cs-admin-surface .cs-list td.cs-admin-status-cell::before{margin-bottom:7px}
+ #cleanrooms-studio[data-page="leave"] .cs-request-actions{margin-top:12px}
+ #cleanrooms-studio[data-page="leave"] .cs-request-actions .cs-button{height:44px;min-height:44px;padding-inline:16px}
+}

@@ -1,0 +1,9 @@
+html, body, #root { height: 100%; margin: 0; }
+body { background: #f6f8f7; }
+#root { width: 100%; max-width: 520px; margin: 0 auto; background: #fff; }
+* { box-sizing: border-box; }
+input, textarea, button { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+[data-testid="settings-switches"] label { width: 100%; justify-content: space-between; min-height: 44px; }

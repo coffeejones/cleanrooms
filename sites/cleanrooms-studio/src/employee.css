@@ -1,0 +1,150 @@
+/* A personal calendar stays visible while shift instructions open in a drawer. */
+#cleanrooms-studio .cs-employee-shell{display:flex;flex:1;flex-direction:column;width:100%;height:100%;min-width:0;min-height:0;container-type:inline-size;background:#fff}
+#cleanrooms-studio .cs-employee-page{--cs-employee-gutter:24px;display:flex;flex:1;flex-direction:column;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#fff;color:#30353c}
+#cleanrooms-studio .cs-employee-next{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-shrink:0;min-width:0;margin:0;padding:16px var(--cs-employee-gutter);border-bottom:1px solid #25303d;background:#303c4b;color:#fff}
+#cleanrooms-studio .cs-employee-next-copy{flex:1;min-width:0}
+#cleanrooms-studio .cs-employee-eyebrow{display:block;margin:0 0 4px;color:#c0c8d2;font-size:11px;font-weight:400;line-height:16px}
+#cleanrooms-studio .cs-employee-next-time{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 16px;min-width:0;margin:0;color:#fff;font-size:19px;font-weight:500;line-height:25px;letter-spacing:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-next-date{color:#d4dbe3;font-size:12px;font-weight:400;line-height:18px}
+#cleanrooms-studio .cs-employee-next-site{margin:4px 0 0;color:#f0f3f6;font-size:12px;font-weight:400;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-address{display:block;min-width:0;margin:4px 0 0;color:#727b87;font-size:12px;line-height:18px;font-weight:400;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-next .cs-employee-address{margin-top:2px;color:#b8c2cf;font-size:11px;line-height:16px}
+#cleanrooms-studio .cs-employee-next>.cs-button{flex-shrink:0;white-space:nowrap;background:#fff;color:#303c4b;border-color:#fff;box-shadow:none}
+#cleanrooms-studio .cs-employee-next>.cs-button:hover:not(:disabled){background:#edf0f4;border-color:#edf0f4;color:#25303d}
+#cleanrooms-studio .cs-employee-next-empty{margin:0;color:#fff;font-size:15px;font-weight:500;line-height:22px;letter-spacing:0}
+#cleanrooms-studio .cs-employee-muted{min-width:0;margin:4px 0 0;color:#727b87;font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-next .cs-employee-muted{color:#c0c8d2}
+#cleanrooms-studio .cs-employee-calendar-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;flex-shrink:0;min-width:0;padding:16px var(--cs-employee-gutter);border-bottom:1px solid #dce1e7;background:#fff}
+#cleanrooms-studio .cs-employee-period-copy{flex:1;min-width:160px}
+#cleanrooms-studio .cs-employee-period-title{min-width:0;margin:0;color:#30353c;font-size:18px;font-weight:500;line-height:24px;letter-spacing:0;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-period-title::first-letter{text-transform:uppercase}
+#cleanrooms-studio .cs-employee-period-total{display:block;min-width:0;margin-top:3px;color:#7a8390;font-size:11px;line-height:17px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-employee-calendar-tools{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%}
+#cleanrooms-studio .cs-employee-calendar-tools>.cs-button{flex-shrink:0}
+#cleanrooms-studio .cs-employee-date-label{display:block;min-width:0;margin:0}
+#cleanrooms-studio .cs-employee-calendar-tools .cs-employee-date{box-sizing:border-box;display:block;width:130px;min-width:0;max-width:100%;height:32px;min-height:32px;margin:0;padding:0 8px;border:1px solid #cbd3dd;border-radius:5px;background:#fff;color:#566270;font-family:inherit;font-size:12px;line-height:18px;box-shadow:inset 0 1px 2px #1e293b07}
+#cleanrooms-studio .cs-employee-view-switch{display:inline-flex;flex-shrink:0;align-items:stretch;max-width:100%;height:32px;min-height:32px;margin:0;padding:0;overflow:hidden;border:1px solid #cbd3dd;border-radius:5px;background:#fff}
+#cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button{display:flex;align-items:center;justify-content:center;min-width:0;height:30px;min-height:30px;margin:0;padding:0 12px;border:0;border-left:1px solid #e0e5eb;border-radius:0;background:#fff;color:#68717d;font-family:inherit;font-size:12px;font-weight:400;line-height:18px;cursor:pointer;box-shadow:none}
+#cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button:first-child{border-left:0}
+#cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button[aria-pressed="true"]{background:#e9edf2;color:#303c4b;font-weight:500}
+#cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button:hover:not([aria-pressed="true"]){background:#f6f8fa}
+#cleanrooms-studio .cs-employee-view-button:focus-visible{outline-offset:-2px}
+#cleanrooms-studio .cs-employee-calendar{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:#fff}
+#cleanrooms-studio .cs-employee-calendar-scroll{position:relative;flex:1;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-gutter:stable}
+#cleanrooms-studio .cs-employee-weekdays{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;border-bottom:1px solid #dce1e7;background:#fafbfc}
+#cleanrooms-studio .cs-employee-weekdays>span{min-width:0;padding:8px 10px;color:#68717d;font-size:11px;line-height:16px;text-align:left}
+#cleanrooms-studio .cs-employee-weekdays>.is-weekend{color:#929aa5}
+#cleanrooms-studio .cs-employee-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(94px,auto);min-width:0;min-height:calc(100% - 33px);background:#fff}
+#cleanrooms-studio .cs-employee-calendar[data-view="week"] .cs-employee-calendar-grid{grid-auto-rows:minmax(340px,1fr)}
+#cleanrooms-studio .cs-employee-calendar-day{display:flex;flex-direction:column;gap:6px;min-width:0;margin:0;padding:8px 6px 10px;border-right:1px solid #e4e8ed;border-bottom:1px solid #e4e8ed;background:#fff}
+#cleanrooms-studio .cs-employee-calendar-day:nth-child(7n){border-right:0}
+#cleanrooms-studio .cs-employee-calendar-day.is-outside{background:#fafbfc}
+#cleanrooms-studio .cs-employee-calendar-day.is-focused-date{background:#f4f6f9}
+#cleanrooms-studio .cs-employee-calendar-date{display:flex;align-items:center;gap:4px;align-self:flex-start;min-width:26px;height:26px;min-height:26px;margin:0;padding:0 5px;border:0;border-radius:3px;background:transparent;color:#5e6876;font-family:inherit;line-height:20px;text-align:left;cursor:pointer;box-shadow:none}
+#cleanrooms-studio .cs-employee-day-number{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-employee-day-month{color:#929aa5;font-size:10px;font-weight:400}
+#cleanrooms-studio .is-outside .cs-employee-calendar-date{color:#a3aab4}
+#cleanrooms-studio .cs-employee-calendar-date:hover{background:#e9edf2}
+#cleanrooms-studio .is-today .cs-employee-calendar-date{background:#384659;color:#fff}
+#cleanrooms-studio .is-today .cs-employee-day-month{color:#d3dae3}
+#cleanrooms-studio .cs-employee-day-shifts{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cleanrooms-studio .cs-employee-shift{box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-width:0;margin:0;padding:8px;border:1px solid #dbe1e8;border-radius:1px;background:#f0f3f7;color:#384659;text-align:left;font-family:inherit;cursor:pointer;box-shadow:none;overflow:hidden}
+#cleanrooms-studio .cs-employee-shift:hover{background:#e6ebf2;border-color:#c5ced9}
+#cleanrooms-studio .cs-employee-shift[aria-pressed="true"]{background:#e2e8f0;border-color:#99a7b9}
+#cleanrooms-studio .cs-employee-shift:focus-visible{outline:2px solid #64758b;outline-offset:-2px}
+#cleanrooms-studio .cs-employee-shift-time{display:block;min-width:0;max-width:100%;color:inherit;font-size:12px;font-weight:500;line-height:17px;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.15px}
+#cleanrooms-studio .cs-employee-time-short{display:none}
+#cleanrooms-studio .cs-employee-shift-site{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;min-width:0;max-width:100%;color:#566579;font-size:11px;font-weight:400;line-height:16px;overflow:hidden;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-shift-progress{display:block;min-width:0;max-width:100%;margin-top:2px;color:#798596;font-size:10px;font-weight:400;line-height:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#cleanrooms-studio .cs-employee-calendar-empty{min-width:0;margin:0;padding:12px var(--cs-employee-gutter);border-bottom:1px solid #e4e8ed;background:#fafbfc;color:#7a8390;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-timeline-head{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0;padding:10px 16px 10px 60px;border-bottom:1px solid #dce1e7;background:#fafbfc;color:#68717d;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-timeline-head .cs-employee-muted{margin:0;font-size:11px}
+#cleanrooms-studio .cs-employee-timeline{position:relative;display:flex;min-width:0;margin:16px 0 24px}
+#cleanrooms-studio .cs-employee-time-axis{position:relative;flex:0 0 56px;min-width:0}
+#cleanrooms-studio .cs-employee-hour{position:absolute;right:10px;color:#8a94a1;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums;transform:translateY(-50%)}
+#cleanrooms-studio .cs-employee-time-canvas{position:relative;flex:1;min-width:0;margin-right:16px;border-left:1px solid #e4e8ed}
+#cleanrooms-studio .cs-employee-hour-line{position:absolute;left:0;right:0;border-top:1px solid #e8ecf0;pointer-events:none}
+#cleanrooms-studio .cs-employee-shift-day{position:absolute;z-index:1;min-height:30px;padding:12px}
+#cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-time{font-size:14px;line-height:20px}
+#cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-site{font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-progress{font-size:11px;line-height:17px}
+#cleanrooms-studio .cs-employee-layer{--cs-employee-gutter:24px;position:fixed;inset:0;z-index:40;display:flex;min-width:0;min-height:0}
+#cleanrooms-studio .cs-employee-backdrop{position:absolute;inset:0;display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:#27334245;cursor:default;box-shadow:none}
+#cleanrooms-studio .cs-employee-detail{position:relative;display:flex;flex-direction:column;width:440px;max-width:100%;height:100%;min-width:0;min-height:0;margin-left:auto;border-left:1px solid #cfd7e0;background:#fff;color:#30353c;box-shadow:-8px 0 32px #1e293b1f;outline:none}
+#cleanrooms-studio .cs-employee-detail-head{flex-shrink:0;min-width:0;padding:20px var(--cs-employee-gutter);border-bottom:1px solid #e2e7ed}
+#cleanrooms-studio .cs-employee-detail-head-top{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0;margin-bottom:20px}
+#cleanrooms-studio .cs-employee-detail-title{min-width:0;margin:0;color:#4a5666;font-size:14px;font-weight:500;line-height:20px;letter-spacing:0}
+#cleanrooms-studio .cs-employee-detail-head-top>.cs-icon-button{flex-shrink:0}
+#cleanrooms-studio .cs-employee-detail-date{min-width:0;margin:0 0 6px;color:#68717d;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-detail-time{min-width:0;margin:0;color:#30353c;font-size:22px;font-weight:500;line-height:29px;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-employee-detail-site{min-width:0;margin:12px 0 0;color:#4a5666;font-size:13px;font-weight:500;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-detail-body{flex:1;min-width:0;min-height:0;padding:20px var(--cs-employee-gutter) 24px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
+#cleanrooms-studio .cs-employee-instructions-title{min-width:0;margin:0 0 12px;color:#4a5666;font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio .cs-employee-instructions{min-width:0;max-width:100%;font-size:14px;line-height:1.7}
+#cleanrooms-studio .cs-employee-instructions li[data-type="taskItem"]{gap:12px;margin:8px 0}
+#cleanrooms-studio .cs-employee-instructions li[data-type="taskItem"]>label{flex-basis:24px;min-height:24px;margin-top:1px;align-items:center}
+#cleanrooms-studio .cs-employee-instructions li[data-type="taskItem"]>label input{width:18px;min-width:18px;max-width:18px;height:18px;min-height:18px;accent-color:#566579}
+#cleanrooms-studio .cs-employee-instructions li[data-type="taskItem"]>label input:disabled{opacity:.55;cursor:default}
+#cleanrooms-studio .cs-employee-task-summary{min-width:0;margin:0 0 8px}
+#cleanrooms-studio .cs-employee-task-count{display:block;min-width:0;color:#4a5666;font-size:12px;font-weight:500;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-task-bar{appearance:none;display:block;width:100%;height:4px;margin:8px 0 0;overflow:hidden;border:0;border-radius:0;background:#e9edf1;accent-color:#637184}
+#cleanrooms-studio .cs-employee-task-bar::-webkit-progress-bar{background:#e9edf1}
+#cleanrooms-studio .cs-employee-task-bar::-webkit-progress-value{background:#637184}
+#cleanrooms-studio .cs-employee-task-bar::-moz-progress-bar{background:#637184}
+#cleanrooms-studio .cs-employee-save-status{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-width:0;min-height:18px;margin:0 0 24px;color:#7a8390}
+#cleanrooms-studio .cs-employee-save-message{min-width:0;color:inherit;font-size:11px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-employee-save-status[data-state="error"]{color:#8b5d52}
+#cleanrooms-studio .cs-employee-save-status .cs-button{flex-shrink:0}
+@container(max-width:1000px){
+ #cleanrooms-studio .cs-employee-calendar-toolbar{gap:12px 16px}
+ #cleanrooms-studio .cs-employee-period-copy{flex-basis:calc(100% - 190px)}
+ #cleanrooms-studio .cs-employee-calendar-tools{order:3}
+ #cleanrooms-studio .cs-employee-view-switch{margin-left:auto}
+ #cleanrooms-studio .cs-employee-time-full{display:none}
+ #cleanrooms-studio .cs-employee-time-short{display:inline}
+ #cleanrooms-studio .cs-employee-shift-day .cs-employee-time-full{display:inline}
+ #cleanrooms-studio .cs-employee-shift-day .cs-employee-time-short{display:none}
+ #cleanrooms-studio .cs-employee-progress-label{display:none}
+}
+@container(max-width:600px){
+ #cleanrooms-studio .cs-employee-page,#cleanrooms-studio .cs-employee-layer{--cs-employee-gutter:20px}
+ #cleanrooms-studio .cs-employee-next{gap:12px;padding-block:12px}
+ #cleanrooms-studio .cs-employee-next-time{gap:2px 12px;font-size:17px;line-height:23px}
+ #cleanrooms-studio .cs-employee-next-date{flex-basis:100%;font-size:11px;line-height:16px}
+ #cleanrooms-studio .cs-employee-next .cs-employee-address{display:none}
+ #cleanrooms-studio .cs-employee-next-site{margin-top:3px;font-size:11px;line-height:16px}
+ #cleanrooms-studio .cs-employee-calendar-toolbar{gap:10px 8px;padding-block:12px}
+ #cleanrooms-studio .cs-employee-period-copy{min-width:0;flex:1 1 120px}
+ #cleanrooms-studio .cs-employee-period-title{font-size:16px;line-height:22px}
+ #cleanrooms-studio .cs-employee-period-total{margin-top:1px;font-size:10px;line-height:16px}
+ #cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button{padding-inline:9px;font-size:11px}
+ #cleanrooms-studio .cs-employee-calendar-tools{width:100%;gap:8px}
+ #cleanrooms-studio .cs-employee-date-label{flex:1}
+ #cleanrooms-studio .cs-employee-calendar-tools .cs-employee-date{width:100%;font-size:11px}
+ #cleanrooms-studio .cs-employee-weekdays>span{padding:7px 2px;font-size:10px;text-align:center}
+ #cleanrooms-studio .cs-employee-calendar-grid{grid-auto-rows:minmax(86px,auto)}
+ #cleanrooms-studio .cs-employee-calendar-day{gap:4px;padding:5px 2px 7px}
+ #cleanrooms-studio .cs-employee-calendar-date{align-self:center;justify-content:center;min-width:23px;height:23px;min-height:23px;padding-inline:3px}
+ #cleanrooms-studio .cs-employee-day-number{font-size:11px}
+ #cleanrooms-studio .cs-employee-day-month{display:none}
+ #cleanrooms-studio .cs-employee-shift{gap:2px;padding:5px 2px}
+ #cleanrooms-studio .cs-employee-shift-time{font-size:10px;line-height:15px;letter-spacing:-.2px}
+ #cleanrooms-studio .cs-employee-shift-site{font-size:10px;line-height:14px}
+ #cleanrooms-studio .cs-employee-shift-month .cs-employee-shift-site,#cleanrooms-studio .cs-employee-shift-week .cs-employee-shift-site{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;-webkit-line-clamp:unset}
+ #cleanrooms-studio .cs-employee-shift-progress{margin-top:1px;font-size:9px;line-height:13px}
+ #cleanrooms-studio .cs-employee-calendar[data-view="week"] .cs-employee-calendar-day{padding-top:8px}
+ #cleanrooms-studio .cs-employee-detail{width:100%;border-left:0}
+ #cleanrooms-studio .cs-employee-detail-head{padding-block:16px}
+ #cleanrooms-studio .cs-employee-shift-day{gap:4px;padding:10px}
+ #cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-time{font-size:14px}
+ #cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-site{font-size:12px;line-height:18px}
+ #cleanrooms-studio .cs-employee-shift-day .cs-employee-shift-progress{font-size:11px;line-height:17px}
+}
+@container(max-width:375px){
+ #cleanrooms-studio .cs-employee-page,#cleanrooms-studio .cs-employee-layer{--cs-employee-gutter:16px}
+ #cleanrooms-studio .cs-employee-period-title{font-size:15px;line-height:21px}
+ #cleanrooms-studio .cs-employee-view-switch>.cs-employee-view-button{padding-inline:7px}
+ #cleanrooms-studio .cs-employee-calendar-toolbar{column-gap:6px}
+ #cleanrooms-studio .cs-employee-calendar-day{padding-inline:1px}
+ #cleanrooms-studio .cs-employee-shift{padding-inline:1px}
+}

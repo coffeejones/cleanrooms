@@ -1,0 +1,83 @@
+/* Common palette and header for the Compass workspaces. */
+#cleanrooms-studio .cs-compass-context{display:none}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"],[data-page="schedule"],[data-role="employee"]){
+  --cs-compass-font:"Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif;
+  --cs-compass-gutter:24px;
+  --cs-compass-rule:#e2e8e6;
+  --cs-access-ink:#001e2b;
+  --cs-access-body:#1c2d38;
+  --cs-access-muted:#5c6c75;
+  --cs-access-disabled:#66767c;
+  --cs-access-canvas:#fff;
+  --cs-access-surface:#fff;
+  --cs-access-soft:#f6f8f7;
+  --cs-access-border:var(--cs-compass-rule);
+  --cs-access-line:var(--cs-compass-rule);
+  --cs-access-control-edge:#889397;
+  --cs-access-primary:#00684a;
+  --cs-access-primary-hover:#004c38;
+  --cs-access-blue:#016bf8;
+  --cs-access-blue-soft:#e8f1ff;
+  --cs-access-success:#00684a;
+  --cs-access-success-soft:#e5f6ee;
+  --cs-access-success-edge:#b5e2cd;
+  --cs-compass-selected:#e8edeb;
+  --cs-compass-indicator:#00a35c;
+  font-family:var(--cs-compass-font);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main{font-family:var(--cs-compass-font)}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main>.cs-page-head{
+  min-height:52px;padding:8px var(--cs-compass-gutter);background:var(--cs-access-surface);
+  border-bottom:1px solid var(--cs-compass-rule);box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main>.cs-page-head>.cs-title-block{flex-direction:row;align-items:center;gap:12px}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-compass-context{
+  display:inline-flex;align-items:center;gap:12px;color:var(--cs-access-primary);
+  font-size:14px;font-weight:700;line-height:20px;white-space:nowrap;
+}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-compass-context::after{
+  content:"";width:6px;height:6px;border:solid #889397;border-width:2px 2px 0 0;transform:rotate(45deg);
+}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main>.cs-page-head #cs-title{
+  color:var(--cs-access-ink);font-size:16px;font-weight:700;line-height:22px;letter-spacing:0;
+}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main>.cs-page-head .cs-page-description{display:none}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"]) .cs-main>.cs-content{padding-top:0;padding-inline:var(--cs-compass-gutter)}
+#cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"],[data-page="schedule"]) #cs-page-help,
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-breadcrumb>.cs-page-help-trigger{
+  width:32px;height:32px;min-height:32px;border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;background:#fff;color:var(--cs-access-body);box-shadow:none;
+}
+
+
+#cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head {
+  border-bottom-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head #cs-title {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"],[data-page="chat"],[data-page="workflow"],[data-page="workspace"],[data-role="employee"]) .cs-page-help-dialog {
+  border-color:var(--cs-compass-rule);
+  border-radius:7px;
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"],[data-page="chat"],[data-page="workflow"],[data-page="workspace"],[data-role="employee"]) .cs-page-help-dialog .cs-button {
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"],[data-page="chat"],[data-page="workflow"],[data-page="workspace"],[data-role="employee"]) .cs-page-help-dialog .cs-button:hover {
+  background:var(--cs-compass-selected);
+}
+
+@media(max-width:760px){
+  #cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"],[data-page="schedule"],[data-role="employee"]){--cs-compass-gutter:16px}
+}
+
+@media(max-width:360px){
+  #cleanrooms-studio:is([data-page="series"],[data-page="workflow"]) .cs-main .cs-compass-context{display:none}
+}

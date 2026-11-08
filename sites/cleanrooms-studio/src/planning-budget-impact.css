@@ -1,0 +1,15 @@
+#cleanrooms-studio[data-page] #cs-edit-budget-impact {
+  margin-inline-start:auto;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:12px;
+  font-weight:500;
+  line-height:18px;
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+}
+#cleanrooms-studio[data-page] #cs-edit-budget-impact[data-over="true"] {color:var(--cs-access-danger,#a53b31)}
+#cleanrooms-studio[data-page] #cs-edit-budget-impact[hidden] {display:none}
+@media(max-width:600px) {
+  #cleanrooms-studio[data-page] .cs-editor-actions:has(#cs-edit-budget-impact:not([hidden])) {flex-wrap:wrap}
+  #cleanrooms-studio[data-page] #cs-edit-budget-impact:not([hidden]) {flex:1 0 100%;order:-1;text-align:right}
+}

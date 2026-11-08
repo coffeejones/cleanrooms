@@ -1,0 +1,242 @@
+/* Editing sheets share the workspace's quiet chrome. Field boundaries, native
+   controls, rich text tools and each panel's existing scroll owner stay intact. */
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor,.cs-review-panel,.cs-operations-panel,.cs-department-dialog,
+  .cs-review-dialog,.cs-page-help-dialog,.cs-accounts-help-dialog
+){
+  --cs-ui-radius:6px;
+  --cs-ui-field-border:#c8d1d7;
+  --cs-ui-field-background:#fff;
+  --cs-ui-field-shadow:none;
+  color:var(--cs-access-body,#4b575d);
+  background:#fff;
+  border-color:#d9e1e6;
+}
+
+/* A title and a full-size close control fit the same 56px header as the pages. */
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
+  .cs-page-help-head,.cs-accounts-help-head
+){
+  align-items:center;
+  min-height:56px;
+  padding:8px var(--cs-overlay-gutter,24px);
+  gap:12px;
+  border-bottom-color:#e2e7eb;
+  background:#fff;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
+  .cs-page-help-head,.cs-accounts-help-head
+) h3{
+  min-width:0;
+  margin:0;
+  color:var(--cs-access-ink,#29343c);
+  font-size:18px;
+  font-weight:600;
+  line-height:24px;
+  letter-spacing:-.3px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-department-caption{
+  margin-top:4px;
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
+  .cs-page-help-head,.cs-accounts-help-head
+) > :is(.cs-icon-button,.cs-button:not(.cs-primary)){
+  border-color:transparent;
+  background:transparent;
+  color:#657580;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
+  .cs-page-help-head,.cs-accounts-help-head
+) > :is(.cs-icon-button,.cs-button:not(.cs-primary)):hover:not(:disabled){
+  background:#f1f5f7;
+  color:#344d5c;
+}
+
+/* One text edge continues through the body and pinned actions. */
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-fields,.cs-group-fields,.cs-review-body,.cs-operations-body,.cs-department-body
+){
+  padding:var(--cs-overlay-section,20px) var(--cs-overlay-gutter,24px);
+  background:#fff;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer
+){
+  min-height:0;
+  padding:12px var(--cs-overlay-gutter,24px);
+  gap:8px;
+  border-top-color:#e2e7eb;
+  background:#fff;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer,.cs-review-dialog-actions
+) > .cs-button:not(.cs-primary):not(.cs-delete){
+  border-color:transparent;
+  background:transparent;
+  color:#657580;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(
+  .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer,.cs-review-dialog-actions
+) > .cs-button:not(.cs-primary):not(.cs-delete):hover:not(:disabled){
+  background:#f1f5f7;
+  color:#344d5c;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-editor-fields,.cs-group-fields) .cs-field-label{
+  color:#5c6b75;
+  font-size:13px;
+  font-weight:500;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-editor-caption,.cs-group-footnote){
+  color:#74818b;
+  font-size:12px;
+  line-height:19px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-person-picker{
+  border-color:#d9e1e6;
+  border-radius:6px;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-person-picker-head,.cs-person-footnote){
+  background:#f5f7f8;
+  border-color:#e2e7eb;
+}
+
+/* Duration stays together; weekday tiles make the actual pattern explicit. */
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets{
+  min-height:var(--cs-ui-height,40px);
+  gap:2px;
+  padding:3px;
+  border:0;
+  border-radius:6px;
+  background:#f5f7f8;
+  box-shadow:inset 0 0 0 1px #e1e6ea;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > button{
+  height:calc(var(--cs-ui-height,40px) - 6px);
+  min-height:calc(var(--cs-ui-height,40px) - 6px);
+  padding:0 8px;
+  border:1px solid transparent;
+  border-radius:4px;
+  background:transparent;
+  color:#657580;
+  font-size:12px;
+  font-weight:500;
+  line-height:20px;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > button:hover:not(:disabled){
+  background:#eaf0f3;
+  color:#344d5c;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > button[aria-pressed="true"]{
+  border-color:#29343c;
+  background:#29343c;
+  color:#fff;
+  font-weight:600;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > .cs-button{flex-basis:80px}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  width:100%;
+  max-width:328px;
+  gap:8px;
+  margin:8px 0 0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days > button{
+  box-sizing:border-box;
+  width:100%;
+  height:40px;
+  min-height:40px;
+  padding:0;
+  border:1px solid #e0e5e8;
+  border-radius:6px;
+  background:#f5f7f8;
+  color:#74818b;
+  font-size:13px;
+  font-weight:500;
+  line-height:20px;
+  box-shadow:inset 0 1px 0 #ffffffb3;
+  transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days > button:hover:not(:disabled){
+  border-color:#bac5cc;
+  background:#eaf0f3;
+  color:#344d5c;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days > button[aria-pressed="true"]{
+  border-color:#29343c;
+  background:#29343c;
+  color:#fff;
+  box-shadow:inset 0 1px 0 #ffffff1a,0 1px 2px #1c29331a;
+}
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days > button:focus-visible{
+  outline:2px solid #526878;
+  outline-offset:3px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-options .cs-field-pair:has(> #cs-repeat-end-field[hidden]){grid-template-columns:minmax(0,1fr)}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-toggle{
+  border-color:#e2e7eb;
+  border-radius:6px;
+  background:#f5f7f8;
+}
+
+/* The effective agreement stays visibly separate from the editable form. */
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-fields{column-gap:24px}
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-section{border-bottom-color:#e6ebee}
+#cleanrooms-studio[data-page][data-role] .cs-series-section-title{
+  color:var(--cs-access-ink,#29343c);
+  font-size:13px;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{
+  padding:18px;
+  border:0;
+  border-radius:6px;
+  background:#f5f7f8;
+  box-shadow:inset 0 0 0 1px #e1e6ea;
+}
+#cleanrooms-studio[data-page][data-role] .cs-series-preview-eyebrow{color:#74818b}
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-preview{border-color:#dfe6ea}
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-description-details{border-bottom-color:#e6ebee}
+#cleanrooms-studio[data-page][data-role] .cs-series-operation-note{
+  padding:12px;
+  border-color:#dfe6ea;
+  border-radius:6px;
+  background:#f5f7f8;
+}
+
+/* Small dialogs keep the same title scale and gutter without changing flow. */
+#cleanrooms-studio[data-page][data-role] :is(.cs-review-dialog,.cs-page-help-dialog,.cs-accounts-help-dialog){border-radius:8px}
+#cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:24px}
+#cleanrooms-studio[data-page][data-role] .cs-review-dialog > h3{font-size:18px;line-height:24px;letter-spacing:-.3px}
+#cleanrooms-studio[data-page][data-role] .cs-review-dialog-actions{gap:8px;margin-top:20px;padding-top:16px;border-color:#e2e7eb}
+#cleanrooms-studio[data-page][data-role] :is(.cs-page-help-body,.cs-accounts-help-content){padding-inline:var(--cs-overlay-gutter,24px)}
+
+@media(max-width:760px){
+  #cleanrooms-studio[data-page][data-role] :is(.cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,.cs-page-help-head,.cs-accounts-help-head){min-height:60px}
+  #cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{padding:16px}
+  #cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:20px}
+}
+@media(max-height:540px){
+  #cleanrooms-studio[data-page][data-role] :is(.cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer){padding-block:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  #cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days > button{transition:none}
+}

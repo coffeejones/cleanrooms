@@ -1,0 +1,1968 @@
+{
+  "schema": 1,
+  "label": "scoped-employee-workflow",
+  "revision": "15bedf6b22f5795d2fb9a5f4ed38d740e522208d",
+  "sourceHash": "750118c210af8d6722a61a368009b7849bd78af3f00317c34523847937455f4c",
+  "sourceFiles": {
+    "drizzle/0000_amusing_earthquake.sql": "516f5371d2384537343b64fd0949149330cc3bc42a9eee978ef5d4e1d3e9fbdf",
+    "drizzle/0001_heavy_orphan.sql": "325f1c00ddf2978202205a1bee3d05a4ec21b4e88919bd8d20615280c1e19627",
+    "drizzle/0002_plain_vector.sql": "d8acf4ddc01e68b8f080054fad500b87ab2f02e6805ab1977c72ed2b2a8ca1e3",
+    "drizzle/0003_lame_maginty.sql": "44d242c587ec736e33f6799c06e4a1fc27c344811d4ae5d8c5ba58687b97323b",
+    "drizzle/0004_plain_ezekiel_stane.sql": "0b0a4b6018bf2f6ec6236b6fbe47ffdaf2d14840dba018a68ab011ab10ed5d47",
+    "drizzle/0005_special_cassandra_nova.sql": "625d6f6c30f90027bf4c0300d24c69e8c66c2f3c6bdb00b9560452899228ba36",
+    "drizzle/0006_sudden_anthem.sql": "0d4b01cca9b948512ef59276a4b0ba04c616a7c24b40f58ab9cde35644177ccf",
+    "drizzle/0007_short_war_machine.sql": "f28e426cad74124b0338f5a14fa1c301291e7a99080d43ecf923f0bcb0995c2c",
+    "drizzle/0008_durable_activity.sql": "931daa8e21e2625882c3a22874c912e0f1ff9c4d40857356eff6b93f15a687b5",
+    "drizzle/0009_message_receipts.sql": "4dbc46a4f808226630ca3d986742c59825549a0343cac22ded473364dd908f31",
+    "drizzle/0010_yummy_clea.sql": "a44988f4b6cf18f2571c6acc847a3c0a42cb6082e7011d8464c0edaf5c2a304c",
+    "drizzle/0011_tearful_katie_power.sql": "42e1241d5d24b424fdfceb2263d669dc4be801f1ad0b7ab2f3361fbf74156e56",
+    "drizzle/0012_organic_blockbuster.sql": "07ff95c10202f4cbb8a040f7abbfa0ac0d5d3610b31543074fd044ee5cf032a1",
+    "drizzle/0013_old_sharon_carter.sql": "f44dc003d318d991d3ea39f95eebc8dcdc8fd7ae866ffb46f1b8be4f3102ffbf",
+    "drizzle/0014_mature_kid_colt.sql": "a6eea6b33994ac1d23c739ad655fc78207d4badd5181bfb665d49ac8e7576bfb",
+    "drizzle/0015_yellow_toro.sql": "2d88e38d3114e1b5470ad3d1937342a3943492056aafd87440c1dfaa6a34336f",
+    "drizzle/0016_eager_scream.sql": "b6c0668ea53caef574699fb47ae880b6172681baabf11a6aed04192f1460cf07",
+    "drizzle/0017_cold_blur.sql": "b298e137f00ce7d38b20564548fe49fbc55f65aa0bf47107999525f5f4d3d6bd",
+    "drizzle/0018_famous_kulan_gath.sql": "73065e64757f5a75c6f4e63c75d88c2e17722b3b99ac5b7fdbb9e84077a99045",
+    "drizzle/0019_wealthy_rockslide.sql": "e027d131ffe2ffe7f476950d47c060bfe6f20106dc2712229a53a98d57e22799",
+    "drizzle/0020_fresh_kabuki.sql": "51951b0f4d268682764326dd015f3294232cea009b6ce0e4503837614dc0dae8",
+    "drizzle/0021_third_korg.sql": "0c2c85d94bf7437fe06232bf767c115f5e6bdd4f967dfc75678ef1adc408abe1",
+    "drizzle/0022_naive_jackal.sql": "f1105c24e1ac2445962a6e9b90b06f2ac34be81068ca26750daaeaeb719bd1a6",
+    "lib/absence-store.mjs": "e9e721cba0120a913be72f3be838618d3660c9a4b7e54c5f0b4e85b50dfcbbdf",
+    "lib/account-audit.mjs": "3fabcd1c6af434e7ca4aa793ffebc73dd9cf907623ae4767f7ac1aa2ca239889",
+    "lib/activity-store.mjs": "c594a6d3736ca8c82beb2439099d90956f732fc59cfbce3b700095098ee17f08",
+    "lib/directory-references.mjs": "50e7382a57cf0ffc6820bd7e50babfed4ac5a71271ed76459345872f16ce9eba",
+    "lib/directory-store.mjs": "19aad4afd5d345165fc83dbc44768737029356567fbcfede5fe4f6bb056052d9",
+    "lib/employee-read-store.mjs": "dbec0d02a709a0b12bfabd4646a75a38f380be3125bce4b31c6dbc2ae31320c7",
+    "lib/engagement-store.mjs": "f79f51e6233aee163f7bc250301f09c41d8e1db34c36cfd1dfed690b71fc318e",
+    "lib/payroll-history.mjs": "00b9c2cfcdcc4e5f096968bf1cb8d2438359985de18d3d910d7281999d623718",
+    "lib/planning-command-store.mjs": "a7e07655094010e1986ec76a7f8570f183795aab0f40c8b094abc01f92c1d1e5",
+    "lib/planning-selection-store.mjs": "36172c83f4cd07ae95d5cc834a115cf58b85cf7d729438baaa4185b3cb165b15",
+    "lib/planning-store.mjs": "05fb62be50e6181207b2106530221e894a614117bf5f6c0f529d31de0fbae44c",
+    "lib/planning-window-store.mjs": "3774acd9b7dca04625b6c84ef3452ba0d34c73d220e2099166543024842b78e1",
+    "lib/planning-write.mjs": "2770e6be83f11c1790adb139a3fcdc84d223ed39b4c6c9692a52b533519aa01a",
+    "lib/publication-command.mjs": "2ad928ba56ae7fb3b933d07d55ab01f105e1074f82881809b658b428b4f2c035",
+    "lib/publication-store.mjs": "9b7a6a031f7fc8f85f71a363c13bb9398fe6cbcfb6d0dbfda1bdc83d5495fbf0",
+    "lib/publication-time-store.mjs": "bf2742c46f1d94a31f17b296e423c3db28453f01063ad042277d4dafe5d475c5",
+    "lib/published-employee-index.mjs": "03810de3cf99db2a03f4f5eabe8b166afdb72c8ff864d325e8bb944d9ba58a4e",
+    "lib/shift-workflow-demo-store.mjs": "54a7235ddec40d592d5b174dcac98cc9a47fa76b0b53dd4039cc3c68c00f2a01",
+    "lib/shift-workflow-store.mjs": "ea7422ab58321217dbc623f9ab743b5355ffafe4d78c0eb65f068fa6d7910754",
+    "lib/studio-store.mjs": "fa22d81d5a1fa6e5b7abb475ae380ff9c4b839092ac866302b070a5c0aec7853",
+    "lib/time-entry-store.mjs": "bd0e9e2f375e2c10bd78b807d786cd17e2fc9bbf5f7e2048f8ca856648964c8b",
+    "lib/timekeeping-context.mjs": "904302a6604267e16890db07d81cd42b8983c07ac94155fe98a8c047f572d298",
+    "lib/timekeeping-store.mjs": "cbe5610bd2303b7ec11593ac695e30e32628501e9aca782d5c583670471db589",
+    "lib/workflow-context.mjs": "3d869797f90cd6e3fa7c57ff00ecc3411cabe647d7f0622ef09a1755397cc031",
+    "lib/workspace-store.mjs": "827c7abfcb40973e1e3c1cf439d58a199acf094b32ff16cb3c4c1657dc806083",
+    "src/checklist-progress.js": "848715a063e803ae9a16d88ba8ce0f4085d7657b4409954396e89c56affa107b",
+    "src/department-model.js": "be3a7950d8dc70c91deca0dcb5b06d3019d5e564bb2b0a9e22983ec557818dc7",
+    "src/description-model.js": "dc7639e5f97d17e4d6ae486cef7ee1e03e334ba8a89f968c85a8459ebd50e3ee",
+    "src/directory-records.js": "f95b8438915243b399436570bad02428da0d4030e3acfad509589a04b4945cf1",
+    "src/employee-calendar.js": "bd2a068d8ff747b0a4f0f98f52d9606ab1706b50f59e4b81338931d1d6c01e8f",
+    "src/payroll-groups-model.js": "c82f1ce723b80c895e25214f5945650c62a229f0f2843fbdea0dd470e4fa6b88",
+    "src/payroll-model.js": "b1718339aab102593835b9dc75a0ad5169a58aa79ce9a08d72daffd08ce6162a",
+    "src/plan-changes.js": "5d80c722306225fbb74a67c7f00c6da1715c40dd977a604fb4052eef7dab06c7",
+    "src/planning-records.js": "916b4fe9bb3a392d681c3be7d726f430e761fe33ca84706cdc431bd30b39ea5e",
+    "src/planning-scope.js": "88d709d77777cbd0fe59aede8fd3e854704a0e03b73742c9c2e9852763f0d9d0",
+    "src/planning-window.js": "18b83a6f59e878b86758516055ee2aae74755215603491a837646d866b9bbac8",
+    "src/publication-model.js": "73d1133bafb0774c282fb4b7f273c5fe736868a3d4d9426b9bc0de79633858f2",
+    "src/role-model.js": "dd8fe2dd880a09d990f52517720a0d5e9e5d046ae845669b981dbb3e604bc825",
+    "src/roster-model.js": "fdc34fd49b7eb98f294c10261d01de8c638a7f240ffbc30207662067015186a8",
+    "src/schedule-actions.js": "829afb2799d731deea0c2a5e5c560c966306880bf82e41aa3c0944b5c5c58f33",
+    "src/series-engine.js": "b502d890ea512bf7baf0626eaf45891b3423d659327205198a8335b36eafcf70",
+    "src/series-lifecycle.js": "4975c616da1948e781b29f8611194e1a91f54cade89fad20c7fc1d859ce43eb9",
+    "src/series-planner.js": "d1f628974ffcf0e27911d07fb6ac6c3141546c791e611128e3067461308be9a8",
+    "src/shift-workflow-model.js": "bbcd81c680a9e3b1d504482cf1126306d46cd14e0b58c1a3fc3e0b99ab9105b3",
+    "src/studio-data.js": "6f1e78cb835836c869a7fc1c826eaf57c5d79dcaea5d33d6ef8ad3efbb4cbcc4",
+    "src/timekeeping-model.js": "1ca4a9db875aafb3fc22c0623b17404cd3b7b1d1b68a2d44a189f515199c7664"
+  },
+  "sourceRoot": "<project-root>",
+  "employeeProtocol": "scoped",
+  "fixedClock": "2026-11-03T10:00:00.000Z",
+  "repetitions": 5,
+  "generatedAt": "2026-11-03T19:22:36.235Z",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "methodology": "Sequential actual route calls over isolated migrated node:sqlite databases. Timing includes route work and HTTP JSON serialization/reading, excludes fixture seeding. SQL rows/bytes are values returned to JavaScript, not engine rows scanned or Cloudflare billed rows. First call is not an OS cold-cache guarantee. p95 with <=7 samples is descriptive only.",
+  "fixtures": [
+    {
+      "fixture": {
+        "workspaceId": "ws-4c401cea-f8e2-43af-9797-4839fbda3d01",
+        "employees": 100,
+        "series": 100,
+        "publishedShifts": 15652,
+        "openShifts": 52,
+        "attendanceEntries": 6600,
+        "checkedTasks": 780,
+        "messages": 2400,
+        "requests": 400,
+        "absences": 300,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 2225.05825,
+        "coldImport": {
+          "batches": 56,
+          "statements": 279,
+          "resultRows": 552,
+          "resultBytes": 738575,
+          "writeStatements": 221,
+          "elapsedMs": 65.09975,
+          "payloadBytes": 149820,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 120.39,
+            "batches": 234,
+            "statements": 313,
+            "resultRows": 7056,
+            "resultBytes": 7110887,
+            "writeStatements": 46,
+            "status": 200,
+            "payloadBytes": 3408153,
+            "pages": 6,
+            "rssMiB": 229.14
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 111.63,
+            "p95Ms": 114.1,
+            "payloadBytes": 3408153,
+            "statements": 307,
+            "resultRows": 7057,
+            "resultBytes": 6578567,
+            "batches": 231,
+            "samples": [
+              {
+                "elapsedMs": 114.1,
+                "batches": 231,
+                "statements": 307,
+                "resultRows": 7057,
+                "resultBytes": 6578567,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 3408153,
+                "pages": 6,
+                "rssMiB": 230.2
+              },
+              {
+                "elapsedMs": 111.09,
+                "batches": 231,
+                "statements": 307,
+                "resultRows": 7057,
+                "resultBytes": 6578567,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 3408153,
+                "pages": 6,
+                "rssMiB": 232.09
+              },
+              {
+                "elapsedMs": 113.6,
+                "batches": 231,
+                "statements": 307,
+                "resultRows": 7057,
+                "resultBytes": 6578567,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 3408153,
+                "pages": 6,
+                "rssMiB": 230.45
+              },
+              {
+                "elapsedMs": 111.09,
+                "batches": 231,
+                "statements": 307,
+                "resultRows": 7057,
+                "resultBytes": 6578567,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 3408153,
+                "pages": 6,
+                "rssMiB": 230.63
+              },
+              {
+                "elapsedMs": 111.63,
+                "batches": 231,
+                "statements": 307,
+                "resultRows": 7057,
+                "resultBytes": 6578567,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 3408153,
+                "pages": 6,
+                "rssMiB": 232.39
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 118.3,
+            "batches": 32,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 641196,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 428521,
+            "responseCounts": {
+              "entries": 300
+            },
+            "rssMiB": 230.91
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 106.5,
+            "p95Ms": 107.82,
+            "payloadBytes": 428521,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 641196,
+            "batches": 32,
+            "samples": [
+              {
+                "elapsedMs": 107.82,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 641196,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 231.44
+              },
+              {
+                "elapsedMs": 106.5,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 641196,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 239.8
+              },
+              {
+                "elapsedMs": 105.53,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 641196,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 240.42
+              },
+              {
+                "elapsedMs": 107.62,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 641196,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 239.89
+              },
+              {
+                "elapsedMs": 106.23,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 641196,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 240.38
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.54,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 4932,
+            "responseCounts": {
+              "requests": 15
+            },
+            "rssMiB": 238.77
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.79,
+            "p95Ms": 0.86,
+            "payloadBytes": 4932,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 0.86,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 238.78
+              },
+              {
+                "elapsedMs": 0.85,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 238.8
+              },
+              {
+                "elapsedMs": 0.79,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 238.83
+              },
+              {
+                "elapsedMs": 0.76,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 238.84
+              },
+              {
+                "elapsedMs": 0.74,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 238.91
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 3.71,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 32354,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10277,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 238.91
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.48,
+            "p95Ms": 2.85,
+            "payloadBytes": 10277,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 32354,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.85,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32354,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 238.91
+              },
+              {
+                "elapsedMs": 2.71,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32354,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 238.95
+              },
+              {
+                "elapsedMs": 2.48,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32354,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 239.13
+              },
+              {
+                "elapsedMs": 2.32,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32354,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 239.3
+              },
+              {
+                "elapsedMs": 2.32,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32354,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 239.5
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.19,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 20866,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 239.55
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.72,
+            "p95Ms": 1.91,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 20866,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.91,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20866,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 239.55
+              },
+              {
+                "elapsedMs": 1.84,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20866,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 239.55
+              },
+              {
+                "elapsedMs": 1.72,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20866,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 239.58
+              },
+              {
+                "elapsedMs": 1.68,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20866,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 239.59
+              },
+              {
+                "elapsedMs": 1.64,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20866,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 239.61
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.3,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16748,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 239.63
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.89,
+            "p95Ms": 0.9,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16748,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.89,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16748,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 239.63
+              },
+              {
+                "elapsedMs": 0.9,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16748,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 239.63
+              },
+              {
+                "elapsedMs": 0.89,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16748,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 239.63
+              },
+              {
+                "elapsedMs": 0.87,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16748,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 239.63
+              },
+              {
+                "elapsedMs": 0.87,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16748,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 239.63
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 15.86,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 184082,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 52248,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 239.64
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 14.03,
+            "p95Ms": 14.23,
+            "payloadBytes": 52248,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 184082,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 14.12,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 184082,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 239.66
+              },
+              {
+                "elapsedMs": 14.03,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 184082,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 239.7
+              },
+              {
+                "elapsedMs": 14.23,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 184082,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 239.77
+              },
+              {
+                "elapsedMs": 13.73,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 184082,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 239.86
+              },
+              {
+                "elapsedMs": 13.6,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 184082,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 240.03
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 6.15,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 96309,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26162,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 240.11
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 5.72,
+            "p95Ms": 5.88,
+            "payloadBytes": 26162,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 96309,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 5.51,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 96309,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 240.19
+              },
+              {
+                "elapsedMs": 5.88,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 96309,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 240.27
+              },
+              {
+                "elapsedMs": 5.55,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 96309,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 240.39
+              },
+              {
+                "elapsedMs": 5.81,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 96309,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 240.59
+              },
+              {
+                "elapsedMs": 5.72,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 96309,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 240.89
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.65,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 240.92
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.37,
+            "p95Ms": 0.42,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.42,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 240.92
+              },
+              {
+                "elapsedMs": 0.38,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 240.92
+              },
+              {
+                "elapsedMs": 0.37,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 240.92
+              },
+              {
+                "elapsedMs": 0.36,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 240.92
+              },
+              {
+                "elapsedMs": 0.36,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 240.92
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "workspaceId": "ws-9d06cc64-43a7-49cf-9ede-5c827eaa25c8",
+        "employees": 500,
+        "series": 500,
+        "publishedShifts": 78052,
+        "openShifts": 52,
+        "attendanceEntries": 33000,
+        "checkedTasks": 3900,
+        "messages": 12000,
+        "requests": 2000,
+        "absences": 1500,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 11373.658208,
+        "coldImport": {
+          "batches": 65,
+          "statements": 1091,
+          "resultRows": 2560,
+          "resultBytes": 3641153,
+          "writeStatements": 1024,
+          "elapsedMs": 242.78991700000006,
+          "payloadBytes": 742747,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 683.26,
+            "batches": 1225,
+            "statements": 1568,
+            "resultRows": 57190,
+            "resultBytes": 41385324,
+            "writeStatements": 200,
+            "status": 200,
+            "payloadBytes": 17039139,
+            "pages": 28,
+            "rssMiB": 283.63
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 656.78,
+            "p95Ms": 668.96,
+            "payloadBytes": 17039139,
+            "statements": 1562,
+            "resultRows": 57187,
+            "resultBytes": 38720080,
+            "batches": 1222,
+            "samples": [
+              {
+                "elapsedMs": 658.4,
+                "batches": 1222,
+                "statements": 1562,
+                "resultRows": 57187,
+                "resultBytes": 38720080,
+                "writeStatements": 196,
+                "status": 200,
+                "payloadBytes": 17039139,
+                "pages": 28,
+                "rssMiB": 287.23
+              },
+              {
+                "elapsedMs": 653.28,
+                "batches": 1222,
+                "statements": 1562,
+                "resultRows": 57187,
+                "resultBytes": 38720080,
+                "writeStatements": 196,
+                "status": 200,
+                "payloadBytes": 17039139,
+                "pages": 28,
+                "rssMiB": 287.33
+              },
+              {
+                "elapsedMs": 656.78,
+                "batches": 1222,
+                "statements": 1562,
+                "resultRows": 57187,
+                "resultBytes": 38720080,
+                "writeStatements": 196,
+                "status": 200,
+                "payloadBytes": 17039139,
+                "pages": 28,
+                "rssMiB": 284.78
+              },
+              {
+                "elapsedMs": 649.31,
+                "batches": 1222,
+                "statements": 1562,
+                "resultRows": 57187,
+                "resultBytes": 38720080,
+                "writeStatements": 196,
+                "status": 200,
+                "payloadBytes": 17039139,
+                "pages": 28,
+                "rssMiB": 285.73
+              },
+              {
+                "elapsedMs": 668.96,
+                "batches": 1222,
+                "statements": 1562,
+                "resultRows": 57187,
+                "resultBytes": 38720080,
+                "writeStatements": 196,
+                "status": 200,
+                "payloadBytes": 17039139,
+                "pages": 28,
+                "rssMiB": 287.94
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 210.89,
+            "batches": 40,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1833548,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 893221,
+            "responseCounts": {
+              "entries": 500
+            },
+            "rssMiB": 286.11
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 206.9,
+            "p95Ms": 210.76,
+            "payloadBytes": 893221,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1833548,
+            "batches": 40,
+            "samples": [
+              {
+                "elapsedMs": 206.9,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1833548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 288.11
+              },
+              {
+                "elapsedMs": 210.76,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1833548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 287.42
+              },
+              {
+                "elapsedMs": 202.77,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1833548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 288.3
+              },
+              {
+                "elapsedMs": 207.63,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1833548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 287.44
+              },
+              {
+                "elapsedMs": 204.06,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1833548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 288.31
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.95,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 14411,
+            "responseCounts": {
+              "requests": 40
+            },
+            "rssMiB": 285.5
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.3,
+            "p95Ms": 1.35,
+            "payloadBytes": 14411,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 1.35,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 285.5
+              },
+              {
+                "elapsedMs": 1.3,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 285.53
+              },
+              {
+                "elapsedMs": 1.26,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.33,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.3,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 285.56
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 3.29,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 32364,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10278,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 285.56
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.5,
+            "p95Ms": 2.66,
+            "payloadBytes": 10278,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 32364,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.5,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32364,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 2.47,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32364,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 2.43,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32364,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 2.66,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32364,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 2.63,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 32364,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 285.56
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.01,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 20871,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 285.56
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.65,
+            "p95Ms": 1.79,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 20871,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.71,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20871,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.65,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20871,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.63,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20871,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.79,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20871,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 1.63,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 20871,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.19,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16749,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 285.56
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.83,
+            "p95Ms": 0.87,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16749,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.87,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16749,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 0.87,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16749,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 0.83,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16749,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 0.83,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16749,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              },
+              {
+                "elapsedMs": 0.81,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16749,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 285.56
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 50.74,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 235057,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 51737,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 285.56
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 50.6,
+            "p95Ms": 50.81,
+            "payloadBytes": 51737,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 235057,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 50.81,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 235057,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 285.58
+              },
+              {
+                "elapsedMs": 50.4,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 235057,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 285.58
+              },
+              {
+                "elapsedMs": 50.6,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 235057,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 285.61
+              },
+              {
+                "elapsedMs": 50.2,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 235057,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 285.61
+              },
+              {
+                "elapsedMs": 50.64,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 235057,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 285.64
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 12.88,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 97296,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26163,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 285.67
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 12.13,
+            "p95Ms": 13.69,
+            "payloadBytes": 26163,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 97296,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 12.13,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 97296,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 285.69
+              },
+              {
+                "elapsedMs": 11.84,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 97296,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 285.69
+              },
+              {
+                "elapsedMs": 11.67,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 97296,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 285.69
+              },
+              {
+                "elapsedMs": 12.18,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 97296,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 285.69
+              },
+              {
+                "elapsedMs": 13.69,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 97296,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 285.69
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.81,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 285.73
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.41,
+            "p95Ms": 0.43,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.43,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 285.73
+              },
+              {
+                "elapsedMs": 0.41,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 285.73
+              },
+              {
+                "elapsedMs": 0.42,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 285.73
+              },
+              {
+                "elapsedMs": 0.4,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 285.73
+              },
+              {
+                "elapsedMs": 0.38,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 285.73
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "changedSourceFiles": [],
+  "sourceChangedDuringRun": false
+}

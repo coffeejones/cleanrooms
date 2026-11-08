@@ -1,0 +1,107 @@
+/* Agreements are a working register: one aligned row, with detail on demand. */
+#cleanrooms-studio[data-page="series"] .cs-series-overview{background:#fff}
+#cleanrooms-studio[data-page="series"] .cs-series-overview-head{min-height:40px;gap:8px 20px;border-color:#e2e7eb}
+#cleanrooms-studio[data-page="series"] .cs-series-statuses{gap:24px}
+#cleanrooms-studio[data-page="series"] .cs-series-status{height:40px;min-height:40px;font-size:12px}
+#cleanrooms-studio[data-page="series"] .cs-series-overview-list{padding:0 0 8px;scrollbar-gutter:stable}
+#cleanrooms-studio[data-page="series"] .cs-series-register-columns{display:none}
+#cleanrooms-studio[data-page="series"] .cs-series-register-rows{min-width:0}
+#cleanrooms-studio[data-page="series"] .cs-series-row{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;
+  gap:14px 20px;margin:0;padding:16px 0 12px;border:0;border-bottom:1px solid #e2e7eb;
+  border-radius:0;background:#fff;box-shadow:none;
+}
+#cleanrooms-studio[data-page="series"] .cs-series-row:focus-within{border-color:#b8c8d2}
+#cleanrooms-studio[data-page="series"] .cs-series-row-identity{grid-column:1/-1;grid-row:auto;gap:10px;align-items:center}
+#cleanrooms-studio[data-page="series"] .cs-series-row-avatar{flex-basis:32px;width:32px;height:32px;border:0;border-radius:5px;background:#edf2f5;color:#60717d;font-size:11px;font-weight:500}
+#cleanrooms-studio[data-page="series"] .cs-series-row-name{font-size:14px;font-weight:600;line-height:21px;letter-spacing:-.1px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-site{margin:2px 0 0;color:#73828d;font-size:12px;line-height:18px}
+#cleanrooms-studio[data-page="series"] .cs-series-example-label{display:block;margin-top:2px;color:#89969f;font-size:10px;line-height:16px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-field{grid-row:auto;min-width:0}
+#cleanrooms-studio[data-page="series"] .cs-series-row-pattern{grid-column:1/-1}
+#cleanrooms-studio[data-page="series"] .cs-series-row-period{grid-column:1}
+#cleanrooms-studio[data-page="series"] .cs-series-row-next{grid-column:2}
+#cleanrooms-studio[data-page="series"] .cs-series-row-label{margin-bottom:5px;color:#8a969f;font-size:10px;line-height:16px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-time{color:#344954;font-size:13px;font-weight:500;line-height:20px;letter-spacing:0}
+#cleanrooms-studio[data-page="series"] .cs-series-week-pattern{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;width:155px;max-width:100%;margin-top:6px}
+#cleanrooms-studio[data-page="series"] .cs-series-weekday{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;height:22px;padding:0;border:1px solid #e0e5e8;border-radius:3px;background:#f5f7f8;color:#7a858d;font-size:10px;font-weight:500;line-height:1}
+#cleanrooms-studio[data-page="series"] .cs-series-weekday[data-active="true"]{border-color:#29343c;background:#29343c;color:#fff;font-weight:600}
+#cleanrooms-studio[data-page="series"] .cs-series-pattern-times{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;max-width:none;overflow:hidden;margin-top:3px;color:#74838e;font-size:11px;line-height:17px}
+#cleanrooms-studio[data-page="series"] .cs-series-planned-break{display:block;margin-top:3px;color:#84919b;font-size:10px;line-height:16px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-value{font-size:12px;font-weight:400;line-height:20px;color:#51636e}
+#cleanrooms-studio[data-page="series"] :is(.cs-series-period-start,.cs-series-period-end){display:block;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page="series"] .cs-series-period-end{color:#8a969f}
+#cleanrooms-studio[data-page="series"] .cs-series-row[data-status] .cs-series-row-state{display:inline-flex;align-items:center;gap:6px;margin:0 0 3px;padding:0;border:0;border-radius:0;background:none;font-size:11px;font-weight:500;line-height:18px;color:#526875}
+#cleanrooms-studio[data-page="series"] .cs-series-row[data-status="active"] .cs-series-row-state::before{background:#4e8b68}
+#cleanrooms-studio[data-page="series"] .cs-series-row[data-status="upcoming"] .cs-series-row-state::before{background:#7893a6}
+#cleanrooms-studio[data-page="series"] .cs-series-row[data-status="ended"] .cs-series-row-state::before{background:#a2acb4}
+#cleanrooms-studio[data-page="series"] :is(.cs-series-next-change,.cs-series-next-label){display:block;color:#71828d;font-size:11px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="series"] .cs-series-next-change{color:#476778}
+#cleanrooms-studio[data-page="series"] :is(.cs-series-next-time,.cs-series-next-site){margin-top:0;font-size:11px;line-height:18px;color:#82909a}
+#cleanrooms-studio[data-page="series"] .cs-series-expiry{margin-top:3px;color:#9a7134;font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-actions{grid-column:1/-1;grid-row:auto;display:flex;align-items:center;justify-content:flex-end;flex-direction:row;flex-wrap:nowrap;gap:6px;margin:0}
+#cleanrooms-studio[data-page="series"][data-role] .cs-series-row-actions > .cs-button{flex:0 0 auto;width:auto;min-width:0;padding-inline:12px;border-color:#d8e1e7;border-radius:6px;background:#fff;color:#4b6575;font-size:12px;box-shadow:none}
+#cleanrooms-studio[data-page="series"][data-role] .cs-series-row-actions > .cs-button:hover:not(:disabled){border-color:#b8cbd6;background:#f6f9fa;color:#2f5268}
+#cleanrooms-studio[data-page="series"] .cs-series-row-menu{position:relative;flex:0 0 var(--cs-ui-height,40px);width:var(--cs-ui-height,40px);min-width:0}
+#cleanrooms-studio[data-page="series"] .cs-series-more{display:flex;align-items:center;justify-content:center;width:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px);padding:0;border:1px solid transparent;border-radius:6px;background:transparent;color:#7c8b96;font-size:21px;line-height:1;list-style:none;cursor:pointer}
+#cleanrooms-studio[data-page="series"] .cs-series-more::-webkit-details-marker{display:none}
+#cleanrooms-studio[data-page="series"] .cs-series-more:hover,
+#cleanrooms-studio[data-page="series"] .cs-series-row-menu[open] > .cs-series-more{border-color:#e1e7eb;background:#f3f6f8;color:#3f6074}
+#cleanrooms-studio[data-page="series"] .cs-series-more:focus-visible{outline:2px solid #698da4;outline-offset:2px}
+#cleanrooms-studio[data-page="series"] .cs-series-menu-items{position:absolute;z-index:8;inset-inline-end:0;top:calc(100% + 5px);display:grid;gap:2px;min-width:172px;padding:5px;border:1px solid #d9e2e8;border-radius:7px;background:#fff;box-shadow:0 8px 24px #2943531a}
+#cleanrooms-studio[data-page="series"] .cs-series-row-menu[data-placement="up"] > .cs-series-menu-items{top:auto;bottom:calc(100% + 5px)}
+#cleanrooms-studio[data-page="series"][data-role] .cs-series-menu-items > .cs-button{justify-content:flex-start;width:100%;border:0;border-radius:4px;background:transparent;color:#536c7c;font-size:12px;box-shadow:none}
+#cleanrooms-studio[data-page="series"][data-role] .cs-series-menu-items > .cs-button:hover:not(:disabled){background:#f0f5f8;color:#33576e}
+#cleanrooms-studio[data-page="series"] .cs-series-row-menu:not([open]) > .cs-series-menu-items{display:none}
+
+/* The closed disclosure is a small reading affordance, rather than another row. */
+#cleanrooms-studio[data-page="series"] .cs-series-timeline{grid-column:1/-1;grid-row:auto;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:4px 12px;min-height:24px;margin:0;padding:0;color:#708593;font-size:11px;font-weight:400;line-height:20px}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary::before{content:"";flex:0 0 5px;width:5px;height:5px;margin-right:1px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(-45deg)}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary::after{display:none}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline[open] > .cs-series-timeline-summary::before{transform:rotate(45deg);margin-top:-3px}
+#cleanrooms-studio[data-page="series"] .cs-series-disclosure-label{color:#526e80;font-weight:500}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary:hover .cs-series-disclosure-label{color:#2d556e}
+#cleanrooms-studio[data-page="series"] :is(.cs-series-period-count,.cs-series-exception-count,.cs-series-row-description){color:#929ea7;font-size:10px;line-height:18px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-description{display:inline-flex;align-items:center;gap:4px}
+#cleanrooms-studio[data-page="series"] .cs-series-agreement-details{margin-top:10px;padding:16px 18px 4px;border:1px solid #e4eaee;border-radius:5px;background:#f7f9fa}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline:not([open]) > .cs-series-agreement-details{display:none}
+#cleanrooms-studio[data-page="series"] .cs-series-expanded-facts{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 24px;margin-bottom:14px;color:#6f8390;font-size:11px;line-height:20px}
+#cleanrooms-studio[data-page="series"] .cs-series-upcoming{font-weight:500;color:#506c7c}
+#cleanrooms-studio[data-page="series"] .cs-series-period{padding:14px 0;border-color:#e1e8ec}
+#cleanrooms-studio[data-page="series"] .cs-series-period:first-child{border-top:0;padding-top:0}
+#cleanrooms-studio[data-page="series"] .cs-series-period:last-child{padding-bottom:12px}
+#cleanrooms-studio[data-page="series"] .cs-series-period strong{font-size:12px;font-weight:500;line-height:20px;color:#465f6d}
+#cleanrooms-studio[data-page="series"] .cs-series-period span{margin-top:2px;color:#7d8d97;font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="series"][data-role] .cs-series-period > .cs-button{height:var(--cs-ui-compact-height,32px);min-height:var(--cs-ui-compact-height,32px);padding-inline:8px;border-color:transparent;background:transparent;font-size:11px;box-shadow:none}
+#cleanrooms-studio[data-page="series"] .cs-series-register-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0 8px}
+#cleanrooms-studio[data-page="series"] .cs-series-register-progress{color:#8796a0;font-size:11px;line-height:20px}
+
+@container cs-series-overview (min-width:650px){
+  #cleanrooms-studio[data-page="series"] .cs-series-row{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 124px;gap:10px 24px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-identity{grid-column:1;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-pattern{grid-column:2;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-period{grid-column:1;grid-row:2}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-next{grid-column:2;grid-row:2}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-actions{grid-column:3;grid-row:1/3}
+}
+@container cs-series-overview (min-width:900px){
+  #cleanrooms-studio[data-page="series"] .cs-series-register-columns,
+  #cleanrooms-studio[data-page="series"] .cs-series-row{grid-template-columns:minmax(150px,1.2fr) minmax(155px,1.15fr) minmax(130px,.9fr) minmax(150px,1.05fr) 124px;column-gap:24px}
+  #cleanrooms-studio[data-page="series"] .cs-series-register-columns{position:static;display:grid;align-items:center;min-height:35px;padding:8px 0;border-bottom:1px solid #cfd6da;background:#fff;color:#7a838a;font-size:11px;font-weight:500;line-height:18px}
+  #cleanrooms-studio[data-page="series"] .cs-series-register-columns > span:last-child{padding-right:4px;text-align:right}
+  #cleanrooms-studio[data-page="series"] .cs-series-row{row-gap:5px;padding-block:14px 10px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-identity{grid-column:1;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-pattern{grid-column:2;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-period{grid-column:3;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-next{grid-column:4;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-actions{grid-column:5;grid-row:1}
+  #cleanrooms-studio[data-page="series"] .cs-series-timeline{grid-row:2}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-field > .cs-series-row-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page="series"] .cs-series-overview-head{gap:8px 16px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row{padding-block:16px 12px}
+  #cleanrooms-studio[data-page="series"] .cs-series-agreement-details{padding:14px 12px 2px}
+  #cleanrooms-studio[data-page="series"] .cs-series-timeline-summary{min-height:32px}
+}

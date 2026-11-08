@@ -1,0 +1,223 @@
+/* The personal workspace follows the same materials as the planner. */
+#cleanrooms-studio[data-role="employee"] #cs-employee-root {
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  font-family:var(--cs-compass-font);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-topbar {
+  min-height:52px;
+  padding:8px var(--cs-compass-gutter);
+  border-bottom-color:var(--cs-compass-rule);
+  background:var(--cs-access-surface);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-brand>.cs-logo {display:none!important}
+#cleanrooms-studio[data-role="employee"] .cs-employee-brand>div {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px 12px;
+  min-width:0;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-brand strong {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  white-space:normal;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-brand span:not(.cs-logo) {
+  display:inline-flex;
+  align-items:center;
+  order:-1;
+  gap:12px;
+  color:var(--cs-access-primary);
+  font-size:14px;
+  font-weight:700;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-brand span:not(.cs-logo)::after {
+  content:"";
+  flex:0 0 6px;
+  width:6px;
+  height:6px;
+  border:solid var(--cs-access-control-edge);
+  border-width:2px 2px 0 0;
+  transform:rotate(45deg);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-demo-controls {
+  gap:8px;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-demo-controls label {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-content>.cs-workflow-host {
+  padding-inline:var(--cs-compass-gutter);
+}
+
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-page,.cs-employee-layer) {
+  --cs-employee-gutter:var(--cs-compass-gutter);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-topbar,.cs-employee-page,.cs-employee-layer) {
+  --cs-ui-height:36px;
+  --cs-ui-radius:6px;
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root :is(.cs-employee-topbar,.cs-employee-page,.cs-employee-detail) :is(.cs-button,.cs-icon-button),
+#cleanrooms-studio[data-role="employee"] :is(#cs-employee-help,#cs-employee-person,.cs-employee-calendar-tools .cs-employee-date,.cs-time-employee-field :is(input,textarea)) {
+  border-color:var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-ink);
+  font-family:inherit;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-help {
+  width:32px;
+  height:32px;
+  min-height:32px;
+  padding:0;
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root :is(.cs-employee-topbar,.cs-employee-page,.cs-employee-detail) :is(.cs-button,.cs-icon-button):hover:not(:disabled) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root :is(.cs-employee-next>.cs-button,.cs-employee-detail .cs-button.cs-primary) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:#fff;
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root :is(.cs-employee-next>.cs-button,.cs-employee-detail .cs-button.cs-primary):hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
+  color:#fff;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-tools .cs-nav-pair>.cs-icon-button {
+  border:1px solid var(--cs-access-control-edge);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-tools .cs-nav-pair>.cs-icon-button:first-child {
+  border-radius:6px 0 0 6px;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-tools .cs-nav-pair>.cs-icon-button:last-child {
+  border-inline-start:0;
+  border-radius:0 6px 6px 0;
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-topbar,.cs-employee-page,.cs-employee-detail) :is(button,input,select,textarea):focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:-2px;
+}
+
+#cleanrooms-studio[data-role="employee"] .cs-employee-next {
+  border-bottom-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next :is(.cs-employee-eyebrow,.cs-employee-next-date,.cs-employee-address,.cs-employee-muted) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-next-time,.cs-employee-next-empty,.cs-employee-period-title) {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next-site {color:var(--cs-access-body)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next .cs-employee-time-status {color:var(--cs-access-muted)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next .cs-employee-time-status[data-state="approved"] {color:var(--cs-access-success)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next .cs-employee-time-status:is([data-state="running"],[data-state="paused"],[data-state="submitted"]) {color:#8b641f}
+#cleanrooms-studio[data-role="employee"] .cs-employee-next .cs-employee-time-status[data-state="rejected"] {color:#a83029}
+#cleanrooms-studio[data-role="employee"] .cs-employee-period-total {color:var(--cs-access-muted)}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-calendar-toolbar,.cs-employee-calendar-day,.cs-employee-time-canvas,.cs-employee-hour-line) {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-tools .cs-employee-date {
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root .cs-employee-view-switch {
+  height:auto;
+  min-height:var(--cs-ui-height);
+  padding:0;
+  border:0;
+  border-bottom:1px solid var(--cs-compass-rule);
+  border-radius:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root .cs-employee-view-switch>.cs-employee-view-button {
+  height:auto;
+  min-height:var(--cs-ui-height);
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root .cs-employee-view-switch>.cs-employee-view-button:hover {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role="employee"] #cs-employee-root .cs-employee-view-switch>.cs-employee-view-button[aria-pressed="true"] {
+  background:transparent;
+  color:var(--cs-access-primary);
+  font-weight:700;
+  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-weekdays,.cs-employee-timeline-head,.cs-employee-calendar-empty) {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-weekdays>span {
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-day.is-outside {background:var(--cs-access-soft)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-day.is-focused-date {background:#f1f5f3}
+#cleanrooms-studio[data-role="employee"] .cs-employee-calendar-date:hover {background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-role="employee"] .is-today .cs-employee-calendar-date {
+  background:var(--cs-access-primary);
+  color:#fff;
+}
+#cleanrooms-studio[data-role="employee"] .is-today .cs-employee-day-month {color:#fff}
+#cleanrooms-studio[data-role="employee"] .cs-employee-shift {
+  border-color:var(--cs-compass-rule);
+  border-radius:4px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-shift:hover {
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-compass-selected);
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-shift[aria-pressed="true"] {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-success-soft);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-shift-site,.cs-employee-shift-progress) {color:var(--cs-access-muted)}
+
+#cleanrooms-studio[data-role="employee"] .cs-employee-detail {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  box-shadow:-6px 0 24px #001e2b1a;
+}
+#cleanrooms-studio[data-role="employee"] .cs-employee-detail-head {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-detail-title,.cs-employee-detail-time,.cs-employee-instructions-title,.cs-time-employee-title,.cs-time-employee-form-title) {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-employee-detail-date,.cs-employee-detail-site,.cs-employee-detail .cs-employee-address,.cs-employee-task-count,.cs-employee-save-status,.cs-time-employee-label,.cs-time-employee-values dt) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-role="employee"] :is(.cs-time-employee,.cs-time-employee-form,.cs-time-employee-audit) {border-color:var(--cs-compass-rule)}
+#cleanrooms-studio[data-role="employee"] .cs-time-employee-values dd {color:var(--cs-access-ink)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-task-bar {background:var(--cs-compass-selected);accent-color:var(--cs-access-primary)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-task-bar::-webkit-progress-bar {background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-task-bar::-webkit-progress-value {background:var(--cs-access-primary)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-task-bar::-moz-progress-bar {background:var(--cs-access-primary)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-instructions input[type="checkbox"] {accent-color:var(--cs-access-primary)}
+#cleanrooms-studio[data-role="employee"] .cs-employee-save-status[data-state="error"] {color:#a83029}
+
+@media(max-width:760px) {
+  #cleanrooms-studio[data-role="employee"] #cs-employee-person {max-width:150px}
+  #cleanrooms-studio[data-role="employee"] #cs-employee-root .cs-employee-view-switch>.cs-employee-view-button {padding-inline:7px}
+}
+@media(pointer:coarse) {
+  #cleanrooms-studio[data-role="employee"] :is(.cs-employee-topbar,.cs-employee-page,.cs-employee-layer) {--cs-ui-height:44px}
+}

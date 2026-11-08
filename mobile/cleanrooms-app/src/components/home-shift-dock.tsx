@@ -1,0 +1,137 @@
+import { router } from 'expo-router';
+import { useIsFocused } from 'expo-router/react-navigation';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { Icon, Txt } from '@/components/ui';
+import { cardStyles } from '@/constants/card-styles';
+import { colors } from '@/constants/palette';
+import { dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
+import { demoNow, useAppData } from '@/state/app-store';
+
+function durationLabel(seconds: number) {
+  const days = Math.floor(seconds / 86_400);
+  const hours = Math.floor(seconds / 3_600);
+  const minutes = Math.floor(seconds / 60) % 60;
+  const digits = (value: number) => String(value).padStart(2, '0');
+  return {
+    display: days ? `${days} d ${hours % 24} t` : `${digits(hours)}:${digits(minutes)}:${digits(seconds % 60)}`,
+    spoken: days
+      ? `${days} dage og ${hours % 24} timer`
+      : `${hours ? `${hours} timer og ` : ''}${minutes} minutter`,
+  };
+}
+
+function ShiftStatusIcon({ running, paused, focused }: { running: boolean; paused: boolean; focused: boolean }) {
+  const opacity = useSharedValue(1);
+  useEffect(() => {
+    if (running && focused) {
+      opacity.set(withRepeat(withTiming(0.65, {
+        duration: 1_250,
+        easing: Easing.inOut(Easing.sin),
+        reduceMotion: ReduceMotion.System,
+      }), -1, true, undefined, ReduceMotion.System));
+    }
+    return () => {
+      cancelAnimation(opacity);
+      opacity.set(1);
+    };
+  }, [focused, opacity, running]);
+  const motion = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+  const iconColor = running ? colors.success : paused ? colors.warning : colors.ink;
+
+  return (
+    <View style={styles.icon}>
+      <Animated.View style={motion}>
+        <Icon name={running ? 'clock' : paused ? 'pause' : 'calendar'} size={running ? 23 : 20} color={iconColor} />
+      </Animated.View>
+    </View>
+  );
+}
+
+export function HomeShiftDock({ shift, siteName, start, entry, live = false, serverClock }: {
+  shift: Shift;
+  siteName: string;
+  start: number;
+  entry?: TimeEntry;
+  live?: boolean;
+  serverClock?: { workedSeconds?: number; measuredAt?: number };
+}) {
+  const { state } = useAppData();
+  const focused = useIsFocused();
+  const { fontScale, width } = useWindowDimensions();
+  const [realNow, setRealNow] = useState(Date.now);
+  const running = entry?.status === 'running';
+  const paused = entry?.status === 'paused';
+  const now = live ? realNow : demoNow(state, realNow);
+  const counting = running || (!entry && start > now);
+
+  useEffect(() => {
+    if (!focused || !counting) return;
+    const tick = () => setRealNow(Date.now());
+    const refresh = setTimeout(tick, 0);
+    const timer = setInterval(tick, 1_000);
+    return () => {
+      clearTimeout(refresh);
+      clearInterval(timer);
+    };
+  }, [counting, focused, shift.id, state.demoStartedAt]);
+
+  const waiting = !entry && start > now;
+  const workedUntil = paused ? Date.parse(entry.pauses.at(-1)?.start ?? entry.clockIn) : now;
+  const elapsed = live && serverClock?.workedSeconds !== undefined && serverClock.measuredAt !== undefined
+    ? serverClock.workedSeconds * 1_000 + (running ? Math.max(0, now - serverClock.measuredAt) : 0)
+    : entry
+    ? workingIntervals(entry, workedUntil).reduce((total, interval) => total + interval.end - interval.start, 0)
+    : 0;
+  const duration = durationLabel(waiting ? Math.ceil((start - now) / 1_000) : Math.floor(elapsed / 1_000));
+  const status = running ? 'Vagt i gang' : paused ? 'På pause' : 'Næste vagt';
+  const counterLabel = entry ? 'Arbejdet' : waiting ? 'Starter om' : 'Startet kl.';
+  const statusColor = running ? colors.success : paused ? colors.warning : colors.muted;
+  const date = dateLabel(shift.date, { weekday: 'short' });
+  const compactWidth = fontScale > 1.3 || width < 350;
+
+  return (
+    <View style={cardStyles.raisedFrame}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${status}, ${siteName}, ${date}, ${shift.start} til ${shift.end}. ${counterLabel} ${entry || waiting ? duration.spoken : shift.start}.`}
+        accessibilityHint="Åbner vagtdetaljer"
+        onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
+        style={({ pressed }) => [cardStyles.raisedSurface, styles.card, pressed && styles.pressed]}
+      >
+        <ShiftStatusIcon running={running} paused={paused} focused={focused} />
+        <View style={[styles.cardContent, compactWidth && styles.stacked]}>
+          <View style={styles.details}>
+            <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
+            <Txt size={15} weight="600" style={styles.site}>{siteName}</Txt>
+            <Txt size={12} color={colors.muted}>{date} · {shift.start}–{shift.end}</Txt>
+          </View>
+          <View style={[styles.counter, compactWidth && styles.stackedCounter]}>
+            <Txt size={11} color={colors.muted}>{counterLabel}</Txt>
+            <Txt size={17} weight="600" color={running ? colors.success : colors.ink} style={styles.digits}>
+              {entry || waiting ? duration.display : shift.start}
+            </Txt>
+          </View>
+        </View>
+        <Icon name="chevron-right" size={12} color={colors.muted} />
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    paddingHorizontal: 12, paddingVertical: 12,
+  },
+  pressed: { backgroundColor: colors.paper },
+  icon: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center' },
+  cardContent: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  details: { flex: 1, minWidth: 0 },
+  site: { lineHeight: 21, letterSpacing: -0.15 },
+  counter: { alignItems: 'flex-end', minWidth: 73 },
+  digits: { lineHeight: 23 },
+  stacked: { flexDirection: 'column', alignItems: 'stretch', gap: 3 },
+  stackedCounter: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', gap: 6 },
+});

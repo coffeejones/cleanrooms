@@ -1,0 +1,923 @@
+/* Keep the planner's working geometry and use the same surfaces as the other ledgers. */
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) {
+  --cs-planning-gutter:var(--cs-compass-gutter);
+  --cs-planning-rule:var(--cs-compass-rule);
+  --cs-series-rule:var(--cs-compass-rule);
+  --cs-ui-radius:6px;
+  --cs-ui-field-shadow:none;
+  --cs-ui-field-focus:var(--cs-access-blue);
+}
+@media(min-width:761px) and (pointer:fine) {
+  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) {
+    --cs-ui-height:36px;
+  }
+}
+
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-button:not(.cs-primary,.cs-quiet,.cs-chrome-quiet,.cs-delete) {
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-button:not(.cs-primary,.cs-quiet,.cs-chrome-quiet,.cs-delete):hover:not(:disabled) {
+  background:var(--cs-compass-selected);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-button.cs-primary:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-button.cs-primary:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-main .cs-workspace-toolbar .cs-filter-left {
+  --cs-ui-field-border:var(--cs-access-control-edge);
+  --cs-ui-field-background:var(--cs-access-surface);
+  gap:8px;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-main .cs-workspace-toolbar .cs-search {
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-workspace-toolbar #cs-site-filter {
+  border-color:var(--cs-ui-field-border);
+  border-radius:var(--cs-ui-radius);
+  background-color:var(--cs-ui-field-background);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-main .cs-workspace-toolbar :is(#cs-site-filter-label,.cs-attention)::before {
+  display:none;
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar #cs-attention {
+  border-radius:var(--cs-ui-radius);
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar #cs-attention[aria-pressed="true"] {
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar :is(.cs-calendar-display>summary,#cs-today,#cs-date-jump,.cs-nav-pair>.cs-icon-button) {
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-access-surface);
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-nav-pair>.cs-icon-button {
+  border:1px solid var(--cs-access-control-edge);
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-nav-pair>.cs-icon-button:last-child {
+  border-inline-start:0;
+}
+#cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar :is(.cs-calendar-display>summary,#cs-today,#cs-date-jump,.cs-nav-pair>.cs-icon-button):hover:not(:disabled) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(.cs-view-switch,.cs-zoom-controls,.cs-group-switch) {
+  border-color:var(--cs-compass-rule);
+  border-radius:var(--cs-ui-radius);
+  background:var(--cs-access-surface);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(.cs-view-switch,.cs-zoom-controls,.cs-group-switch)>button[aria-pressed="true"] {
+  border-radius:4px;
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(.cs-view-switch,.cs-zoom-controls,.cs-group-switch)>button:hover:not([aria-pressed="true"]) {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-search {
+    flex:1 0 100%;
+    width:100%;
+    max-width:none;
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-search input {
+    width:100%;
+  }
+}
+
+/* The planner's live budget belongs to the fixed calendar status line. */
+#cleanrooms-studio[data-page="schedule"] .cs-footer:has(.cs-calendar-budget[open]:not([hidden])) {
+  position:relative;
+  z-index:7;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-footer-overview:has(.cs-calendar-budget[open]:not([hidden])) {overflow:visible}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget {
+  position:relative;
+  min-width:0;
+  max-width:100%;
+  color:var(--cs-access-ink);
+  font-size:11px;
+  line-height:16px;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget[hidden] {display:none}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:0 6px;
+  box-sizing:border-box;
+  min-height:28px;
+  max-width:100%;
+  padding:3px 7px;
+  border:1px solid transparent;
+  border-radius:5px;
+  cursor:pointer;
+  list-style:none;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary::-webkit-details-marker {display:none}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary::after {
+  content:"";
+  flex:0 0 5px;
+  height:5px;
+  margin:2px 2px 0 1px;
+  border:solid var(--cs-access-muted);
+  border-width:1px 1px 0 0;
+  transform:rotate(-45deg);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget[open] > summary::after {
+  margin-top:-2px;
+  transform:rotate(135deg);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary:hover,
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget[open] > summary {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget :is(.cs-calendar-budget-label,.cs-calendar-budget-period,#cs-calendar-budget-caption,#cs-calendar-budget-message) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget > summary strong {
+  min-width:0;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget[data-state="ok"] > summary strong {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget[data-state="over"] > summary strong {
+  color:#9b3227;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget:is([data-state="loading"],[data-state="saving"],[data-state="error"],[data-state="unsaved"]) > summary strong {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel {
+  position:absolute;
+  inset:auto auto calc(100% + 6px) 0;
+  box-sizing:border-box;
+  width:min(288px,calc(100vw - 36px));
+  max-height:min(240px,40vh);
+  overflow:auto;
+  padding:12px 14px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  box-shadow:0 6px 20px #001e2b1c;
+  font-size:12px;
+  line-height:18px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel h3 {
+  margin:0 0 2px;
+  color:var(--cs-access-ink);
+  font-size:14px;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel p {margin:0}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel p:empty {display:none}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel #cs-calendar-budget-totals {
+  margin-top:8px;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-panel #cs-calendar-budget-retry:not([hidden]) {
+  margin-top:8px;
+}
+@media(max-width:960px) {
+  #cleanrooms-studio[data-page="schedule"] .cs-footer:has(.cs-calendar-budget:not([hidden])) .cs-calendar-help {display:none}
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="schedule"] .cs-footer:has(.cs-calendar-budget:not([hidden])) {
+    flex-wrap:wrap;
+    column-gap:4px;
+    row-gap:2px;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-footer-overview:has(.cs-calendar-budget:not([hidden])) .cs-plan-count {display:none}
+  #cleanrooms-studio[data-page="schedule"] .cs-calendar-budget-label {
+    position:absolute;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+    clip-path:inset(50%);
+    white-space:nowrap;
+  }
+}
+
+/* Week labels remain sticky and opaque. Site colours and invalid drops stay semantic. */
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) #cs-page-content {
+  border:1px solid var(--cs-compass-rule);
+  border-radius:7px;
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-board-week-label,
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-agenda-heading {
+  padding-inline:12px;
+  border-top:0;
+  border-bottom-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-board-week+.cs-board-week .cs-board-week-label {
+  border-top:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-board-week-label h3 {
+  font-weight:700;
+}
+#cleanrooms-studio .cs-week-title-row {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:2px 12px;
+  min-width:0;
+}
+#cleanrooms-studio .cs-week-metrics {
+  display:flex;
+  flex:0 1 auto;
+  align-items:baseline;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:2px 12px;
+  min-width:0;
+  margin-inline-start:auto;
+  text-align:right;
+}
+#cleanrooms-studio .cs-week-metrics .cs-board-week-summary {margin-inline-start:4px;white-space:nowrap}
+#cleanrooms-studio .cs-week-metrics > .cs-week-planned-cost:first-child::before {content:none}
+@container(max-width:599px) {
+  #cleanrooms-studio .cs-week-metrics {max-width:60%;gap:2px 8px}
+  #cleanrooms-studio .cs-week-metrics .cs-board-week-summary {flex-basis:100%;margin-inline-start:0}
+}
+#cleanrooms-studio .cs-week-planned-hours {
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  line-height:20px;
+  white-space:nowrap;
+}
+#cleanrooms-studio .cs-week-planned-hours strong {font-weight:650}
+#cleanrooms-studio .cs-week-planned-hours :is(.cs-week-hours-separator,.cs-week-hours-unit,.cs-week-hours-limit) {
+  color:var(--cs-access-muted);
+  font-weight:400;
+}
+#cleanrooms-studio .cs-week-planned-hours[data-over="true"] strong {color:#9b3227}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(.cs-board-week-range,.cs-board-week-summary,.cs-board-hours,.cs-event-meta,.cs-agenda-site) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .is-today .cs-board-day-head {
+  background:var(--cs-access-surface);
+  box-shadow:inset 0 2px 0 var(--cs-compass-indicator);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .is-today .cs-board-day-number {
+  background:var(--cs-access-success-soft);
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-time-group-header {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-time-group-label {
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(button.cs-time-group-header,.cs-board-add,.cs-board-more):hover,
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-time-group-events .cs-event:hover:where(:not(.is-open,.is-multi-selected,.has-issue)),
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-agenda-row:not(.cs-agenda-open):hover {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) :is(.cs-event+.cs-event,.cs-agenda-row) {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-agenda-row {
+  padding-inline:12px;
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-day-button.is-selected {
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page="schedule"]:where([data-role="admin"]) .cs-board-day.is-drop-target {
+  background:var(--cs-access-success-soft);
+  box-shadow:inset 0 0 0 2px var(--cs-access-primary);
+}
+
+/* Vagtserier is the same compact register, including the expanded agreement. */
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-overview-head {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-status {
+  padding-inline:8px;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-status[aria-pressed="true"] {
+  border-bottom-color:transparent;
+  color:var(--cs-access-primary);
+  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
+  font-weight:700;
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-status:hover {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-overview-list {
+  margin-top:12px;
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) :is(.cs-series-register-columns,.cs-series-row) {
+  padding-inline:12px;
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-register-columns {
+  border-radius:6px 6px 0 0;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  font-weight:700;
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) :is(.cs-series-row-name,.cs-series-row-time) {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) :is(.cs-series-row-avatar,.cs-series-agreement-details,.cs-series-weekday) {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-weekday[data-active="true"] {
+  border-color:var(--cs-access-ink);
+  background:var(--cs-access-ink);
+  color:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-row[data-status="active"] .cs-series-row-state,
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-disclosure-label {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="series"]:where([data-role="admin"]) .cs-series-row[data-status="active"] .cs-series-row-state::before {
+  background:var(--cs-compass-indicator);
+}
+
+/* The editor, review, publication and department views share the same quiet frame. */
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
+  .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
+  .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer
+) {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(
+  .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3,
+  .cs-publication-review-title,.cs-publication-review-detail-title,.cs-publication-range-title
+) {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
+  .cs-series-planning-preview,.cs-series-operation-note,.cs-person-picker-head,.cs-person-footnote,
+  .cs-department-popover-footer,.cs-publication-review-comparison thead th
+) {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-series-planning-preview {
+  box-shadow:inset 0 0 0 1px var(--cs-compass-rule);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-editor :is(.cs-repeat-days,.cs-series-period-presets)>button[aria-pressed="true"] {
+  border-color:var(--cs-access-ink);
+  background:var(--cs-access-ink);
+  color:var(--cs-access-surface);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-series-calendar-grid>button.cs-series-calendar-date:where(:not(.has-conflict,.has-pending)) {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-series-calendar-grid>button[aria-pressed="true"] {
+  outline-color:var(--cs-access-primary);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
+  .cs-operations-tabs>button,.cs-publication-review .cs-publication-review-filter,.cs-publication-range-preset
+)[aria-pressed="true"] {
+  border-color:transparent;
+  border-radius:0;
+  background:transparent;
+  color:var(--cs-access-primary);
+  box-shadow:inset 0 -2px 0 var(--cs-compass-indicator);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(
+  .cs-calendar-display-panel,.cs-date-jump-panel,.cs-department-popover,.cs-series-menu-items,
+  .cs-publication-review-comparison :is(th,td),.cs-publication-review .cs-publication-review-row
+) {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-department-option[aria-pressed="true"] {
+  background:var(--cs-compass-selected);
+}
+
+/* The publication sheet uses one scroll area between the title and actions. */
+#cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
+  width:min(744px,100%);
+  font-family:var(--cs-compass-font);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor > :is(.cs-editor-head,.cs-editor-actions) {
+  flex:none;
+  padding:12px var(--cs-overlay-gutter,24px);
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-title {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:18px;
+  font-weight:700;
+  line-height:24px;
+}
+#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
+  display:block;
+  margin:2px 0 0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page] .cs-changes-editor > .cs-group-fields {
+  padding:18px var(--cs-overlay-gutter,24px) 24px;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  align-items:start;
+  gap:20px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range {
+  gap:8px;
+  margin:0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-head {
+  flex-direction:column;
+  align-items:stretch;
+  gap:2px;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-overview h4,.cs-publication-review-title,.cs-publication-scope > label) {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:14px;
+  font-weight:700;
+  line-height:22px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-fields {
+  gap:8px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-field {
+  gap:4px;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-summary {
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget {
+  min-width:0;
+  margin:14px 0 0;
+  padding:12px 14px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:4px 10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
+  margin:0;
+  font-size:13px;
+  font-weight:700;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title > span,.cs-publication-budget-numbers > span,.cs-publication-budget-note) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-overview {
+  justify-content:space-between;
+  margin-top:5px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
+  font-size:17px;
+  font-variant-numeric:tabular-nums;
+  line-height:24px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
+  color:var(--cs-access-primary);
+  font-weight:650;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status[data-over="true"] {color:#9b3227}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-note {margin:3px 0 0}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details summary {
+  width:fit-content;
+  color:var(--cs-access-ink);
+  font-weight:650;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods {
+  margin:6px 0 0;
+  padding:0;
+  list-style:none;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods li {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px 8px;
+  padding:5px 0;
+  border-top:1px solid var(--cs-compass-rule);
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-retry {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope {
+  min-width:0;
+  margin:0;
+  padding:0 0 0 20px;
+  border:0;
+  border-left:1px solid var(--cs-compass-rule);
+  background:transparent;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope > label {
+  display:block;
+  margin-bottom:8px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope p {
+  margin-top:8px;
+  color:var(--cs-access-muted);
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-input,.cs-publication-scope select,.cs-publication-review-input) {
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  height:36px;
+  min-height:36px;
+  padding:0 8px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-ink);
+  font:inherit;
+  font-size:13px;
+  font-weight:500;
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-range-input[aria-invalid="true"] {
+  border-color:#a33c32;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-presets,.cs-publication-review-filters) {
+  display:flex;
+  gap:2px;
+  border-bottom:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
+  position:relative;
+  gap:5px;
+  min-width:0;
+  min-height:34px!important;
+  height:34px!important;
+  padding:0 9px!important;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:650;
+  box-shadow:none;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter):hover:not(:disabled) {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter)[aria-pressed="true"] {
+  color:var(--cs-access-primary);
+  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-more {
+  position:relative;
+  flex:0 0 76px;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-more::after {
+  content:"";
+  position:absolute;
+  top:50%;
+  right:11px;
+  width:6px;
+  height:6px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:translateY(-70%) rotate(45deg);
+  pointer-events:none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select {
+  appearance:none;
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0 23px 0 9px!important;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  font:inherit;
+  font-size:12px;
+  font-weight:650;
+  cursor:pointer;
+}
+#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:hover:not(:disabled) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-more[data-selected="true"] {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more[data-selected="true"] select {
+  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-range-more:has(select:disabled) {
+  opacity:.4;
+}
+#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:disabled {
+  cursor:default;
+}
+#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio .cs-changes-editor :is(button,input,select,summary):focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:52px;
+  margin:12px 0 0;
+  color:var(--cs-access-muted);
+  font-size:13px;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load[hidden] {
+  display:none;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load-message {
+  margin:0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related {
+  gap:10px;
+  margin:12px 0 0;
+  padding:9px 10px;
+  border-radius:6px;
+  background:#fbf6ec;
+  color:#775210;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related input {
+  accent-color:var(--cs-access-primary);
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-related-slot > p {
+  margin:6px 0 0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-overview {
+  margin:18px 0 0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-changes-summary {
+  gap:4px 18px;
+  margin:6px 0 10px;
+  padding:0;
+  border:0;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-metric {
+  display:inline-flex;
+  align-items:baseline;
+  gap:5px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-metric strong {
+  color:var(--cs-access-ink);
+  font-size:14px;
+  font-weight:700;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks {
+  width:100%;
+  margin:8px 0 0;
+  table-layout:fixed;
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
+  padding:8px 10px;
+  border-bottom:1px solid var(--cs-compass-rule);
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks thead th {
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  font-weight:700;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(1) {width:26%}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {width:13%}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(4) {width:23%}
+#cleanrooms-studio .cs-changes-editor .cs-publication-weeks tbody th {
+  color:var(--cs-access-ink);
+  font-weight:650;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-dates {
+  display:block;
+  margin-top:2px;
+  color:var(--cs-access-muted);
+  font-weight:400;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-overview-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+#cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-jump {
+  padding:4px 0;
+  border:0;
+  background:transparent;
+  color:var(--cs-compass-green,#00684a);
+  font:inherit;
+  font-weight:650;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-jump:hover {
+  text-decoration:underline;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-state {
+  display:inline-flex;
+  align-items:baseline;
+  gap:6px;
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-state::before {
+  content:"";
+  flex:none;
+  width:6px;
+  height:6px;
+  margin-block-start:5px;
+  border-radius:50%;
+  background:currentColor;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-state:is([data-state="ready"],[data-state="published"]) {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state="issues"] {
+  color:#a33c32;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state="open"] {
+  color:#775210;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review {
+  margin:20px 0 0;
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-head {
+  margin-bottom:8px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(160px,36%);
+  align-items:end;
+  gap:12px;
+  margin-bottom:12px;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-review-muted,.cs-publication-review-filter-count,.cs-publication-review-week,.cs-publication-review-row-context) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-day-title {
+  margin:12px 0 0;
+  padding:6px 8px;
+  border-bottom-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  font-weight:650;
+}
+#cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-review .cs-publication-review-row {
+  min-height:56px!important;
+  padding:8px!important;
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-row:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head {
+  flex-wrap:wrap;
+  column-gap:10px;
+  row-gap:0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head > strong {
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-type {
+  color:var(--cs-access-muted);
+  font-size:11px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type="added"]::before {
+  background:var(--cs-compass-indicator);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type="removed"]::before {
+  background:#a33c32;
+}
+#cleanrooms-studio .cs-changes-editor > .cs-editor-actions {
+  justify-content:flex-end;
+  align-items:center;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
+  flex:1 1 auto;
+  margin:0 auto 0 0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-changes-editor > .cs-editor-actions > .cs-button {
+  flex:none;
+}
+@media(max-width:600px) {
+  #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-scope {
+    padding-left:0;
+    border-left:0;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-review-search {
+    grid-row:1;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
+    padding:6px 4px;
+    font-size:11px;
+    line-height:16px;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {
+    width:17%;
+  }
+}
+@media(max-width:390px) {
+  #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
+    padding-inline:5px!important;
+    font-size:11px;
+  }
+  #cleanrooms-studio .cs-changes-editor > .cs-editor-actions {
+    flex-wrap:wrap;
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
+    flex-basis:100%;
+  }
+}

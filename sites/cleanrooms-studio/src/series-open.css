@@ -1,0 +1,59 @@
+/* Recurring agreements on the same open canvas as employees and payroll. */
+#cleanrooms-studio[data-page="series"]{--cs-series-rule:#e4e8ea}
+#cleanrooms-studio[data-page="series"] .cs-series-overview{background:#fff}
+#cleanrooms-studio[data-page="series"] .cs-series-overview-head{align-items:stretch;gap:8px 24px;min-height:54px;margin:0;padding:0;border:0;border-bottom:1px solid #cfd6da;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="series"] .cs-series-statuses{gap:28px}
+#cleanrooms-studio[data-page="series"] .cs-series-status{height:54px;min-height:54px;margin:0 0 -1px;padding:0 2px;color:#70797f;font-weight:500}
+#cleanrooms-studio[data-page="series"] .cs-series-status[aria-pressed="true"]{border-bottom-color:#35434b;color:#293841;font-weight:600}
+#cleanrooms-studio[data-page="series"] #cs-series-demo-examples{align-self:center;margin:0 0 0 auto}
+#cleanrooms-studio[data-page="series"] .cs-series-overview-list{padding:0 0 8px}
+#cleanrooms-studio[data-page="series"] .cs-series-row{margin:0;padding:26px 0 20px;border:0;border-bottom:1px solid #d7dfe3;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="series"] .cs-series-row:focus-within{border-color:#aab9c1}
+#cleanrooms-studio[data-page="series"] .cs-series-row-identity{gap:12px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-avatar{width:36px;height:36px;flex-basis:36px;border:0;border-radius:5px;background:#f1f4f5;color:#52616a}
+#cleanrooms-studio[data-page="series"] .cs-series-row-name{font-size:16px;font-weight:600;line-height:24px;letter-spacing:-.2px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-site{margin-top:4px;color:#737c82;font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page="series"] .cs-series-row[data-status] .cs-series-row-state{gap:7px;margin-top:7px;padding:0;border:0;border-radius:0;background:transparent;font-size:11px;font-weight:400;line-height:19px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-state::before{flex:0 0 4px;width:4px;height:4px}
+#cleanrooms-studio[data-page="series"] .cs-series-example-label{margin-top:5px;color:#7b848a;font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-label{margin-bottom:7px;color:#7a838a;line-height:18px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-value{color:#39474f;font-weight:500}
+#cleanrooms-studio[data-page="series"] .cs-series-row-time{font-weight:600;letter-spacing:-.1px}
+#cleanrooms-studio[data-page="series"] .cs-series-week-pattern{margin-top:10px}
+#cleanrooms-studio[data-page="series"] .cs-series-weekday{border-color:var(--cs-series-rule);background:#fff;color:#7b848a}
+#cleanrooms-studio[data-page="series"] .cs-series-weekday[data-active="true"]{border-color:#3b4951;background:#3b4951;color:#fff}
+#cleanrooms-studio[data-page="series"] .cs-series-pattern-times{margin-top:8px}
+#cleanrooms-studio[data-page="series"] .cs-series-row-facts{gap:8px 18px;color:#7b848a;line-height:20px}
+#cleanrooms-studio[data-page="series"] .cs-series-secondary-actions{gap:8px}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline{margin:6px 0 0;padding:4px 0 0;border:0;border-top:1px solid #edf0f1;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary{gap:6px 16px;padding:8px 0;color:#58666f;font-weight:500}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-summary:focus-visible{outline-offset:-2px}
+#cleanrooms-studio[data-page="series"] .cs-series-timeline-next{color:#81898e}
+#cleanrooms-studio[data-page="series"] .cs-series-period{padding:20px 0;border-color:var(--cs-series-rule)}
+#cleanrooms-studio[data-page="series"] .cs-series-period:last-child{padding-bottom:4px}
+#cleanrooms-studio[data-page="series"] .cs-series-period strong{font-size:12px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page="series"] .cs-series-overview-empty{padding:28px 0}
+#cleanrooms-studio[data-page="series"] .cs-series-empty-title{font-size:19px;font-weight:600;line-height:27px;letter-spacing:-.3px}
+
+@container cs-series-overview (min-width:600px){
+  #cleanrooms-studio[data-page="series"] .cs-series-row{gap:20px 24px}
+}
+@container cs-series-overview (min-width:1000px){
+  #cleanrooms-studio[data-page="series"] .cs-series-row{gap:14px 24px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-actions{gap:8px}
+  #cleanrooms-studio[data-page="series"] .cs-series-timeline{margin-top:8px}
+}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page="series"] .cs-series-overview-head{gap:12px 16px;min-height:0;padding:0}
+  #cleanrooms-studio[data-page="series"] .cs-series-overview-head>.cs-series-statuses{flex:1 1 100%;gap:8px}
+  #cleanrooms-studio[data-page="series"] .cs-series-status{height:44px;min-height:44px;margin:0;font-size:12px}
+  #cleanrooms-studio[data-page="series"] #cs-series-demo-examples{margin:0 0 14px auto}
+  #cleanrooms-studio[data-page="series"] .cs-series-overview-list{padding-top:0}
+  #cleanrooms-studio[data-page="series"] .cs-series-row{gap:20px 16px;margin:0;padding:24px 0 20px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-name{font-size:15px;line-height:23px}
+  #cleanrooms-studio[data-page="series"] .cs-series-row-facts{gap:8px 16px}
+  #cleanrooms-studio[data-page="series"] .cs-series-secondary-actions{justify-content:flex-start;flex-basis:100%;margin-left:0}
+  #cleanrooms-studio[data-page="series"] .cs-series-timeline{margin:2px 0 0;padding:4px 0 0}
+  #cleanrooms-studio[data-page="series"] .cs-series-period{gap:14px 16px;padding:20px 0}
+  #cleanrooms-studio[data-page="series"] .cs-series-overview-empty{padding:24px 0}
+}

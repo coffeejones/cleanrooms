@@ -1,0 +1,100 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const copy=value=>JSON.parse(JSON.stringify(value)),settle=async()=>{for(let index=0;index<20;index++)await Promise.resolve();};
+
+// A real tree is required here: the bug survives correct numeric restoration
+// when replacing the scroll element interrupts the browser's ongoing gesture.
+// This fixture models that identity rule; it does not claim browser physics or
+// CSS/layout performance. Week heights are independently adjustable geometry.
+function dom(){
+ const frames=new Map(),observers=[],heights=new Map(),events=new Map();let nextFrame=0,document;
+ const gesture={element:null,active:false,interruptions:0,start(element){this.element=element;this.active=true;},step(delta){assert.equal(this.active,true,'Replacing the gesture target interrupts native scrolling');assert.equal(this.element.isConnected,true);this.element.dispatch('wheel',{deltaY:delta});this.element.scrollTop+=delta;this.element.dispatch('scroll');}};
+ function disconnected(node){if(gesture.active&&node.contains?.(gesture.element)){gesture.active=false;gesture.interruptions++;}}
+ class Element{
+  constructor(tag='div'){this.nodeType=1;this.tagName=tag.toUpperCase();this.parentNode=null;this.childNodes=[];this.dataset={};this.attributes=new Map();this.className='';this.hidden=false;this.value='';this.checked=false;this.disabled=false;this.open=false;this.handlers=new Map();this.style={setProperty(name,value){this[name]=value;},removeProperty(name){delete this[name];}};this.clientHeight=500;this.clientWidth=1200;this.clientTop=0;this._scrollTop=0;this.scrollLeft=0;this.replacements=0;}
+  get children(){return this.childNodes.filter(node=>node.nodeType===1);}get parentElement(){return this.parentNode;}get firstElementChild(){return this.children[0]||null;}get isConnected(){return this.connectedRoot||Boolean(this.parentNode?.isConnected);}
+  get classList(){const self=this;return {contains:name=>self.className.split(/\s+/).includes(name),add:(...names)=>{self.className=[...new Set([...self.className.split(/\s+/).filter(Boolean),...names])].join(' ');},remove:(...names)=>{self.className=self.className.split(/\s+/).filter(name=>!names.includes(name)).join(' ');},toggle(name,force){const value=force??!this.contains(name);value?this.add(name):this.remove(name);return value;}};}
+  get scrollTop(){return this._scrollTop;}set scrollTop(value){this._scrollTop=Math.max(0,Number(value)||0);}
+  get scrollHeight(){return this.classList.contains('cs-board-scroll')?this.children.reduce((sum,node)=>sum+height(node),0):this.clientHeight;}
+  get textContent(){return this.childNodes.map(child=>child.textContent||'').join('');}set textContent(value){this.replaceChildren();if(value!==''&&value!=null)this.append(new Text(String(value)));}
+  append(...nodes){for(let node of nodes){if(typeof node==='string')node=new Text(node);if(node.parentNode){const list=node.parentNode.childNodes;list.splice(list.indexOf(node),1);}node.parentNode=this;this.childNodes.push(node);}}
+  prepend(...nodes){for(const node of [...nodes].reverse()){node.remove();node.parentNode=this;this.childNodes.unshift(node);}}
+  replaceChildren(...nodes){this.replacements++;for(const child of this.childNodes){disconnected(child);child.parentNode=null;}this.childNodes=[];this.append(...nodes);}
+  replaceWith(node){if(!this.parentNode)return;const parent=this.parentNode,index=parent.childNodes.indexOf(this);disconnected(this);this.parentNode=null;node.remove();parent.childNodes[index]=node;node.parentNode=parent;}
+  replaceChild(node,old){const index=this.childNodes.indexOf(old);assert.ok(index>=0);disconnected(old);old.parentNode=null;node.remove();node.parentNode=this;this.childNodes[index]=node;return old;}
+  insertBefore(node,before){node.remove();node.parentNode=this;const index=before?this.childNodes.indexOf(before):-1;if(index<0)this.childNodes.push(node);else this.childNodes.splice(index,0,node);return node;}
+  remove(){if(!this.parentNode)return;disconnected(this);const list=this.parentNode.childNodes;list.splice(list.indexOf(this),1);this.parentNode=null;}
+  contains(node){return this===node||this.childNodes.some(child=>child.contains?.(node));}
+  setAttribute(name,value){this.attributes.set(name,String(value));if(name==='class')this.className=String(value);if(name==='id')this.id=String(value);if(name.startsWith('data-'))this.dataset[name.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase())]=String(value);}
+  getAttribute(name){if(name==='class')return this.className||null;if(name==='id')return this.id||null;if(name.startsWith('data-'))return this.dataset[name.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase())]??null;return this.attributes.get(name)??null;}
+  removeAttribute(name){this.attributes.delete(name);if(name.startsWith('data-'))delete this.dataset[name.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase())];}
+  matches(selector){selector=selector.trim();if(selector==='*')return true;const attr=[...selector.matchAll(/\[([^=\]]+)(?:=["']?([^"'\]]+)["']?)?\]/g)];for(const match of attr){const value=this.getAttribute(match[1]);if(value===null||match[2]!==undefined&&String(value)!==match[2])return false;}const simple=selector.replace(/\[[^\]]+\]/g,'');for(const cls of simple.matchAll(/\.([\w-]+)/g))if(!this.classList.contains(cls[1]))return false;const id=simple.match(/#([\w-]+)/);if(id&&this.id!==id[1])return false;const tag=simple.match(/^[a-z][\w-]*/i);return !tag||this.tagName.toLowerCase()===tag[0].toLowerCase();}
+  closest(selector){return this.matches(selector)?this:this.parentNode?.closest?.(selector)||null;}
+  querySelectorAll(selector){const alternatives=selector.split(',').map(value=>value.trim());return this.children.flatMap(child=>[...(alternatives.some(part=>child.matches(part))?[child]:[]),...child.querySelectorAll(selector)]);}querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
+  addEventListener(type,callback){if(!this.handlers.has(type))this.handlers.set(type,new Set());this.handlers.get(type).add(callback);}removeEventListener(type,callback){this.handlers.get(type)?.delete(callback);}
+  dispatch(type,detail={}){const event={type,target:this,currentTarget:this,preventDefault(){this.defaultPrevented=true;},stopPropagation(){},...detail};for(const callback of [...this.handlers.get(type)||[]])callback(event);return event;}
+  focus(){document.activeElement=this;}scrollIntoView(){}reportValidity(){return true;}
+  getBoundingClientRect(){const canvas=this.classList.contains('cs-board-scroll')?this:this.closest('.cs-board-scroll');if(this.classList.contains('cs-board-scroll'))return {top:100,bottom:100+this.clientHeight,height:this.clientHeight,left:0,right:1200,width:1200};const section=this.classList.contains('cs-board-week')?this:this.closest('.cs-board-week');if(section&&canvas){let top=100-canvas.scrollTop;for(const sibling of canvas.children){if(sibling===section)break;top+=height(sibling);}const size=this===section?height(section):20;return {top,bottom:top+size,height:size,left:0,right:1200,width:1200};}return {top:0,bottom:500,height:500,left:0,right:1200,width:1200};}
+ }
+ class Text{constructor(value){this.nodeType=3;this.textContent=value;this.parentNode=null;}remove(){if(this.parentNode){const list=this.parentNode.childNodes;list.splice(list.indexOf(this),1);this.parentNode=null;}}contains(node){return node===this;}}
+ function height(section){if(!section.classList.contains('cs-board-week'))return 0;const selected=heights.get(section.dataset.start),natural=typeof selected==='function'?selected(section):selected;return Math.max(natural??724,Number.parseFloat(section.style.minHeight)||0);}
+ const root=new Element();root.id='cleanrooms-studio';root.connectedRoot=true;
+ document={activeElement:null,getElementById:()=>root,createElement:tag=>new Element(tag),createElementNS:(_namespace,tag)=>new Element(tag),createTextNode:value=>new Text(String(value)),querySelectorAll:selector=>root.querySelectorAll(selector),addEventListener(){},removeEventListener(){}};
+ const env={requestAnimationFrame:callback=>{frames.set(++nextFrame,callback);return nextFrame;},cancelAnimationFrame:id=>frames.delete(id),addEventListener:(type,callback)=>{if(!events.has(type))events.set(type,new Set());events.get(type).add(callback);},removeEventListener:(type,callback)=>events.get(type)?.delete(callback),ResizeObserver:class{constructor(callback){this.callback=callback;this.targets=new Set();observers.push(this);}observe(element){this.targets.add(element);}unobserve(element){this.targets.delete(element);}disconnect(){this.targets.clear();}}};
+ return {root,Element,document,env,gesture,heights,observers,flush(){const current=[...frames.values()];frames.clear();for(const callback of current)callback();},get pendingFrames(){return frames.size;}};
+}
+
+// Reuse the established app initialization fixture, with an actual connected
+// DOM, CalendarView and CalendarViewport. The complete production render()
+// remains enabled; only unrelated top-level chrome effects are suppressed.
+const fixtureText=fs.readFileSync(path.join(__dirname,'series-editor-integration.test.cjs'),'utf8');let fixture=fixtureText.slice(0,fixtureText.indexOf('\ntest('));
+const replace=(before,after)=>{assert.ok(fixture.includes(before),before);fixture=fixture.replace(before,after);};
+const elementStart=fixture.indexOf('  class Element {'),elementEnd=fixture.indexOf('  const controls=new Map();',elementStart);assert.ok(elementStart>0&&elementEnd>elementStart);fixture=fixture.slice(0,elementStart)+'  const Element=TestDOM.Element;\n'+fixture.slice(elementEnd);
+replace("const control=selector=>{if(!controls.has(selector))controls.set(selector,new Element());return controls.get(selector);};",`const control=selector=>{if(selector.startsWith('#cs-page-content ')){const area=control('#cs-page-content');return selector.split(',').map(part=>area.querySelector(part.trim().replace(/^#cs-page-content\\s*/,''))).find(Boolean)||null;}if(!controls.has(selector)){const element=new Element();if(selector.startsWith('#'))element.id=selector.slice(1);if(selector.endsWith('-layer'))element.hidden=true;controls.set(selector,element);TestDOM.root.append(element);}return controls.get(selector);};`);
+replace('const root={querySelector:control,querySelectorAll:()=>[],dataset:{}};','const root=TestDOM.root;root.querySelector=control;root.querySelectorAll=selector=>control(\'#cs-page-content\').querySelectorAll(selector);');
+replace('const context=vm.createContext({','const context=vm.createContext({...TestDOM.env,innerWidth:1200,');
+replace('CleanRoomsCalendar:{revealDay(){}},','CleanRoomsCalendar:null,');
+replace("window:{},document:{getElementById:()=>root,createElement:tag=>new Element(tag),createElementNS:(_namespace,tag)=>new Element(tag),createTextNode:text=>({textContent:String(text)})}", 'window:{},document:TestDOM.document');
+replace('  const instrumentation=`',`  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/calendar-viewport.js'),'utf8'),context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/calendar-view.js'),'utf8'),context);\n  const instrumentation=\``);
+replace('render=()=>{};renderDemoEditorGuide=()=>{};renderPlannerChecklist=()=>{};','renderSession=()=>{};renderPageHelp=()=>{};renderIdentity=()=>{};renderDepartments=()=>{};renderSelection=()=>{};icons=()=>{};animateNavigation=()=>{};renderDemoEditorGuide=()=>{};renderPlannerChecklist=()=>{};');
+replace('state,openEditor,openSeriesEditor,','state,paint:render,loadPlannerViewport,acceptVisibleWeeks,weekState:calendarWeekState,canvas:scrollContainer,board:()=>calendarViewportBoard,viewport:()=>clone(plannerViewport),openEditor,openSeriesEditor,');
+replace('return {...context.seriesEditorTest,control,editor,','return {...context.seriesEditorTest,control,editor,dom:TestDOM,');
+const makeApplication=Function('require','__dirname','TestDOM',fixture+'\nreturn application();');
+const week0='2026-11-02',week1='2026-11-09',week2='2026-11-16';
+function application(){
+ const app=makeApplication(require,__dirname,dom()),reads=[];let coverage={from:week0,to:'2026-11-08'};
+ Object.assign(app.state,{demoSeed:false,page:'schedule',role:'admin',view:'week',zoom:1,week:1,search:'',site:'all',onlyOpen:false,series:[],edits:{one:{id:'one',person:'p0',site:0,date:'2026-11-03',start:'07:00',end:'15:00',note:''}},deleted:[],weekPlans:{},requests:{},absences:[],coverageRules:[]});
+ const covers=range=>range.from>=coverage.from&&range.to<=coverage.to;
+ const api={isPartial:true,coverageValid:true,calendarGeneration:'authority-1',viewportCovers:covers,viewportCached:()=>false,covers,coversScope:projection=>projection.mode==='calendar'&&covers(projection),viewport:(range,options)=>new Promise(resolve=>reads.push({range:copy(range),options,resolve})),window:async()=>{assert.fail('Viewport loading must use its scoped service');},ensureFull:async()=>{assert.fail('A stable calendar must not fetch the complete plan');},action:async()=>({ok:true})};
+ app.installWindow(api);app.paint();
+ async function reply(index,{obsolete=false}={}){const read=reads[index];assert.ok(read);if(!obsolete&&read.options.isCurrent()){const before=copy(app.state),incoming=copy(before);coverage=copy(read.range);incoming.edits.two={id:'two',person:'p1',site:0,date:'2026-11-10',start:'08:00',end:'16:00',note:''};app.reconcile(incoming,{submitted:before,acknowledged:incoming,previous:before,scopeReplacement:true,scopeExpansion:true,viewport:true,projection:{mode:'calendar',...coverage}});read.resolve({ok:true});}else read.resolve({ok:false,superseded:true});await settle();}
+ return {...app,api,reads,reply,setCoverage:value=>{coverage=copy(value);}};
+}
+
+test('pending neighbor, reconciliation, loading-finally and no-op paints keep the actual scroll target and unchanged cards',async()=>{
+ const app=application(),canvas=app.canvas(),firstWeek=canvas.querySelectorAll('.cs-board-week')[0],card=canvas.querySelector('[data-shift="one"]'),mounts=app.control('#cs-page-content').replacements;assert.ok(card);app.dom.gesture.start(canvas);app.dom.gesture.step(840);
+ const loading=app.loadPlannerViewport({from:week0,to:'2026-11-15'});assert.equal(app.reads.length,1);app.dom.gesture.step(-80);const latest=canvas.scrollTop;await app.reply(0);assert.equal(await loading,true);
+ assert.ok(app.canvas()===canvas,'A read completion must not replace the native scroll target');assert.ok(canvas.querySelectorAll('.cs-board-week')[0]===firstWeek,'An unchanged week must retain its node');assert.ok(canvas.querySelector('[data-shift="one"]')===card,'An unchanged shift must retain its node');assert.equal(app.control('#cs-page-content').replacements,mounts);assert.equal(app.dom.gesture.active,true);assert.equal(canvas.scrollTop,latest);assert.equal(app.dom.gesture.interruptions,0);
+ app.paint();app.paint();assert.ok(app.canvas()===canvas,'The scroll target must retain its identity');assert.ok(canvas.querySelectorAll('.cs-board-week')[0]===firstWeek,'An unchanged week must retain its node');assert.ok(canvas.querySelector('[data-shift="one"]')===card,'An unchanged shift must retain its node');assert.equal(app.dom.observers.length,1,'The same board keeps its observer');app.dom.gesture.step(-80);assert.equal(canvas.scrollTop,latest-80);
+});
+
+test('an obsolete read completion preserves root and week identities while upward motion continues',async()=>{
+ const app=application(),canvas=app.canvas(),weeks=canvas.querySelectorAll('.cs-board-week'),mounts=app.control('#cs-page-content').replacements;app.dom.gesture.start(canvas);app.dom.gesture.step(1600);app.acceptVisibleWeeks({visible:[week2],prefetch:['2026-11-23']});assert.equal(app.reads.length,1);app.dom.gesture.step(-120);app.acceptVisibleWeeks({visible:[week1],prefetch:[week0]});assert.equal(app.reads[0].options.isCurrent(),false);const latest=canvas.scrollTop;await app.reply(0,{obsolete:true});
+ assert.ok(app.canvas()===canvas,'The scroll target must retain its identity');assert.equal(canvas.scrollTop,latest);assert.equal(app.control('#cs-page-content').replacements,mounts);assert.equal(app.dom.gesture.interruptions,0);assert.ok(weeks.every((section,index)=>canvas.querySelectorAll('.cs-board-week')[index]===section));app.dom.gesture.step(-120);assert.equal(canvas.scrollTop,latest-120);
+});
+
+test('changing another week patches only that week and compensates actual height changes above the current anchor',async()=>{
+ const app=application();app.setCoverage({from:week0,to:'2026-11-22'});app.paint();const canvas=app.canvas();app.dom.heights.set(week0,section=>section.querySelector('[data-shift="extra"]')?924:724);app.dom.gesture.start(canvas);app.dom.gesture.step(2*724+35);const anchor=app.board().captureViewport(),secondWeek=canvas.querySelectorAll('.cs-board-week')[1],thirdWeek=canvas.querySelectorAll('.cs-board-week')[2],mounts=app.control('#cs-page-content').replacements;
+ const before=copy(app.state),incoming=copy(before);incoming.edits.extra={id:'extra',person:'p2',site:0,date:'2026-11-04',start:'07:00',end:'15:00',note:''};app.reconcile(incoming,{submitted:before,acknowledged:incoming,previous:before,scopeReplacement:true,scopeExpansion:true,viewport:true,projection:{mode:'calendar',from:week0,to:'2026-11-22'}});
+ assert.ok(app.canvas()===canvas,'The scroll target must retain its identity');assert.ok(canvas.querySelectorAll('.cs-board-week')[1]===secondWeek);assert.ok(canvas.querySelectorAll('.cs-board-week')[2]===thirdWeek);assert.equal(app.control('#cs-page-content').replacements,mounts);assert.equal(app.dom.gesture.interruptions,0);assert.deepEqual(copy(app.board().captureViewport()),copy(anchor));assert.equal(canvas.scrollTop,2*724+35+200);
+});
+
+test('a cached visible week paints before its pending neighbor while both adoptions retain the same gesture target',async()=>{
+ const app=application(),canvas=app.canvas(),outside=canvas.querySelectorAll('.cs-board-week')[5],mounts=app.control('#cs-page-content').replacements;app.api.viewportCached=range=>range.from===week1&&range.to==='2026-11-15';app.dom.gesture.start(canvas);app.dom.gesture.step(760);app.acceptVisibleWeeks({visible:[week1],prefetch:[week2]});assert.equal(app.reads.length,1);assert.deepEqual(app.reads[0].range,{from:week1,to:'2026-11-15'});
+ await app.reply(0);assert.equal(app.reads.length,2,'The wider neighbor range remains pending after the cached visible adoption');assert.deepEqual(app.reads[1].range,{from:week1,to:'2026-11-22'});assert.ok(app.canvas()===canvas);const cachedCard=canvas.querySelector('[data-shift="two"]');assert.ok(cachedCard);assert.equal(app.weekState(week1).loaded,true);app.dom.gesture.step(-40);const latest=canvas.scrollTop;await app.reply(1);
+ assert.ok(app.canvas()===canvas);assert.ok(canvas.querySelector('[data-shift="two"]')===cachedCard,'An unchanged cached card must survive neighbor adoption and finally');assert.ok(canvas.querySelectorAll('.cs-board-week')[5]===outside);assert.equal(canvas.scrollTop,latest);assert.equal(app.control('#cs-page-content').replacements,mounts);assert.equal(app.dom.gesture.interruptions,0);
+});
+
+test('loading a nearby range does not animate or replace unknown weeks elsewhere in the scaffold',async()=>{
+ const app=application(),canvas=app.canvas(),outside=canvas.querySelectorAll('.cs-board-week')[7],loading=app.loadPlannerViewport({from:week1,to:'2026-11-22'});assert.equal(app.reads.length,1);app.paint();assert.equal(app.weekState(week1).loading,true);assert.equal(app.weekState(week2).loading,true);assert.equal(app.weekState('2026-12-21').loading,false);assert.ok(canvas.querySelectorAll('.cs-board-week')[7]===outside);assert.equal(outside.getAttribute('aria-busy'),'false');assert.match(outside.textContent,/Ikke indlæst/);assert.doesNotMatch(outside.textContent,/Indlæser/);
+ await app.reply(0,{obsolete:true});assert.equal(await loading,false);assert.equal(app.weekState(week1).loading,false);assert.ok(app.canvas()===canvas);assert.ok(canvas.querySelectorAll('.cs-board-week')[7]===outside);
+});

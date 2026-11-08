@@ -1,0 +1,175 @@
+/* One size family for actions and fields across pages, popovers and sheets. */
+#cleanrooms-studio[data-page]{
+  --cs-ui-height:40px;
+  --cs-ui-compact-height:32px;
+  --cs-ui-radius:8px;
+  --cs-ui-compact-radius:6px;
+  --cs-ui-font:13px;
+  --cs-ui-field-font:14px;
+  --cs-ui-line:20px;
+  --cs-ui-padding:12px;
+  --cs-ui-icon:16px;
+}
+
+/* Standard actions share geometry; colour continues to express their purpose. */
+#cleanrooms-studio[data-page][data-role] .cs-button,
+#cleanrooms-studio[data-page][data-role] .cs-department-trigger,
+#cleanrooms-studio[data-page][data-role] #cs-edit-find-replacement.cs-replacement-shortcut{
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:0;
+  max-width:100%;
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  padding:0 var(--cs-ui-padding);
+  border-radius:var(--cs-ui-radius);
+  font-family:inherit;
+  font-size:var(--cs-ui-font);
+  font-weight:500;
+  line-height:var(--cs-ui-line);
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page][data-role] .cs-department-trigger{justify-content:space-between}
+#cleanrooms-studio[data-page][data-role] #cs-review{height:var(--cs-ui-height);min-height:var(--cs-ui-height)}
+#cleanrooms-studio[data-page][data-role] .cs-icon-button,
+#cleanrooms-studio[data-page][data-role] #cs-date-jump,
+#cleanrooms-studio[data-page][data-role] #cs-person-picker-close{
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  width:var(--cs-ui-height);
+  min-width:var(--cs-ui-height);
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  padding:0;
+  border-radius:var(--cs-ui-radius);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-button,.cs-icon-button,.cs-department-trigger) > svg{
+  width:var(--cs-ui-icon);
+  height:var(--cs-ui-icon);
+}
+#cleanrooms-studio[data-page][data-role] .cs-nav-pair .cs-icon-button:first-child{border-radius:var(--cs-ui-radius) 0 0 var(--cs-ui-radius)}
+#cleanrooms-studio[data-page][data-role] .cs-nav-pair .cs-icon-button:last-child{border-radius:0 var(--cs-ui-radius) var(--cs-ui-radius) 0}
+
+/* Selection and feedback strips use a single explicit compact variant. */
+#cleanrooms-studio[data-page][data-role] :is(.cs-planning-tools,.cs-selection-actions,.cs-demo-session-actions) .cs-button,
+#cleanrooms-studio[data-page][data-role] .cs-undo,
+#cleanrooms-studio[data-page][data-role] .cs-six-months{
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:var(--cs-ui-compact-height);
+  min-height:var(--cs-ui-compact-height);
+  padding:0 8px;
+  border-radius:var(--cs-ui-compact-radius);
+  font-family:inherit;
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-selection-actions .cs-icon-button{
+  width:var(--cs-ui-compact-height);
+  min-width:var(--cs-ui-compact-height);
+  height:var(--cs-ui-compact-height);
+  min-height:var(--cs-ui-compact-height);
+  padding:0;
+  border-radius:var(--cs-ui-compact-radius);
+}
+#cleanrooms-studio[data-page][data-role] #cs-reset-filters{
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  font-size:var(--cs-ui-font);
+}
+
+/* Segmented choices align with neighbouring buttons and inputs, including their border. */
+#cleanrooms-studio[data-page][data-role] :is(.cs-view-switch,.cs-zoom-controls,.cs-group-switch,.cs-employee-view-switch){
+  box-sizing:border-box;
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  padding:2px;
+  gap:2px;
+  border-radius:var(--cs-ui-radius);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-view-switch,.cs-zoom-controls,.cs-group-switch,.cs-employee-view-switch) > button{
+  box-sizing:border-box;
+  height:calc(var(--cs-ui-height) - 6px);
+  min-height:calc(var(--cs-ui-height) - 6px);
+  padding:0 10px;
+  border-radius:var(--cs-ui-compact-radius);
+  font-size:var(--cs-ui-font);
+  line-height:var(--cs-ui-line);
+}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-days > button{
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  padding-block:0;
+  font-size:var(--cs-ui-font);
+}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-days > button:first-child{border-radius:var(--cs-ui-radius) 0 0 var(--cs-ui-radius)}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-days > button:last-child{border-radius:0 var(--cs-ui-radius) var(--cs-ui-radius) 0}
+#cleanrooms-studio[data-page][data-role] .cs-repeat-options .cs-field-pair .cs-field-label{min-height:var(--cs-ui-compact-height)}
+#cleanrooms-studio[data-page][data-role] .cs-need-days{
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  border-radius:var(--cs-ui-radius);
+}
+#cleanrooms-studio[data-page][data-role] .cs-need-days > button{
+  height:calc(var(--cs-ui-height) - 2px);
+  min-height:calc(var(--cs-ui-height) - 2px);
+  padding-block:0;
+  font-size:var(--cs-ui-font);
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-accounts-tab,.cs-product-tab,.cs-operations-tabs > button){
+  min-height:var(--cs-ui-height);
+  height:var(--cs-ui-height);
+  padding-block:0;
+  font-size:var(--cs-ui-font);
+  line-height:var(--cs-ui-line);
+}
+#cleanrooms-studio[data-page][data-role] .cs-rich-link-actions .cs-rich-text-button{
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  padding-inline:var(--cs-ui-padding);
+  border-radius:var(--cs-ui-radius);
+  font-size:var(--cs-ui-font);
+  line-height:var(--cs-ui-line);
+}
+
+/* Footers grow with their controls while the calendar retains its remaining height. */
+#cleanrooms-studio[data-page][data-role] .cs-footer{height:auto}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-footer{
+  min-height:calc(var(--cs-ui-compact-height) + 8px);
+  padding-block:4px;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-button,.cs-icon-button,.cs-department-trigger):focus-visible{
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio[data-page][data-role] :is(.cs-button,.cs-icon-button):disabled{opacity:.45;box-shadow:none}
+#cleanrooms-studio[data-page][data-role] .cs-button.cs-primary:disabled{
+  border-color:var(--cs-access-border);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  opacity:1;
+  box-shadow:none;
+}
+
+@media(max-width:760px),(pointer:coarse){
+  #cleanrooms-studio[data-page]{
+    --cs-ui-height:44px;
+    --cs-ui-compact-height:36px;
+    --cs-ui-field-font:16px;
+  }
+}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page][data-role] #cs-review{
+    width:var(--cs-ui-height);
+    min-width:var(--cs-ui-height);
+    padding:0;
+  }
+}

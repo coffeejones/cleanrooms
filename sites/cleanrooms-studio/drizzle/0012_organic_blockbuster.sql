@@ -1,0 +1,1 @@
+ALTER TABLE `workspace_shift_requests` ADD `write_token` text DEFAULT '' NOT NULL;

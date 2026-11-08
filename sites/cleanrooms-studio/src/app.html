@@ -1,0 +1,287 @@
+<div id="cleanrooms-studio" aria-label="CleanRooms vagtplan">
+  <!-- APP_STYLE -->
+  <aside class="cs-sidebar" aria-label="Navigation">
+    <div class="cs-workspace"><span class="cs-logo" aria-hidden="true">CR</span><div class="cs-workspace-copy"><span class="cs-workspace-name">CleanRooms</span><span class="cs-workspace-caption">Planlæggervisning</span></div><button type="button" id="cs-settings-nav" data-page="workspace" class="cs-nav-button" aria-label="Indstillinger" title="Indstillinger"><i data-lucide="settings" aria-hidden="true"></i><span class="cs-nav-text">Indstillinger</span><span class="cs-mobile-label">Indstil.</span></button></div>
+    <div class="cs-nav-label">Planlægning</div>
+    <nav class="cs-nav" aria-label="Hovedmenu">
+      <button type="button" data-page="schedule" class="cs-nav-button cursor-interaction" aria-label="Vagtplan" aria-current="page"><i data-lucide="calendar-days" aria-hidden="true"></i><span class="cs-nav-text">Vagtplan</span><span class="cs-mobile-label">Plan</span></button>
+      <button type="button" data-page="series" class="cs-nav-button cursor-interaction" aria-label="Vagtserier"><i data-lucide="repeat-2" aria-hidden="true"></i><span class="cs-nav-text">Vagtserier</span><span class="cs-mobile-label">Serier</span><span class="cs-nav-count" id="cs-series-count">1</span></button>
+      <button id="cs-workflow-nav" type="button" data-page="workflow" class="cs-nav-button" aria-label="Vagtanmodninger"><i data-lucide="arrow-left-right" aria-hidden="true"></i><span class="cs-nav-text">Vagtanmodninger</span><span class="cs-mobile-label">Anmodn.</span><span id="cs-workflow-count" class="cs-nav-count" hidden>0</span></button>
+      <button id="cs-chat-nav" type="button" class="cs-nav-button" aria-label="Chat" hidden><i data-lucide="messages-square" aria-hidden="true"></i><span class="cs-nav-text">Chat</span><span class="cs-mobile-label">Chat</span><span id="cs-chat-count" class="cs-nav-count" hidden>0</span></button>
+      <span class="cs-nav-divider">Administration</span>
+      <button type="button" data-page="people" class="cs-nav-button cursor-interaction" aria-label="Medarbejdere"><i data-lucide="users-round" aria-hidden="true"></i><span class="cs-nav-text">Medarbejdere</span><span class="cs-mobile-label">Team</span><span class="cs-nav-count">22</span></button>
+      <button type="button" data-page="leave" class="cs-nav-button cursor-interaction" aria-label="Fravær"><i data-lucide="calendar-off" aria-hidden="true"></i><span class="cs-nav-text">Fravær</span><span class="cs-mobile-label">Fravær</span><span class="cs-nav-count" id="cs-leave-count">2</span></button>
+      <button type="button" data-page="hours" class="cs-nav-button cursor-interaction" aria-label="Timer"><i data-lucide="clock-3" aria-hidden="true"></i><span class="cs-nav-text">Timer</span><span class="cs-mobile-label">Timer</span></button>
+      <button id="cs-payroll-nav" type="button" data-page="payroll" class="cs-nav-button" aria-label="Løn og tillæg" hidden><i data-lucide="wallet" aria-hidden="true"></i><span class="cs-nav-text">Løn og tillæg</span><span class="cs-mobile-label">Løn</span></button>
+      <button id="cs-accounts-nav" type="button" data-page="accounts" class="cs-nav-button" aria-label="Brugere og roller" hidden><i data-lucide="shield-check" aria-hidden="true"></i><span class="cs-nav-text">Brugere og roller</span><span class="cs-mobile-label">Brugere</span></button>
+      <button type="button" data-page="activity" class="cs-nav-button" aria-label="Historik"><i data-lucide="history" aria-hidden="true"></i><span class="cs-nav-text">Historik</span><span class="cs-mobile-label">Historik</span></button>
+      <button id="cs-open-employee" type="button" class="cs-nav-button" aria-label="Medarbejdervisning"><i data-lucide="user-round" aria-hidden="true"></i><span class="cs-nav-text">Mine vagter</span><span class="cs-mobile-label">Mine</span></button>
+      <button id="cs-messages-nav" type="button" data-employee-workspace="messages" class="cs-nav-button" aria-label="Beskeder" hidden><i data-lucide="bell" aria-hidden="true"></i><span class="cs-nav-text">Beskeder</span><span class="cs-mobile-label">Beskeder</span><span id="cs-messages-count" class="cs-nav-count" hidden>0</span></button>
+      <button id="cs-exchanges-nav" type="button" data-employee-workspace="exchanges" class="cs-nav-button" aria-label="Vagtbytte og ledige vagter" hidden><i data-lucide="arrow-left-right" aria-hidden="true"></i><span class="cs-nav-text">Vagtbytte</span><span class="cs-mobile-label">Vagtbytte</span></button>
+    </nav>
+    <div class="cs-sidebar-bottom"><div id="cs-save-indicator" class="cs-save-indicator" role="status">Indlæser…</div><div class="cs-account"><span class="cs-avatar">JL</span><div class="cs-account-copy"><span class="cs-account-name">Jonas Larsen</span><span class="cs-account-role">Administrator</span></div></div></div>
+  </aside>
+  <section id="cs-employee-root" hidden aria-label="Medarbejdervisning">
+    <header class="cs-employee-topbar"><div class="cs-employee-brand"><span class="cs-logo" aria-hidden="true">CR</span><div><strong>Mine vagter</strong><span>CleanRooms</span></div></div><div class="cs-employee-demo-controls"><label><span>Udgivne · Vis som</span><select id="cs-employee-person" aria-label="Vis demo som medarbejder"></select></label><button id="cs-open-admin" class="cs-button" type="button">Planlægger</button><button id="cs-employee-help" type="button" class="cs-page-help-trigger" aria-label="Hjælp til denne side" aria-haspopup="dialog">?</button></div></header>
+    <div id="cs-time-demo-context" class="cs-time-demo-context" role="status" hidden>Eksempeluge · Registreringerne gemmes separat.</div>
+    <div id="cs-employee-content"></div>
+  </section>
+  <div id="cs-storage-loading" class="cs-storage-loading" role="status" hidden><strong>CleanRooms</strong><span>Indlæser din plan…</span></div>
+  <div id="cs-storage-status" class="cs-storage-status" role="status" hidden><span id="cs-storage-message"></span><button id="cs-storage-retry" type="button" class="cs-button">Prøv igen</button></div>
+  <div id="cs-department-portal" class="cs-department-portal"></div>
+  <div id="cs-page-help-root"></div>
+  <main class="cs-main">
+    <header class="cs-page-head">
+      <div class="cs-title-block"><span class="cs-sr" id="cs-crumb">Vagtplan</span><span class="cs-compass-context" aria-hidden="true">CleanRooms</span><h2 id="cs-title">Vagtplan</h2><div class="cs-page-description" id="cs-description">22 medarbejdere · 3 arbejdssteder</div></div>
+      <div id="cs-department-switcher" hidden></div>
+      <div class="cs-head-actions"><span class="cs-draft"><span class="cs-draft-dot"></span><span id="cs-status">Kladde</span></span><button id="cs-review" type="button" class="cs-button cs-review-trigger cursor-interaction" aria-label="Tjek planen"><i data-lucide="list-checks" aria-hidden="true"></i><span class="cs-review-label">Tjek planen</span><span id="cs-review-count" class="cs-review-count">1</span></button><button id="cs-publish" type="button" class="cs-button cursor-interaction"><i data-lucide="check" aria-hidden="true"></i><span>Udgiv plan</span></button><button id="cs-new" type="button" class="cs-button cs-primary cursor-interaction"><i data-lucide="plus" aria-hidden="true"></i>Opret vagt</button></div>
+      <button id="cs-page-help" type="button" class="cs-page-help-trigger" aria-label="Hjælp til denne side" aria-haspopup="dialog">?</button>
+    </header>
+    <div class="cs-content">
+      <div id="cs-workspace-toolbar" class="cs-workspace-toolbar">
+      <div class="cs-week-toolbar" id="cs-week-toolbar">
+        <div class="cs-week-nav"><span class="cs-nav-pair"><button id="cs-prev-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Forrige uge"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="cs-next-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Næste uge"><i data-lucide="chevron-right" aria-hidden="true"></i></button></span><span class="cs-week-title" id="cs-week-title">26. okt. – 1. nov. 2026</span><button id="cs-date-jump" type="button" class="cs-icon-button cs-quiet cursor-interaction" aria-label="Gå til dato" aria-describedby="cs-week-title" aria-expanded="false"><i data-lucide="calendar-range" aria-hidden="true"></i></button><button id="cs-today" type="button" class="cs-button cs-today cursor-interaction">I dag</button></div>
+        <div id="cs-date-jump-panel" class="cs-date-jump-panel" hidden><label for="cs-jump-date">Gå direkte til en dato</label><div><input type="date" id="cs-jump-date"><button id="cs-jump-go" type="button" class="cs-button cs-primary cursor-interaction">Vis i planen</button></div></div>
+      </div>
+      <div class="cs-filters">
+        <div class="cs-filter-left"><label class="cs-search"><span class="cs-sr">Søg medarbejder</span><i data-lucide="search" aria-hidden="true"></i><input id="cs-search" type="search" placeholder="Søg medarbejder…" autocomplete="off"></label><label id="cs-site-filter-label"><span class="cs-sr">Arbejdssted</span><select class="cs-select" id="cs-site-filter"><option value="all">Alle arbejdssteder</option><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label><button id="cs-attention" type="button" class="cs-button cs-attention cursor-interaction" aria-pressed="false"><i data-lucide="circle-alert" aria-hidden="true"></i><span>1 ledig vagt</span></button></div>
+        <div class="cs-filter-right"><button id="cs-reset-filters" type="button" class="cs-button cs-quiet cs-chrome-quiet cursor-interaction" hidden>Nulstil</button><div class="cs-group-switch" id="cs-group-switch" role="group" aria-label="Gruppér vagtplan"><button type="button" data-group="people" aria-pressed="true" class="cursor-interaction"><i data-lucide="users-round" aria-hidden="true"></i><span>Personer</span></button><button type="button" data-group="sites" aria-pressed="false" class="cursor-interaction"><i data-lucide="building-2" aria-hidden="true"></i><span>Steder</span></button></div></div>
+      </div>
+      <details id="cs-calendar-display" class="cs-calendar-display">
+        <summary class="cs-button" aria-label="Visningsindstillinger for vagtplan" title="Visning"><i data-lucide="sliders-horizontal" aria-hidden="true"></i><span>Visning</span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+        <div class="cs-calendar-display-panel">
+          <span class="cs-calendar-display-label">Kalendervisning</span>
+        <div class="cs-toolbar-controls">
+          <div class="cs-zoom-controls" id="cs-zoom-controls" role="group" aria-label="Kalenderzoom"><button type="button" data-zoom="1" aria-pressed="true" class="cursor-interaction">100%</button><button type="button" data-zoom="2" aria-pressed="false" class="cursor-interaction">85%</button><button type="button" data-zoom="4" aria-pressed="false" class="cursor-interaction">70%</button></div>
+          <div class="cs-view-switch" id="cs-view-switch" role="group" aria-label="Kalendervisning"><button type="button" data-view="week" aria-pressed="true" class="cursor-interaction">Kalender</button><button type="button" data-view="day" aria-pressed="false" class="cursor-interaction">Dagsliste</button></div>
+        </div>
+          <span class="cs-calendar-display-label cs-calendar-legend-label">Arbejdssteder</span>
+          <div class="cs-legend" id="cs-legend"><span class="cs-legend-item"><span class="cs-site-dot" style="--cs-shift-color:var(--cs-blue)"></span>Kontor Nord</span><span class="cs-legend-item"><span class="cs-site-dot" style="--cs-shift-color:var(--cs-purple)"></span>Klinikken</span><span class="cs-legend-item"><span class="cs-site-dot" style="--cs-shift-color:var(--cs-orange)"></span>Havnegade</span></div>
+        </div>
+      </details>
+      </div>
+      <div id="cs-day-strip" class="cs-day-strip" aria-label="Vælg dag" hidden></div>
+      <div id="cs-demo-session-bar" class="cs-demo-session-bar" hidden role="region" aria-label="Aktiv eksempeluge"><div class="cs-demo-session-copy"><span id="cs-demo-session-label">Eksempeluge aktiv</span></div><div class="cs-demo-session-actions"><button id="cs-demo-examples" type="button" class="cs-button cs-quiet">Eksempler</button><button id="cs-demo-reset" type="button" class="cs-button cs-quiet">Start forfra</button><button id="cs-demo-exit" type="button" class="cs-button">Afslut demo</button></div></div>
+      <div id="cs-page-content"></div>
+      <div id="cs-selection-bar" class="cs-selection-bar" hidden role="region" aria-label="Handlinger for markerede vagter"><div class="cs-selection-count" id="cs-selection-count" role="status" aria-live="polite"></div><div class="cs-selection-actions"><button id="cs-bulk-time" type="button" class="cs-button">Ret tid</button><button id="cs-bulk-move" type="button" class="cs-button">Flyt</button><button id="cs-bulk-copy" type="button" class="cs-button">Kopiér</button><button id="cs-selection-clear" type="button" class="cs-icon-button cs-quiet" aria-label="Ryd markering" title="Ryd markering · Esc"><i data-lucide="x" aria-hidden="true"></i></button></div></div>
+      <footer class="cs-footer"><div class="cs-footer-overview"><span id="cs-plan-count" class="cs-plan-count"></span>
+        <details id="cs-calendar-budget" class="cs-calendar-budget" hidden>
+          <summary><span class="cs-calendar-budget-label">Timebudget</span><span id="cs-calendar-budget-period" class="cs-calendar-budget-period"></span><strong id="cs-calendar-budget-value" role="status"></strong></summary>
+          <div class="cs-calendar-budget-panel"><h3>Timebudget</h3><p id="cs-calendar-budget-caption">Hele virksomheden</p><p id="cs-calendar-budget-totals"></p><p id="cs-calendar-budget-message"></p><button id="cs-calendar-budget-retry" class="cs-button" type="button" hidden>Prøv igen</button></div>
+        </details>
+      </div><div id="cs-planning-tools" class="cs-planning-tools"><button id="cs-selection-toggle" type="button" class="cs-button cs-quiet" aria-pressed="false" title="Markér vagter med klik eller Shift/Cmd-klik">Vælg vagter</button><button id="cs-changes-toggle" type="button" class="cs-button cs-quiet">Vis ændringer <span id="cs-changes-count">0</span></button></div><span id="cs-calendar-help" class="cs-calendar-help"><span class="cs-calendar-help-long">Klik tidsbånd for grupperedigering · Træk vagter · Alt + piletaster</span><span class="cs-calendar-help-short" aria-hidden="true">Klik tid · træk vagt</span></span><div class="cs-pager"><span id="cs-page-label">1–7 af 22</span><button id="cs-prev-page" type="button" class="cs-icon-button cursor-interaction" aria-label="Forrige medarbejdere"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="cs-next-page" type="button" class="cs-icon-button cursor-interaction" aria-label="Næste medarbejdere"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></footer>
+    </div>
+    <div id="cs-toast" class="cs-toast" role="status" aria-live="polite" hidden><i data-lucide="circle-check" aria-hidden="true"></i><span id="cs-toast-text"></span><button id="cs-undo" type="button" class="cs-undo cursor-interaction" hidden>Fortryd</button></div>
+  </main>
+  <div class="cs-editor-layer" id="cs-editor-layer" hidden>
+    <button type="button" class="cs-backdrop cursor-interaction" id="cs-backdrop" aria-label="Luk redigering"></button>
+    <section class="cs-editor" role="dialog" aria-modal="true" aria-labelledby="cs-editor-title">
+      <div class="cs-editor-head"><h3 id="cs-editor-title">Rediger vagt</h3><button id="cs-close" type="button" class="cs-icon-button cs-quiet cursor-interaction" aria-label="Luk redigering"><i data-lucide="x" aria-hidden="true"></i></button></div>
+      <form id="cs-edit-form">
+        <div class="cs-editor-fields">
+         <div class="cs-editor-primary">
+          <div class="cs-editor-context-row">
+           <div class="cs-editor-caption" id="cs-editor-caption">Onsdag 28. oktober</div>
+           <div class="cs-shift-availability-actions"><button id="cs-edit-sickness" type="button" class="cs-button cs-quiet" hidden>Meld syg</button><button id="cs-edit-find-replacement" type="button" class="cs-button cs-replacement-shortcut" hidden>Find afløser</button></div>
+          </div>
+          <div id="cs-demo-editor-guide" class="cs-demo-editor-guide" hidden role="note"></div>
+          <div id="cs-series-scope-block" class="cs-series-scope-block" hidden><label class="cs-field cs-scope-field" id="cs-scope-field" hidden><span class="cs-field-label">Anvend ændringen på</span><select id="cs-edit-scope"><option value="one">Kun denne vagt</option><option value="future">Denne og kommende vagter</option><option value="all">Hele vagtserien</option></select></label>
+          <p id="cs-series-scope-help" class="cs-series-scope-help" hidden></p>
+          </div>
+          <section class="cs-editor-section" id="cs-editor-assignment">
+          <h4 class="cs-series-section-title" data-series-only hidden>Medarbejder og arbejdssted</h4>
+          <div class="cs-field cs-staffing-field"><span class="cs-field-label" id="cs-person-label">Medarbejder</span><select id="cs-edit-person" hidden aria-hidden="true" tabindex="-1"><option value="">Ledig vagt</option></select>
+            <button id="cs-person-trigger" class="cs-person-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cs-person-picker" aria-labelledby="cs-person-label cs-person-selected-name"><span class="cs-person-selected-copy"><span id="cs-person-selected-name" class="cs-person-selected-name">Ledig vagt</span><span id="cs-person-selected-meta" class="cs-person-selected-meta">Vælg medarbejder</span></span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+            <div id="cs-person-summary" class="cs-person-summary" aria-live="polite"></div>
+            <section id="cs-person-picker" class="cs-person-picker" role="dialog" aria-labelledby="cs-person-picker-title" hidden><div class="cs-person-picker-head"><span id="cs-person-picker-title">Vælg medarbejder</span><button id="cs-person-picker-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk medarbejdervælger"><i data-lucide="x" aria-hidden="true"></i></button></div><p id="cs-person-context" class="cs-person-context"></p><label class="cs-sr" for="cs-person-search">Søg i medarbejdere</label><input id="cs-person-search" class="cs-person-search" type="search" placeholder="Søg medarbejder…" autocomplete="off"><div id="cs-person-results" class="cs-person-results" role="group" aria-label="Medarbejdere med tilgængelighed og timer"></div><p id="cs-person-empty" class="cs-person-empty" hidden>Ingen medarbejdere matcher din søgning.</p><p class="cs-person-footnote">Kontrollen bruger vagtplan og godkendt fravær. Aftalt timetal og afventende friønsker vises som information.</p></section>
+          </div>
+          <label class="cs-field"><span class="cs-field-label">Arbejdssted</span><select id="cs-edit-site"><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label>
+          </section>
+          <label class="cs-field" id="cs-single-date-field"><span class="cs-field-label">Dato</span><input type="date" id="cs-edit-date" required></label>
+          <section class="cs-editor-section" id="cs-editor-pattern">
+            <h4 class="cs-series-section-title" data-series-only hidden>Ugemønster</h4>
+            <div id="cs-repeat-days-field" hidden>
+            <div class="cs-field-label">Arbejdsdage</div>
+            <div class="cs-repeat-days" role="group" aria-label="Vælg faste ugedage"><button type="button" data-repeat-day="0" aria-pressed="false" aria-label="Mandag" title="Mandag" class="cursor-interaction">Man</button><button type="button" data-repeat-day="1" aria-pressed="false" aria-label="Tirsdag" title="Tirsdag" class="cursor-interaction">Tir</button><button type="button" data-repeat-day="2" aria-pressed="false" aria-label="Onsdag" title="Onsdag" class="cursor-interaction">Ons</button><button type="button" data-repeat-day="3" aria-pressed="false" aria-label="Torsdag" title="Torsdag" class="cursor-interaction">Tor</button><button type="button" data-repeat-day="4" aria-pressed="false" aria-label="Fredag" title="Fredag" class="cursor-interaction">Fre</button><button type="button" data-repeat-day="5" aria-pressed="false" aria-label="Lørdag" title="Lørdag" class="cursor-interaction">Lør</button><button type="button" data-repeat-day="6" aria-pressed="false" aria-label="Søndag" title="Søndag" class="cursor-interaction">Søn</button></div>
+            </div>
+            <label id="cs-day-times-toggle" class="cs-day-times-toggle" hidden><input id="cs-day-times-enabled" type="checkbox"><span>Forskellige tider pr. dag</span></label>
+            <div class="cs-field-pair" id="cs-uniform-times"><label class="cs-field"><span class="cs-field-label">Fra</span><input type="time" id="cs-edit-start" required step="60"></label><label class="cs-field"><span class="cs-field-label">Til</span><input type="time" id="cs-edit-end" required step="60"></label></div>
+            <div id="cs-uniform-break" class="cs-planned-break-field"><label class="cs-field"><span class="cs-field-label">Planlagt pause · minutter</span><input type="number" id="cs-edit-break" min="0" step="1" value="0" required aria-describedby="cs-edit-break-help"></label><div class="cs-planned-break-copy"><strong id="cs-edit-net-time"></strong><p id="cs-edit-break-help" class="cs-field-help">Ulønnet pause, som trækkes fra de planlagte timer. Medarbejderen registrerer stadig sin faktiske pause.</p></div></div>
+            <div id="cs-day-times" class="cs-day-times" hidden></div>
+            <p id="cs-day-break-help" class="cs-field-help" hidden>Pauser angives i minutter og er ulønnede. De trækkes fra hver dags planlagte timer; den faktiske pause registreres særskilt.</p>
+          </section>
+          <div id="cs-repeat-field" class="cs-repeat-toggle"><label><input id="cs-edit-repeat" type="checkbox"><span><strong>Gentag vagten</strong><span>Planlæg faste ugedage frem i tiden.</span></span><i data-lucide="repeat-2" aria-hidden="true"></i></label></div>
+          <section id="cs-repeat-options" class="cs-editor-section cs-repeat-options" hidden>
+            <h4 class="cs-series-section-title">Periode</h4>
+            <p id="cs-series-operation-note" class="cs-series-operation-note" hidden></p>
+            <div class="cs-series-period-presets" role="group" aria-label="Vælg periodens længde"><button type="button" class="cs-button" data-series-months="1" aria-pressed="false">1 måned</button><button type="button" class="cs-button" data-series-months="3" aria-pressed="false">3 måneder</button><button id="cs-repeat-six" type="button" class="cs-button" data-series-months="6" aria-pressed="false">6 måneder</button><button id="cs-repeat-unlimited" type="button" class="cs-button" data-series-unlimited aria-pressed="false">Uden slutdato</button></div>
+            <div class="cs-field-pair"><label class="cs-field" for="cs-repeat-start"><span class="cs-field-label" id="cs-series-start-label">Startdato</span><input type="date" id="cs-repeat-start"></label><label id="cs-repeat-end-field" class="cs-field" for="cs-repeat-end"><span class="cs-field-label">Slutdato</span><input type="date" id="cs-repeat-end"></label></div>
+            <p id="cs-repeat-unlimited-hint" class="cs-field-help" hidden>Gentages, indtil du afslutter serien.</p>
+          </section>
+          <details id="cs-description-details" class="cs-series-description-details" open><summary id="cs-description-summary" hidden><span>Beskrivelse og tjekliste</span><span id="cs-description-summary-meta">Valgfrit</span></summary>
+          <div class="cs-field cs-description-field"><span id="cs-description-label" class="cs-field-label">Beskrivelse <span class="cs-optional">Valgfrit</span></span><div id="cs-description-editor" aria-labelledby="cs-description-label"></div><textarea id="cs-edit-note" hidden aria-hidden="true" tabindex="-1"></textarea><span id="cs-description-help" class="cs-field-help">Skriv instruktioner, formatér teksten, eller tilføj en tjekliste til medarbejderen. Plads til lange beskrivelser.</span></div>
+          </details>
+          <div id="cs-checklist-planner-progress" class="cs-checklist-planner-progress" hidden></div>
+          <div id="cs-edit-error" class="cs-editor-error" role="alert" hidden></div>
+         </div>
+         <aside id="cs-series-planning-preview" class="cs-series-planning-preview" aria-label="Forhåndsvisning af vagtserien" hidden>
+          <span class="cs-series-preview-eyebrow">Aftalen</span><p id="cs-series-sentence" class="cs-series-sentence"></p>
+          <div id="cs-series-preview" class="cs-series-preview" role="status" aria-live="polite" hidden></div>
+          <div id="cs-series-calendar" class="cs-series-calendar"></div>
+          <div class="cs-series-next-head"><h4 id="cs-series-next-title">De næste vagter</h4></div><ol id="cs-series-next-dates" class="cs-series-next-dates"></ol>
+          <details id="cs-series-exceptions" class="cs-series-exceptions" hidden><summary id="cs-series-exceptions-title">Manuelle ændringer</summary><label class="cs-exceptions-field" id="cs-exceptions-field" hidden><input type="checkbox" id="cs-preserve-exceptions" checked><span><strong>Behold manuelle ændringer</strong><small id="cs-exceptions-summary"></small></span></label><ul id="cs-series-exception-list" class="cs-series-exception-list"></ul></details>
+          <p class="cs-series-draft-note">Gemmer som kladde. Medarbejderne ser ændringerne, når planen udgives.</p>
+         </aside>
+        </div>
+        <div id="cs-series-delete-confirm" class="cs-series-delete-confirm" hidden role="alert"><strong>Slet vagtserie?</strong><p id="cs-series-delete-message"></p><div><button id="cs-series-delete-cancel" type="button" class="cs-button">Annuller</button><button id="cs-series-delete-apply" type="button" class="cs-button">Slet vagter</button></div></div>
+        <div class="cs-editor-actions"><button id="cs-delete" type="button" class="cs-button cs-quiet cs-delete cursor-interaction"><i data-lucide="trash-2" aria-hidden="true"></i>Slet vagt</button><span id="cs-edit-budget-impact" hidden role="status" aria-live="polite"></span><button id="cs-save" type="button" class="cs-button cs-primary cursor-interaction"><span id="cs-save-label">Gem ændringer</span><i data-lucide="check" aria-hidden="true"></i></button></div>
+      </form>
+    </section>
+  </div>
+  <div id="cs-review-layer" class="cs-review-layer" hidden>
+    <button id="cs-review-backdrop" type="button" class="cs-backdrop cursor-interaction" aria-label="Luk plantjek"></button>
+    <section class="cs-review-panel" role="dialog" aria-modal="true" aria-labelledby="cs-review-title"><header class="cs-review-head"><div><span class="cs-review-eyebrow">Før planen udgives</span><h3 id="cs-review-title">Tjek planen</h3></div><button id="cs-review-close" type="button" class="cs-icon-button cs-quiet cursor-interaction" aria-label="Luk plantjek"><i data-lucide="x" aria-hidden="true"></i></button></header><div id="cs-review-body" class="cs-review-body"></div><footer class="cs-review-footer"><span>Kontrol af den viste uge</span><button id="cs-review-finish" type="button" class="cs-button cs-primary cursor-interaction">Tilbage til planen</button></footer></section>
+  </div>
+  <div id="cs-group-layer" class="cs-group-layer" hidden>
+    <button id="cs-group-backdrop" class="cs-backdrop" type="button" aria-label="Luk grupperedigering"></button>
+    <section class="cs-editor cs-group-editor" role="dialog" aria-modal="true" aria-labelledby="cs-group-title" aria-describedby="cs-group-scope">
+      <header class="cs-editor-head"><h3 id="cs-group-title">Rediger tidsgruppe</h3><button id="cs-group-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk grupperedigering"><i data-lucide="x" aria-hidden="true"></i></button></header>
+      <form id="cs-group-form">
+        <div class="cs-group-fields">
+          <div id="cs-group-caption" class="cs-editor-caption"></div>
+          <p id="cs-group-scope" class="cs-group-footnote"></p>
+          <div class="cs-field-pair">
+            <label class="cs-field"><span class="cs-field-label">Ny starttid</span><input id="cs-group-start" type="time" step="60" required></label>
+            <label class="cs-field"><span class="cs-field-label">Ny sluttid</span><input id="cs-group-end" type="time" step="60" required></label>
+          </div>
+          <div id="cs-group-summary" class="cs-group-summary" role="status" aria-live="polite"></div>
+          <div id="cs-group-error" class="cs-editor-error" role="alert" hidden></div>
+          <div id="cs-group-preview" class="cs-group-preview" role="list" aria-label="Vagter der indgår i ændringen"></div>
+        </div>
+        <footer class="cs-editor-actions"><button id="cs-group-cancel" type="button" class="cs-button cs-quiet">Annuller</button><button id="cs-group-save" type="submit" class="cs-button cs-primary" disabled>Opdater vagter</button></footer>
+      </form>
+    </section>
+  </div>
+  <div id="cs-bulk-layer" class="cs-group-layer cs-bulk-layer" hidden>
+    <button id="cs-bulk-backdrop" type="button" class="cs-backdrop" aria-label="Luk samlet redigering"></button>
+    <section class="cs-editor cs-group-editor cs-bulk-editor" role="dialog" aria-modal="true" aria-labelledby="cs-bulk-title" aria-describedby="cs-bulk-scope">
+      <header class="cs-editor-head"><h3 id="cs-bulk-title">Ret markerede vagter</h3><button id="cs-bulk-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk samlet redigering"><i data-lucide="x" aria-hidden="true"></i></button></header>
+      <form id="cs-bulk-form" class="cs-planning-form"><div class="cs-group-fields">
+        <div id="cs-bulk-caption" class="cs-editor-caption"></div><p id="cs-bulk-scope" class="cs-group-footnote">Kun de markerede vagter ændres. Forekomster fra serier behandles enkeltvis.</p>
+        <div id="cs-bulk-time-fields" class="cs-field-pair"><label class="cs-field"><span class="cs-field-label">Ny starttid</span><input id="cs-bulk-start" type="time" step="60"></label><label class="cs-field"><span class="cs-field-label">Ny sluttid</span><input id="cs-bulk-end" type="time" step="60"></label></div>
+        <label id="cs-bulk-date-field" class="cs-field" hidden><span class="cs-field-label" id="cs-bulk-date-label">Flyt første dato til</span><input id="cs-bulk-date" type="date"></label>
+        <p id="cs-bulk-offset" class="cs-group-footnote" hidden></p><div id="cs-bulk-summary" class="cs-group-summary" role="status" aria-live="polite"></div><div id="cs-bulk-error" class="cs-editor-error" role="alert" hidden></div><div id="cs-bulk-preview" class="cs-group-preview" role="list" aria-label="Markerede vagter før og efter"></div>
+      </div><footer class="cs-editor-actions"><button id="cs-bulk-cancel" type="button" class="cs-button cs-quiet">Annuller</button><button id="cs-bulk-save" type="button" class="cs-button cs-primary" disabled>Gem ændringer</button></footer></form>
+    </section>
+  </div>
+  <div id="cs-changes-layer" class="cs-group-layer cs-changes-layer" hidden>
+    <button id="cs-changes-backdrop" type="button" class="cs-backdrop" aria-label="Luk ændringsoversigt"></button>
+    <section class="cs-editor cs-group-editor cs-changes-editor" role="dialog" aria-modal="true" aria-labelledby="cs-changes-title">
+      <header class="cs-editor-head"><div><h3 id="cs-changes-title">Udgiv plan</h3><p id="cs-changes-period" class="cs-editor-caption"></p></div><button id="cs-changes-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk udgivelse"><i data-lucide="x" aria-hidden="true"></i></button></header>
+      <div class="cs-group-fields">
+        <div class="cs-publication-setup">
+          <div id="cs-publication-range-slot"></div>
+          <div class="cs-publication-scope"><label for="cs-publication-scope-select">Arbejdssteder</label><select id="cs-publication-scope-select"><option value="selected">Fra vagtplanens valg</option><option value="all">Alle arbejdssteder</option></select><p id="cs-publication-sites"></p></div>
+        </div>
+        <section id="cs-publication-budget" class="cs-publication-budget" aria-label="Virksomhedens timebudget" hidden></section>
+        <div id="cs-publication-load" hidden><p id="cs-publication-load-message" role="status"></p><button id="cs-publication-retry" type="button" class="cs-button" hidden>Prøv igen</button></div>
+        <div id="cs-publication-related-slot" hidden></div>
+        <div id="cs-changes-list" class="cs-changes-list"></div>
+      </div>
+      <footer class="cs-editor-actions"><p id="cs-publication-footer-note" class="cs-publication-footer-note" role="status"></p><button id="cs-changes-cancel" type="button" class="cs-button cs-quiet">Luk</button><button id="cs-changes-publish" type="button" class="cs-button cs-primary" disabled>Udgiv 1 uge</button></footer>
+    </section>
+  </div>
+<!-- Insert these three layers inside #cleanrooms-studio, beside the existing dialog layers. -->
+<div id="cs-operations-layer" class="cs-operations-layer" hidden>
+  <button id="cs-operations-backdrop" type="button" class="cs-backdrop" aria-label="Luk driftsoverblik"></button>
+  <section class="cs-operations-panel" role="dialog" aria-modal="true" aria-labelledby="cs-operations-title" aria-describedby="cs-operations-period">
+    <header class="cs-operations-head">
+      <div class="cs-operations-head-copy"><h3 id="cs-operations-title">Driftsoverblik</h3></div>
+      <button id="cs-operations-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk driftsoverblik"><i data-lucide="x" aria-hidden="true"></i></button>
+    </header>
+    <div class="cs-operations-body">
+      <p id="cs-operations-period" class="cs-operations-period"></p>
+      <div id="cs-operations-tabs" class="cs-operations-tabs" role="group" aria-label="Vis driftsopgaver">
+        <button type="button" data-ops-filter="all" aria-pressed="true">Alle 0</button>
+        <button type="button" data-ops-filter="coverage" aria-pressed="false">Bemanding 0</button>
+        <button type="button" data-ops-filter="leave" aria-pressed="false">Fravær 0</button>
+        <button type="button" data-ops-filter="overlap" aria-pressed="false">Overlap 0</button>
+        <button type="button" data-ops-filter="open" aria-pressed="false">Ledige 0</button>
+      </div>
+      <p id="cs-operations-summary" class="cs-operations-summary" role="status" aria-live="polite"></p>
+      <p id="cs-operations-publish-blocked" class="cs-operations-error" role="note" hidden>Ugen kan først udgives, når overlap og vagter med godkendt fravær er løst.</p>
+      <div id="cs-operations-list" class="cs-operations-list"></div>
+    </div>
+    <footer class="cs-operations-footer">
+      <button id="cs-needs-open" type="button" class="cs-button">Bemandingsbehov</button>
+      <button id="cs-operations-finish" type="button" class="cs-button cs-primary">Tilbage til planen</button>
+    </footer>
+  </section>
+</div>
+
+<div id="cs-needs-layer" class="cs-operations-layer cs-needs-layer" hidden>
+  <button id="cs-needs-backdrop" type="button" class="cs-backdrop" aria-label="Luk bemandingsbehov"></button>
+  <section class="cs-operations-panel cs-needs-panel" role="dialog" aria-modal="true" aria-labelledby="cs-needs-title" aria-describedby="cs-needs-period">
+    <header class="cs-operations-head">
+      <div class="cs-operations-head-copy"><h3 id="cs-needs-title">Bemandingsbehov</h3></div>
+      <button id="cs-needs-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk bemandingsbehov"><i data-lucide="x" aria-hidden="true"></i></button>
+    </header>
+    <div class="cs-operations-body cs-needs-body">
+      <p id="cs-needs-period" class="cs-operations-period"></p>
+      <div id="cs-needs-list" class="cs-needs-list"></div>
+      <form id="cs-needs-form">
+        <h4 id="cs-need-form-title">Nyt bemandingsbehov</h4>
+        <input id="cs-need-id" type="hidden">
+        <label class="cs-field" for="cs-need-site"><span class="cs-field-label">Arbejdssted</span><select id="cs-need-site" required><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label>
+        <div class="cs-field">
+          <span id="cs-need-days-label" class="cs-field-label">Ugedage</span>
+          <div class="cs-need-days" role="group" aria-labelledby="cs-need-days-label">
+            <button type="button" data-need-day="0" aria-pressed="true">Man</button>
+            <button type="button" data-need-day="1" aria-pressed="true">Tir</button>
+            <button type="button" data-need-day="2" aria-pressed="true">Ons</button>
+            <button type="button" data-need-day="3" aria-pressed="true">Tor</button>
+            <button type="button" data-need-day="4" aria-pressed="true">Fre</button>
+            <button type="button" data-need-day="5" aria-pressed="false">Lør</button>
+            <button type="button" data-need-day="6" aria-pressed="false">Søn</button>
+          </div>
+        </div>
+        <div class="cs-field-pair">
+          <label class="cs-field" for="cs-need-start"><span class="cs-field-label">Fra</span><input id="cs-need-start" type="time" step="60" value="07:00" required></label>
+          <label class="cs-field" for="cs-need-end"><span class="cs-field-label">Til</span><input id="cs-need-end" type="time" step="60" value="14:00" required></label>
+        </div>
+        <label class="cs-field" for="cs-need-count"><span class="cs-field-label">Antal medarbejdere</span><input id="cs-need-count" type="number" inputmode="numeric" min="1" max="30" step="1" value="1" required></label>
+        <p class="cs-need-form-note">Behovet gentages hver uge på de valgte dage.</p>
+        <div id="cs-need-error" class="cs-operations-error" role="alert" hidden></div>
+      </form>
+    </div>
+    <footer class="cs-operations-footer">
+      <button id="cs-need-new" type="button" class="cs-button cs-quiet">Nyt behov</button>
+      <button id="cs-need-save" type="button" form="cs-needs-form" class="cs-button cs-primary">Tilføj behov</button>
+    </footer>
+  </section>
+</div>
+
+<div id="cs-replacement-layer" class="cs-operations-layer cs-replacement-layer" hidden>
+  <button id="cs-replacement-backdrop" type="button" class="cs-backdrop" aria-label="Luk afløservælger"></button>
+  <section class="cs-operations-panel cs-replacement-panel" role="dialog" aria-modal="true" aria-labelledby="cs-replacement-title" aria-describedby="cs-replacement-context">
+    <header class="cs-operations-head">
+      <div class="cs-operations-head-copy"><h3 id="cs-replacement-title">Find afløser</h3></div>
+      <button id="cs-replacement-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk afløservælger"><i data-lucide="x" aria-hidden="true"></i></button>
+    </header>
+    <div class="cs-operations-body cs-replacement-body">
+      <p id="cs-replacement-context" class="cs-replacement-context"></p>
+      <p id="cs-replacement-status" class="cs-replacement-status" role="status" aria-live="polite"></p>
+      <label for="cs-replacement-search" class="cs-replacement-search-label">Søg medarbejder</label>
+      <input id="cs-replacement-search" type="search" placeholder="Søg navn…" autocomplete="off">
+      <div id="cs-replacement-list" class="cs-replacement-list" role="group" aria-label="Medarbejdere med tilgængelighed og timer"></div>
+      <div id="cs-replacement-error" class="cs-operations-error" role="alert" hidden></div>
+    </div>
+    <footer class="cs-operations-footer">
+      <button id="cs-replacement-cancel" type="button" class="cs-button cs-quiet">Tilbage</button>
+      <button id="cs-replacement-save" type="button" class="cs-button cs-primary" disabled>Tildel vagt</button>
+    </footer>
+  </section>
+</div>
+
+  <!-- APP_SCRIPT -->
+</div>

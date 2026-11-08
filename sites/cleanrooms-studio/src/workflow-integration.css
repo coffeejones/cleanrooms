@@ -1,0 +1,47 @@
+/* Shared workflows occupy the existing page canvas and employee navigation. */
+#cleanrooms-studio[data-page="workflow"] :is(.cs-main,.cs-page-head,.cs-content,#cs-page-content){background:#fff}
+#cleanrooms-studio[data-page="workflow"]{--cs-workflow-gutter:40px}
+#cleanrooms-studio[data-page="workflow"] .cs-main>.cs-page-head{min-height:0;padding:28px var(--cs-workflow-gutter) 24px;border:0;border-bottom:1px solid #e4e8ea;box-shadow:none}
+#cleanrooms-studio[data-page="workflow"] .cs-title-block{align-items:flex-start;flex-direction:column;gap:7px}
+#cleanrooms-studio[data-page="workflow"] #cs-title{font-size:26px;font-weight:600;line-height:34px;letter-spacing:-.65px}
+#cleanrooms-studio[data-page="workflow"] .cs-page-description{color:#788187;font-size:14px;line-height:21px;white-space:normal}
+#cleanrooms-studio[data-page="workflow"] .cs-main>.cs-content{padding:24px var(--cs-workflow-gutter) 0}
+#cleanrooms-studio[data-page="workflow"] #cs-page-content{border:0;border-radius:0;box-shadow:none}
+#cleanrooms-studio .cs-workflow-host{display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;box-sizing:border-box}
+#cleanrooms-studio .cs-workflow-pane{flex:1;min-height:0;min-width:0}
+#cleanrooms-studio .cs-workflow-demo-tools{display:flex;align-items:center;flex-wrap:wrap;flex-shrink:0;gap:10px 14px;padding:0 20px 18px 0}
+#cleanrooms-studio .cs-workflow-demo-tools[hidden]{display:none}
+#cleanrooms-studio .cs-workflow-demo-label{font-size:12px;font-weight:600;line-height:20px;color:#465d6d}
+#cleanrooms-studio .cs-workflow-demo-caption{flex:1;min-width:180px;font-size:12px;line-height:20px;color:#7c8790}
+#cleanrooms-studio .cs-workflow-demo-person{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;color:#73818a}
+#cleanrooms-studio .cs-workflow-demo-person select{height:40px;min-height:40px;max-width:220px;padding:0 12px;border:1px solid #cbd5dc;border-radius:7px;background:#fff;color:#425663;font:inherit;font-size:13px}
+#cleanrooms-studio .cs-workflow-demo-views{display:flex;gap:4px}
+#cleanrooms-studio .cs-workflow-demo-views button[aria-pressed="true"]{background:#edf2f5;border-color:#c5d1d9;color:#38546a}
+#cleanrooms-studio .cs-workflow-demo-detail{box-sizing:border-box;width:min(440px,calc(100% - 32px));padding:28px;border:1px solid #d7e0e5;border-radius:10px;background:#fff;color:#374c5a;box-shadow:0 20px 70px #15232d26}
+#cleanrooms-studio .cs-workflow-demo-detail::backdrop{background:#1d2a3540}
+#cleanrooms-studio .cs-workflow-demo-detail h3{margin:0 0 8px;font-size:20px;line-height:28px}
+#cleanrooms-studio .cs-workflow-demo-detail .cs-workflow-shift-time{display:block;margin-top:24px}
+#cleanrooms-studio .cs-workflow-demo-detail>p{white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-demo-detail>.cs-button{margin-top:16px;min-height:40px}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-host{padding:8px 20px 0 0}
+#cleanrooms-studio #cs-employee-content>.cs-workflow-host{padding:0 32px 0 24px}
+#cleanrooms-studio .cs-employee-offer{margin:0 0 24px;width:100%;min-height:44px}
+#cleanrooms-studio .cs-publication-weeks{width:100%;margin:8px 0 24px;border-collapse:collapse;color:#425660;font-size:12px;line-height:20px;text-align:left;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-publication-weeks :is(th,td){padding:12px 10px;border-bottom:1px solid #e6ebee;text-align:left;font-weight:400}
+#cleanrooms-studio .cs-publication-weeks thead th{font-size:11px;font-weight:500;background:#f5f7f8;color:#74818a}
+#cleanrooms-studio .cs-publication-weeks tbody th{font-weight:500;white-space:nowrap}
+#cleanrooms-studio .cs-publication-weeks tr[data-issues="true"] td:last-child{color:#96652b}
+#cleanrooms-studio .cs-publication-change-details{margin:24px 0 0;border-top:1px solid #e3e9ed}
+#cleanrooms-studio .cs-publication-change-details>summary{padding:18px 0;cursor:pointer;color:#475d6a;font-size:13px;font-weight:500;line-height:22px}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page="workflow"]{--cs-workflow-gutter:18px}
+ #cleanrooms-studio #cs-employee-content>.cs-workflow-host{padding:0 14px 0 18px}
+ #cleanrooms-studio[data-page="workflow"] .cs-workflow-host{padding-right:4px}
+ #cleanrooms-studio .cs-publication-weeks :is(th,td){padding:10px 6px;font-size:11px;line-height:18px}
+}
+
+/* The period is stated once; the review table gets the remaining panel space. */
+#cleanrooms-studio .cs-group-editor.cs-changes-editor{width:min(680px,100%)}
+#cleanrooms-studio #cs-changes-period{display:none}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope{padding:0;margin:0 0 20px;border:0;border-radius:0;background:transparent}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope>p{margin-bottom:0}

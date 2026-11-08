@@ -1,0 +1,93 @@
+/* A versioned pay record and a clearly labelled estimate of the plan. */
+#cleanrooms-studio[data-page] #cs-payroll-pane{min-width:0;width:100%;padding:0}
+#cleanrooms-studio[data-page] .cs-payroll-page{display:flex;flex-direction:column;gap:20px;min-width:0;width:100%;color:var(--cs-access-body,#4b575d);font-size:14px;line-height:1.5;overflow-anchor:none}
+#cleanrooms-studio[data-page] .cs-payroll-page [hidden]{display:none!important}
+#cleanrooms-studio[data-page] .cs-payroll-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-title{margin:0;color:var(--cs-access-ink,#29343c);font-size:18px;font-weight:600;line-height:26px;letter-spacing:-.25px}
+#cleanrooms-studio[data-page] .cs-payroll-caption{min-width:0;margin:5px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-help{margin:6px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-month-nav{display:flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+#cleanrooms-studio[data-page] .cs-payroll-month-nav .cs-icon-button{flex-shrink:0;font-size:24px;line-height:24px}
+#cleanrooms-studio[data-page] .cs-payroll-month-input{width:174px;min-width:0;max-width:100%;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-payroll-surface{min-width:0;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-surface,#fff);box-shadow:0 1px 2px #26394308,0 5px 15px #26394304}
+#cleanrooms-studio[data-page] .cs-payroll-empty{padding:28px}
+#cleanrooms-studio[data-page] .cs-payroll-empty .cs-button{margin-top:20px}
+#cleanrooms-studio[data-page] .cs-payroll-section-title{margin:0;color:var(--cs-access-ink,#29343c);font-size:15px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-estimate{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr);gap:20px 32px;padding:24px}
+#cleanrooms-studio[data-page] .cs-payroll-eyebrow{display:block;margin-bottom:6px;color:var(--cs-access-muted,#687076);font-size:12px;font-weight:500;line-height:18px}
+#cleanrooms-studio[data-page] .cs-payroll-total{display:block;min-width:0;color:var(--cs-access-ink,#29343c);font-size:30px;font-weight:600;line-height:39px;letter-spacing:-.7px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-breakdown{display:flex;flex-direction:column;gap:10px;min-width:0;margin:0;padding:0 0 0 24px;border-left:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-payroll-breakdown > div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-breakdown dt{margin:0;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-payroll-breakdown dd{min-width:0;margin:0;color:var(--cs-access-ink,#29343c);font-size:15px;font-weight:500;line-height:22px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;text-align:right}
+#cleanrooms-studio[data-page] .cs-payroll-calculations{grid-column:1/-1;min-width:0;padding-top:12px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-payroll-calculations > summary{min-height:32px;padding:4px 0;color:var(--cs-access-blue,#476276);font-size:12px;line-height:20px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-payroll-calculation-list{min-width:0;margin-top:8px}
+#cleanrooms-studio[data-page] .cs-payroll-calculation{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-width:0;padding:12px 0;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-payroll-calculation > div{flex:1;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-calculation strong{color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:500;line-height:21px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-payroll-calculation span{display:block;margin-top:3px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-payroll-warning{grid-column:1/-1;min-width:0;padding:12px 14px;border:1px solid #e8dabc;border-radius:5px;background:#fff9ee;color:#89601e;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-warning strong{font-weight:600}
+#cleanrooms-studio[data-page] .cs-payroll-warning p{margin:5px 0 0}
+#cleanrooms-studio[data-page] .cs-payroll-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:20px;min-width:0}
+#cleanrooms-studio[data-page] :is(.cs-payroll-agreements,.cs-payroll-supplements){overflow:hidden}
+#cleanrooms-studio[data-page] .cs-payroll-section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;min-width:0;padding:16px 20px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);background:#f8fafa}
+#cleanrooms-studio[data-page] .cs-payroll-section-head .cs-payroll-caption{flex-basis:100%;margin:0}
+#cleanrooms-studio[data-page] :is(.cs-payroll-rate-row,.cs-payroll-supplement-row){display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0;padding:16px 20px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] :is(.cs-payroll-rate-row,.cs-payroll-supplement-row):last-child{border-bottom:0}
+#cleanrooms-studio[data-page] :is(.cs-payroll-rate-row,.cs-payroll-supplement-row) > div:first-child{flex:1;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-rate{display:block;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-supplement-name{display:block;margin:0 0 4px;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] :is(.cs-payroll-period,.cs-payroll-rule){display:block;margin-top:4px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-rate-state{display:inline-flex;margin-top:8px;padding:2px 6px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:4px;background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-payroll-rate-state[data-state="current"]{border-color:var(--cs-access-success-edge,#cce3d4);background:var(--cs-access-success-soft,#eef7f1);color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page] .cs-payroll-row-actions{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-list-empty{margin:0;padding:20px;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-payroll-editor{padding:24px;scroll-margin-top:20px}
+#cleanrooms-studio[data-page] .cs-payroll-form{display:flex;flex-direction:column;gap:20px;max-width:760px;min-width:0;margin:20px 0 0}
+#cleanrooms-studio[data-page] .cs-payroll-field{display:block;min-width:0;margin:0}
+#cleanrooms-studio[data-page] .cs-payroll-field-label{display:block;margin:0 0 8px;color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-payroll-input{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:var(--cs-ui-height,40px);min-height:var(--cs-ui-height,40px);padding:0 12px;border:1px solid var(--cs-access-control-edge,#c1cbce);border-radius:8px;background:#fff;color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:var(--cs-ui-field-font,14px);line-height:22px}
+#cleanrooms-studio[data-page] .cs-payroll-field-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-field-pair > .cs-payroll-field:only-child{grid-column:1/-1}
+#cleanrooms-studio[data-page] .cs-payroll-hourly-fields{display:flex;flex-direction:column;gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-payroll-weekdays-field{min-width:0;margin:0;padding:0;border:0}
+#cleanrooms-studio[data-page] .cs-payroll-weekdays-field > legend{float:none;width:100%;padding:0}
+#cleanrooms-studio[data-page] .cs-payroll-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;min-width:0;max-width:480px}
+#cleanrooms-studio[data-page] .cs-payroll-weekday{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:var(--cs-ui-height,40px);padding:0 2px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:5px;background:#fff;color:var(--cs-access-body,#4b575d);font-size:12px;line-height:18px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-payroll-weekday:has(input:checked){border-color:var(--cs-access-primary,#303e46);background:var(--cs-access-primary,#303e46);color:#fff}
+#cleanrooms-studio[data-page] .cs-payroll-weekday > input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0;opacity:0;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-payroll-weekday:focus-within{outline:2px solid var(--cs-access-blue,#476276);outline-offset:2px}
+#cleanrooms-studio[data-page] .cs-payroll-check{display:flex;align-items:center;gap:12px;min-width:0;margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-payroll-check > input{appearance:auto;flex:0 0 16px;width:16px;height:16px;min-height:16px;margin:0;padding:0;accent-color:var(--cs-access-blue,#476276)}
+#cleanrooms-studio[data-page] .cs-payroll-form-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;min-width:0;margin-top:0;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-payroll-error{min-width:0;margin:0;padding:14px;border:1px solid var(--cs-access-danger-edge,#efcdc8);border-radius:6px;background:var(--cs-access-danger-soft,#fff4f2);color:var(--cs-access-danger,#a83029);font-size:13px;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-payroll-error > p{margin:0}
+#cleanrooms-studio[data-page] .cs-payroll-error .cs-payroll-help{margin-top:6px;color:inherit}
+#cleanrooms-studio[data-page] .cs-payroll-error > .cs-button{margin-top:12px}
+#cleanrooms-studio[data-page] .cs-payroll-success{margin:0;color:var(--cs-access-success,#27734b);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-payroll-updated{margin:0;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-payroll-loading{min-width:0;padding:24px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:#fff;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-payroll-page :is(input,select,button,summary):focus-visible{outline:2px solid var(--cs-access-blue,#476276);outline-offset:2px}
+#cleanrooms-studio[data-page] .cs-payroll-page :disabled{opacity:.5;cursor:default}
+@media(max-width:1050px){#cleanrooms-studio[data-page] .cs-payroll-workspace{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page] .cs-payroll-page{gap:16px}
+  #cleanrooms-studio[data-page] .cs-payroll-head{align-items:flex-start}
+  #cleanrooms-studio[data-page] .cs-payroll-month-nav{display:flex;flex-wrap:nowrap;gap:4px;width:100%}
+  #cleanrooms-studio[data-page] .cs-payroll-month-input{flex:1 1 0;min-width:0;width:140px}
+  #cleanrooms-studio[data-page] .cs-payroll-month-nav > .cs-icon-button{flex:0 0 var(--cs-ui-height,44px)}
+  #cleanrooms-studio[data-page][data-role] .cs-payroll-month-nav > .cs-payroll-month-today{flex:0 0 auto;min-width:0;padding-inline:8px}
+  #cleanrooms-studio[data-page] :is(.cs-payroll-editor,.cs-payroll-empty){padding:20px}
+  #cleanrooms-studio[data-page] .cs-payroll-estimate{grid-template-columns:minmax(0,1fr);gap:20px;padding:20px}
+  #cleanrooms-studio[data-page] .cs-payroll-total{font-size:27px;line-height:36px}
+  #cleanrooms-studio[data-page] .cs-payroll-breakdown{padding:16px 0 0;border-left:0;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+  #cleanrooms-studio[data-page] .cs-payroll-field-pair{gap:12px}
+  #cleanrooms-studio[data-page] .cs-payroll-form{gap:16px}
+  #cleanrooms-studio[data-page] :is(.cs-payroll-section-head,.cs-payroll-rate-row,.cs-payroll-supplement-row){padding:16px}
+  #cleanrooms-studio[data-page] .cs-payroll-calculation{flex-wrap:wrap;gap:6px}
+  #cleanrooms-studio[data-page] .cs-payroll-calculation > strong{margin-left:auto}
+}
+@media(max-width:400px){#cleanrooms-studio[data-page] .cs-payroll-field-pair{grid-template-columns:minmax(0,1fr)}#cleanrooms-studio[data-page] .cs-payroll-weekday{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page] .cs-payroll-page *{transition:none;scroll-behavior:auto}}

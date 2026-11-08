@@ -1,0 +1,69 @@
+/* Administration forms share the overlay rhythm without changing their scroll owners. */
+#cleanrooms-studio[data-page] .cs-department-dialog{--cs-department-gutter:var(--cs-overlay-gutter,24px)}
+#cleanrooms-studio[data-page] .cs-department-head,
+#cleanrooms-studio[data-page] .cs-department-footer{
+  padding:var(--cs-overlay-edge,16px) var(--cs-overlay-gutter,24px);
+}
+#cleanrooms-studio[data-page] .cs-department-head{gap:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-department-footer{gap:var(--cs-overlay-actions,8px)}
+#cleanrooms-studio[data-page] .cs-department-body{padding:var(--cs-overlay-section,20px) var(--cs-overlay-gutter,24px)}
+#cleanrooms-studio[data-page] .cs-department-caption{margin-top:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-department-list-head{margin-bottom:var(--cs-overlay-row,12px);gap:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-department-list{margin-bottom:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] .cs-department-form-title{margin-bottom:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] .cs-department-field-pair{
+  margin-bottom:var(--cs-overlay-section,20px);
+  column-gap:16px;
+  row-gap:var(--cs-overlay-section,20px);
+}
+#cleanrooms-studio[data-page] .cs-department-field-label,
+#cleanrooms-studio[data-page] .cs-department-worksites > legend{margin-bottom:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-department-site-options{margin-top:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-department-empty-note{margin-top:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-department-add-site{
+  margin-top:var(--cs-overlay-section,20px);
+  padding-top:var(--cs-overlay-edge,16px);
+  gap:var(--cs-overlay-row,12px);
+}
+#cleanrooms-studio[data-page] .cs-department-new-site-fields{
+  margin-top:var(--cs-overlay-section,20px);
+  gap:var(--cs-overlay-section,20px);
+}
+#cleanrooms-studio[data-page] .cs-department-error{margin-top:var(--cs-overlay-row,12px);padding-top:var(--cs-overlay-row,12px)}
+
+/* Role help belongs to its select; the next field starts a new section. */
+#cleanrooms-studio[data-page] .cs-accounts-field-pair{
+  margin-bottom:var(--cs-overlay-section,20px);
+  column-gap:16px;
+  row-gap:var(--cs-overlay-section,20px);
+}
+#cleanrooms-studio[data-page] .cs-accounts-field-pair:has(+ .cs-accounts-role-help:not([hidden])){margin-bottom:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-accounts-role-help{margin:0 0 var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] .cs-accounts-label{margin-bottom:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-accounts-binding-help{margin-top:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-accounts-hosting-note{margin-top:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-accounts-role-editor .cs-accounts-form > .cs-accounts-field{margin-bottom:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] .cs-accounts-permission-help{margin-bottom:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-accounts-permission-options{gap:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] .cs-accounts-permission-option{gap:var(--cs-overlay-row,12px)}
+#cleanrooms-studio[data-page] .cs-accounts-form-actions{
+  margin-top:var(--cs-overlay-section,20px);
+  padding-top:var(--cs-overlay-edge,16px);
+  gap:var(--cs-overlay-actions,8px);
+}
+
+/* These flat forms have help as sibling elements: explicit visible-sibling spacing
+   keeps help close to its field without negative margins or gaps from hidden alerts. */
+#cleanrooms-studio[data-page] :is(.cs-roster-form,.cs-workspace-settings-form){gap:0}
+#cleanrooms-studio[data-page] .cs-roster-form{margin-top:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] :is(.cs-roster-form,.cs-workspace-settings-form) > :not([hidden]) ~ :not([hidden]){margin-top:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] .cs-roster-form > .cs-roster-check + .cs-roster-help:not([hidden]),
+#cleanrooms-studio[data-page] .cs-workspace-settings-form > .cs-product-field + .cs-product-help:not([hidden]),
+#cleanrooms-studio[data-page] .cs-workspace-settings-form > .cs-product-help + .cs-product-help:not([hidden]){margin-top:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] :is(.cs-roster-field-pair,.cs-product-field-pair){column-gap:16px;row-gap:var(--cs-overlay-section,20px)}
+#cleanrooms-studio[data-page] :is(.cs-roster-label,.cs-product-field-label){margin-bottom:var(--cs-overlay-label,8px)}
+#cleanrooms-studio[data-page] :is(.cs-roster-form-actions,.cs-product-form-actions){padding-top:var(--cs-overlay-edge,16px);gap:var(--cs-overlay-actions,8px)}
+
+@media(max-width:760px){
+  #cleanrooms-studio[data-page] :is(.cs-department-field-pair,.cs-accounts-field-pair,.cs-roster-field-pair,.cs-product-field-pair){column-gap:var(--cs-overlay-row,12px)}
+}

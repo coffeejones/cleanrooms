@@ -1,0 +1,68 @@
+/* Desktop workspace chrome. Forms, record rows and scroll owners keep their geometry. */
+@media(min-width:761px){
+  /* Employee directory: its context and actions share a single heading row. */
+  #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:12px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:center;gap:12px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-heading{margin:0;font-size:15px;line-height:22px;letter-spacing:-.15px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-count{margin:0;line-height:20px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-actions{padding-top:0}
+  #cleanrooms-studio[data-page="people"] .cs-main .cs-roster-directory-head{padding-block:0 12px;gap:8px 16px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head>.cs-roster-status-tabs{gap:16px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head .cs-roster-status-tab{min-height:40px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-week-context{padding-top:8px;line-height:18px}
+
+  /* Leave review keeps its familiar filters, with one interval between tool rows. */
+  #cleanrooms-studio[data-page="leave"] .cs-leave-navigation{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:12px;border-bottom:1px solid #e3e7e9}
+  #cleanrooms-studio[data-page="leave"] .cs-leave-navigation>.cs-review-statuses{flex:1 1 auto;margin:0;border:0}
+  #cleanrooms-studio[data-page="leave"] .cs-leave-navigation>.cs-leave-create-actions{flex:0 0 auto;margin:0;padding-bottom:4px}
+  #cleanrooms-studio[data-page="leave"] .cs-review-statuses{gap:20px;margin-bottom:12px}
+  #cleanrooms-studio[data-page="leave"] .cs-review-status{height:40px;min-height:40px}
+  #cleanrooms-studio[data-page="leave"] .cs-review-compact-tools{margin-bottom:12px}
+  #cleanrooms-studio[data-page="leave"] .cs-review-result-head{min-height:24px;margin-bottom:12px}
+  #cleanrooms-studio[data-page="leave"] .cs-review-result-head>h3{font-size:15px;line-height:22px;letter-spacing:-.15px}
+
+  /* Only the group directory is condensed; dated agreements and editors stay untouched. */
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-page:not(.cs-paygroups-detail-page){gap:16px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-page:not(.cs-paygroups-detail-page)>.cs-paygroups-tabs{gap:24px;min-height:40px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-page:not(.cs-paygroups-detail-page)>.cs-paygroups-tabs>.cs-paygroups-tab{height:40px;min-height:40px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head{align-items:center;gap:12px 20px;padding-bottom:12px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface .cs-paygroups-section-title{margin:0;font-size:15px;line-height:22px;letter-spacing:-.15px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head .cs-paygroups-caption{margin:0}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head>.cs-button{margin-top:0}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-summary{flex-basis:100%;gap:4px 16px;margin:4px 0 0;line-height:18px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools{padding:0 0 12px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools>.cs-paygroups-field>.cs-paygroups-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+  /* Access navigation no longer repeats a large page title before the actual list. */
+  #cleanrooms-studio[data-page="accounts"] .cs-main .cs-accounts-toolbar{gap:12px;padding-bottom:8px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-overview{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-toolbar .cs-accounts-eyebrow{font-size:14px;line-height:22px;letter-spacing:0}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-toolbar .cs-accounts-total{margin-top:0;line-height:20px}
+  #cleanrooms-studio[data-page="accounts"] .cs-main .cs-accounts-tabs{gap:24px}
+  #cleanrooms-studio[data-page="accounts"][data-role] .cs-accounts-tabs>.cs-accounts-tab{height:40px;min-height:40px}
+  #cleanrooms-studio[data-page="accounts"] .cs-main .cs-accounts-workspace{margin-top:16px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-member-section>.cs-accounts-section-title,
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-role-head>.cs-accounts-section-title{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-member-section>.cs-accounts-section-title{padding-block:0 12px}
+  #cleanrooms-studio[data-page="accounts"] .cs-main .cs-accounts-role-head{align-items:center;padding-block:0 12px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-member-section>.cs-accounts-section-title>.cs-accounts-heading,
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-role-head .cs-accounts-heading{margin:0;font-size:15px;line-height:22px;letter-spacing:-.15px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-member-section>.cs-accounts-section-title>.cs-accounts-caption,
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-role-head>.cs-accounts-section-title>.cs-accounts-caption{margin:0}
+
+  /* History starts with its compact filter row, followed directly by the chronology. */
+  #cleanrooms-studio[data-page="activity"] .cs-history-review>.cs-review-compact-tools{margin-bottom:12px}
+  #cleanrooms-studio[data-page="activity"] .cs-main .cs-history-review>.cs-activity-list{margin-top:12px}
+
+  #cleanrooms-studio[data-page="workflow"] .cs-workflow .cs-workflow-tab{height:40px!important;min-height:40px!important}
+  #cleanrooms-studio[data-page="workflow"] .cs-workflow-body{padding-top:16px}
+}
+
+@media(min-width:761px) and (max-width:1100px){
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{flex-wrap:wrap;row-gap:8px}
+  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-actions{margin-left:auto}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head{flex-wrap:wrap;row-gap:8px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head>div{flex-basis:100%}
+}

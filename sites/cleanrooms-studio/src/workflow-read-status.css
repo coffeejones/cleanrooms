@@ -1,0 +1,65 @@
+/* Read status is a recipient directory, with message history one level below. */
+#cleanrooms-studio .cs-read-status{min-width:0;color:#344954;font-size:13px;line-height:21px}
+#cleanrooms-studio .cs-read-intro{margin:0 0 18px}
+#cleanrooms-studio .cs-read-overview{margin:0;color:#687c89;font-size:13px;line-height:21px}
+#cleanrooms-studio .cs-read-muted{display:block;margin:0;color:#7b8891;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-read-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 22px;min-width:0}
+#cleanrooms-studio .cs-read-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+#cleanrooms-studio .cs-read-status .cs-read-filter{display:inline-flex;align-items:center;justify-content:center;gap:9px;box-sizing:border-box;height:40px!important;min-height:40px!important;margin:0;padding:0 12px!important;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:#72818c;font:inherit;font-size:12px;line-height:20px;white-space:nowrap}
+#cleanrooms-studio .cs-read-status .cs-read-filter[aria-pressed="true"]{border-color:#d7e0e5;background:#f2f5f7;color:#3a5364}
+#cleanrooms-studio .cs-read-count{color:#8a969e;font-size:11px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-read-search{display:block;flex:1;min-width:180px;max-width:300px;margin:0}
+#cleanrooms-studio .cs-read-input{box-sizing:border-box;display:block;width:100%;height:40px;min-height:40px;min-width:0;margin:0;padding:8px 12px;border:1px solid #cad5dc;border-radius:7px;background:#fff;color:#344e5f;font:inherit;font-size:13px;line-height:22px}
+#cleanrooms-studio .cs-read-status .cs-read-button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:40px!important;height:auto!important;max-width:100%;margin:0;padding:9px 13px!important;border:1px solid #d0d9df;border-radius:7px;background:#fff;box-shadow:0 1px 1px #23354004;color:#4d6574;font:inherit;font-size:12px;font-weight:500;line-height:20px;white-space:normal;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease}
+#cleanrooms-studio .cs-read-status .cs-read-button:hover:not(:disabled){border-color:#b8c9d4;background:#f7f9fa}
+#cleanrooms-studio .cs-read-status .cs-read-refresh{margin-left:auto}
+#cleanrooms-studio .cs-read-table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:left;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-read-table :is(th,td){box-sizing:border-box;padding:17px 16px;border-bottom:1px solid #e6ebee;text-align:left;vertical-align:middle;font-weight:400}
+#cleanrooms-studio .cs-read-table :is(th,td):first-child{padding-left:0}
+#cleanrooms-studio .cs-read-table :is(th,td):last-child{padding-right:0}
+#cleanrooms-studio .cs-read-table thead th{position:sticky;top:0;z-index:1;padding-block:12px;background:#f4f6f7;color:#7a8891;font-size:11px;font-weight:500;line-height:18px}
+#cleanrooms-studio .cs-read-table th:first-child{width:28%;padding-left:12px}
+#cleanrooms-studio .cs-read-table th:nth-child(2){width:28%}
+#cleanrooms-studio .cs-read-table th:nth-child(3){width:26%}
+#cleanrooms-studio .cs-read-table th:last-child{width:18%}
+#cleanrooms-studio .cs-read-person>strong,#cleanrooms-studio .cs-read-progress>strong{display:block;margin:0;color:#3a505e;font-size:13px;font-weight:500;line-height:22px}
+#cleanrooms-studio .cs-read-progress{font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-read-progress .cs-read-muted{margin-top:3px;font-size:11px;line-height:18px}
+#cleanrooms-studio .cs-read-date{color:#71818d;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-read-action{text-align:right!important}
+#cleanrooms-studio .cs-read-not-open{color:#667d8c}
+#cleanrooms-studio .cs-read-change>strong{display:block;margin:0 0 3px;color:#3d5361;font-size:13px;font-weight:500;line-height:21px}
+#cleanrooms-studio .cs-read-message-summary{display:block;color:#74828c;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-read-message-table th:first-child{width:42%}
+#cleanrooms-studio .cs-read-message-table th:nth-child(2),#cleanrooms-studio .cs-read-message-table th:nth-child(3){width:21%}
+#cleanrooms-studio .cs-read-message-table th:last-child{width:16%}
+#cleanrooms-studio .cs-read-status .cs-read-back{display:inline-flex;align-items:center;gap:8px;min-height:40px!important;height:40px!important;margin:0 0 20px;padding:0!important;border:0;border-radius:0;background:transparent;box-shadow:none;color:#718491;font:inherit;font-size:13px;line-height:22px;cursor:pointer}
+#cleanrooms-studio .cs-read-back::before{content:'←';font-size:16px}
+#cleanrooms-studio .cs-read-person-head{margin:0 0 22px}
+#cleanrooms-studio .cs-read-title{margin:0 0 7px;color:#354c5c;font-size:21px;font-weight:600;line-height:30px;letter-spacing:-.3px}
+#cleanrooms-studio .cs-read-pagination{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+#cleanrooms-studio .cs-read-pagination>.cs-read-muted{margin-right:auto;font-size:11px}
+#cleanrooms-studio .cs-read-empty{padding:32px 0;max-width:560px}
+#cleanrooms-studio .cs-read-empty>h4{margin:0 0 8px;color:#536a79;font-size:15px;font-weight:500;line-height:23px}
+#cleanrooms-studio .cs-read-error{margin:0 0 20px;padding:12px 14px;border:1px solid #e6dac4;border-radius:6px;background:#fcfaf6;color:#8a6b37;font-size:13px;line-height:22px}
+#cleanrooms-studio .cs-read-status :is(button,input):focus-visible{outline:2px solid #6a91aa;outline-offset:3px}
+#cleanrooms-studio .cs-read-status button:disabled{opacity:.5;cursor:default}
+@media(max-width:760px){
+ #cleanrooms-studio .cs-read-tools{gap:10px;margin-bottom:18px}
+ #cleanrooms-studio .cs-read-search{flex:1 1 100%;min-width:0;max-width:none;order:2}
+ #cleanrooms-studio .cs-read-filters{gap:3px}
+ #cleanrooms-studio .cs-read-status .cs-read-filter{padding-inline:9px!important;font-size:11px;gap:6px}
+ #cleanrooms-studio .cs-read-status .cs-read-refresh{margin-left:0}
+ #cleanrooms-studio .cs-read-table,#cleanrooms-studio .cs-read-table tbody{display:block}
+ #cleanrooms-studio .cs-read-table thead{display:none}
+ #cleanrooms-studio .cs-read-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:13px 18px;padding:18px 0;border-top:1px solid #e2e8ec}
+ #cleanrooms-studio .cs-read-table :is(th,td){display:block;width:auto;min-width:0;padding:0!important;border:0;vertical-align:initial}
+ #cleanrooms-studio .cs-read-table td:first-child{grid-column:1/-1}
+ #cleanrooms-studio .cs-read-table td:not(:first-child):not(:last-child)::before{content:attr(data-label);display:block;margin-bottom:5px;color:#8a969e;font-size:10px;font-weight:400;line-height:16px}
+ #cleanrooms-studio .cs-read-table td:last-child{grid-column:1/-1;text-align:left!important}
+ #cleanrooms-studio .cs-read-status .cs-read-button{min-height:44px!important;padding-block:11px!important}
+ #cleanrooms-studio .cs-read-date{font-size:11px;line-height:19px}
+ #cleanrooms-studio .cs-read-person-head{margin-bottom:18px}
+ #cleanrooms-studio .cs-read-title{font-size:20px;line-height:28px}
+}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-read-status *{transition:none!important}}

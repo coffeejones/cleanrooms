@@ -1,0 +1,223 @@
+#cleanrooms-studio[data-page="leave"] {
+  --cs-admin-gutter:var(--cs-compass-gutter);
+  --cs-admin-rule:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="activity"] {
+  --cs-history-gutter:var(--cs-compass-gutter);
+  --cs-history-rule:var(--cs-compass-rule);
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) {
+  --cs-ui-height:36px;
+  --cs-ui-radius:6px;
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-main>.cs-content {
+  padding-top:16px;
+}
+
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-filter-rail {
+  --cs-ui-field-border:var(--cs-access-control-edge);
+  --cs-ui-field-background:var(--cs-access-surface);
+  --cs-ui-field-shadow:none;
+  gap:8px;
+  background:transparent;
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-filter-rail>.cs-review-field::before {
+  display:none;
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-review-input,.cs-review-textarea) {
+  border-color:var(--cs-access-control-edge);
+  border-radius:var(--cs-ui-radius);
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-input {
+  height:var(--cs-ui-height);
+  padding:0 12px;
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-review-input,.cs-review-textarea):focus-visible {
+  outline-color:var(--cs-access-blue);
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-review-label,.cs-review-muted,.cs-review-empty) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-extra-filters {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"])[data-role]
+  :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) .cs-button:is(:not(.cs-chrome-quiet),[aria-expanded]):where(:not(.cs-primary:disabled)) {
+  border:1px solid var(--cs-access-control-edge);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-weight:700;
+  box-shadow:none;
+}
+#cleanrooms-studio:is([data-page="leave"],[data-page="activity"])[data-role]
+  :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) .cs-button:is(:not(.cs-chrome-quiet),[aria-expanded]):hover:not(:disabled) {
+  background:var(--cs-compass-selected);
+}
+#cleanrooms-studio[data-page="leave"][data-role] :is(.cs-leave-review-page,.cs-review-dialog) .cs-button.cs-primary:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:#fff;
+}
+#cleanrooms-studio[data-page="leave"][data-role] :is(.cs-leave-review-page,.cs-review-dialog) .cs-button.cs-primary:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
+}
+
+#cleanrooms-studio[data-page="leave"] :is(.cs-leave-navigation,.cs-review-statuses) {
+  border-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="leave"] .cs-leave-navigation>.cs-review-statuses {
+  gap:4px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-status {
+  position:relative;
+  flex-shrink:0;
+  height:44px;
+  min-height:44px;
+  padding:0 12px;
+  border:0;
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-status:is([aria-pressed="true"],:hover) {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-status[aria-pressed="true"]::after {
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:4px;
+  border-radius:4px 4px 0 0;
+  background:var(--cs-compass-indicator);
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-status:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:-2px;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-result-head h3 {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-table-wrap {
+  border:1px solid var(--cs-compass-rule);
+  border-radius:7px;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-table {
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-table th {
+  padding-block:9px;
+  border-top:0;
+  border-bottom-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:700;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-table td {
+  padding-block:12px;
+  border-color:var(--cs-compass-rule);
+  vertical-align:middle;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-table :is(th,td):first-child {padding-inline-start:14px}
+#cleanrooms-studio[data-page="leave"] .cs-review-table :is(th,td):last-child {padding-inline-end:14px}
+#cleanrooms-studio[data-page="leave"] .cs-review-table tbody tr:hover {background:var(--cs-access-soft)}
+#cleanrooms-studio[data-page="leave"] .cs-review-table tbody tr:last-child td {border-bottom:0}
+#cleanrooms-studio[data-page="leave"] .cs-review-person .cs-avatar {
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-badge::before {
+  content:"";
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:currentColor;
+}
+#cleanrooms-studio[data-page="leave"] .cs-review-badge[data-state="approved"] {color:var(--cs-access-success)}
+#cleanrooms-studio[data-page="leave"] .cs-review-badge[data-state="rejected"] {color:var(--cs-access-danger)}
+#cleanrooms-studio[data-page="leave"] .cs-review-decision summary {color:var(--cs-access-primary)}
+#cleanrooms-studio[data-page="leave"][data-role] .cs-review-dialog {
+  border-color:var(--cs-compass-rule);
+  border-radius:7px;
+}
+#cleanrooms-studio[data-page="leave"][data-role] .cs-review-dialog>h3 {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page="leave"][data-role] .cs-review-dialog-actions {
+  border-color:var(--cs-compass-rule);
+}
+
+#cleanrooms-studio[data-page="activity"] .cs-main .cs-history-review>.cs-activity-list {
+  margin-top:16px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:7px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page="activity"] .cs-main .cs-history-review .cs-activity-entry {
+  padding:14px;
+  border-bottom-color:var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="activity"] .cs-main .cs-history-review .cs-activity-entry:last-child {border-bottom:0}
+#cleanrooms-studio[data-page="activity"] .cs-history-review .cs-review-empty {
+  padding:16px 14px;
+  border-top:0;
+}
+#cleanrooms-studio[data-page="activity"] .cs-activity-entry h4 {
+  color:var(--cs-access-ink);
+  font-weight:700;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page="activity"] .cs-main .cs-activity-meta,
+#cleanrooms-studio[data-page="activity"] :is(.cs-activity-actor,.cs-activity-values,.cs-history-archive-info) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="activity"] .cs-activity-kind {
+  padding:1px 8px;
+  border-radius:4px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-body);
+  font-weight:600;
+}
+#cleanrooms-studio[data-page="activity"] :is(.cs-activity-entry,.cs-history-archive-info,.cs-backup-export) summary {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio[data-page="activity"] :is(.cs-activity-entry,.cs-history-archive-info,.cs-backup-export) summary:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+#cleanrooms-studio[data-page="activity"] .cs-review-filter-chip {
+  border-color:var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+  color:var(--cs-access-body);
+}
+
+@media(max-width:760px) {
+  #cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-filter-rail {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,.8fr);
+  }
+  #cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) .cs-review-filter-rail>.cs-review-field {
+    min-width:0;
+  }
+}
+@media(pointer:coarse) {
+  #cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) {
+    --cs-ui-height:44px;
+  }
+}

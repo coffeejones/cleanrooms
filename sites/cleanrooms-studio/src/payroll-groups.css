@@ -1,0 +1,331 @@
+/* Shared pay policy: an operational directory, dated setup and one explicit change review. */
+#cleanrooms-studio[data-page="payroll"] .cs-main{background:var(--cs-access-canvas,#edf0f1)}
+#cleanrooms-studio[data-page="payroll"] .cs-page-head{min-height:0;padding:26px 32px 18px;background:var(--cs-access-canvas,#edf0f1)}
+#cleanrooms-studio[data-page="payroll"] .cs-title-block{min-width:0;gap:7px}
+#cleanrooms-studio[data-page="payroll"] #cs-title{margin:0;color:var(--cs-access-ink,#29343c);font-size:26px;font-weight:600;line-height:34px;letter-spacing:-.65px}
+#cleanrooms-studio[data-page="payroll"] .cs-page-description{display:block;color:var(--cs-access-muted,#687076);font-size:14px;line-height:21px}
+#cleanrooms-studio[data-page="payroll"] .cs-content{min-width:0;min-height:0;padding:0 32px;overflow:hidden}
+#cleanrooms-studio[data-page="payroll"] #cs-page-content{display:flex;flex:1;min-width:0;min-height:0;border:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="payroll"] #cs-payroll-admin-page{display:flex;flex:1;width:100%;height:100%;min-width:0;min-height:0;padding:0;overflow:hidden}
+#cleanrooms-studio[data-page] .cs-paygroups-page{display:flex;flex-direction:column;gap:20px;width:100%;height:100%;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overflow-anchor:none;padding:0 0 24px;color:var(--cs-access-body,#4b575d);font-size:14px;line-height:1.5}
+#cleanrooms-studio[data-page] .cs-paygroups-page [hidden]{display:none!important}
+#cleanrooms-studio[data-page] .cs-paygroups-tabs{display:flex;align-items:center;gap:4px;flex-shrink:0;min-width:0;padding:0 0 12px;border-bottom:1px solid var(--cs-access-border,#d5dcde)}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-tab,.cs-paygroups-name){appearance:none;min-width:0;margin:0;border:0;background:transparent;color:var(--cs-access-muted,#687076);font:inherit;text-align:left;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-tab{min-height:var(--cs-ui-height,40px);padding:8px 16px;border:1px solid transparent;border-radius:6px;font-size:13px;font-weight:500;line-height:22px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-tab[aria-pressed="true"]{border-color:var(--cs-access-border,#d5dcde);background:var(--cs-access-surface,#fff);color:var(--cs-access-ink,#29343c);box-shadow:0 1px 2px #26394308}
+#cleanrooms-studio[data-page] .cs-paygroups-tab:hover:not([aria-pressed="true"]):not(:disabled){background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-ink,#29343c)}
+#cleanrooms-studio[data-page] .cs-paygroups-surface{flex-shrink:0;min-width:0;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-surface,#fff);box-shadow:0 1px 2px #26394308,0 5px 15px #26394304;overflow:hidden}
+#cleanrooms-studio[data-page] .cs-paygroups-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;min-width:0;padding:20px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-section-head>div{flex:1;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-section-title{margin:0;color:var(--cs-access-ink,#29343c);font-size:18px;font-weight:600;line-height:26px;letter-spacing:-.2px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-caption{margin:5px 0 0;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-help{margin:0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-subtitle{margin:0;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px}
+#cleanrooms-studio[data-page] .cs-paygroups-eyebrow{display:block;margin:0 0 5px;color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;line-height:18px;letter-spacing:.35px;text-transform:uppercase}
+#cleanrooms-studio[data-page] .cs-paygroups-table-wrap{min-width:0;overflow-x:auto}
+#cleanrooms-studio[data-page] .cs-paygroups-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-table th{padding:12px 16px;border-bottom:1px solid var(--cs-access-border,#d5dcde);background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;line-height:18px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-table :is(th,td):first-child{padding-left:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-table :is(th,td):last-child{padding-right:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-table td{padding:16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);vertical-align:middle;color:var(--cs-access-body,#4b575d);font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-table tr:last-child td{border-bottom:0}
+#cleanrooms-studio[data-page] .cs-paygroups-table tbody tr:hover{background:#f9fbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-table tbody tr[data-selected="true"]{background:var(--cs-access-blue-soft,#edf2f6)}
+#cleanrooms-studio[data-page] .cs-paygroups-name{max-width:100%;padding:4px 0;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-name:hover{text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio[data-page] .cs-paygroups-cell-detail{display:block;margin-top:2px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page] .cs-paygroups-status{color:var(--cs-access-muted,#687076);font-size:12px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-status[data-state="active"]{color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page] .cs-paygroups-status[data-state="future"]{color:var(--cs-access-blue,#476276)}
+#cleanrooms-studio[data-page] .cs-paygroups-empty{padding:28px 24px}
+#cleanrooms-studio[data-page] .cs-paygroups-subtabs{display:flex;align-items:center;gap:4px;min-width:0;padding:8px 16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);background:#f8fafa}
+#cleanrooms-studio[data-page] .cs-paygroups-subtabs .cs-paygroups-tab{padding-inline:12px}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-body{display:flex;flex-direction:column;gap:16px;min-width:0;padding:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-rate{display:block;color:var(--cs-access-ink,#29343c);font-size:24px;font-weight:600;line-height:32px;letter-spacing:-.45px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row){display:flex;align-items:flex-start;justify-content:space-between;gap:12px 20px;min-width:0;padding:16px 0;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row):last-child{border-bottom:0}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row)>div:first-child{flex:1;min-width:0}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row) strong{display:block;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row) span{display:block;margin-top:4px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-body>.cs-paygroups-rule{display:block;padding:16px;border:1px solid var(--cs-access-line,#e5eaeb);border-radius:5px;background:#fafbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-list{padding:0 24px}
+#cleanrooms-studio[data-page] .cs-paygroups-audit{padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-audit>summary{min-height:32px;color:var(--cs-access-blue,#476276);font-size:13px;line-height:22px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-audit>p{padding:8px 0;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-form{display:flex;flex-direction:column;gap:20px;min-width:0;padding:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-field{display:block;min-width:0;margin:0}
+#cleanrooms-studio[data-page] .cs-paygroups-label{display:block;min-width:0;margin:0 0 8px;color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-input{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;height:var(--cs-ui-height,40px);min-height:var(--cs-ui-height,40px);padding:0 12px;border:1px solid var(--cs-access-control-edge,#c1cbce);border-radius:8px;background:var(--cs-access-surface,#fff);color:var(--cs-access-ink,#29343c);font:inherit;font-size:var(--cs-ui-field-font,14px);line-height:22px}
+#cleanrooms-studio[data-page] .cs-paygroups-field-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-check{display:flex;align-items:flex-start;gap:12px;min-width:0;margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:22px;cursor:pointer}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-check,.cs-paygroups-person-choice)>input{appearance:auto;flex:0 0 16px;width:16px;height:16px;min-height:16px;margin:3px 0 0;padding:0;accent-color:var(--cs-access-primary,#303e46)}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-form-actions,.cs-paygroups-inline-actions){display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-form-actions{justify-content:flex-end;margin-top:0;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-section-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;min-width:0;margin-top:4px;padding-top:20px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-allowance-editor{display:flex;flex-direction:column;gap:16px;min-width:0;padding:20px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:6px;background:#f7f9f9}
+#cleanrooms-studio[data-page] .cs-paygroups-weekdays-field{min-width:0;margin:0;padding:0;border:0}
+#cleanrooms-studio[data-page] .cs-paygroups-weekdays-field>legend{width:100%;padding:0}
+#cleanrooms-studio[data-page] .cs-paygroups-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;min-width:0;max-width:480px}
+#cleanrooms-studio[data-page] .cs-paygroups-weekday{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:var(--cs-ui-height,40px);border:1px solid var(--cs-access-border,#d5dcde);border-radius:6px;background:#fff;color:var(--cs-access-body,#4b575d);font-size:12px;line-height:20px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-weekday>input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-weekday:has(input:checked){border-color:var(--cs-access-primary,#303e46);background:var(--cs-access-primary,#303e46);color:#fff}
+#cleanrooms-studio[data-page] .cs-paygroups-person-picker{min-width:0;max-height:340px;overflow-y:auto;border:1px solid var(--cs-access-border,#d5dcde);border-radius:6px;background:#fff;overscroll-behavior:contain}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice{display:grid;grid-template-columns:16px minmax(0,1fr);gap:4px 12px;min-width:0;margin:0;padding:12px 16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);font-size:13px;line-height:21px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice:last-child{border-bottom:0}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice>input{grid-column:1;grid-row:1/4}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice>:is(span,small){grid-column:2;min-width:0;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice>span{color:var(--cs-access-ink,#29343c);font-weight:500}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice>small{color:var(--cs-access-muted,#687076);font-size:12px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-paygroups-person-choice:has(input:checked){background:var(--cs-access-blue-soft,#edf2f6)}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-count{margin:0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-list-empty{margin:0;padding:16px 0;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-person-picker .cs-paygroups-list-empty{padding:16px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 20px;margin:0;padding:16px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);background:#f7f9f9;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-summary strong{color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-list{min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-person{min-width:0;padding:20px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0;margin:0 0 12px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-heading strong{color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-heading>span{flex-shrink:0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-columns>div{display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 16px;border:1px solid var(--cs-access-line,#e5eaeb);border-radius:4px;background:#fafbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-columns strong{color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:500;line-height:22px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-columns span{color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-person>.cs-paygroups-help{margin-top:10px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-empty{margin:0;padding:20px 24px;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-unchanged{min-width:0;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-unchanged>summary{min-height:40px;padding:12px 24px;color:var(--cs-access-blue,#476276);font-size:12px;line-height:20px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-preview>.cs-paygroups-form-actions{margin:0;padding:16px 24px;border-top:0;background:#f8fafa}
+#cleanrooms-studio[data-page] .cs-paygroups-preview>.cs-paygroups-help{padding:20px 24px}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-error,.cs-paygroups-warning){flex-shrink:0;min-width:0;margin:0;padding:16px;border:1px solid var(--cs-access-danger-edge,#efcdc8);border-radius:6px;background:var(--cs-access-danger-soft,#fff4f2);color:var(--cs-access-danger,#a83029);font-size:13px;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-error>p{margin:0}
+#cleanrooms-studio[data-page] .cs-paygroups-error>.cs-paygroups-help{margin-top:8px;color:inherit}
+#cleanrooms-studio[data-page] .cs-paygroups-error>.cs-button{margin-top:12px}
+#cleanrooms-studio[data-page] .cs-paygroups-warning{margin:16px 24px;background:#fff9ee;border-color:#e8dabc;color:#89601e}
+#cleanrooms-studio[data-page] .cs-paygroups-preview-columns .cs-paygroups-issue{color:var(--cs-access-danger,#a83029);font-weight:500}
+#cleanrooms-studio[data-page] .cs-paygroups-success{margin:0;color:var(--cs-access-success,#27734b);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-loading{flex-shrink:0;min-width:0;margin:0;padding:24px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:#fff;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-page :is(input,select,button,summary):focus-visible,#cleanrooms-studio[data-page] .cs-paygroups-weekday:focus-within{outline:2px solid var(--cs-access-blue,#476276);outline-offset:2px}
+#cleanrooms-studio[data-page] .cs-paygroups-page :disabled{opacity:.5;cursor:default}
+@media(max-width:1050px){#cleanrooms-studio[data-page] .cs-paygroups-table th{white-space:normal}#cleanrooms-studio[data-page] .cs-paygroups-table :is(th,td){padding-inline:12px}#cleanrooms-studio[data-page] .cs-paygroups-table :is(th,td):first-child{padding-left:20px}#cleanrooms-studio[data-page] .cs-paygroups-table :is(th,td):last-child{padding-right:20px}}
+@media(max-width:760px){
+  #cleanrooms-studio[data-page="payroll"] .cs-page-head{padding:18px 16px 16px}
+  #cleanrooms-studio[data-page="payroll"] #cs-title{font-size:23px;line-height:31px}
+  #cleanrooms-studio[data-page="payroll"] .cs-page-description{font-size:13px;line-height:20px}
+  #cleanrooms-studio[data-page="payroll"] .cs-content{padding-inline:16px}
+  #cleanrooms-studio[data-page] .cs-paygroups-page{gap:16px;padding-bottom:20px}
+  #cleanrooms-studio[data-page] .cs-paygroups-section-head{align-items:flex-start;flex-wrap:wrap;padding:16px 20px;gap:12px}
+  #cleanrooms-studio[data-page] .cs-paygroups-section-title{font-size:17px;line-height:25px}
+  #cleanrooms-studio[data-page] .cs-paygroups-subtabs{padding-inline:8px;gap:0}
+  #cleanrooms-studio[data-page] .cs-paygroups-subtabs .cs-paygroups-tab{flex:1;padding-inline:8px;text-align:center}
+  #cleanrooms-studio[data-page] :is(.cs-paygroups-form,.cs-paygroups-detail-body){padding:20px;gap:16px}
+  #cleanrooms-studio[data-page] .cs-paygroups-field-pair{gap:12px}
+  #cleanrooms-studio[data-page] .cs-paygroups-empty{padding:24px 20px}
+  #cleanrooms-studio[data-page] .cs-paygroups-table-wrap{overflow-x:hidden}
+  #cleanrooms-studio[data-page] .cs-paygroups-table{display:block;min-width:0;width:100%}
+  #cleanrooms-studio[data-page] .cs-paygroups-table thead{display:none}
+  #cleanrooms-studio[data-page] .cs-paygroups-table tbody{display:block;min-width:0}
+  #cleanrooms-studio[data-page] .cs-paygroups-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;min-width:0;padding:16px 20px;border-bottom:1px solid var(--cs-access-border,#d5dcde)}
+  #cleanrooms-studio[data-page] .cs-paygroups-table tbody tr:last-child{border-bottom:0}
+  #cleanrooms-studio[data-page] .cs-paygroups-table td,#cleanrooms-studio[data-page] .cs-paygroups-table :is(td:first-child,td:last-child){display:block;min-width:0;padding:0;border:0;overflow-wrap:anywhere}
+  #cleanrooms-studio[data-page] .cs-paygroups-table td:first-child{grid-column:1/-1}
+  #cleanrooms-studio[data-page] .cs-paygroups-table td:first-child:before{display:none}
+  #cleanrooms-studio[data-page] .cs-paygroups-table td[data-label]:before{content:attr(data-label);display:block;margin:0 0 4px;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+  #cleanrooms-studio[data-page] .cs-paygroups-table td:last-child{align-self:end;justify-self:end}
+  #cleanrooms-studio[data-page] .cs-paygroups-assignment-list{padding:0 20px}
+  #cleanrooms-studio[data-page] :is(.cs-paygroups-rule,.cs-paygroups-member,.cs-paygroups-history-row){flex-wrap:wrap;gap:12px}
+  #cleanrooms-studio[data-page] .cs-paygroups-allowance-editor{padding:16px}
+  #cleanrooms-studio[data-page] .cs-paygroups-person-choice{padding:12px}
+  #cleanrooms-studio[data-page] :is(.cs-paygroups-preview-summary,.cs-paygroups-preview-person){padding:16px 20px}
+  #cleanrooms-studio[data-page] .cs-paygroups-preview-columns{gap:8px}
+  #cleanrooms-studio[data-page] .cs-paygroups-preview-columns>div{padding:10px}
+  #cleanrooms-studio[data-page] .cs-paygroups-preview>.cs-paygroups-form-actions{padding:16px 20px}
+  #cleanrooms-studio[data-page] .cs-paygroups-warning{margin:16px 20px}
+  #cleanrooms-studio[data-page] :is(.cs-paygroups-preview-empty,.cs-paygroups-unchanged>summary){padding-inline:20px}
+}
+@media(max-width:430px){#cleanrooms-studio[data-page] .cs-paygroups-field-pair{grid-template-columns:minmax(0,1fr)}#cleanrooms-studio[data-page] .cs-paygroups-weekday{font-size:11px}#cleanrooms-studio[data-page] .cs-paygroups-preview-columns{grid-template-columns:minmax(0,1fr)}#cleanrooms-studio[data-page] .cs-paygroups-form-actions .cs-button{flex:1;min-width:0;padding-inline:8px}}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page] .cs-paygroups-page *{transition:none;scroll-behavior:auto}}
+
+/* A pay group is a dedicated workspace; the directory stays one level above it. */
+#cleanrooms-studio[data-page="payroll"] .cs-main:has(.cs-paygroups-detail-page)>.cs-page-head{display:none}
+#cleanrooms-studio[data-page] .cs-paygroups-group-view{display:flex;flex-direction:column;gap:20px;min-width:0;flex-shrink:0}
+#cleanrooms-studio[data-page] .cs-paygroups-group-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px 24px;min-width:0;padding:4px 0 0}
+#cleanrooms-studio[data-page] .cs-paygroups-breadcrumb{display:flex;grid-column:1/-1;align-items:center;gap:12px;min-width:0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-breadcrumb>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-breadcrumb>span::before{content:"/";margin-right:12px;color:#a1adb2}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-back,.cs-paygroups-group-link,.cs-paygroups-detail-tab,.cs-paygroups-member-filter){appearance:none;min-width:0;margin:0;font:inherit;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-paygroups-back{flex-shrink:0;min-height:var(--cs-ui-height,40px);padding:0;border:0;background:transparent;color:var(--cs-access-body,#4b575d);font-size:12px;line-height:20px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-back::before{content:"←";margin-right:8px;font-size:16px}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-back,.cs-paygroups-group-link):hover{color:var(--cs-access-ink,#29343c);text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio[data-page] .cs-paygroups-group-heading{display:flex;align-items:center;gap:12px 20px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-group-heading>div{min-width:0;flex:1}
+#cleanrooms-studio[data-page] .cs-paygroups-group-title{margin:0;color:var(--cs-access-ink,#29343c);font-size:27px;font-weight:600;line-height:36px;letter-spacing:-.65px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-reference-date{width:176px;align-self:end}
+#cleanrooms-studio[data-page] .cs-paygroups-reference-date .cs-paygroups-label{font-size:11px;color:var(--cs-access-muted,#687076)}
+#cleanrooms-studio[data-page] .cs-paygroups-group-summary{display:grid;grid-template-columns:minmax(230px,1.6fr) repeat(3,minmax(0,1fr));min-width:0;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-surface,#fff);box-shadow:0 1px 2px #26394308;overflow:hidden}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-summary-rate,.cs-paygroups-summary-count){min-width:0;padding:20px 24px;border-right:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-summary-count:last-child{border-right:0}
+#cleanrooms-studio[data-page] .cs-paygroups-summary-rate>strong{display:block;margin:2px 0 7px;color:var(--cs-access-ink,#29343c);font-size:22px;font-weight:600;line-height:30px;letter-spacing:-.35px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-summary-count>strong{display:block;margin-top:9px;color:var(--cs-access-ink,#29343c);font-size:28px;font-weight:500;line-height:34px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-summary-count[data-state="group"]>strong{color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-tabs{display:flex;gap:24px;min-width:0;border-bottom:1px solid var(--cs-access-border,#d5dcde)}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-tab{position:relative;min-height:var(--cs-ui-height,40px);padding:0 0 13px;border:0;background:transparent;color:var(--cs-access-muted,#687076);font-size:13px;line-height:22px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-tab[aria-pressed="true"]{color:var(--cs-access-ink,#29343c);font-weight:600;box-shadow:inset 0 -2px 0 var(--cs-access-primary,#303e46)}
+#cleanrooms-studio[data-page] .cs-paygroups-detail-tab:hover{color:var(--cs-access-ink,#29343c)}
+#cleanrooms-studio[data-page] .cs-paygroups-directory-tools{min-width:0;padding:16px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-directory-tools>.cs-paygroups-field{max-width:340px}
+#cleanrooms-studio[data-page] .cs-paygroups-cell-detail:has(.cs-paygroups-status){display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-top:5px}
+#cleanrooms-studio[data-page] .cs-paygroups-count-cell>strong{display:block;color:var(--cs-access-ink,#29343c);font-size:16px;font-weight:500;line-height:23px}
+#cleanrooms-studio[data-page] .cs-paygroups-count-cell>.cs-paygroups-issue{display:block;margin-top:5px;color:var(--cs-access-danger,#a83029);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-paygroups-member-status{display:inline-flex;align-items:center;max-width:100%;margin:0;padding:3px 7px;border:1px solid #d9e0e2;border-radius:4px;background:#f4f6f6;color:var(--cs-access-body,#4b575d);font-size:11px;font-weight:500;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-member-status[data-state="group"]{border-color:#d5e6da;background:#f0f7f2;color:#2c6d49}
+#cleanrooms-studio[data-page] .cs-paygroups-member-status[data-state="personal"]{border-color:#e7ddc9;background:#faf7ef;color:#79602e}
+#cleanrooms-studio[data-page] .cs-paygroups-member-status[data-state="missing"]{border-color:#edceca;background:#fff5f3;color:#a83029}
+#cleanrooms-studio[data-page] .cs-paygroups-members-tools{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px 20px;min-width:0;padding:16px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-members-tools>.cs-paygroups-field{flex:0 1 280px;min-width:180px}
+#cleanrooms-studio[data-page] .cs-paygroups-member-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-member-filter{min-height:var(--cs-ui-height,40px);padding:8px 12px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--cs-access-muted,#687076);font-size:12px;line-height:22px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-member-filter[aria-pressed="true"]{border-color:var(--cs-access-border,#d5dcde);background:#f3f6f6;color:var(--cs-access-ink,#29343c)}
+#cleanrooms-studio[data-page] .cs-paygroups-member-filter:hover{color:var(--cs-access-ink,#29343c);background:#f7f9f9}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table-wrap{min-width:0;overflow-x:auto}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table th{padding:12px 16px;border-bottom:1px solid var(--cs-access-border,#d5dcde);background:#f5f7f7;color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;line-height:18px}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table td{min-width:0;padding:20px 16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);vertical-align:top}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table :is(th,td):first-child{padding-left:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table :is(th,td):last-child{padding-right:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-members-table tr:last-child td{border-bottom:0}
+#cleanrooms-studio[data-page] :is(.cs-paygroups-member-identity,.cs-paygroups-member-base)>strong{display:block;color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-member-base>strong{font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-member-base{white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-member-adjustments{max-width:340px}
+#cleanrooms-studio[data-page] .cs-paygroups-exception{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-exception+.cs-paygroups-exception{margin-top:12px}
+#cleanrooms-studio[data-page] .cs-paygroups-exception>strong{color:var(--cs-access-body,#4b575d);font-size:12px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-exception>span{color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-inherits{color:var(--cs-access-muted,#687076);font-size:12px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-upcoming{margin:10px 0 0;padding-top:8px;border-top:1px dashed #d9e1e4;color:#5a7180;font-size:11px;line-height:19px}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-base{display:flex;flex-direction:column;gap:6px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-rule{display:flex;align-items:flex-start;justify-content:space-between;gap:12px 20px;min-width:0;padding:16px;border:1px solid var(--cs-access-line,#e5eaeb);border-radius:5px;background:#fafbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-rule>div{min-width:0;flex:1}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-rule h4{margin:0 0 7px;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:500;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-paygroups-setup-rule>strong{color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:500;line-height:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-paygroups-group-link{display:block;max-width:100%;margin:5px 0 8px;padding:0;border:0;background:transparent;color:#4d6879;font-size:12px;line-height:20px;overflow-wrap:anywhere;text-align:left}
+@media(max-width:1100px){
+ #cleanrooms-studio[data-page] .cs-paygroups-group-summary{grid-template-columns:minmax(200px,1.4fr) repeat(3,minmax(0,1fr))}
+ #cleanrooms-studio[data-page] :is(.cs-paygroups-summary-rate,.cs-paygroups-summary-count){padding:18px}
+ #cleanrooms-studio[data-page] .cs-paygroups-group-heading{align-items:flex-start;flex-direction:column;gap:8px}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table :is(th,td){padding-inline:12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-setup-rules{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page] .cs-paygroups-group-view{gap:16px}
+ #cleanrooms-studio[data-page] .cs-paygroups-group-header{grid-template-columns:minmax(0,1fr);gap:12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-group-title{font-size:24px;line-height:32px;letter-spacing:-.5px}
+ #cleanrooms-studio[data-page] .cs-paygroups-reference-date{width:100%;max-width:220px}
+ #cleanrooms-studio[data-page] .cs-paygroups-group-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #cleanrooms-studio[data-page] .cs-paygroups-summary-rate{grid-column:1/-1;border-right:0;border-bottom:1px solid var(--cs-access-line,#e5eaeb);padding:16px 20px}
+ #cleanrooms-studio[data-page] .cs-paygroups-summary-count{padding:14px 12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-summary-count>.cs-paygroups-eyebrow{min-height:36px;font-size:10px;line-height:17px;letter-spacing:0;text-transform:none}
+ #cleanrooms-studio[data-page] .cs-paygroups-summary-count>strong{margin-top:0;font-size:24px;line-height:30px}
+ #cleanrooms-studio[data-page] .cs-paygroups-detail-tabs{gap:20px}
+ #cleanrooms-studio[data-page] .cs-paygroups-detail-tab{font-size:12px}
+ #cleanrooms-studio[data-page] :is(.cs-paygroups-directory-tools,.cs-paygroups-members-tools){padding:16px 20px}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-tools>.cs-paygroups-field{flex-basis:100%;min-width:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-member-filters{gap:4px}
+ #cleanrooms-studio[data-page] .cs-paygroups-member-filter{padding-inline:8px;font-size:11px}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table-wrap{overflow-x:hidden}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table{display:block;width:100%;min-width:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table thead{display:none}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table tbody{display:block;min-width:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;min-width:0;padding:20px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table tbody tr:last-child{border-bottom:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td,#cleanrooms-studio[data-page] .cs-paygroups-members-table :is(td:first-child,td:last-child){display:block;min-width:0;padding:0;border:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(1){grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(2){grid-column:1;white-space:normal}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(3){grid-column:1/-1;grid-row:3;max-width:none}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(4){grid-column:2;grid-row:2;justify-self:end}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(5){grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-members-table td:nth-child(3):before{content:attr(data-label);display:block;margin-bottom:8px;color:var(--cs-access-muted,#687076);font-size:10px;line-height:17px;text-transform:uppercase;letter-spacing:.25px}
+ #cleanrooms-studio[data-page] .cs-paygroups-setup-rule{flex-wrap:wrap;padding:16px}
+ #cleanrooms-studio[data-page] .cs-paygroups-table .cs-paygroups-cell-detail:has(.cs-paygroups-status){gap:6px 10px}
+}
+/* Large teams use one bounded result table and an explicit, persistent selection. */
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-tools{display:grid;grid-template-columns:minmax(220px,1.5fr) repeat(2,minmax(180px,1fr));gap:12px;padding:20px 24px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-tools .cs-paygroups-field{gap:6px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-list.cs-paygroups-assignment-table-wrap{padding:0;min-width:0;overflow-x:auto}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed;font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table th{padding:11px 16px;border-bottom:1px solid var(--cs-access-border,#d5dcde);background:#f5f7f7;color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;line-height:18px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(th,td):first-child{padding-left:24px;width:23%}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(th,td):nth-child(2){width:24%}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(th,td):nth-child(3){width:20%}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(th,td):nth-child(4){width:20%}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(th,td):last-child{padding-right:24px;width:150px;text-align:right}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table td{padding:10px 16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);vertical-align:middle;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table tr:last-child td{border-bottom:0}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table td>strong{display:block;color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:500;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-table .cs-paygroups-group-link{margin:0;font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page] .cs-paygroups-pagination{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;padding:14px 24px;border-top:1px solid var(--cs-access-line,#e5eaeb);background:#fafbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-result-count{margin:0;flex:1;min-width:110px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-pagination>.cs-paygroups-field{display:flex;flex-direction:row;align-items:center;gap:8px;width:auto;flex:0 0 auto}
+#cleanrooms-studio[data-page] .cs-paygroups-pagination>.cs-paygroups-field>span{margin:0;white-space:nowrap;font-size:12px;font-weight:400}
+#cleanrooms-studio[data-page] .cs-paygroups-pagination select{width:72px;padding-left:10px}
+#cleanrooms-studio[data-page] .cs-paygroups-page-buttons{display:flex;align-items:center;gap:4px}
+#cleanrooms-studio[data-page] .cs-paygroups-page-label{min-width:48px;text-align:center;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-workflow{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step{display:flex;flex-direction:column;gap:16px;min-width:0;padding:24px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step:first-child{border-right:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;border:0}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools>.cs-paygroups-field:first-child{grid-column:1/-1}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-pagination{padding:0;border:0;background:transparent;gap:8px 12px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-pagination>.cs-paygroups-result-count{flex-basis:100%;min-width:0}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-tools{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-tools>.cs-button{padding-inline:10px;font-size:12px}
+#cleanrooms-studio[data-page] .cs-paygroups-person-picker.cs-paygroups-paged-picker{max-height:440px;min-width:0;overflow-y:auto;background:#fff}
+#cleanrooms-studio[data-page] .cs-paygroups-paged-picker .cs-paygroups-person-choice{grid-template-columns:16px minmax(0,1fr);gap:2px 10px;padding:10px 12px}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-summary{display:flex;align-items:flex-start;flex-wrap:wrap;gap:6px 12px;min-width:0;padding:14px 16px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:6px;background:#f6f8f8}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-summary>strong{flex:1;color:var(--cs-access-ink,#29343c);font-size:13px;font-weight:600;line-height:22px}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-summary>.cs-paygroups-help{flex-basis:100%;order:2}
+#cleanrooms-studio[data-page] .cs-paygroups-selection-summary>.cs-button{flex:0 0 auto}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-settings{justify-content:flex-start;background:#fafbfb}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-settings>.cs-paygroups-subtitle{margin-bottom:2px}
+#cleanrooms-studio[data-page] .cs-paygroups-assignment-footer{padding:0 24px 20px}
+#cleanrooms-studio[data-page] .cs-paygroups-history-locked{display:inline-block;margin:0!important;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-paygroups-preview>.cs-paygroups-pagination{border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-paygroups-unchanged>.cs-paygroups-pagination{margin-inline:-24px}
+@media(max-width:1100px){
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-workflow{grid-template-columns:minmax(0,1fr)}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step:first-child{border-right:0;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools{grid-template-columns:minmax(200px,1.4fr) repeat(2,minmax(0,1fr))}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools>.cs-paygroups-field:first-child{grid-column:auto}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table{table-layout:auto}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-tools{grid-template-columns:repeat(2,minmax(0,1fr));padding:16px 20px;gap:12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-tools>.cs-paygroups-field:first-child{grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step{padding:20px}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools>.cs-paygroups-field:first-child{grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table-wrap{overflow-x:hidden!important}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table{display:block;min-width:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table thead{display:none}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table tbody{display:block;min-width:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;min-width:0;padding:16px 20px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table td,#cleanrooms-studio[data-page] .cs-paygroups-assignment-table :is(td:first-child,td:last-child,td:nth-child(2),td:nth-child(3),td:nth-child(4)){width:auto;min-width:0;padding:0;border:0;text-align:left}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table td:first-child{grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table td:nth-child(3){grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-table td:last-child{grid-column:1/-1}
+ #cleanrooms-studio[data-page] .cs-paygroups-pagination{padding:16px 20px;gap:12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-page-buttons{width:100%;justify-content:space-between;gap:0}
+ #cleanrooms-studio[data-page] .cs-paygroups-page-buttons>.cs-button{padding-inline:8px;font-size:12px}
+ #cleanrooms-studio[data-page] .cs-paygroups-pagination>.cs-paygroups-field{margin-left:auto}
+ #cleanrooms-studio[data-page] .cs-paygroups-assignment-footer{padding:0 20px 20px}
+ #cleanrooms-studio[data-page] .cs-paygroups-selection-tools{align-items:stretch}
+ #cleanrooms-studio[data-page] .cs-paygroups-selection-tools>.cs-button{flex:1;white-space:normal}
+ #cleanrooms-studio[data-page] .cs-paygroups-selection-summary{padding:12px}
+}
+
+#cleanrooms-studio .cs-paygroups-member-actions .cs-button{display:flex;margin-left:auto;white-space:nowrap}
+#cleanrooms-studio .cs-paygroups-member-actions .cs-button+.cs-button{margin-top:8px}
+#cleanrooms-studio .cs-paygroups-transfer-note{margin:4px 0 0;padding-top:16px;border-top:1px solid #e4e8ea;color:#68747c;font-size:12px;line-height:20px}
+@media(max-width:760px){#cleanrooms-studio .cs-paygroups-member-actions .cs-button{margin-left:0}}

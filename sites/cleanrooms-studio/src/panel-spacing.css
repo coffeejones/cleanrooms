@@ -1,0 +1,200 @@
+/* Shared spacing tokens are also used by the main workspace. */
+#cleanrooms-studio{
+  --cs-space-1:4px;
+  --cs-space-2:8px;
+  --cs-space-3:12px;
+  --cs-space-4:16px;
+  --cs-space-5:20px;
+  --cs-space-6:24px;
+  --cs-space-8:32px;
+  --cs-panel-gutter:var(--cs-space-6);
+}
+
+/* Each sheet has one aligned edge, a scrolling body and a pinned action row. */
+#cleanrooms-studio .cs-editor-head,
+#cleanrooms-studio .cs-review-head,
+#cleanrooms-studio .cs-operations-head{
+  align-items:center;
+  min-height:0;
+  padding:var(--cs-space-4) var(--cs-panel-gutter);
+  gap:var(--cs-space-4);
+}
+#cleanrooms-studio .cs-operations-head h3{margin:0}
+#cleanrooms-studio .cs-editor-fields,
+#cleanrooms-studio .cs-group-fields,
+#cleanrooms-studio .cs-review-body,
+#cleanrooms-studio .cs-operations-body{
+  min-width:0;
+  min-height:0;
+  padding:var(--cs-space-5) var(--cs-panel-gutter);
+}
+#cleanrooms-studio .cs-editor-actions,
+#cleanrooms-studio .cs-group-editor .cs-editor-actions,
+#cleanrooms-studio .cs-review-footer,
+#cleanrooms-studio .cs-operations-footer{
+  flex-shrink:0;
+  min-height:0;
+  padding:var(--cs-space-4) var(--cs-panel-gutter);
+  gap:var(--cs-space-3);
+}
+
+/* Captions and their explanatory text form one introduction to the fields. */
+#cleanrooms-studio .cs-editor-caption:not([hidden]){margin:0 0 var(--cs-space-6)}
+#cleanrooms-studio #cs-group-caption,
+#cleanrooms-studio #cs-bulk-caption,
+#cleanrooms-studio #cs-changes-period{margin:0 0 var(--cs-space-2)}
+#cleanrooms-studio .cs-group-footnote:not([hidden]){margin:0 0 var(--cs-space-6)}
+#cleanrooms-studio .cs-editor-fields .cs-field:not([hidden]),
+#cleanrooms-studio .cs-group-fields .cs-field:not([hidden]),
+#cleanrooms-studio #cs-needs-form .cs-field:not([hidden]){margin:0 0 var(--cs-space-5)}
+#cleanrooms-studio .cs-editor-fields .cs-field-label,
+#cleanrooms-studio .cs-group-fields .cs-field-label,
+#cleanrooms-studio #cs-needs-form .cs-field-label{
+  margin-bottom:var(--cs-space-2);
+  gap:var(--cs-space-2);
+}
+#cleanrooms-studio .cs-editor-fields .cs-field-pair:not([hidden]),
+#cleanrooms-studio .cs-group-fields .cs-field-pair:not([hidden]),
+#cleanrooms-studio #cs-needs-form .cs-field-pair:not([hidden]){
+  column-gap:var(--cs-space-4);
+  row-gap:var(--cs-space-3);
+  margin:0 0 var(--cs-space-5);
+}
+#cleanrooms-studio .cs-editor-fields .cs-field-pair>.cs-field:not([hidden]),
+#cleanrooms-studio .cs-group-fields .cs-field-pair>.cs-field:not([hidden]),
+#cleanrooms-studio #cs-needs-form .cs-field-pair>.cs-field:not([hidden]){margin:0}
+#cleanrooms-studio #cs-edit-form .cs-field-pair{column-gap:var(--cs-space-4)}
+#cleanrooms-studio .cs-repeat-toggle:not([hidden]){margin:0 0 var(--cs-space-5)}
+#cleanrooms-studio .cs-repeat-toggle>label{gap:var(--cs-space-3)}
+#cleanrooms-studio .cs-repeat-options:not([hidden]){margin:0 0 var(--cs-space-6);padding-bottom:0}
+#cleanrooms-studio .cs-repeat-days{margin:var(--cs-space-2) 0 var(--cs-space-4)}
+#cleanrooms-studio .cs-series-preview:not([hidden]){margin:0 0 var(--cs-space-6);padding:var(--cs-space-3) 0}
+#cleanrooms-studio .cs-demo-editor-guide:not([hidden]){margin:0 0 var(--cs-space-6);padding:var(--cs-space-3)}
+#cleanrooms-studio .cs-demo-editor-guide p{margin-top:var(--cs-space-1)}
+#cleanrooms-studio #cs-edit-find-replacement.cs-replacement-shortcut{margin-bottom:var(--cs-space-5)}
+
+/* The inline employee picker has the same12px inset from heading to footnote. */
+#cleanrooms-studio .cs-person-trigger{padding-inline:var(--cs-space-3);gap:var(--cs-space-3)}
+#cleanrooms-studio .cs-person-selected-meta{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-person-summary{padding-top:var(--cs-space-2)}
+#cleanrooms-studio .cs-person-summary-hours,
+#cleanrooms-studio .cs-person-summary-warning{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-person-picker{margin-top:var(--cs-space-3)}
+#cleanrooms-studio .cs-person-picker-head{padding:var(--cs-space-2) var(--cs-space-3);gap:var(--cs-space-3)}
+#cleanrooms-studio .cs-person-context{padding:var(--cs-space-2) var(--cs-space-3) 0}
+#cleanrooms-studio #cs-person-search{
+  width:calc(100% - var(--cs-space-6));
+  max-width:calc(100% - var(--cs-space-6));
+  margin:var(--cs-space-2) var(--cs-space-3) var(--cs-space-3);
+}
+#cleanrooms-studio .cs-person-option{padding:var(--cs-space-3)}
+#cleanrooms-studio .cs-person-option-main{gap:var(--cs-space-2)}
+#cleanrooms-studio .cs-person-option-hours,
+#cleanrooms-studio .cs-person-option-detail{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-person-empty{padding:var(--cs-space-4) var(--cs-space-3)}
+#cleanrooms-studio .cs-person-footnote{padding:var(--cs-space-3)}
+
+/* Issue rows separate the heading, explanation and actions without extra boxes. */
+#cleanrooms-studio .cs-operations-period{margin-bottom:var(--cs-space-6)}
+#cleanrooms-studio .cs-operations-summary{padding:var(--cs-space-3) 0}
+#cleanrooms-studio .cs-operations-tabs{column-gap:var(--cs-space-2)}
+#cleanrooms-studio .cs-ops-item,
+#cleanrooms-studio .cs-need-row{padding:var(--cs-space-4) 0}
+#cleanrooms-studio .cs-ops-meta{gap:var(--cs-space-1) var(--cs-space-4);margin-bottom:var(--cs-space-2)}
+#cleanrooms-studio .cs-ops-detail{margin-top:var(--cs-space-2)}
+#cleanrooms-studio .cs-ops-actions{gap:var(--cs-space-2);margin-top:var(--cs-space-3)}
+#cleanrooms-studio .cs-need-status{margin-top:var(--cs-space-2)}
+#cleanrooms-studio #cs-needs-form{margin-top:var(--cs-space-6);scroll-margin-top:var(--cs-panel-gutter)}
+#cleanrooms-studio #cs-need-form-title{margin-bottom:var(--cs-space-4)}
+#cleanrooms-studio .cs-operations-error{margin-top:var(--cs-space-3);padding:var(--cs-space-3) 0}
+#cleanrooms-studio .cs-replacement-context{margin-bottom:var(--cs-space-3)}
+#cleanrooms-studio .cs-replacement-status{margin-bottom:var(--cs-space-4);padding-bottom:var(--cs-space-4)}
+#cleanrooms-studio .cs-replacement-search-label{margin-bottom:var(--cs-space-2)}
+#cleanrooms-studio #cs-replacement-search{margin-bottom:var(--cs-space-4)}
+#cleanrooms-studio .cs-replacement-option{padding-top:var(--cs-space-3);padding-bottom:var(--cs-space-3)}
+#cleanrooms-studio .cs-replacement-main{gap:var(--cs-space-1) var(--cs-space-3)}
+#cleanrooms-studio .cs-replacement-meta,
+#cleanrooms-studio .cs-replacement-hours{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-replacement-reason{margin-top:var(--cs-space-2)}
+
+/* Before/after previews and plantjek follow the same section rhythm. */
+#cleanrooms-studio .cs-group-row{padding:var(--cs-space-3) 0;column-gap:var(--cs-space-4);row-gap:var(--cs-space-1)}
+#cleanrooms-studio .cs-group-issue{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-bulk-row{padding:var(--cs-space-4) 0;column-gap:var(--cs-space-4);row-gap:var(--cs-space-1)}
+#cleanrooms-studio .cs-bulk-before,
+#cleanrooms-studio .cs-bulk-after{margin-top:var(--cs-space-2)}
+#cleanrooms-studio .cs-bulk-row .cs-group-issue{margin-top:var(--cs-space-1)}
+#cleanrooms-studio .cs-bulk-before strong,
+#cleanrooms-studio .cs-bulk-after strong{margin-bottom:var(--cs-space-1)}
+#cleanrooms-studio #cs-group-error{margin-top:var(--cs-space-3);padding:var(--cs-space-3) 0}
+#cleanrooms-studio .cs-changes-summary{gap:var(--cs-space-2) var(--cs-space-4);padding-bottom:var(--cs-space-4)}
+#cleanrooms-studio .cs-change-entry{padding:var(--cs-space-4) 0}
+#cleanrooms-studio .cs-change-columns{gap:var(--cs-space-4);margin-top:var(--cs-space-3)}
+#cleanrooms-studio .cs-change-side>strong{margin-bottom:var(--cs-space-1)}
+#cleanrooms-studio .cs-change-note{margin-top:var(--cs-space-2)}
+#cleanrooms-studio .cs-changes-empty{margin:0;padding:var(--cs-space-6) 0}
+#cleanrooms-studio .cs-changes-empty strong{margin-bottom:var(--cs-space-2)}
+#cleanrooms-studio .cs-review-section{margin-bottom:var(--cs-space-6)}
+#cleanrooms-studio .cs-review-section:last-child{margin-bottom:0}
+#cleanrooms-studio .cs-review-section h3,
+#cleanrooms-studio .cs-review-section h4{margin-bottom:var(--cs-space-2)}
+#cleanrooms-studio .cs-review-item{padding:var(--cs-space-3) 0}
+#cleanrooms-studio .cs-review-detail{margin:var(--cs-space-2) 0 var(--cs-space-3)}
+#cleanrooms-studio .cs-review-item>.cs-review-detail{margin:var(--cs-space-1) 0 0}
+#cleanrooms-studio .cs-review-item .cs-button{margin-top:var(--cs-space-3)}
+
+/* Small overlays and feedback stay compact and use the same spacing scale. */
+#cleanrooms-studio .cs-date-jump-panel{padding:var(--cs-space-4)}
+#cleanrooms-studio .cs-date-jump-panel>label{margin-bottom:var(--cs-space-3)}
+#cleanrooms-studio .cs-date-jump-panel>div{gap:var(--cs-space-2)}
+#cleanrooms-studio .cs-selection-bar{padding:var(--cs-space-2) var(--cs-space-3);gap:var(--cs-space-2) var(--cs-space-3)}
+#cleanrooms-studio .cs-selection-actions{gap:var(--cs-space-2)}
+#cleanrooms-studio .cs-toast{padding:var(--cs-space-2) var(--cs-panel-gutter);gap:var(--cs-space-3)}
+#cleanrooms-studio #cs-toast-text{flex:1;min-width:0;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-drag-status{padding:var(--cs-space-3)}
+#cleanrooms-studio .cs-drag-target,
+#cleanrooms-studio .cs-drag-reason{margin-top:var(--cs-space-1)}
+
+@media(max-width:760px){
+  #cleanrooms-studio{--cs-panel-gutter:var(--cs-space-5)}
+  #cleanrooms-studio .cs-editor-head,
+  #cleanrooms-studio .cs-review-head,
+  #cleanrooms-studio .cs-operations-head,
+  #cleanrooms-studio .cs-editor-actions,
+  #cleanrooms-studio .cs-group-editor .cs-editor-actions,
+  #cleanrooms-studio .cs-review-footer,
+  #cleanrooms-studio .cs-operations-footer{padding-block:var(--cs-space-3)}
+  #cleanrooms-studio .cs-editor-fields .cs-field-pair:not([hidden]),
+  #cleanrooms-studio .cs-group-fields .cs-field-pair:not([hidden]),
+  #cleanrooms-studio #cs-needs-form .cs-field-pair:not([hidden]),
+  #cleanrooms-studio #cs-edit-form .cs-field-pair{column-gap:var(--cs-space-3)}
+  #cleanrooms-studio .cs-change-columns,
+  #cleanrooms-studio .cs-bulk-row{column-gap:var(--cs-space-3)}
+  #cleanrooms-studio .cs-toast{gap:var(--cs-space-2)}
+}
+@media(max-width:375px){
+  #cleanrooms-studio{--cs-panel-gutter:var(--cs-space-4)}
+  #cleanrooms-studio .cs-editor-fields,
+  #cleanrooms-studio .cs-group-fields,
+  #cleanrooms-studio .cs-review-body,
+  #cleanrooms-studio .cs-operations-body{padding-block:var(--cs-space-4)}
+  #cleanrooms-studio .cs-selection-bar{padding-inline:var(--cs-space-2)}
+  #cleanrooms-studio .cs-selection-actions{gap:var(--cs-space-1)}
+}
+@media(max-width:400px){
+  #cleanrooms-studio .cs-group-row{column-gap:0}
+}
+@media(max-height:540px){
+  #cleanrooms-studio .cs-editor-head,
+  #cleanrooms-studio .cs-group-editor .cs-editor-head,
+  #cleanrooms-studio .cs-review-head,
+  #cleanrooms-studio .cs-operations-head,
+  #cleanrooms-studio .cs-editor-actions,
+  #cleanrooms-studio .cs-group-editor .cs-editor-actions,
+  #cleanrooms-studio .cs-review-footer,
+  #cleanrooms-studio .cs-operations-footer{padding-block:var(--cs-space-2)}
+  #cleanrooms-studio .cs-editor-fields,
+  #cleanrooms-studio .cs-group-fields,
+  #cleanrooms-studio .cs-review-body,
+  #cleanrooms-studio .cs-operations-body{padding-block:var(--cs-space-3)}
+}

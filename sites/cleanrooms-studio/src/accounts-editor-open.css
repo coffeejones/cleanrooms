@@ -1,0 +1,56 @@
+/* Forms and guidance stay on the same open canvas as the access directories. */
+#cleanrooms-studio[data-page="accounts"] :is(.cs-accounts-edit-panel,.cs-accounts-invitation,.cs-accounts-guide){background:transparent}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-edit-panel>.cs-accounts-heading{margin:0 0 6px;font-size:18px;line-height:26px;letter-spacing:-.25px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-edit-panel>.cs-accounts-caption{margin:0 0 22px;color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] :is(.cs-accounts-invitation,.cs-accounts-role-editor)>.cs-accounts-section-title{margin:0 0 22px}
+#cleanrooms-studio[data-page="accounts"] :is(.cs-accounts-invitation,.cs-accounts-role-editor) .cs-accounts-section-title>.cs-accounts-heading{font-size:18px;line-height:26px;letter-spacing:-.25px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-invitation .cs-accounts-section-title:has(>.cs-accounts-symbol){grid-template-columns:32px minmax(0,1fr);gap:4px 12px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-invitation .cs-accounts-section-title>.cs-accounts-symbol{width:32px;height:32px;border:0;border-radius:0;background:transparent;color:#7b848a}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-invitation .cs-accounts-section-title>.cs-accounts-caption{color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-field-pair{column-gap:20px;row-gap:20px;margin-bottom:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-field-pair:has(+.cs-accounts-role-help:not([hidden])){margin-bottom:8px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-label{margin-bottom:8px;color:#64727a;font-weight:500}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-role-help{margin:0 0 20px;color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-binding-help{margin-top:8px;color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-form-actions{margin-top:22px;padding-top:18px;border-color:#e4e8ea;gap:8px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-hosting-note{margin:16px 0 0;color:#7b848a;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-role-editor .cs-accounts-form>.cs-accounts-field{margin-bottom:24px}
+
+/* A permission is one readable row, with the native checkbox as its control. */
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-help{margin-bottom:16px;color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-options{gap:0;border-top:1px solid #e4e8ea}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option{gap:12px;padding:16px 0;border:0;border-bottom:1px solid #e4e8ea;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option:has(input:checked){border-color:#e4e8ea;background:#f6f9fa;box-shadow:none}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option:has(input:focus-visible){outline:2px solid var(--cs-access-blue);outline-offset:-2px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option>input{margin-top:2px;accent-color:#3b4e59}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-name{color:#39474f;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-description{margin-top:5px;color:#788187;line-height:19px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option[data-available="false"]{background:transparent}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option[data-available="false"] .cs-accounts-permission-name{color:var(--cs-access-disabled)}
+
+/* Quiet guidance occupies the side column without a second enclosing card. */
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-symbol{width:32px;height:32px;margin:0 0 12px;border:0;border-radius:0;background:transparent;color:#78878f}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-symbol>svg{width:23px;height:23px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-eyebrow{margin-bottom:7px;color:#7b848a;font-size:10px;font-weight:500;line-height:18px;letter-spacing:.07em}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-title{margin-bottom:10px;color:#39474f;font-size:18px;line-height:26px;letter-spacing:-.25px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-copy{color:#788187;line-height:21px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps{margin-top:24px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps>li{margin-bottom:20px;padding-left:30px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps>li::before{justify-content:flex-start;width:20px;height:20px;border:0;border-radius:0;background:transparent;color:#8a969d;font-size:12px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps>li>strong{color:#52616a;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps>li>span{color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-access{margin-top:24px;padding:18px 0;border-color:#e4e8ea}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-note{margin:0;padding-top:16px;border-color:#e4e8ea;color:#788187;line-height:20px}
+
+/* Successful invitation output retains its semantic heading and fine rules. */
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-invite-result{margin-top:24px;padding:20px 0;border:0;border-block:1px solid var(--cs-access-success-edge);border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-result-title{margin-bottom:8px;line-height:21px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-invite-result>.cs-accounts-caption{margin-bottom:16px}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-copy-status{margin-top:10px;line-height:20px}
+
+@media(max-width:760px){
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-field-pair{gap:20px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-permission-option{padding-block:18px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-guide-steps>li{margin-bottom:20px}
+  #cleanrooms-studio[data-page="accounts"] .cs-accounts-form .cs-accounts-form-actions{margin-top:20px;padding-top:18px}
+}

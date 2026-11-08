@@ -1,0 +1,5 @@
+# Set locally through .dev.vars or as server secrets in your hosting platform.
+# MOBILE_GATEWAY_KEY must match the gateway's independently configured value.
+MOBILE_GATEWAY_KEY=
+# Optional address lookup provider credential.
+ADDRESS_LOOKUP_TOKEN=

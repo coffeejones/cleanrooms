@@ -1,0 +1,98 @@
+/* Actionable messages and requests share one calm, accessible reading order. */
+#cleanrooms-studio .cs-workflow{--cs-workflow-rule:#e3e8eb;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;height:100%;background:#fff;color:#2d3c45;font-size:14px;line-height:22px}
+#cleanrooms-studio .cs-workflow [hidden]{display:none!important}
+#cleanrooms-studio .cs-workflow-body{flex:1;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-gutter:stable;padding:24px 20px 32px 0}
+#cleanrooms-studio .cs-workflow-tabs{display:flex;gap:26px;flex-shrink:0;border-bottom:1px solid var(--cs-workflow-rule)}
+#cleanrooms-studio .cs-workflow .cs-workflow-tab{height:52px!important;min-height:52px!important;margin:0 0 -1px;padding:0 1px!important;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:#71808a;font-size:13px;font-weight:500;white-space:nowrap}
+#cleanrooms-studio .cs-workflow .cs-workflow-tab[aria-selected="true"]{border-bottom-color:#344651;color:#2d3c45}
+#cleanrooms-studio .cs-workflow-muted{display:block;margin:0;color:#75828a;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-title{margin:0;color:#2d3c45;font-size:21px;font-weight:600;line-height:30px;letter-spacing:-.35px}
+#cleanrooms-studio .cs-workflow-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 24px;min-width:0}
+#cleanrooms-studio .cs-workflow-list-head{margin:0 0 16px}
+#cleanrooms-studio .cs-workflow-filters{display:flex;align-items:center;gap:4px;flex-shrink:0}
+#cleanrooms-studio .cs-workflow .cs-workflow-filter{min-height:40px!important;height:40px!important;margin:0;padding:0 14px!important;border:1px solid transparent;border-radius:6px;background:transparent;color:#6f7c85;font-size:13px;box-shadow:none}
+#cleanrooms-studio .cs-workflow .cs-workflow-filter[aria-pressed="true"]{border-color:#dce3e7;background:#f3f6f7;color:#344651}
+#cleanrooms-studio .cs-workflow .cs-workflow-button{box-sizing:border-box;min-height:40px!important;height:auto!important;margin:0;padding:9px 14px!important;border-radius:7px;font:inherit;font-size:13px;font-weight:500;line-height:20px;white-space:normal}
+#cleanrooms-studio .cs-workflow-refresh{margin-left:auto!important}
+#cleanrooms-studio .cs-workflow-search{flex:1;max-width:360px;min-width:200px}
+#cleanrooms-studio .cs-workflow-search>.cs-workflow-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#cleanrooms-studio .cs-workflow-list{min-width:0;border-top:1px solid var(--cs-workflow-rule)}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-message-row,.cs-workflow-request-row){box-sizing:border-box;display:flex;align-items:center;gap:16px;width:100%;min-width:0;min-height:88px!important;height:auto!important;margin:0;padding:18px 0!important;border:0;border-bottom:1px solid var(--cs-workflow-rule);border-radius:0;background:#fff;box-shadow:none;color:inherit;text-align:left;font:inherit;cursor:pointer;transition:background-color 140ms ease}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-message-row,.cs-workflow-request-row):hover{background:#f8fafb}
+#cleanrooms-studio .cs-workflow-row-copy{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+#cleanrooms-studio .cs-workflow-row-copy>strong{color:#35454f;font-size:14px;font-weight:500;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-message-row[data-unread="true"] .cs-workflow-row-copy>strong{font-weight:600}
+#cleanrooms-studio .cs-workflow-row-summary{display:block;color:#4c606e;font-size:13px;line-height:21px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-message-marker{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border:1px solid #e5eaed;border-radius:7px;background:#f7f9fa;color:#597387;font-size:19px;font-weight:400;line-height:24px}
+#cleanrooms-studio .cs-workflow-message-marker[data-kind="cancelled"]{color:#906557;background:#fbf8f6}
+#cleanrooms-studio .cs-workflow-row-end{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;gap:20px;min-width:0}
+#cleanrooms-studio .cs-workflow-chevron{color:#99a4ac;font-size:22px;line-height:22px}
+#cleanrooms-studio .cs-workflow-state{display:inline-flex;align-items:center;gap:7px;min-width:0;color:#6e7b84;font-size:11px;font-weight:400;line-height:18px;white-space:normal}
+#cleanrooms-studio .cs-workflow-state::before{content:'';flex:0 0 4px;width:4px;height:4px;border-radius:50%;background:#9aa7b0}
+#cleanrooms-studio .cs-workflow-state:is([data-state="pending"],[data-state="awaiting_colleague"],[data-state="unread"])::before{background:#a17b37}
+#cleanrooms-studio .cs-workflow-state:is([data-state="approved"],[data-state="read"])::before{background:#5f8b72}
+#cleanrooms-studio .cs-workflow-state:is([data-state="rejected"],[data-state="declined"],[data-state="stale"])::before{background:#a36c61}
+#cleanrooms-studio .cs-workflow .cs-workflow-back{display:inline-flex;align-items:center;gap:9px;height:40px!important;min-height:40px!important;margin:0 0 24px;padding:0!important;border:0;background:transparent;box-shadow:none;color:#6b7c87;font:inherit;font-size:13px}
+#cleanrooms-studio .cs-workflow-back::before{content:'←';font-size:17px}
+#cleanrooms-studio .cs-workflow-detail-head{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 0 8px}
+#cleanrooms-studio .cs-workflow-detail-summary{max-width:760px;margin:24px 0;color:#475c69;font-size:15px;line-height:25px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:28px 0}
+#cleanrooms-studio .cs-workflow-shift-facts{display:flex;flex-direction:column;gap:6px;min-width:0;margin:24px 0;padding:20px 24px;border:0;border-radius:6px;background:#f5f7f8}
+#cleanrooms-studio .cs-workflow-comparison>.cs-workflow-shift-facts{margin:0}
+#cleanrooms-studio .cs-workflow-section-title{margin:0 0 6px;color:#73818a;font-size:12px;font-weight:500;line-height:20px}
+#cleanrooms-studio .cs-workflow-shift-time{color:#344953;font-size:24px;font-weight:600;line-height:34px;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-workflow-shift-date{color:#4b5e6b;font-size:13px;line-height:22px}
+#cleanrooms-studio .cs-workflow-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+#cleanrooms-studio .cs-workflow-receipt{margin:20px 0;color:#78868f;font-size:12px;line-height:20px}
+#cleanrooms-studio .cs-workflow-people{display:flex;flex-wrap:wrap;gap:24px 48px;margin:24px 0}
+#cleanrooms-studio .cs-workflow-people>div{display:flex;flex-direction:column;gap:5px;min-width:120px}
+#cleanrooms-studio .cs-workflow-people dt{color:#7a8890;font-size:12px;line-height:20px}
+#cleanrooms-studio .cs-workflow-people dd{margin:0;color:#364a57;font-size:15px;font-weight:500;line-height:23px}
+#cleanrooms-studio .cs-workflow-note{max-width:780px;margin:24px 0;padding:18px 20px;border-radius:6px;background:#f6f8f9}
+#cleanrooms-studio .cs-workflow-note>p{margin:0;color:#4a5d69;font-size:14px;line-height:24px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-form{display:flex;flex-direction:column;gap:22px;max-width:680px;margin:28px 0}
+#cleanrooms-studio .cs-workflow-field{display:flex;flex-direction:column;gap:8px;min-width:0;margin:0}
+#cleanrooms-studio .cs-workflow-label{color:#657883;font-size:12px;font-weight:500;line-height:20px}
+#cleanrooms-studio .cs-workflow-input{box-sizing:border-box;display:block;min-width:0;max-width:100%;width:100%;height:40px;min-height:40px;margin:0;padding:8px 12px;border:1px solid #c9d3da;border-radius:7px;background:#fff;color:#334954;font:inherit;font-size:14px;line-height:22px}
+#cleanrooms-studio textarea.cs-workflow-input{height:auto;min-height:108px;resize:vertical}
+#cleanrooms-studio .cs-workflow-form>.cs-workflow-button{align-self:flex-start}
+#cleanrooms-studio .cs-workflow-related{margin:28px 0 0;padding-top:20px;border-top:1px solid var(--cs-workflow-rule)}
+#cleanrooms-studio .cs-workflow-timestamp{margin:28px 0 0;color:#87929a;font-size:11px;line-height:19px}
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-preview,.cs-workflow-success){margin:16px 0 0;padding:12px 16px;border:1px solid #e1e7eb;border-radius:6px;background:#f6f8fa;color:#617581;font-size:12px;line-height:21px}
+#cleanrooms-studio .cs-workflow .cs-workflow-success{background:#f4f9f6;border-color:#dce8df;color:#4c725d}
+#cleanrooms-studio .cs-workflow-error{margin:16px 0;padding:14px 16px;border:1px solid #e6d9c2;border-radius:6px;background:#fcfaf5;color:#866a39;font-size:13px;line-height:22px}
+#cleanrooms-studio .cs-workflow-error>p{margin:0 0 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-workflow-empty{padding:40px 0;max-width:560px}
+#cleanrooms-studio .cs-workflow-empty>h3{margin:0 0 8px;color:#536672;font-size:16px;font-weight:500;line-height:25px}
+#cleanrooms-studio .cs-workflow-bottom-actions{display:flex;flex-shrink:0;justify-content:flex-end;gap:12px;padding:16px 20px 16px 0;border-top:1px solid var(--cs-workflow-rule);background:#fff}
+#cleanrooms-studio .cs-workflow-pagination{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:24px 0 0}
+#cleanrooms-studio .cs-workflow-pagination>.cs-workflow-muted{margin-right:auto}
+#cleanrooms-studio .cs-workflow :is(button,input,select,textarea):focus-visible{outline:2px solid #6d92ad;outline-offset:3px}
+#cleanrooms-studio .cs-workflow button:disabled{cursor:default;opacity:.5}
+@media(max-width:760px){
+ #cleanrooms-studio .cs-workflow-body{padding:18px 10px 24px 0}
+ #cleanrooms-studio .cs-workflow-tabs{gap:18px;overflow-x:auto;scrollbar-width:none}
+ #cleanrooms-studio .cs-workflow .cs-workflow-tab{min-height:48px!important;height:48px!important;font-size:12px}
+ #cleanrooms-studio .cs-workflow .cs-workflow-button{min-height:44px!important;padding:11px 14px!important}
+ #cleanrooms-studio .cs-workflow-tools{gap:10px;margin-bottom:20px}
+ #cleanrooms-studio .cs-workflow-search{flex:1 0 100%;max-width:none;min-width:0}
+ #cleanrooms-studio .cs-workflow-refresh{margin-left:0!important}
+ #cleanrooms-studio .cs-workflow :is(.cs-workflow-message-row,.cs-workflow-request-row){align-items:flex-start;gap:12px;padding:18px 0!important}
+ #cleanrooms-studio .cs-workflow-message-marker{flex-basis:30px;width:30px;height:30px;margin-top:2px}
+ #cleanrooms-studio .cs-workflow-row-copy>strong{font-size:13px;line-height:21px}
+ #cleanrooms-studio .cs-workflow-row-end{max-width:106px;gap:8px}
+ #cleanrooms-studio .cs-workflow-state{font-size:10px;line-height:17px}
+ #cleanrooms-studio .cs-workflow-detail-head{align-items:flex-start;flex-direction:column;gap:10px}
+ #cleanrooms-studio .cs-workflow-title{font-size:19px;line-height:28px}
+ #cleanrooms-studio .cs-workflow-comparison{grid-template-columns:minmax(0,1fr);gap:12px;margin:24px 0}
+ #cleanrooms-studio .cs-workflow-shift-facts{padding:18px 20px}
+ #cleanrooms-studio .cs-workflow-shift-time{font-size:22px;line-height:30px}
+ #cleanrooms-studio .cs-workflow-actions{align-items:stretch}
+ #cleanrooms-studio .cs-workflow-actions>.cs-workflow-button{flex:1 1 180px}
+ #cleanrooms-studio .cs-workflow-form>.cs-workflow-button{align-self:stretch}
+ #cleanrooms-studio .cs-workflow-input{min-height:44px;height:44px}
+ #cleanrooms-studio textarea.cs-workflow-input{height:auto}
+ #cleanrooms-studio .cs-workflow-bottom-actions{padding:12px 10px 12px 0}
+ #cleanrooms-studio .cs-workflow-bottom-actions>.cs-workflow-button{width:100%}
+}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-workflow *{transition:none!important;animation:none!important}}

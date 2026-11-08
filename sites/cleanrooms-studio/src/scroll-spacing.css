@@ -1,0 +1,36 @@
+/* Keep page actions inside the content area, clear of overlay scrollbars. */
+#cleanrooms-studio[data-page="people"] .cs-main :is(.cs-roster-page,.cs-employee-profile-page),
+#cleanrooms-studio[data-page="payroll"] .cs-main .cs-paygroups-page,
+#cleanrooms-studio[data-page="accounts"] .cs-main .cs-accounts-page,
+#cleanrooms-studio[data-page="activity"] #cs-page-content,
+#cleanrooms-studio[data-page="workspace"] .cs-main .cs-product-page{
+  box-sizing:border-box;
+  padding-inline-end:20px;
+  scrollbar-gutter:stable;
+}
+
+/* Keep the desktop navigation's scrollbar at the sidebar edge, outside links. */
+@media(min-width:761px){
+  #cleanrooms-studio .cs-sidebar{
+    --cs-nav-scroll-inset:12px;
+    overflow:hidden;
+  }
+  #cleanrooms-studio .cs-sidebar>:is(.cs-workspace,.cs-nav-label,.cs-sidebar-bottom){flex-shrink:0}
+  #cleanrooms-studio .cs-nav{
+    flex:1 1 auto;
+    align-content:start;
+    min-width:0;
+    min-height:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+    margin-inline-start:-4px;
+    margin-inline-end:calc(-1 * var(--cs-nav-scroll-inset));
+    padding-inline-start:4px;
+    padding-inline-end:var(--cs-nav-scroll-inset);
+    scrollbar-gutter:stable;
+    overscroll-behavior:contain;
+  }
+}
+@media(min-width:761px) and (max-width:1080px){
+  #cleanrooms-studio .cs-sidebar{--cs-nav-scroll-inset:8px}
+}

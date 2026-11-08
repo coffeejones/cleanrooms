@@ -1,0 +1,68 @@
+/* Planning shares the open workspace; the calendar keeps its working geometry. */
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]){--cs-planning-gutter:40px;--cs-planning-rule:#e4e8ea}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(.cs-main,.cs-page-head,.cs-content,#cs-page-content){background:#fff}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main>.cs-page-head{padding-inline:var(--cs-planning-gutter);border:0;border-bottom:1px solid var(--cs-planning-rule);box-shadow:none}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main>.cs-content{padding-inline:var(--cs-planning-gutter)}
+#cleanrooms-studio[data-page="series"]{--cs-layout-header-gap:24px;--cs-layout-section-gap:24px}
+#cleanrooms-studio[data-page="series"] .cs-main>.cs-page-head{padding-block:28px 24px}
+#cleanrooms-studio[data-page="series"] .cs-main>.cs-content>.cs-filters{padding-bottom:24px}
+#cleanrooms-studio[data-page="series"] .cs-search{width:420px;max-width:420px;flex:0 1 420px}
+#cleanrooms-studio[data-page="series"] #cs-site-filter{width:240px}
+#cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head{padding-block:14px}
+#cleanrooms-studio[data-page="schedule"] #cs-page-content{border:0;border-radius:0;box-shadow:none}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main .cs-footer{border-top:1px solid var(--cs-planning-rule)}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main :is(.cs-search input,#cs-site-filter):focus-visible{outline-offset:-2px}
+
+/* Fine calendar seams replace the enclosing card and grey week frames. */
+#cleanrooms-studio[data-page="schedule"] .cs-board-scroll{background:#fff;scrollbar-color:#c4cdd1 transparent}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week{border-bottom:16px solid #fff;background:#fff}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week:last-child{border-bottom:0}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week-label{padding-inline:0;border-top:1px solid #cfd6da;border-bottom:1px solid var(--cs-planning-rule);background:#fff;box-shadow:none}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week-label h3{font-size:16px;font-weight:600;line-height:24px;letter-spacing:-.2px;text-transform:none}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week-range{color:#7b848a}
+#cleanrooms-studio[data-page="schedule"] .cs-board-week-summary{padding:0 4px 0 0;border:0;border-radius:0;background:transparent;color:#7b848a;font-size:12px;font-weight:400;line-height:20px}
+#cleanrooms-studio[data-page="schedule"] .cs-board-day:where(:not(.is-drop-target,.is-drop-invalid,.is-drop-same)){border-right-color:var(--cs-planning-rule);background:#fff}
+#cleanrooms-studio[data-page="schedule"] .cs-board-day.is-weekend:where(:not(.is-drop-target,.is-drop-invalid,.is-drop-same)){background:#fafbfc}
+#cleanrooms-studio[data-page="schedule"] .cs-board-day-head{background:#fff;border-bottom-color:var(--cs-planning-rule)}
+#cleanrooms-studio[data-page="schedule"] .is-weekend .cs-board-day-head{background:#fafbfc}
+#cleanrooms-studio[data-page="schedule"] .is-today .cs-board-day-head{background:#edf2f4;box-shadow:inset 0 2px 0 #536f80}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group{background:#fff;border-color:var(--cs-planning-rule)}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-header{border-color:#e0e6e9;background:#f3f6f7;color:#52616a;box-shadow:none}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-label{color:#52616a;font-weight:600}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-count{padding:0;border:0;border-radius:0;background:transparent;color:#7b848a}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-events .cs-event:where(:not(.is-open,.is-multi-selected,.has-issue)),
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-events .cs-event:nth-child(even):where(:not(.is-open,.is-multi-selected,.has-issue)){background:#fff}
+#cleanrooms-studio[data-page="schedule"] .cs-time-group-events .cs-event:hover:where(:not(.is-open,.is-multi-selected,.has-issue)){background:#f8fafb;box-shadow:none}
+#cleanrooms-studio[data-page="schedule"] .cs-event+.cs-event{border-top-color:#edf0f1}
+#cleanrooms-studio[data-page="schedule"] .cs-event-meta{color:#788187}
+#cleanrooms-studio[data-page="schedule"] .cs-board-day-footer{background:transparent}
+#cleanrooms-studio[data-page="schedule"] .cs-board-hours{border-color:var(--cs-planning-rule);background:transparent;color:#788187}
+
+/* The daily list uses the same flush rows, without changing its scroll owner. */
+#cleanrooms-studio[data-page="schedule"] .cs-agenda{background:#fff}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-heading{padding:14px 0;border-block:1px solid var(--cs-planning-rule);background:#fff;color:#52616a;font-size:13px;font-weight:600}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-row{padding-inline:0;border-bottom-color:var(--cs-planning-rule)}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-row:not(.cs-agenda-open){background:#fff}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-row:hover{background:#f8fafb}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-name{color:#29343c;font-weight:600;letter-spacing:-.15px}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-site{color:#788187}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-time{color:#52616a}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-avatar{border:0;background:#f1f4f5;color:#52616a}
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-open .cs-agenda-name,
+#cleanrooms-studio[data-page="schedule"] .cs-agenda-open .cs-agenda-time{color:#8b641f}
+#cleanrooms-studio[data-page="schedule"] .cs-zero{border:0;border-radius:0;background:#fff;box-shadow:none}
+
+@media(min-width:1700px){#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]){--cs-planning-gutter:56px}}
+@media(max-width:1100px){#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]){--cs-planning-gutter:28px}}
+@media(max-width:760px){
+  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]){--cs-planning-gutter:20px}
+  #cleanrooms-studio[data-page="series"]{--cs-layout-header-gap:20px;--cs-layout-section-gap:20px}
+  #cleanrooms-studio[data-page="series"] .cs-main>.cs-page-head{padding-block:22px 18px}
+  #cleanrooms-studio[data-page="series"] .cs-main>.cs-content>.cs-filters{padding-bottom:22px}
+  #cleanrooms-studio[data-page="series"] .cs-search{width:100%;max-width:100%;flex-basis:auto}
+  #cleanrooms-studio[data-page="series"] #cs-site-filter{width:100%}
+  #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head{padding-block:12px 10px}
+  #cleanrooms-studio[data-page="schedule"] .cs-board-week-label h3{font-size:15px}
+  #cleanrooms-studio[data-page="schedule"] .cs-board-week-summary{font-size:11px}
+  #cleanrooms-studio[data-page="schedule"] .cs-week-title{white-space:normal;overflow:visible;text-overflow:clip;line-height:18px}
+}

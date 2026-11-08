@@ -1,0 +1,56 @@
+/* An open employee directory on the same white canvas as payroll. */
+#cleanrooms-studio[data-page="people"]{--cs-people-gutter:40px;--cs-people-rule:#e4e8ea;--cs-layout-header-gap:24px}
+#cleanrooms-studio[data-page="people"] :is(.cs-main,.cs-page-head,.cs-content,#cs-page-content){background:#fff}
+#cleanrooms-studio[data-page="people"] .cs-main>.cs-page-head{padding:28px var(--cs-people-gutter) 24px;border:0;border-bottom:1px solid var(--cs-people-rule);box-shadow:none}
+#cleanrooms-studio[data-page="people"] .cs-main>.cs-content{padding-inline:var(--cs-people-gutter)}
+#cleanrooms-studio[data-page="people"] .cs-roster-page{gap:24px;padding-bottom:32px;background:#fff}
+#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:flex-start;gap:18px}
+#cleanrooms-studio[data-page="people"] .cs-roster-heading{font-size:20px;line-height:28px;letter-spacing:-.35px}
+#cleanrooms-studio[data-page="people"] .cs-roster-count{margin-top:7px;color:#788187;line-height:20px}
+#cleanrooms-studio[data-page="people"] .cs-roster-actions{padding-top:2px}
+#cleanrooms-studio[data-page="people"] .cs-roster-workspace{gap:28px}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-directory,.cs-roster-editor,.cs-roster-profile,.cs-roster-import){border:0;border-radius:0;box-shadow:none;background:transparent}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory{overflow:visible}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory-head{padding:0 0 18px;gap:14px 24px;background:transparent}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tabs{align-self:stretch;gap:16px}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab{align-self:stretch;padding:0 2px;border:0;border-radius:0;background:transparent;box-shadow:none;color:#70797f;font-weight:500}
+#cleanrooms-studio[data-page="people"] .cs-roster-status-tab[aria-pressed="true"]{border:0;border-radius:0;background:transparent;box-shadow:inset 0 -2px 0 #35434b;color:#293841}
+#cleanrooms-studio[data-page="people"] .cs-roster-week-context{padding-top:14px;border-color:var(--cs-people-rule);font-size:11px;line-height:19px;color:#7a838a}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table th{padding-block:12px;border-top:1px solid var(--cs-people-rule);border-bottom:1px solid #cfd6da;background:#fff;color:#7a838a;font-weight:500;letter-spacing:0;line-height:18px}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table td{padding-block:18px;border-color:var(--cs-people-rule)}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table :is(th,td):first-child{padding-left:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table :is(th,td):last-child{padding-right:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table tr:last-child td{border-bottom:1px solid var(--cs-people-rule)}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table tbody tr:where(:not([data-selected="true"])):nth-child(even)>td{background:transparent}
+#cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table tbody tr:where(:not([data-selected="true"])):hover>td{background:#f8fafb}
+#cleanrooms-studio[data-page="people"] .cs-roster-person-name{font-size:14px;font-weight:600;letter-spacing:-.15px}
+#cleanrooms-studio[data-page="people"] .cs-roster-person-role{color:#7b848a;font-size:12px}
+#cleanrooms-studio[data-page="people"] .cs-roster-avatar{width:36px;height:36px;flex-basis:36px;border:0;border-radius:5px;background:#f1f4f5;color:#52616a}
+#cleanrooms-studio[data-page="people"] .cs-roster-state[data-state]{padding:0;border:0;border-radius:0;background:transparent}
+#cleanrooms-studio[data-page="people"] .cs-roster-state::before{content:"";display:inline-block;width:4px;height:4px;margin:0 0 2px;border-radius:50%;background:currentColor}
+#cleanrooms-studio[data-page="people"] .cs-roster-empty{padding:28px 0}
+#cleanrooms-studio[data-page="people"] .cs-roster-side{padding-left:24px;border-left:1px solid var(--cs-people-rule)}
+#cleanrooms-studio[data-page="people"] :is(.cs-roster-editor,.cs-roster-import){padding:0}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-head{padding:0 0 20px;border-bottom:1px solid var(--cs-people-rule)}
+#cleanrooms-studio[data-page="people"] .cs-roster-profile-body{padding:20px 0}
+#cleanrooms-studio[data-page="people"] .cs-roster-form-actions{padding-top:16px;border-top:1px solid var(--cs-people-rule)}
+#cleanrooms-studio[data-page="people"] .cs-roster-page :is(input,select,textarea):focus-visible{outline-offset:-2px!important}
+@media(min-width:1700px){#cleanrooms-studio[data-page="people"]{--cs-people-gutter:56px}}
+@media(max-width:1100px){#cleanrooms-studio[data-page="people"]{--cs-people-gutter:28px}}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page="people"]{--cs-people-gutter:20px;--cs-layout-header-gap:20px}
+ #cleanrooms-studio[data-page="people"] .cs-main>.cs-page-head{padding-top:22px;padding-bottom:18px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:22px;padding-bottom:24px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{gap:14px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-heading{font-size:19px;line-height:27px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-directory-head{padding:0 0 18px;gap:14px 16px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-status-tabs{gap:20px}
+ #cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table tbody tr{padding:22px 0;border-color:var(--cs-people-rule)}
+ #cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table td{padding-block:0}
+ #cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table tr:last-child td{border-bottom:0}
+ #cleanrooms-studio[data-page="people"] .cs-roster-side{padding-left:0;padding-top:22px;border-left:0;border-top:1px solid var(--cs-people-rule)}
+ #cleanrooms-studio[data-page="people"] .cs-roster-editor,#cleanrooms-studio[data-page="people"] .cs-roster-import{padding:0}
+}
+@media(max-width:760px){
+ #cleanrooms-studio[data-page="people"] .cs-roster-directory .cs-roster-table .cs-roster-week-cell{text-align:left}
+}

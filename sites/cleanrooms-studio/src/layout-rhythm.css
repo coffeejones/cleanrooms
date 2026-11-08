@@ -1,0 +1,86 @@
+/* Page-level rhythm. Scroll owners, fields and calendar rows keep their geometry. */
+#cleanrooms-studio[data-page]{
+  --cs-layout-row-gap:8px;
+  --cs-layout-control-gap:12px;
+  --cs-layout-section-gap:20px;
+  --cs-layout-header-gap:20px;
+}
+#cleanrooms-studio[data-page="schedule"]{--cs-layout-header-gap:12px}
+
+/* One gap after the title divider, independent of each page's side gutters. */
+#cleanrooms-studio[data-page] .cs-main > .cs-page-head + .cs-content{
+  padding-top:var(--cs-layout-header-gap);
+  min-height:0;
+}
+
+/* Period navigation and filters are adjacent tool rows; the surface follows a section gap. */
+#cleanrooms-studio[data-page] .cs-main > .cs-content > .cs-week-toolbar{
+  margin:0;
+  padding-top:0;
+  padding-bottom:var(--cs-layout-control-gap);
+  column-gap:var(--cs-layout-control-gap);
+  row-gap:var(--cs-layout-row-gap);
+}
+#cleanrooms-studio[data-page] .cs-main > .cs-content > .cs-filters{
+  margin:0;
+  padding-top:0;
+  padding-bottom:var(--cs-layout-section-gap);
+  column-gap:var(--cs-layout-control-gap);
+  row-gap:var(--cs-layout-row-gap);
+}
+#cleanrooms-studio[data-page] .cs-main :is(.cs-filter-left,.cs-filter-right,.cs-toolbar-controls){
+  column-gap:var(--cs-layout-control-gap);
+  row-gap:var(--cs-layout-row-gap);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-main > .cs-content > .cs-filters{padding-bottom:var(--cs-layout-control-gap)}
+#cleanrooms-studio[data-page="schedule"] .cs-main :is(.cs-filter-left,.cs-filter-right){gap:var(--cs-layout-row-gap)}
+#cleanrooms-studio[data-page] .cs-main .cs-week-nav{gap:var(--cs-layout-row-gap)}
+
+/* Sibling actions share one compact gap without changing button dimensions. */
+#cleanrooms-studio[data-page] .cs-main :is(
+  .cs-roster-actions,.cs-roster-form-actions,.cs-series-actions,.cs-request-actions,
+  .cs-accounts-form-actions,.cs-product-form-actions,.cs-presentation-actions,
+  .cs-demo-intro-actions,.cs-demo-case-actions
+){gap:var(--cs-layout-row-gap)}
+
+/* Directories and settings use the same section interval at every width. */
+#cleanrooms-studio[data-page="people"] .cs-roster-page{gap:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{gap:var(--cs-layout-control-gap)}
+#cleanrooms-studio[data-page] .cs-main :is(
+  .cs-roster-workspace,.cs-accounts-workspace,.cs-accounts-main-column,
+  .cs-accounts-side-column,.cs-guide-workspace,.cs-workspace-presentation
+){gap:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-toolbar{
+  gap:var(--cs-layout-control-gap);
+  padding-bottom:var(--cs-layout-control-gap);
+}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-workspace{margin-top:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page] .cs-main :is(.cs-accounts-tabs,.cs-product-tabs){gap:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="workspace"] :is(.cs-product-tabs,.cs-workspace-intro){margin-bottom:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="workspace"] .cs-workspace-intro{gap:var(--cs-layout-control-gap)}
+#cleanrooms-studio[data-page="workspace"] .cs-presentation-actions{margin-top:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="workspace"] .cs-presentation-features{
+  margin-top:var(--cs-layout-section-gap);
+  gap:var(--cs-layout-section-gap);
+}
+#cleanrooms-studio[data-page="activity"] .cs-activity-list{margin-top:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="activity"] .cs-activity-entry{padding-bottom:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="activity"] .cs-activity-meta{gap:var(--cs-layout-row-gap) var(--cs-layout-control-gap)}
+
+/* Surface headings use a shared vertical inset; horizontal text/table alignment stays intact. */
+#cleanrooms-studio[data-page] .cs-main :is(
+  .cs-admin-surface-head,.cs-series-surface-head,.cs-roster-directory-head,
+  .cs-accounts-role-head,.cs-product-surface-head
+){padding-block:var(--cs-layout-section-gap);column-gap:var(--cs-layout-control-gap);row-gap:var(--cs-layout-row-gap)}
+#cleanrooms-studio[data-page="accounts"] .cs-accounts-member-section > .cs-accounts-section-title{padding-block:var(--cs-layout-section-gap)}
+#cleanrooms-studio[data-page="demo"] :is(.cs-demo-intro,.cs-demo-case){
+  padding-block:var(--cs-layout-section-gap);
+  column-gap:var(--cs-layout-section-gap);
+  row-gap:var(--cs-layout-control-gap);
+}
+
+@media(max-width:760px){
+  #cleanrooms-studio[data-page]{--cs-layout-section-gap:16px;--cs-layout-header-gap:16px}
+  #cleanrooms-studio[data-page="schedule"]{--cs-layout-header-gap:12px}
+  #cleanrooms-studio[data-page] .cs-main :is(.cs-filter-left,.cs-filter-right,.cs-toolbar-controls){gap:var(--cs-layout-row-gap)}
+}

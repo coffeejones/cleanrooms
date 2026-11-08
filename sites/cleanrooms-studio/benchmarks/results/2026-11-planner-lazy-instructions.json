@@ -1,0 +1,2171 @@
+{
+  "schema": 1,
+  "label": "planner-lazy-instructions",
+  "revision": "2a7642fa0ee68cdfbd84abf46a594e85f5c26257",
+  "sourceHash": "351f28958a19bad214ac6dacc770f824903ea2e9379f2a952fcac64eda52f6c7",
+  "sourceFiles": {
+    "drizzle/0000_amusing_earthquake.sql": "516f5371d2384537343b64fd0949149330cc3bc42a9eee978ef5d4e1d3e9fbdf",
+    "drizzle/0001_heavy_orphan.sql": "325f1c00ddf2978202205a1bee3d05a4ec21b4e88919bd8d20615280c1e19627",
+    "drizzle/0002_plain_vector.sql": "d8acf4ddc01e68b8f080054fad500b87ab2f02e6805ab1977c72ed2b2a8ca1e3",
+    "drizzle/0003_lame_maginty.sql": "44d242c587ec736e33f6799c06e4a1fc27c344811d4ae5d8c5ba58687b97323b",
+    "drizzle/0004_plain_ezekiel_stane.sql": "0b0a4b6018bf2f6ec6236b6fbe47ffdaf2d14840dba018a68ab011ab10ed5d47",
+    "drizzle/0005_special_cassandra_nova.sql": "625d6f6c30f90027bf4c0300d24c69e8c66c2f3c6bdb00b9560452899228ba36",
+    "drizzle/0006_sudden_anthem.sql": "0d4b01cca9b948512ef59276a4b0ba04c616a7c24b40f58ab9cde35644177ccf",
+    "drizzle/0007_short_war_machine.sql": "f28e426cad74124b0338f5a14fa1c301291e7a99080d43ecf923f0bcb0995c2c",
+    "drizzle/0008_durable_activity.sql": "931daa8e21e2625882c3a22874c912e0f1ff9c4d40857356eff6b93f15a687b5",
+    "drizzle/0009_message_receipts.sql": "4dbc46a4f808226630ca3d986742c59825549a0343cac22ded473364dd908f31",
+    "drizzle/0010_yummy_clea.sql": "a44988f4b6cf18f2571c6acc847a3c0a42cb6082e7011d8464c0edaf5c2a304c",
+    "drizzle/0011_tearful_katie_power.sql": "42e1241d5d24b424fdfceb2263d669dc4be801f1ad0b7ab2f3361fbf74156e56",
+    "drizzle/0012_organic_blockbuster.sql": "07ff95c10202f4cbb8a040f7abbfa0ac0d5d3610b31543074fd044ee5cf032a1",
+    "drizzle/0013_old_sharon_carter.sql": "f44dc003d318d991d3ea39f95eebc8dcdc8fd7ae866ffb46f1b8be4f3102ffbf",
+    "drizzle/0014_mature_kid_colt.sql": "a6eea6b33994ac1d23c739ad655fc78207d4badd5181bfb665d49ac8e7576bfb",
+    "drizzle/0015_yellow_toro.sql": "2d88e38d3114e1b5470ad3d1937342a3943492056aafd87440c1dfaa6a34336f",
+    "drizzle/0016_eager_scream.sql": "b6c0668ea53caef574699fb47ae880b6172681baabf11a6aed04192f1460cf07",
+    "drizzle/0017_cold_blur.sql": "b298e137f00ce7d38b20564548fe49fbc55f65aa0bf47107999525f5f4d3d6bd",
+    "drizzle/0018_famous_kulan_gath.sql": "73065e64757f5a75c6f4e63c75d88c2e17722b3b99ac5b7fdbb9e84077a99045",
+    "drizzle/0019_wealthy_rockslide.sql": "e027d131ffe2ffe7f476950d47c060bfe6f20106dc2712229a53a98d57e22799",
+    "drizzle/0020_fresh_kabuki.sql": "51951b0f4d268682764326dd015f3294232cea009b6ce0e4503837614dc0dae8",
+    "drizzle/0021_third_korg.sql": "0c2c85d94bf7437fe06232bf767c115f5e6bdd4f967dfc75678ef1adc408abe1",
+    "drizzle/0022_naive_jackal.sql": "f1105c24e1ac2445962a6e9b90b06f2ac34be81068ca26750daaeaeb719bd1a6",
+    "drizzle/0023_greedy_robin_chapel.sql": "5a9eb2d7f6b8febed8b745044562914d0a453107eda6ef406698751485a779d9",
+    "drizzle/0024_confused_zemo.sql": "b8d91217b1fb979b1590529e384d68b52fc8f9480ef1d017a95ed8742a0e2cae",
+    "lib/absence-store.mjs": "e9e721cba0120a913be72f3be838618d3660c9a4b7e54c5f0b4e85b50dfcbbdf",
+    "lib/account-audit.mjs": "3fabcd1c6af434e7ca4aa793ffebc73dd9cf907623ae4767f7ac1aa2ca239889",
+    "lib/activity-store.mjs": "c594a6d3736ca8c82beb2439099d90956f732fc59cfbce3b700095098ee17f08",
+    "lib/directory-references.mjs": "50e7382a57cf0ffc6820bd7e50babfed4ac5a71271ed76459345872f16ce9eba",
+    "lib/directory-store.mjs": "19aad4afd5d345165fc83dbc44768737029356567fbcfede5fe4f6bb056052d9",
+    "lib/employee-read-store.mjs": "dbec0d02a709a0b12bfabd4646a75a38f380be3125bce4b31c6dbc2ae31320c7",
+    "lib/engagement-store.mjs": "f79f51e6233aee163f7bc250301f09c41d8e1db34c36cfd1dfed690b71fc318e",
+    "lib/payroll-history.mjs": "00b9c2cfcdcc4e5f096968bf1cb8d2438359985de18d3d910d7281999d623718",
+    "lib/planner-detail-store.mjs": "1eed5bc2e76bd6f1cdf942c025ff5e60d4101cb68c52f4c0d0c1766da22c5f42",
+    "lib/planning-calendar-summary.mjs": "e3d124857b591bf33dcce191af0276cd4de1859b6cd6f3fe0fa70c76416b3c14",
+    "lib/planning-command-store.mjs": "a7e07655094010e1986ec76a7f8570f183795aab0f40c8b094abc01f92c1d1e5",
+    "lib/planning-selection-store.mjs": "e9f583f8481e030c18b04e3e42aaa1ad431822e64055637bab66170ba430f90b",
+    "lib/planning-store.mjs": "4f4ee56914e654303d44aeace74bdbe4f4850d493de20d85a3ffa6200e7ad74c",
+    "lib/planning-window-store.mjs": "40c8203fd68e7a1be2f58ca874fd8d26fca5c0a46b9033d9892d48dffd0d033d",
+    "lib/planning-write.mjs": "2770e6be83f11c1790adb139a3fcdc84d223ed39b4c6c9692a52b533519aa01a",
+    "lib/publication-command.mjs": "2ad928ba56ae7fb3b933d07d55ab01f105e1074f82881809b658b428b4f2c035",
+    "lib/publication-store.mjs": "74b2497d90c7c26c0ca42fad310ce0ca05de441f2852d4e4f2a4d91c0af7eedd",
+    "lib/publication-time-store.mjs": "bf2742c46f1d94a31f17b296e423c3db28453f01063ad042277d4dafe5d475c5",
+    "lib/published-employee-index.mjs": "de315a0516ea993ab3ac7506fce5984ef7eaf832e12b095ca9345ef10dc93380",
+    "lib/shift-workflow-demo-store.mjs": "54a7235ddec40d592d5b174dcac98cc9a47fa76b0b53dd4039cc3c68c00f2a01",
+    "lib/shift-workflow-store.mjs": "ea7422ab58321217dbc623f9ab743b5355ffafe4d78c0eb65f068fa6d7910754",
+    "lib/studio-store.mjs": "4137ba8feda46df3ad20ac50e5dd2047369fb495d38718098f9c61386202ae7b",
+    "lib/time-entry-store.mjs": "bd0e9e2f375e2c10bd78b807d786cd17e2fc9bbf5f7e2048f8ca856648964c8b",
+    "lib/timekeeping-context.mjs": "904302a6604267e16890db07d81cd42b8983c07ac94155fe98a8c047f572d298",
+    "lib/timekeeping-store.mjs": "cbe5610bd2303b7ec11593ac695e30e32628501e9aca782d5c583670471db589",
+    "lib/workflow-context.mjs": "3d869797f90cd6e3fa7c57ff00ecc3411cabe647d7f0622ef09a1755397cc031",
+    "lib/workspace-store.mjs": "57532469ff5384915bbc00d945297dabf6c74df8b288e54a071b3e2a0104d8fc",
+    "src/checklist-progress.js": "848715a063e803ae9a16d88ba8ce0f4085d7657b4409954396e89c56affa107b",
+    "src/department-model.js": "be3a7950d8dc70c91deca0dcb5b06d3019d5e564bb2b0a9e22983ec557818dc7",
+    "src/description-model.js": "dc7639e5f97d17e4d6ae486cef7ee1e03e334ba8a89f968c85a8459ebd50e3ee",
+    "src/directory-records.js": "f95b8438915243b399436570bad02428da0d4030e3acfad509589a04b4945cf1",
+    "src/employee-calendar.js": "bd2a068d8ff747b0a4f0f98f52d9606ab1706b50f59e4b81338931d1d6c01e8f",
+    "src/instruction-state.js": "2e26a16c3707c260ddedd7ec5959b73ec6866de31a37da9450eadd4730989332",
+    "src/payroll-groups-model.js": "c82f1ce723b80c895e25214f5945650c62a229f0f2843fbdea0dd470e4fa6b88",
+    "src/payroll-model.js": "b1718339aab102593835b9dc75a0ad5169a58aa79ce9a08d72daffd08ce6162a",
+    "src/plan-changes.js": "00a53ee456bf8ecca9447bec75fb2dae010d3fd3c0ad8839104d4c58e0f9153d",
+    "src/planning-records.js": "8773290f7bc910f6a38618818a4dd963d0732ca269c74698c6745fb8ca5d667b",
+    "src/planning-scope.js": "ca6f3ee32f42b2405a33c0a76c87eac843e868f0e9816b60c4f88f99ec166400",
+    "src/planning-window.js": "ebbc0973a318f1e33b97141bbb8aee48097e521bf8ccffeea30bb6afd09b62ca",
+    "src/publication-model.js": "24368ca2ef0b238cde03887f180417c09ef7ef832d437ef35e982a79eef8c0b6",
+    "src/role-model.js": "dd8fe2dd880a09d990f52517720a0d5e9e5d046ae845669b981dbb3e604bc825",
+    "src/roster-model.js": "fdc34fd49b7eb98f294c10261d01de8c638a7f240ffbc30207662067015186a8",
+    "src/schedule-actions.js": "f09e29a03bb0cb89f48d4d23976d6fbb6e80f7af6b220db3ea390078cc8e78e0",
+    "src/series-engine.js": "b19668a21fea28d902c11988b3a3ab624bef22edc4d8ccb04f4ed849fa62d220",
+    "src/series-lifecycle.js": "4975c616da1948e781b29f8611194e1a91f54cade89fad20c7fc1d859ce43eb9",
+    "src/series-planner.js": "d1f628974ffcf0e27911d07fb6ac6c3141546c791e611128e3067461308be9a8",
+    "src/shift-workflow-model.js": "bbcd81c680a9e3b1d504482cf1126306d46cd14e0b58c1a3fc3e0b99ab9105b3",
+    "src/studio-data.js": "6f1e78cb835836c869a7fc1c826eaf57c5d79dcaea5d33d6ef8ad3efbb4cbcc4",
+    "src/timekeeping-model.js": "1ca4a9db875aafb3fc22c0623b17404cd3b7b1d1b68a2d44a189f515199c7664"
+  },
+  "sourceRoot": "<project-root>",
+  "employeeProtocol": "scoped",
+  "plannerProtocol": "deferred",
+  "plannerDetailContract": "Actual plannerDetail request after a calendar receipt",
+  "fixedClock": "2026-11-03T10:00:00.000Z",
+  "repetitions": 5,
+  "generatedAt": "2026-11-03T19:56:48.140Z",
+  "runtime": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "methodology": "Sequential actual route calls over isolated migrated node:sqlite databases. Timing includes route work and HTTP JSON serialization/reading, excludes fixture seeding. SQL rows/bytes are values returned to JavaScript, not engine rows scanned or Cloudflare billed rows. First call is not an OS cold-cache guarantee. p95 with <=7 samples is descriptive only.",
+  "fixtures": [
+    {
+      "fixture": {
+        "workspaceId": "ws-3d5d11bb-1f7b-4931-a468-65ded48e0852",
+        "employees": 100,
+        "series": 100,
+        "publishedShifts": 15652,
+        "openShifts": 52,
+        "attendanceEntries": 6600,
+        "checkedTasks": 780,
+        "messages": 2400,
+        "requests": 400,
+        "absences": 300,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "expectedDetailHashes": {
+          "note": "sha256:1dcb5bbfc585d4939921dd0f442e8b9c2b08b3662cdb77fee9c3cde98c57988d",
+          "noteRich": "sha256:2985d43b9df8e6ca9f848cbe029288ee4371dadaa068eaf09d82113650d85e9b"
+        },
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 3507.471417,
+        "coldImport": {
+          "batches": 56,
+          "statements": 279,
+          "resultRows": 552,
+          "resultBytes": 738575,
+          "writeStatements": 221,
+          "elapsedMs": 114.25520799999998,
+          "payloadBytes": 149820,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 141.58,
+            "batches": 222,
+            "statements": 301,
+            "resultRows": 9296,
+            "resultBytes": 3401826,
+            "writeStatements": 46,
+            "status": 200,
+            "payloadBytes": 898454,
+            "pages": 6,
+            "rssMiB": 220.36
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 115.09,
+            "p95Ms": 119.46,
+            "payloadBytes": 898454,
+            "statements": 295,
+            "resultRows": 9297,
+            "resultBytes": 2869506,
+            "batches": 219,
+            "samples": [
+              {
+                "elapsedMs": 118.75,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 222.91
+              },
+              {
+                "elapsedMs": 119.46,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 223
+              },
+              {
+                "elapsedMs": 115.09,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 223.36
+              },
+              {
+                "elapsedMs": 108.12,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 223.38
+              },
+              {
+                "elapsedMs": 106.25,
+                "batches": 219,
+                "statements": 295,
+                "resultRows": 9297,
+                "resultBytes": 2869506,
+                "writeStatements": 42,
+                "status": 200,
+                "payloadBytes": 898454,
+                "pages": 6,
+                "rssMiB": 223.27
+              }
+            ]
+          }
+        },
+        {
+          "name": "planner_detail_extra",
+          "firstCall": {
+            "elapsedMs": 3.96,
+            "batches": 22,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 20276,
+            "instructionsVerified": true,
+            "taskCount": 6,
+            "rssMiB": 222.55
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.06,
+            "p95Ms": 2.01,
+            "payloadBytes": 20276,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 2.01,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 222.55
+              },
+              {
+                "elapsedMs": 1.25,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 222.55
+              },
+              {
+                "elapsedMs": 1.01,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 222.56
+              },
+              {
+                "elapsedMs": 1.06,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 222.63
+              },
+              {
+                "elapsedMs": 0.92,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 222.69
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 122.98,
+            "batches": 32,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 648996,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 428521,
+            "responseCounts": {
+              "entries": 300
+            },
+            "rssMiB": 225.48
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 109.6,
+            "p95Ms": 113.39,
+            "payloadBytes": 428521,
+            "statements": 40,
+            "resultRows": 1625,
+            "resultBytes": 648996,
+            "batches": 32,
+            "samples": [
+              {
+                "elapsedMs": 113.39,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 226.08
+              },
+              {
+                "elapsedMs": 108.66,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 236.08
+              },
+              {
+                "elapsedMs": 108.96,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 236.84
+              },
+              {
+                "elapsedMs": 111.1,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 236.11
+              },
+              {
+                "elapsedMs": 109.6,
+                "batches": 32,
+                "statements": 40,
+                "resultRows": 1625,
+                "resultBytes": 648996,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 428521,
+                "responseCounts": {
+                  "entries": 300
+                },
+                "rssMiB": 237.05
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.87,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 4932,
+            "responseCounts": {
+              "requests": 15
+            },
+            "rssMiB": 235.78
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.83,
+            "p95Ms": 0.92,
+            "payloadBytes": 4932,
+            "statements": 28,
+            "resultRows": 58,
+            "resultBytes": 17058,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 0.92,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.78
+              },
+              {
+                "elapsedMs": 0.85,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.8
+              },
+              {
+                "elapsedMs": 0.81,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.8
+              },
+              {
+                "elapsedMs": 0.83,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.81
+              },
+              {
+                "elapsedMs": 0.77,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 58,
+                "resultBytes": 17058,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 4932,
+                "responseCounts": {
+                  "requests": 15
+                },
+                "rssMiB": 235.84
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 4,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33674,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10277,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 235.84
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.86,
+            "p95Ms": 2.97,
+            "payloadBytes": 10277,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33674,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.95,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 235.86
+              },
+              {
+                "elapsedMs": 2.97,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 235.91
+              },
+              {
+                "elapsedMs": 2.74,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 235.98
+              },
+              {
+                "elapsedMs": 2.79,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.09
+              },
+              {
+                "elapsedMs": 2.86,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33674,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10277,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 236.27
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.31,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21790,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 236.28
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.84,
+            "p95Ms": 1.99,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21790,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.85,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.3
+              },
+              {
+                "elapsedMs": 1.8,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.3
+              },
+              {
+                "elapsedMs": 1.75,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.31
+              },
+              {
+                "elapsedMs": 1.99,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.31
+              },
+              {
+                "elapsedMs": 1.84,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21790,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.32,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16880,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 236.33
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.9,
+            "p95Ms": 1,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16880,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.96,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 1,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 0.9,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 0.89,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              },
+              {
+                "elapsedMs": 0.9,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16880,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 236.33
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 16.43,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 186722,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 52248,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 236.33
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 14.09,
+            "p95Ms": 15.55,
+            "payloadBytes": 52248,
+            "statements": 60,
+            "resultRows": 582,
+            "resultBytes": 186722,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 14.55,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.34
+              },
+              {
+                "elapsedMs": 15.55,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.36
+              },
+              {
+                "elapsedMs": 13.9,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.45
+              },
+              {
+                "elapsedMs": 14.09,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.53
+              },
+              {
+                "elapsedMs": 13.96,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 582,
+                "resultBytes": 186722,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 52248,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 236.69
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 6.24,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 97497,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26162,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 236.75
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 5.48,
+            "p95Ms": 5.83,
+            "payloadBytes": 26162,
+            "statements": 70,
+            "resultRows": 311,
+            "resultBytes": 97497,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 5.83,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 236.83
+              },
+              {
+                "elapsedMs": 5.42,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 236.92
+              },
+              {
+                "elapsedMs": 5.45,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.06
+              },
+              {
+                "elapsedMs": 5.48,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.25
+              },
+              {
+                "elapsedMs": 5.59,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 311,
+                "resultBytes": 97497,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26162,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 237.59
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.76,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 237.59
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.52,
+            "p95Ms": 1.19,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.52,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.59
+              },
+              {
+                "elapsedMs": 0.46,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.59
+              },
+              {
+                "elapsedMs": 0.43,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.59
+              },
+              {
+                "elapsedMs": 0.99,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.59
+              },
+              {
+                "elapsedMs": 1.19,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 237.59
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "workspaceId": "ws-26a7ca38-82cb-4ec8-85d0-ebdad34564ca",
+        "employees": 500,
+        "series": 500,
+        "publishedShifts": 78052,
+        "openShifts": 52,
+        "attendanceEntries": 33000,
+        "checkedTasks": 3900,
+        "messages": 12000,
+        "requests": 2000,
+        "absences": 1500,
+        "descriptionCharacters": 4268,
+        "tasksPerLongDescription": 6,
+        "longDescriptionPercent": 10,
+        "expectedDetailHashes": {
+          "note": "sha256:1dcb5bbfc585d4939921dd0f442e8b9c2b08b3662cdb77fee9c3cde98c57988d",
+          "noteRich": "sha256:2985d43b9df8e6ca9f848cbe029288ee4371dadaa068eaf09d82113650d85e9b"
+        },
+        "year": {
+          "from": "2026-06-01",
+          "to": "2027-05-30"
+        },
+        "fixedNow": "2026-11-03T10:00:00.000Z",
+        "seedPublishedMs": 11946.387709000002,
+        "coldImport": {
+          "batches": 65,
+          "statements": 1091,
+          "resultRows": 2560,
+          "resultBytes": 3641153,
+          "writeStatements": 1024,
+          "elapsedMs": 260.4472079999996,
+          "payloadBytes": 742747,
+          "status": 200,
+          "context": "Cold legacy metadata/series/directory import before normalized year publication seeding"
+        },
+        "detailShiftId": "benchmark-series-0@2026-11-04",
+        "personId": "person-benchmark-0000"
+      },
+      "operations": [
+        {
+          "name": "calendar_eight_weeks",
+          "firstCall": {
+            "elapsedMs": 572.13,
+            "batches": 1115,
+            "statements": 1446,
+            "resultRows": 67308,
+            "resultBytes": 22563832,
+            "writeStatements": 193,
+            "status": 200,
+            "payloadBytes": 4477848,
+            "pages": 27,
+            "rssMiB": 281.59
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 531.92,
+            "p95Ms": 540.91,
+            "payloadBytes": 4477848,
+            "statements": 1440,
+            "resultRows": 67305,
+            "resultBytes": 19898588,
+            "batches": 1112,
+            "samples": [
+              {
+                "elapsedMs": 540.91,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 280.58
+              },
+              {
+                "elapsedMs": 535.81,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 280.36
+              },
+              {
+                "elapsedMs": 529.47,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 281.94
+              },
+              {
+                "elapsedMs": 528.66,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 531.92,
+                "batches": 1112,
+                "statements": 1440,
+                "resultRows": 67305,
+                "resultBytes": 19898588,
+                "writeStatements": 189,
+                "status": 200,
+                "payloadBytes": 4477848,
+                "pages": 27,
+                "rssMiB": 282.61
+              }
+            ]
+          }
+        },
+        {
+          "name": "planner_detail_extra",
+          "firstCall": {
+            "elapsedMs": 1.55,
+            "batches": 22,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 20276,
+            "instructionsVerified": true,
+            "taskCount": 6,
+            "rssMiB": 281.08
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.88,
+            "p95Ms": 1.06,
+            "payloadBytes": 20276,
+            "statements": 32,
+            "resultRows": 23,
+            "resultBytes": 14483,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 1.06,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 281.08
+              },
+              {
+                "elapsedMs": 0.96,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 281.08
+              },
+              {
+                "elapsedMs": 0.88,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 281.08
+              },
+              {
+                "elapsedMs": 0.83,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 281.08
+              },
+              {
+                "elapsedMs": 0.81,
+                "batches": 22,
+                "statements": 32,
+                "resultRows": 23,
+                "resultBytes": 14483,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 20276,
+                "instructionsVerified": true,
+                "taskCount": 6,
+                "rssMiB": 281.08
+              }
+            ]
+          }
+        },
+        {
+          "name": "hours_week",
+          "firstCall": {
+            "elapsedMs": 210.55,
+            "batches": 40,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1872548,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 893221,
+            "responseCounts": {
+              "entries": 500
+            },
+            "rssMiB": 283.13
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 207.56,
+            "p95Ms": 219.66,
+            "payloadBytes": 893221,
+            "statements": 48,
+            "resultRows": 6026,
+            "resultBytes": 1872548,
+            "batches": 40,
+            "samples": [
+              {
+                "elapsedMs": 205.71,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 284.09
+              },
+              {
+                "elapsedMs": 219.66,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 283.23
+              },
+              {
+                "elapsedMs": 207.56,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 284.11
+              },
+              {
+                "elapsedMs": 207.87,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 283.25
+              },
+              {
+                "elapsedMs": 205.21,
+                "batches": 40,
+                "statements": 48,
+                "resultRows": 6026,
+                "resultBytes": 1872548,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 893221,
+                "responseCounts": {
+                  "entries": 500
+                },
+                "rssMiB": 284.11
+              }
+            ]
+          }
+        },
+        {
+          "name": "absence_page",
+          "firstCall": {
+            "elapsedMs": 1.9,
+            "batches": 22,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 14411,
+            "responseCounts": {
+              "requests": 40
+            },
+            "rssMiB": 281.3
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.26,
+            "p95Ms": 1.33,
+            "payloadBytes": 14411,
+            "statements": 28,
+            "resultRows": 139,
+            "resultBytes": 46120,
+            "batches": 22,
+            "samples": [
+              {
+                "elapsedMs": 1.33,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 281.31
+              },
+              {
+                "elapsedMs": 1.27,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 281.36
+              },
+              {
+                "elapsedMs": 1.26,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 281.41
+              },
+              {
+                "elapsedMs": 1.26,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 1.21,
+                "batches": 22,
+                "statements": 28,
+                "resultRows": 139,
+                "resultBytes": 46120,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 14411,
+                "responseCounts": {
+                  "requests": 40
+                },
+                "rssMiB": 281.53
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_bootstrap",
+          "firstCall": {
+            "elapsedMs": 3.53,
+            "batches": 50,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33684,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10278,
+            "responseCounts": {
+              "employeeShifts": 18
+            },
+            "rssMiB": 281.53
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 2.52,
+            "p95Ms": 2.69,
+            "payloadBytes": 10278,
+            "statements": 58,
+            "resultRows": 134,
+            "resultBytes": 33684,
+            "batches": 50,
+            "samples": [
+              {
+                "elapsedMs": 2.69,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 2.55,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 2.5,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 2.48,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 2.52,
+                "batches": 50,
+                "statements": 58,
+                "resultRows": 134,
+                "resultBytes": 33684,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10278,
+                "responseCounts": {
+                  "employeeShifts": 18
+                },
+                "rssMiB": 281.53
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_month",
+          "firstCall": {
+            "elapsedMs": 2.28,
+            "batches": 34,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21795,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 6153,
+            "responseCounts": {},
+            "rssMiB": 281.53
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 1.75,
+            "p95Ms": 1.93,
+            "payloadBytes": 6153,
+            "statements": 42,
+            "resultRows": 86,
+            "resultBytes": 21795,
+            "batches": 34,
+            "samples": [
+              {
+                "elapsedMs": 1.93,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 1.8,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 1.69,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 1.73,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 1.75,
+                "batches": 34,
+                "statements": 42,
+                "resultRows": 86,
+                "resultBytes": 21795,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 6153,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              }
+            ]
+          }
+        },
+        {
+          "name": "employee_detail",
+          "firstCall": {
+            "elapsedMs": 1.23,
+            "batches": 26,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16881,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 10481,
+            "responseCounts": {},
+            "rssMiB": 281.53
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.94,
+            "p95Ms": 0.98,
+            "payloadBytes": 10481,
+            "statements": 34,
+            "resultRows": 26,
+            "resultBytes": 16881,
+            "batches": 26,
+            "samples": [
+              {
+                "elapsedMs": 0.92,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 0.94,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 0.91,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 0.98,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 281.53
+              },
+              {
+                "elapsedMs": 0.96,
+                "batches": 26,
+                "statements": 34,
+                "resultRows": 26,
+                "resultBytes": 16881,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 10481,
+                "responseCounts": {},
+                "rssMiB": 281.59
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_manager",
+          "firstCall": {
+            "elapsedMs": 51.11,
+            "batches": 52,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 237697,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 51737,
+            "responseCounts": {
+              "requests": 40,
+              "notifications": 0,
+              "deliveries": 40,
+              "ownShifts": 0,
+              "openShifts": 0
+            },
+            "rssMiB": 281.34
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 51.16,
+            "p95Ms": 51.76,
+            "payloadBytes": 51737,
+            "statements": 60,
+            "resultRows": 694,
+            "resultBytes": 237697,
+            "batches": 52,
+            "samples": [
+              {
+                "elapsedMs": 51.16,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 281.34
+              },
+              {
+                "elapsedMs": 50.73,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 281.36
+              },
+              {
+                "elapsedMs": 50.22,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 281.38
+              },
+              {
+                "elapsedMs": 51.53,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 281.41
+              },
+              {
+                "elapsedMs": 51.76,
+                "batches": 52,
+                "statements": 60,
+                "resultRows": 694,
+                "resultBytes": 237697,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 51737,
+                "responseCounts": {
+                  "requests": 40,
+                  "notifications": 0,
+                  "deliveries": 40,
+                  "ownShifts": 0,
+                  "openShifts": 0
+                },
+                "rssMiB": 281.41
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_employee",
+          "firstCall": {
+            "elapsedMs": 12.9,
+            "batches": 62,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 98484,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 26163,
+            "responseCounts": {
+              "requests": 8,
+              "notifications": 24,
+              "deliveries": 0,
+              "ownShifts": 11,
+              "openShifts": 3
+            },
+            "rssMiB": 281.45
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 11.7,
+            "p95Ms": 12.33,
+            "payloadBytes": 26163,
+            "statements": 70,
+            "resultRows": 313,
+            "resultBytes": 98484,
+            "batches": 62,
+            "samples": [
+              {
+                "elapsedMs": 12.33,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 11.65,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 11.7,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 11.97,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 11.7,
+                "batches": 62,
+                "statements": 70,
+                "resultRows": 313,
+                "resultBytes": 98484,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 26163,
+                "responseCounts": {
+                  "requests": 8,
+                  "notifications": 24,
+                  "deliveries": 0,
+                  "ownShifts": 11,
+                  "openShifts": 3
+                },
+                "rssMiB": 281.47
+              }
+            ]
+          }
+        },
+        {
+          "name": "workflow_badges",
+          "firstCall": {
+            "elapsedMs": 0.79,
+            "batches": 13,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "writeStatements": 7,
+            "status": 200,
+            "payloadBytes": 151,
+            "responseCounts": {},
+            "rssMiB": 281.47
+          },
+          "warm": {
+            "successful": 5,
+            "attempts": 5,
+            "p50Ms": 0.39,
+            "p95Ms": 0.45,
+            "payloadBytes": 151,
+            "statements": 19,
+            "resultRows": 12,
+            "resultBytes": 2340,
+            "batches": 13,
+            "samples": [
+              {
+                "elapsedMs": 0.45,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 0.41,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 0.39,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 0.38,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 281.47
+              },
+              {
+                "elapsedMs": 0.37,
+                "batches": 13,
+                "statements": 19,
+                "resultRows": 12,
+                "resultBytes": 2340,
+                "writeStatements": 7,
+                "status": 200,
+                "payloadBytes": 151,
+                "responseCounts": {},
+                "rssMiB": 281.47
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "changedSourceFiles": [],
+  "sourceChangedDuringRun": false
+}

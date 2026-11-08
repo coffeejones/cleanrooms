@@ -1,0 +1,167 @@
+/* Employee record: one connected identity header, calendar, and contextual detail pane. */
+#cleanrooms-studio[data-page="people"] .cs-main:has(#cs-employee-profile-page) > .cs-page-head{display:none}
+#cleanrooms-studio[data-page] #cs-employee-profile-page{display:flex;flex:1;min-width:0;min-height:0;height:100%;padding:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-page{container-name:employee-profile;container-type:inline-size;display:flex;flex:1;flex-direction:column;gap:0;width:100%;height:100%;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overflow-anchor:none;padding:0 0 20px;color:var(--cs-access-body,#4b575d);font-size:14px;line-height:1.5;scrollbar-width:thin}
+#cleanrooms-studio[data-page] .cs-employee-profile-page [hidden]{display:none!important}
+#cleanrooms-studio[data-page] .cs-employee-profile-page > :is(header,section,.cs-employee-profile-tabs){flex-shrink:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-header{display:block;min-width:0;margin:0;padding:0 0 8px;border:0;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;min-width:0;min-height:28px;margin:0 0 4px;color:var(--cs-access-muted,#687076);font-size:12px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-breadcrumb > span{display:inline-flex;align-items:center;gap:12px}
+#cleanrooms-studio[data-page] .cs-employee-profile-breadcrumb > span::before{content:"/";color:#9aa8ae}
+#cleanrooms-studio[data-page][data-role] .cs-employee-profile-breadcrumb .cs-employee-profile-back{display:inline-flex;align-items:center;gap:7px;height:28px;min-height:28px;margin:0;padding:0;border:0;border-radius:4px;background:transparent;color:var(--cs-access-body,#4b575d);font-size:12px;line-height:20px;box-shadow:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-back::before{content:"←";font-size:16px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-back:hover{color:var(--cs-access-ink,#29343c);text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio[data-page] .cs-employee-profile-header-main{display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-identity{display:flex;align-items:center;gap:14px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-identity > div{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 10px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-avatar{display:flex;flex:0 0 52px;align-items:center;justify-content:center;width:52px;height:52px;border:1px solid #2e414c;border-radius:8px;background:#354953;color:#fff;font-size:18px;font-weight:600;line-height:24px;box-shadow:inset 0 1px 0 #ffffff17,0 1px 2px #1f333b12}
+#cleanrooms-studio[data-page] .cs-employee-profile-name{min-width:0;margin:0;color:var(--cs-access-ink,#29343c);font-size:26px;font-weight:600;line-height:33px;letter-spacing:-.65px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-role{grid-column:1/-1;grid-row:2;min-width:0;margin:0;color:var(--cs-access-muted,#687076);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-state{display:inline-flex;align-items:center;max-width:100%;padding:2px 6px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:4px;background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-muted,#687076);font-size:11px;font-weight:400;line-height:18px}
+#cleanrooms-studio[data-page] .cs-employee-profile-state[data-state="active"]{border-color:var(--cs-access-success-edge,#cce3d4);background:var(--cs-access-success-soft,#eef7f1);color:var(--cs-access-success,#27734b)}
+#cleanrooms-studio[data-page] .cs-employee-profile-identity .cs-employee-profile-state{grid-column:2;grid-row:1;justify-self:start}
+#cleanrooms-studio[data-page] .cs-employee-profile-header-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-tabs{display:flex;align-items:stretch;gap:24px;min-width:0;margin:0;border-bottom:1px solid #cbd6da;background:transparent}
+#cleanrooms-studio[data-page] .cs-employee-profile-tab{display:block;min-width:0;min-height:var(--cs-ui-height,40px);margin:0 0 -1px;padding:0 2px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--cs-access-muted,#687076);font-family:inherit;font-size:13px;font-weight:500;line-height:20px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-employee-profile-tab[aria-pressed="true"]{border-bottom-color:var(--cs-access-primary,#303e46);color:var(--cs-access-ink,#29343c);font-weight:600}
+#cleanrooms-studio[data-page] .cs-employee-profile-content{min-width:0;margin:16px 0 0;padding:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start;gap:20px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-main{display:flex;flex-direction:column;gap:20px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-aside{display:flex;flex-direction:column;gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-surface{min-width:0;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-surface,#fff);box-shadow:0 1px 2px #26394308,0 5px 15px #26394304}
+/* The calendar owns the visual weight; its three figures form one compact strip. */
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar{overflow:hidden}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;min-width:0;padding:14px 18px;background:#fff}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-calendar-eyebrow,.cs-employee-profile-agenda-eyebrow){display:block;margin:0 0 3px;color:var(--cs-access-muted,#687076);font-size:10px;font-weight:600;line-height:14px;letter-spacing:.07em;text-transform:uppercase}
+#cleanrooms-studio[data-page] .cs-employee-profile-month{margin:0;color:var(--cs-access-ink,#29343c);font-size:19px;font-weight:600;line-height:25px;letter-spacing:-.3px}
+#cleanrooms-studio[data-page] .cs-employee-profile-month-year{color:var(--cs-access-muted,#687076);font-weight:400;letter-spacing:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-head .cs-employee-profile-month-totals:not(dl){margin:4px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-month-summary,dl.cs-employee-profile-month-totals){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;min-width:0;margin:0;padding:10px 18px;border-top:1px solid #e8edef;border-bottom:1px solid #dce5e8;background:#f5f8f9}
+#cleanrooms-studio[data-page] .cs-employee-profile-month-summary > div{display:flex;align-items:center;gap:8px;min-width:0;padding:0 16px;border-left:1px solid #dfe7ea}
+#cleanrooms-studio[data-page] .cs-employee-profile-month-summary > div:first-child{padding-left:0;border-left:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-month-summary dt{margin:0;color:var(--cs-access-muted,#687076);font-size:11px;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-month-summary dd{flex-shrink:0;margin:0;color:var(--cs-access-ink,#29343c);font-size:19px;font-weight:600;line-height:24px;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+#cleanrooms-studio[data-page] .cs-employee-profile-metric-unit{color:var(--cs-access-muted,#687076);font-size:12px;font-weight:400;letter-spacing:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-tools{display:flex;align-items:center;gap:6px}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-tools .cs-icon-button{font-size:24px;line-height:24px}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-weekdays,.cs-employee-profile-grid){display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-weekdays{border-bottom:1px solid #dfe7ea;background:#fbfcfc}
+#cleanrooms-studio[data-page] .cs-employee-profile-weekdays span{padding:7px 4px;color:var(--cs-access-muted,#687076);font-size:11px;font-weight:500;line-height:17px;text-align:center}
+#cleanrooms-studio[data-page] .cs-employee-profile-day{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0;min-height:84px;padding:4px 0;border-right:1px solid #e5ebed;border-bottom:1px solid #e5ebed;background:#fff}
+#cleanrooms-studio[data-page] .cs-employee-profile-day:nth-child(7n){border-right:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-weekend="true"]{background:#f7f9fa}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-in-month="false"]{background:#f1f4f5}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-selected="true"]{background:#edf3f7;box-shadow:inset 0 0 0 1px #8fa8b8}
+#cleanrooms-studio[data-page] .cs-employee-profile-day-number{display:flex;align-items:center;justify-content:center;align-self:flex-start;min-width:28px;min-height:28px;margin:0 0 0 5px;padding:2px 4px;border:0;border-radius:5px;background:transparent;color:var(--cs-access-ink,#29343c);font-family:inherit;font-size:12px;font-weight:500;line-height:20px;cursor:pointer}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-in-month="false"] .cs-employee-profile-day-number{color:var(--cs-access-muted,#687076)}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-today="true"] .cs-employee-profile-day-number{background:#354953;color:#fff}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-shift{display:block;width:100%;min-width:0;max-width:100%;margin:0;padding:4px 6px;border:0;border-block:1px solid #e4eaed;border-radius:0;background:#f0f4f5;color:var(--cs-access-ink,#29343c);font-family:inherit;text-align:left;cursor:pointer;box-shadow:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-shift:hover{background:#e5edf1}
+#cleanrooms-studio[data-page] .cs-employee-profile-day[data-selected="true"] .cs-employee-profile-calendar-shift{background:#e2ecf2}
+#cleanrooms-studio[data-page] .cs-employee-profile-event-time{display:block;min-width:0;font-size:12px;font-weight:600;line-height:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-employee-profile-time-short{display:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-event-site{display:block;min-width:0;max-width:100%;overflow:hidden;margin-top:2px;color:#5e6d75;font-size:11px;line-height:16px;text-overflow:ellipsis;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-employee-profile-more{display:block;min-width:0;margin:0;padding:3px 5px;border:0;background:transparent;color:var(--cs-access-blue,#476276);font-family:inherit;font-size:10px;line-height:16px;text-align:left;cursor:pointer}
+/* The selected day is a compact, readable agenda rather than another profile header. */
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda{overflow:hidden}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-head{display:block;min-width:0;padding:16px;border-bottom:1px solid #e0e8eb;background:#f5f8f9}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-heading{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-section-title{min-width:0;margin:0;color:var(--cs-access-ink,#29343c);font-size:15px;font-weight:600;line-height:22px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-heading .cs-employee-profile-section-title{font-size:17px;line-height:24px;letter-spacing:-.2px}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-heading > :is(small,.cs-employee-profile-help){margin:0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;font-weight:400}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-shift{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;padding:16px;border-bottom:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-shift:last-child{border-bottom:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-shift > div{min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-shift-header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-time{min-width:0;color:var(--cs-access-ink,#29343c);font-size:18px;font-weight:600;line-height:25px;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-duration{display:inline-flex;flex-shrink:0;align-items:center;padding:2px 6px;border:1px solid #dee6e9;border-radius:4px;background:#f4f7f8;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px;white-space:nowrap}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-site{margin:6px 0 0;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:500;line-height:21px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-instructions{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:10px 0 0;padding-top:10px;border-top:1px solid var(--cs-access-line,#e5eaeb);color:var(--cs-access-body,#4b575d);font-size:12px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-empty{margin:0;padding:16px;color:var(--cs-access-muted,#687076);font-size:13px;line-height:21px}
+#cleanrooms-studio[data-page][data-role] .cs-employee-profile-agenda-shift > .cs-button{align-self:flex-end;justify-content:flex-end;width:auto;max-width:100%;min-height:var(--cs-ui-height,40px);margin:0;padding-inline:0;border:0;background:transparent;color:var(--cs-access-blue,#476276);box-shadow:none}
+#cleanrooms-studio[data-page][data-role] .cs-employee-profile-agenda-shift > .cs-button:hover:not(:disabled){border:0;background:transparent;color:var(--cs-access-ink,#29343c);text-decoration:underline;text-underline-offset:3px;box-shadow:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-agenda-shift > .cs-button::after{content:"›";font-size:20px;line-height:20px}
+/* Agreement facts and the weekly plan form two sections in one restrained pane. */
+#cleanrooms-studio[data-page] .cs-employee-profile-facts{padding:16px}
+#cleanrooms-studio[data-page] .cs-employee-profile-facts-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;margin:0 0 16px}
+#cleanrooms-studio[data-page] .cs-employee-profile-facts-head .cs-employee-profile-section-title{font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page][data-role] .cs-employee-profile-facts-head > .cs-button{flex-shrink:0;height:var(--cs-ui-compact-height,32px);min-height:var(--cs-ui-compact-height,32px);margin:0;padding-inline:0;border:0;background:transparent;color:var(--cs-access-blue,#476276);font-size:12px;box-shadow:none}
+#cleanrooms-studio[data-page] .cs-employee-profile-details{display:grid;gap:14px;min-width:0;margin:16px 0 0}
+#cleanrooms-studio[data-page] .cs-employee-profile-details > div{min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-details dt{margin:0 0 4px;color:var(--cs-access-muted,#687076);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-employee-profile-details dd{margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-facts .cs-employee-profile-details{margin-top:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-facts .cs-employee-profile-details > div:first-child dd{color:var(--cs-access-ink,#29343c);font-size:19px;font-weight:600;line-height:25px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-employee-profile-week{margin-top:20px;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-employee-profile-week .cs-employee-profile-section-title{font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-week-hours{margin:12px 0 4px;color:var(--cs-access-ink,#29343c);font-size:17px;font-weight:600;line-height:24px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-employee-profile-week-meter{display:block;width:100%;height:5px;margin-top:12px;overflow:hidden;border:0;border-radius:3px;background:#e7edef}
+#cleanrooms-studio[data-page] .cs-employee-profile-week-meter > span{display:block;height:100%;max-width:100%;border-radius:inherit;background:#748b98}
+#cleanrooms-studio[data-page] .cs-employee-profile-week-meter[data-state="over"] > span{background:#a47a36}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-week-state,.cs-employee-profile-week-status){margin:8px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-week-state,.cs-employee-profile-week-status)[data-state="over"]{color:#89601e}
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-week-state,.cs-employee-profile-week-status)[data-state="balanced"]{color:var(--cs-access-success,#27734b)}
+/* The information form is a record, with explicit sections and no empty side column. */
+#cleanrooms-studio[data-page] :is(.cs-employee-profile-information,.cs-employee-profile-pay,.cs-employee-profile-calendar-error){padding:24px}
+#cleanrooms-studio[data-page] .cs-employee-profile-information-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;min-width:0;margin-top:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-information-grid > section{min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-information-grid > section > :is(h3,h4){margin:0;padding-bottom:12px;border-bottom:1px solid var(--cs-access-line,#e5eaeb);color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:21px}
+#cleanrooms-studio[data-page] .cs-employee-profile-help{margin:4px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-form{display:flex;flex-direction:column;gap:20px;max-width:900px;min-width:0;margin:20px 0 0}
+#cleanrooms-studio[data-page] .cs-employee-profile-form-section{display:flex;flex-direction:column;gap:20px;min-width:0;padding-top:20px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-employee-profile-form-section:first-child{padding-top:0;border-top:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-form-section > :is(h3,h4){margin:0;color:var(--cs-access-ink,#29343c);font-size:14px;font-weight:600;line-height:21px}
+#cleanrooms-studio[data-page] .cs-employee-profile-form-section-fields{display:grid;grid-template-columns:minmax(140px,.45fr) minmax(0,1fr);gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-field{display:block;min-width:0;margin:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-label{display:block;margin:0 0 8px;color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-input{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:var(--cs-ui-height,40px);padding:0 12px;border:1px solid var(--cs-access-control-edge,#c1cbce);border-radius:8px;background:#fff;color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:var(--cs-ui-field-font,14px);line-height:22px}
+#cleanrooms-studio[data-page] .cs-employee-profile-field-pair{display:grid;grid-template-columns:minmax(90px,.4fr) minmax(0,1fr);gap:16px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-check{display:flex;align-items:center;gap:12px;margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-check input{appearance:auto;flex:0 0 16px;width:16px;height:16px;min-height:16px;margin:0;padding:0;accent-color:var(--cs-access-blue,#476276)}
+#cleanrooms-studio[data-page] .cs-employee-profile-active-group{display:flex;flex-direction:column;gap:8px;min-width:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-active-group .cs-employee-profile-help{margin:0}
+#cleanrooms-studio[data-page] .cs-employee-profile-form-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--cs-access-line,#e5eaeb)}
+#cleanrooms-studio[data-page] .cs-employee-profile-error{margin:0;padding:12px;border:1px solid var(--cs-access-danger-edge,#efcdc8);border-radius:6px;background:var(--cs-access-danger-soft,#fff4f2);color:var(--cs-access-danger,#a83029);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-save-status{margin:0 0 16px;color:var(--cs-access-success,#27734b);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-pay-copy{max-width:620px;margin:12px 0 0;font-size:14px;line-height:23px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-employee-profile-pay-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0 0 16px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:8px;background:var(--cs-access-soft,#f2f4f4);color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:20px}
+#cleanrooms-studio[data-page] .cs-employee-profile-page :is(button,input,select):focus-visible{outline:2px solid var(--cs-access-blue,#476276);outline-offset:2px}
+#cleanrooms-studio[data-page] .cs-employee-profile-calendar-shift:focus-visible{outline-offset:-2px}
+#cleanrooms-studio[data-page] .cs-employee-profile-page :disabled{opacity:.5;cursor:default}
+@container employee-profile (max-width:960px){
+  #cleanrooms-studio[data-page] .cs-employee-profile-workspace{grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page] .cs-employee-profile-header-main{align-items:flex-start;flex-wrap:wrap;gap:12px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-aside{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:16px}
+}
+@container employee-profile (max-width:600px){
+  #cleanrooms-studio[data-page] .cs-employee-profile-page{padding-bottom:16px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-header{padding-bottom:12px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-breadcrumb{margin-bottom:8px;font-size:11px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-header-main{display:block}
+  #cleanrooms-studio[data-page] .cs-employee-profile-name{font-size:24px;line-height:30px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-header-actions{justify-content:flex-start;flex-wrap:nowrap;margin-top:14px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-header-actions > .cs-button{flex:1;min-width:0;padding-inline:10px;font-size:12px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-tabs{gap:20px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-tab{font-size:13px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-content{margin-top:16px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-calendar-head{padding:12px;gap:10px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-month{font-size:17px;line-height:23px}
+  #cleanrooms-studio[data-page] :is(.cs-employee-profile-month-summary,dl.cs-employee-profile-month-totals){padding:10px 12px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-month-summary > div{flex-direction:column;align-items:flex-start;gap:2px;padding-inline:10px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-month-summary dd{font-size:18px;line-height:23px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-calendar-tools{gap:4px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-day{gap:3px;min-height:80px;padding-block:3px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-day-number{margin-left:3px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-calendar-shift{padding:3px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-time-full{display:none}
+  #cleanrooms-studio[data-page] .cs-employee-profile-time-short{display:inline}
+  #cleanrooms-studio[data-page] .cs-employee-profile-event-time{font-size:11px;line-height:16px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-event-site{font-size:10px;line-height:15px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-weekdays span{padding-inline:2px;font-size:10px}
+  #cleanrooms-studio[data-page] :is(.cs-employee-profile-aside,.cs-employee-profile-information-grid){grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page] :is(.cs-employee-profile-information,.cs-employee-profile-pay,.cs-employee-profile-calendar-error){padding:20px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-form{gap:16px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-field-pair{gap:12px}
+  #cleanrooms-studio[data-page] .cs-employee-profile-form-section-fields{grid-template-columns:minmax(0,1fr);gap:16px}
+}
+@media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page] .cs-employee-profile-page *{scroll-behavior:auto;transition:none}}

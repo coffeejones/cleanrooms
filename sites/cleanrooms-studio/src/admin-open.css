@@ -1,0 +1,68 @@
+/* Hours and leave share the open white workspace used by people and payroll. */
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]){
+  --cs-admin-gutter:40px;
+  --cs-admin-rule:#e4e8ea;
+  --cs-layout-header-gap:24px;
+  --cs-layout-section-gap:24px;
+}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) :is(.cs-main,.cs-page-head,.cs-content,#cs-page-content){background:#fff}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main>.cs-page-head{padding:28px var(--cs-admin-gutter) 24px;border:0;border-bottom:1px solid var(--cs-admin-rule);box-shadow:none}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main>.cs-content{padding-inline:var(--cs-admin-gutter)}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main>.cs-content>.cs-filters{padding-bottom:24px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main .cs-filter-left{gap:12px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-search{width:420px;max-width:420px;flex:0 1 420px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) #cs-site-filter{width:240px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface{border:0;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main .cs-admin-surface-head{align-items:flex-start;gap:16px 24px;padding:0 0 22px;border:0;background:transparent;box-shadow:none}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-heading{font-size:20px;line-height:28px;letter-spacing:-.35px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-caption{margin-top:7px;color:#788187;line-height:20px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-total{padding-top:5px;color:#52616a;font-size:13px;line-height:20px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list{border:0;background:#fff}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list th{padding-block:12px;border-top:1px solid var(--cs-admin-rule);border-bottom:1px solid #cfd6da;background:#fff;color:#7a838a;font-size:11px;font-weight:500;letter-spacing:0;line-height:18px;box-shadow:none}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list td{padding-block:18px;border-color:var(--cs-admin-rule)}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tr>*:first-child{padding-left:0}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tr>*:last-child{padding-right:0}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody>tr:last-child>td{border-bottom:1px solid var(--cs-admin-rule)}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody tr:where(:not([data-selected="true"])):nth-child(even)>td{background:transparent}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody tr:where(:not([data-selected="true"])):hover>td{background:#f8fafb}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-avatar{width:36px;height:36px;min-width:36px;border:0;border-radius:5px;background:#f1f4f5;color:#52616a}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-person-name{letter-spacing:-.15px}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-person-hours{color:#7b848a}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-zero{padding:32px 0;border:0;border-radius:0;background:transparent;box-shadow:none}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-footer{border-top:1px solid var(--cs-admin-rule)}
+#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) :is(.cs-search input,#cs-site-filter):focus-visible{outline-offset:-2px}
+
+/* Values align as columns; color is reserved for the actual weekly balance. */
+#cleanrooms-studio[data-page="hours"] .cs-admin-hours-value{font-size:14px;line-height:21px}
+#cleanrooms-studio[data-page="hours"] .cs-admin-hours-meter{max-width:130px;height:3px;margin-top:10px;background:#e9edef}
+#cleanrooms-studio[data-page="hours"] .cs-admin-hours-meter>span{background:#7c898f}
+#cleanrooms-studio[data-page="hours"] .cs-admin-hours-meter[data-state="over"]>span{background:#9c7e42}
+#cleanrooms-studio[data-page="hours"] .cs-admin-status[data-state]{padding:0;border:0;border-radius:0;background:transparent;font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page="hours"] .cs-admin-status::before{content:"";display:inline-block;flex:0 0 4px;width:4px;height:4px;margin-right:2px;border-radius:50%;background:currentColor}
+
+@media(min-width:1700px){#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]){--cs-admin-gutter:56px}}
+@media(max-width:1100px){#cleanrooms-studio:is([data-page="hours"],[data-page="leave"]){--cs-admin-gutter:28px}}
+@media(max-width:760px){
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]){--cs-admin-gutter:20px;--cs-layout-header-gap:20px;--cs-layout-section-gap:20px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main>.cs-page-head{padding-top:22px;padding-bottom:18px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main>.cs-content>.cs-filters{padding-bottom:22px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main .cs-filter-left{gap:12px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-search{width:100%;max-width:100%;flex-basis:auto}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) #cs-site-filter{width:100%}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-main .cs-admin-surface-head{flex-wrap:wrap;gap:8px 20px;padding:0 0 20px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-heading{font-size:19px;line-height:27px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-total{padding-top:3px}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody>tr{padding:22px 0;border-color:var(--cs-admin-rule)}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody>tr:first-child{border-top:1px solid var(--cs-admin-rule)}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody>tr:last-child{border-bottom:1px solid var(--cs-admin-rule)}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list td{padding-block:0;border:0}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface .cs-list tbody>tr:last-child>td{border-bottom:0}
+  #cleanrooms-studio[data-page="hours"] .cs-admin-surface .cs-list :is(th,td){text-align:left}
+  #cleanrooms-studio[data-page="hours"] .cs-week-title{white-space:normal;overflow:visible;text-overflow:clip;line-height:18px}
+  #cleanrooms-studio[data-page="hours"] .cs-admin-hours-meter{margin-left:0}
+  #cleanrooms-studio[data-page="hours"] .cs-admin-surface .cs-avatar{display:inline-flex}
+}
+@media(max-width:480px){
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-surface-title{flex-basis:100%}
+  #cleanrooms-studio:is([data-page="hours"],[data-page="leave"]) .cs-admin-total{max-width:100%;padding-top:0;text-align:left}
+}

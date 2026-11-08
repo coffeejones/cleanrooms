@@ -1,0 +1,61 @@
+/* A time band is an action; employee rows keep their existing interactions. */
+#cleanrooms-studio button.cs-time-group-header{
+  -webkit-appearance:none;appearance:none;width:100%;margin:0;
+  border-left:0;border-right:0;border-radius:0;box-shadow:none;cursor:pointer;
+  font-family:inherit;
+}
+#cleanrooms-studio button.cs-time-group-header:hover{background:#e5e9ee;color:#35404d}
+#cleanrooms-studio button.cs-time-group-header:hover .cs-time-group-label{text-decoration:underline;text-underline-offset:2px}
+#cleanrooms-studio button.cs-time-group-header:active{background:#dfe4ea}
+#cleanrooms-studio button.cs-time-group-header:focus-visible{outline:2px solid #68798e;outline-offset:-2px;z-index:1}
+
+/* Group changes use the same flat side sheet as individual shift editing. */
+#cleanrooms-studio .cs-group-layer{position:absolute;inset:0;z-index:14;min-height:0;overflow:hidden}
+#cleanrooms-studio .cs-group-editor{width:min(460px,100%);min-height:0;border-radius:0}
+#cleanrooms-studio #cs-group-form{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;margin:0}
+#cleanrooms-studio .cs-group-fields{flex:1;min-width:0;min-height:0;padding:20px 24px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#cleanrooms-studio #cs-group-caption{margin:0 0 16px;color:#68717d;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-footnote{margin:0 0 20px;color:#737c88;font-size:11px;line-height:17px}
+#cleanrooms-studio .cs-group-summary{margin:4px 0 0;padding:12px 0;border-top:1px solid #dfe4ea;border-bottom:1px solid #dfe4ea;color:#4c596a;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-summary strong{color:#303b4b;font-weight:500}
+#cleanrooms-studio .cs-group-preview{display:block;min-width:0;margin:0;padding:0}
+#cleanrooms-studio .cs-group-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"person times" "site times" "issue issue";align-items:start;column-gap:16px;row-gap:2px;min-width:0;padding:12px 0;border-bottom:1px solid #e5e9ee;background:#fff}
+#cleanrooms-studio .cs-group-person{grid-area:person;min-width:0;color:#303b4b;font-size:13px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-site{grid-area:site;min-width:0;color:#68717d;font-size:11px;line-height:16px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-times{grid-area:times;align-self:center;min-width:0;color:#546276;font-size:12px;line-height:18px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-group-issue{grid-area:issue;min-width:0;margin-top:5px;color:#925c52;font-size:11px;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-row[data-conflict="true"]{border-bottom-color:#ddccc6}
+#cleanrooms-studio .cs-group-row[data-conflict="true"] .cs-group-times{color:#925c52}
+#cleanrooms-studio #cs-group-error{margin:12px 0 0;padding:10px 0;border:0;border-top:1px solid #ddccc6;border-radius:0;background:none;color:#925c52;font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-group-editor .cs-editor-actions{position:relative;flex-shrink:0;gap:12px;min-height:65px;background:#fff}
+#cleanrooms-studio .cs-group-editor .cs-editor-actions .cs-button{min-height:32px}
+
+/* One bounded feedback strip explains the current drag destination. */
+#cleanrooms-studio .cs-drag-status{position:fixed;right:24px;bottom:44px;z-index:9;width:360px;max-width:calc(100% - 48px);max-height:132px;padding:10px 12px;border:1px solid #bcc5d0;border-radius:0;background:#fff;color:#394659;box-shadow:0 3px 12px #1d2b3b16;pointer-events:none;overflow:hidden;text-align:left}
+#cleanrooms-studio .cs-drag-name{display:block;min-width:0;color:#566477;font-size:12px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-drag-target{display:block;min-width:0;margin-top:2px;color:#2f3d50;font-size:13px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-drag-reason{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;min-width:0;margin-top:3px;overflow:hidden;color:#687587;font-size:11px;line-height:16px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-drag-status[data-state="blocked"]{border-color:#c5a59b;background:#fffdfc}
+#cleanrooms-studio .cs-drag-status[data-state="blocked"] .cs-drag-target,#cleanrooms-studio .cs-drag-status[data-state="blocked"] .cs-drag-reason{color:#8b5a50}
+#cleanrooms-studio .cs-drag-status[data-state="same"] .cs-drag-target{color:#697585}
+#cleanrooms-studio .cs-board-day.is-drop-target{background:#f3f5f8;box-shadow:inset 0 0 0 2px #8a98aa}
+#cleanrooms-studio .cs-board-day.is-drop-invalid{background:#fff8f5;box-shadow:inset 0 0 0 2px #bb978b}
+#cleanrooms-studio .cs-board-day.is-drop-same{background:#f7f8fa;box-shadow:inset 0 0 0 1px #b5bfcc}
+
+@media(max-width:760px){
+  #cleanrooms-studio .cs-group-editor{width:100%;border-left:0}
+  #cleanrooms-studio .cs-group-fields{padding:20px}
+  #cleanrooms-studio .cs-drag-status{right:12px;bottom:38px;width:calc(100% - 24px);max-width:360px;padding:9px 10px}
+}
+@media(max-width:400px){
+  #cleanrooms-studio .cs-group-row{grid-template-columns:minmax(0,1fr);grid-template-areas:"person" "site" "times" "issue";column-gap:0}
+  #cleanrooms-studio .cs-group-times{justify-self:start;margin-top:4px;text-align:left}
+}
+@media(max-height:540px){
+  #cleanrooms-studio .cs-group-editor .cs-editor-head{min-height:52px;padding-top:10px;padding-bottom:10px}
+  #cleanrooms-studio .cs-group-fields{padding-top:14px;padding-bottom:14px}
+  #cleanrooms-studio .cs-group-editor .cs-editor-actions{min-height:53px;padding-top:10px;padding-bottom:10px}
+  #cleanrooms-studio .cs-drag-status{bottom:34px;max-height:108px}
+}
+
+@media(max-width:375px){#cleanrooms-studio .cs-calendar-help-short::after{content:"Klik tid · træk vagt"}}

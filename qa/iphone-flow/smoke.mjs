@@ -5,8 +5,11 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const origin='http://127.0.0.1:8792';
+// A smoke-only clock keeps the complete authenticated flow valid when CI runs at night.
+// The child advances with real elapsed time plus explicit fixture clock commands.
+const smokeClock=process.env.CLEANROOMS_SMOKE_NOW??'2026-11-09T09:00:00.000Z',hostStartedAt=Date.now();
 try{await fetch(origin+'/qa/status',{method:'POST',headers:{'x-cleanrooms-qa':'local-only'},signal:AbortSignal.timeout(500)});throw Error('8792 already serves a fixture; stop it before running smoke.');}catch(error){if(!['TypeError','TimeoutError'].includes(error.name))throw error;}
-const child=spawn(process.execPath,[path.join(here,'server.mjs'),'--smoke','--reset'],{stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,[path.join(here,'server.mjs'),'--smoke','--reset'],{stdio:['ignore','pipe','pipe'],env:{...process.env,CLEANROOMS_SMOKE_NOW:smokeClock}});
 let diagnostics='',ready=false;
 child.stderr.on('data',data=>{diagnostics+=data;});
 const startup=new Promise((resolve,reject)=>{
@@ -21,6 +24,9 @@ const admin=(name,payload={})=>ok('/qa/'+name,payload),mobile=payload=>ok('/api/
 try{
  await startup;
  const status=await admin('status');
+ const initialFixtureTime=Date.parse(status.clock.now),initialElapsed=initialFixtureTime-Date.parse(smokeClock);
+ assert.ok(initialElapsed>=0&&initialElapsed<=Date.now()-hostStartedAt+1000,'The child uses the explicit smoke clock and real elapsed time');
+ assert.equal(status.clock.hostClockChanged,false);
  const login=await mobile({action:'login',email:status.credentials.email,password:status.credentials.password});token=login.token;assert.ok(token);
  const schedule={action:'publishedSchedule',from:status.period.from,to:status.period.to,cursor:null};
  assert.deepEqual((await mobile(schedule)).shifts,[],'Drafts must remain private');
@@ -30,7 +36,7 @@ try{
  const inbox=await mobile({action:'employeeInbox',cursor:null,limit:50});assert.ok(inbox.notifications.some(message=>message.after?.id===status.distantShiftId),'Event-time inbox includes distant shift changes');
  const detail=(await mobile({action:'publishedShift',shiftId:status.shiftId})).shift;assert.equal(detail.checklist.length,3);
  await mobile({action:'employeeChecklist',shiftId:detail.id,taskId:detail.checklist[0].id,checklistToken:detail.checklistToken,checked:true});
- const location={...status.gps,accuracyMeters:5,timestamp:Date.now()};delete location.radiusMeters;
+ const location={...status.gps,accuracyMeters:5,timestamp:initialFixtureTime};delete location.radiusMeters;
  const clock=(operation,version,extra={})=>mobile({action:'shiftTime',operation,shiftId:detail.id,version,comment:null,location:null,...extra});
  let entry=(await clock('start',0,{location})).entry;assert.equal(entry.status,'running');
  assert.equal((await mobile({action:'employeeActiveTime'})).shift.entry.version,entry.version);
@@ -55,6 +61,7 @@ try{
  let hours=await mobile({action:'employeeHours',...status.period});assert.equal(hours.summary.approvedCents,frozen.totalCents);
  await admin('personal-rate',{hourlyCents:20000});hours=await mobile({action:'employeeHours',...status.period});assert.equal(hours.summary.approvedCents,frozen.totalCents,'Approved pay remains frozen after rate changes');
  review=await admin('review');assert.deepEqual(review.entries[0].payroll,frozen);
+ assert.ok(Date.parse(review.clock.now)-initialFixtureTime>=60*60000,'Attendance and auth share the advanced fixture clock');
  const requests=await mobile({action:'workflowRead',...status.period,limit:50});
  const open=requests.openShifts.find(shift=>shift.id==='qa-open-tomorrow');assert.ok(open,'Published open shift is available to the employee');
  const claim=await mobile({action:'workflowRequest',kind:'claim',shiftId:open.id,fingerprint:open.fingerprint,comment:'QA: Jeg kan tage denne vagt.',...status.period});
@@ -79,7 +86,7 @@ try{
  await admin('fault',{offline:true});assert.equal((await raw('/api/mobile-auth',{action:'employeeActiveTime'})).status,503);await admin('fault',{offline:false});assert.equal((await mobile({action:'employeeActiveTime'})).shift,null);
  await admin('expire-session');assert.equal((await raw('/api/mobile-auth',{action:'employeeActiveTime'})).status,401);
  const renewed=await mobile({action:'login',email:status.credentials.email,password:status.credentials.password});token=renewed.token;assert.equal((await mobile({action:'employeeActiveTime'})).shift,null);
- console.log(JSON.stringify({ok:true,origin,checks:['draft privacy','published own shifts','distant-change inbox','checklist','GPS clock-in','active attendance','pause/resume','lost finish receipt + CAS reconciliation','reject + comment-only resubmit','planner approval + frozen group pay','open shift request + planner approval','cancelled message opens inbox','authenticated missing message stays404','chat shared read + idempotent send','lost chat ACK + same-command recovery','offline recovery','expired session + fresh login'],workedMinutes:review.entries[0].workedMinutes,breakMinutes:review.entries[0].breakMinutes,approvedCents:frozen.totalCents,hostClockChanged:false},null,2));
+ console.log(JSON.stringify({ok:true,origin,smokeClock,checks:['isolated daytime clock independent of host time','draft privacy','published own shifts','distant-change inbox','checklist','GPS clock-in','active attendance','pause/resume','lost finish receipt + CAS reconciliation','reject + comment-only resubmit','planner approval + frozen group pay','open shift request + planner approval','cancelled message opens inbox','authenticated missing message stays404','chat shared read + idempotent send','lost chat ACK + same-command recovery','offline recovery','expired session + fresh login'],workedMinutes:review.entries[0].workedMinutes,breakMinutes:review.entries[0].breakMinutes,approvedCents:frozen.totalCents,hostClockChanged:false},null,2));
 }finally{
  try{if(ready)await admin('shutdown');}catch{}
  if(child.exitCode===null)child.kill('SIGTERM');

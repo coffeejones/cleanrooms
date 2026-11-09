@@ -17,6 +17,11 @@ const Planning=require(path.join(studioRoot,'src/planning-records.js'));
 const Time=require(path.join(studioRoot,'src/timekeeping-model.js'));
 const RealDate=globalThis.Date,isSmoke=process.argv.includes('--smoke'),isPilot=process.argv.includes('--pilot'),port=isSmoke?8792:isPilot?8793:8791,owner='qa-iphone-owner';
 if(isSmoke&&isPilot)throw Error('Choose either the smoke or pilot fixture.');
+const smokeClockISO=process.env.CLEANROOMS_SMOKE_NOW;
+if(smokeClockISO!==undefined&&!isSmoke)throw Error('CLEANROOMS_SMOKE_NOW is allowed only for the isolated --smoke fixture.');
+const smokeClockMs=smokeClockISO===undefined?null:RealDate.parse(smokeClockISO),hostStartedAt=RealDate.now();
+if(smokeClockMs!==null&&(!Number.isFinite(smokeClockMs)||new RealDate(smokeClockMs).toISOString()!==smokeClockISO))throw Error('CLEANROOMS_SMOKE_NOW must be a complete ISO UTC timestamp.');
+const baseNow=()=>smokeClockMs===null?RealDate.now():smokeClockMs+RealDate.now()-hostStartedAt;
 const runtime=path.join(here,isSmoke?'.smoke-runtime':isPilot?'.pilot-runtime':'.runtime'),databasePath=path.join(runtime,'fixture.sqlite'),manifestPath=path.join(runtime,'manifest.json');
 const startCodeSecret='c'.repeat(64),gatewayKey='d'.repeat(64),siteGate='isolated-qa-site-gate';
 const gps={latitude:55.6761,longitude:12.5683,radiusMeters:200};
@@ -29,9 +34,12 @@ const db={prepare:sql=>({bind:(...values)=>({sql,values})}),async batch(statemen
 let state=fresh?{version:1,clockOffsetMs:0,offline:false,failAfterCommit:null,runId:crypto.randomUUID()}:JSON.parse(readFileSync(manifestPath,'utf8'));
 let queue=Promise.resolve();const calls=[];
 function persist(){writeFileSync(manifestPath,JSON.stringify(state,null,2),{mode:0o600});}
-const now=()=>RealDate.now()+state.clockOffsetMs;
+const now=()=>baseNow()+state.clockOffsetMs;
+// Keep SQL session/trigger fences on the same smoke-only clock. Delegate ISO parsing
+// to an unmodified SQLite connection rather than reproducing its date arithmetic.
+if(smokeClockMs!==null){const nativeClock=new DatabaseSync(':memory:'),julian=nativeClock.prepare('SELECT julianday(?) AS value');sqlite.function('julianday',value=>julian.get(value==='now'?new RealDate(now()).toISOString():value).value);}
 const clock=()=>({now:new RealDate(now()).toISOString(),local:Time.localNow(new RealDate(now())),offsetMinutes:state.clockOffsetMs/60000,hostClockChanged:false});
-function serialized(operation){const job=queue.then(async()=>{const offset=state.clockOffsetMs;const fixtureNow=()=>RealDate.now()+offset;globalThis.Date=new Proxy(RealDate,{construct(target,args){return Reflect.construct(target,args.length?args:[fixtureNow()]);},apply(){return new RealDate(fixtureNow()).toString();},get(target,key,receiver){return key==='now'?fixtureNow:Reflect.get(target,key,receiver);}});try{return await operation();}finally{globalThis.Date=RealDate;}});queue=job.catch(()=>{});return job;}
+function serialized(operation){const job=queue.then(async()=>{const offset=state.clockOffsetMs;const fixtureNow=()=>baseNow()+offset;globalThis.Date=new Proxy(RealDate,{construct(target,args){return Reflect.construct(target,args.length?args:[fixtureNow()]);},apply(){return new RealDate(fixtureNow()).toString();},get(target,key,receiver){return key==='now'?fixtureNow:Reflect.get(target,key,receiver);}});try{return await operation();}finally{globalThis.Date=RealDate;}});queue=job.catch(()=>{});return job;}
 const headers={origin:'https://qa-studio.test','content-type':'application/json','oai-authenticated-user-id':owner,'oai-authenticated-user-email':'qa.planner@example.test','oai-authenticated-user-full-name':'QA Planlægger'};
 async function unpack(response){return{status:response.status,body:await response.json()};}
 async function ensure(response,label){const result=await unpack(response);if(result.status<200||result.status>=300)throw Error(label+': '+result.status+' '+JSON.stringify(result.body));return result.body;}

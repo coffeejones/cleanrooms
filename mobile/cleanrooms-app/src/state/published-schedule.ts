@@ -12,9 +12,9 @@ export function invalidateEmployeeResources(...prefixes: string[]) {
 }
 
 export function usePublishedResource<T>(scope: string, load: () => Promise<T>, enabled = true) {
-  const { state } = useMobileAuth();
+  const { state, sessionEpoch } = useMobileAuth();
   const employee = state.mode === 'signedIn' ? state.session.employee : null;
-  const key = employee && enabled ? JSON.stringify([employee.workspaceId, employee.personId, state.mode === 'signedIn' ? state.session.expiresAt : '', scope]) : null;
+  const key = employee && enabled ? JSON.stringify([employee.workspaceId, employee.personId, sessionEpoch, state.mode === 'signedIn' ? state.session.expiresAt : '', scope]) : null;
   const [resource, setResource] = useState<Resource<T>>();
   const pending = useRef(0);
 
@@ -37,7 +37,8 @@ export function usePublishedResource<T>(scope: string, load: () => Promise<T>, e
     } catch (error) {
       if (pending.current !== request) return;
       const message = error instanceof MobileAuthError ? error.message : 'Oplysningerne kunne ikke hentes. Prøv igen.';
-      setResource(previous => ({ key, generation: request, data: previous?.key === key ? previous.data : undefined, loading: false, refreshing: false, error: message }));
+      const forbidden = error instanceof MobileAuthError && (error.status === 401 || error.status === 403);
+      setResource(previous => ({ key, generation: request, data: !forbidden && previous?.key === key ? previous.data : undefined, loading: false, refreshing: false, error: message }));
     }
   }, [key, load]);
 

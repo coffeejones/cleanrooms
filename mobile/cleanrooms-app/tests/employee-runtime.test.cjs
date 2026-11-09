@@ -20,8 +20,8 @@ test('a reconciliation needs a newer server version and the concrete requested t
   assert.equal(confirmsTimeCommand('finish',2,closed),true);
   assert.equal(confirmsTimeCommand('submit',2,closed),true);
   assert.equal(confirmsTimeCommand('submit',2,{...closed,status:'rejected'}),false);
-  assert.equal(confirmsTimeCommand('submit',2,{...entry,status:'rejected',comment:'Forklaring'},'Forklaring'),true);
-  assert.equal(confirmsTimeCommand('submit',2,{...entry,status:'rejected',comment:'Anden tekst'},'Forklaring'),false);
+  assert.equal(confirmsTimeCommand('submit',2,{...entry,status:'rejected',comment:'Forklaring'},'Forklaring',''),true);
+  assert.equal(confirmsTimeCommand('submit',2,{...entry,status:'rejected',comment:'Anden tekst'},'Forklaring',''),false);
   assert.equal(confirmsTimeCommand('pause',2,{...entry,status:'paused',pauseAt:'2026-11-09T12:00:00Z'}),true);
   assert.equal(confirmsTimeCommand('pause',2,entry),false);
 });

@@ -3,6 +3,7 @@ import { createContext, use, useCallback, useEffect, useRef, useState, type Reac
 import { AppState } from 'react-native';
 import { PendingLogouts } from './pending-logouts';
 import { closePushAccount } from '@/notifications/push-account-events';
+import { clearEmployeeDrafts } from '@/state/private-drafts';
 import type { Shift } from '@/domain/model';
 
 import { canUseMobileAuth, isSessionToken, mobileAuthApi, MobileAuthError, mobileAuthOrigin, type MobileSession, type PublishedShift, type PublishedShiftDetail, type ShiftTimeCommand, type ShiftTimeEntry } from './mobile-auth-api';
@@ -79,6 +80,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
   const activeToken = useRef<string | null>(null);
   const [sessionEpoch, setSessionEpoch] = useState(0);
   const busy = useRef(false);
+  const expiring = useRef<Promise<void> | null>(null);
   const flushLogouts = useCallback(async () => {
     if (!mobileAuthOrigin) return;
     try {
@@ -88,12 +90,26 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     } catch { /* Remains encrypted and is retried on foreground/start. */ }
   }, []);
 
-  const expire = useCallback(async () => {
-    await closePushAccount(false);
-    setSessionEpoch(value => value + 1);
+  const expire = useCallback(async (expectedToken?: string | null) => {
+    if (expiring.current) return expiring.current;
+    if (expectedToken !== undefined && activeToken.current !== expectedToken) return;
+    const wasBusy = busy.current;
+    busy.current = true;
+    // Fence old reads immediately and keep credential replacement serialized
+    // until Keychain deletion and push teardown have both finished.
     activeToken.current = null;
-    await clearToken().catch(() => undefined);
+    setSessionEpoch(value => value + 1);
     setState({ mode: 'signedOut', notice: sessionExpired });
+    void clearEmployeeDrafts().catch(() => undefined);
+    const ending = (async () => {
+      await closePushAccount(false).catch(() => undefined);
+      await clearToken().catch(() => undefined);
+    })();
+    expiring.current = ending;
+    try { await ending; }
+    finally {
+      if (expiring.current === ending) { expiring.current = null; busy.current = wasBusy; }
+    }
   }, []);
 
   const restoreSession = useCallback(async (isCurrent: () => boolean) => {
@@ -152,7 +168,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       void mobileAuthApi.session(token).then(session => {
         if (activeToken.current === token && !busy.current) setState({ mode: 'signedIn', session });
       }).catch(error => {
-        if (sessionInvalid(error) && activeToken.current === token && !busy.current) void expire();
+        if (sessionInvalid(error) && activeToken.current === token && !busy.current) void expire(token);
       });
     });
     return () => subscription.remove();
@@ -163,6 +179,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     busy.current = true;
     try {
       const { token, session } = await mobileAuthApi.login(email, password);
+      void clearEmployeeDrafts().catch(() => undefined);
       try {
         await saveToken(token);
       } catch (error) {
@@ -187,6 +204,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     busy.current = true;
     try {
       const { token: replacement, session } = await mobileAuthApi.changePassword(token, current, next);
+      void clearEmployeeDrafts().catch(() => undefined);
       try {
         await saveToken(replacement);
       } catch {
@@ -202,7 +220,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       setState({ mode: 'signedIn', session });
       return ok;
     } catch (error) {
-      if (sessionInvalid(error)) await expire();
+      if (sessionInvalid(error)) await expire(token);
       return failure(errorMessage(error));
     } finally {
       busy.current = false;
@@ -214,6 +232,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     busy.current = true;
     const token = activeToken.current;
     try {
+      void clearEmployeeDrafts().catch(() => undefined);
       await closePushAccount();
       let queued = false;
       if (token && mobileAuthOrigin) {
@@ -255,7 +274,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       if (activeToken.current !== token) throw expired();
       return result;
     } catch (error) {
-      if (sessionInvalid(error) && activeToken.current === token && !busy.current) await expire();
+      if (sessionInvalid(error) && activeToken.current === token && !busy.current) await expire(token);
       throw error;
     }
   }, [expire]);

@@ -13,6 +13,7 @@ export type ShiftConfirmationKind = 'clock-in' | 'clock-out' | 'leave';
 type StampKind = Exclude<ShiftConfirmationKind, 'leave'>;
 type Confirm = (comment: string, signal: AbortSignal) => Result | Promise<Result>;
 type LocationCheck = 'required';
+type CommentDraft = { text: string; ready: boolean; error?: string; setText: (text: string) => void; clear: (submitted: string) => Promise<void> };
 
 const badgeTiming = { duration: 240, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never };
 
@@ -54,12 +55,13 @@ export function ShiftActionButton({ label, onPress, disabled = false, secondary 
   );
 }
 
-export function ShiftConfirmation({ kind, summary, onConfirm, onDismiss, locationCheck }: {
+export function ShiftConfirmation({ kind, summary, onConfirm, onDismiss, locationCheck, commentDraft }: {
   kind: ShiftConfirmationKind | null;
   summary: string;
   onConfirm: Confirm;
   onDismiss: () => void;
   locationCheck?: LocationCheck;
+  commentDraft?: CommentDraft;
 }) {
   const { height, fontScale } = useWindowDimensions();
   const needsScroll = height < 620 || fontScale > 1.3;
@@ -90,13 +92,14 @@ export function ShiftConfirmation({ kind, summary, onConfirm, onDismiss, locatio
           {...{ kind, summary, onConfirm, needsScroll, requestRef }}
           onDismiss={dismiss}
           locationCheck={kind === 'clock-in' ? locationCheck : undefined}
+          commentDraft={commentDraft}
         />
       )}
     </BottomSheet>
   );
 }
 
-function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, locationCheck, requestRef }: {
+function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, locationCheck, requestRef, commentDraft }: {
   kind: ShiftConfirmationKind;
   summary: string;
   onConfirm: Confirm;
@@ -104,8 +107,12 @@ function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, lo
   needsScroll: boolean;
   locationCheck?: LocationCheck;
   requestRef: RefObject<AbortController | null>;
+  commentDraft?: CommentDraft;
 }) {
-  const [comment, setComment] = useState('');
+  const [localComment, setLocalComment] = useState('');
+  const comment = commentDraft?.text ?? localComment;
+  const setComment = commentDraft?.setText ?? setLocalComment;
+  const commentReady = commentDraft?.ready ?? true;
   const [error, setError] = useState('');
   const [stampResult, setStampResult] = useState<Result | null>(null);
   const [pending, setPending] = useState(false);
@@ -113,7 +120,7 @@ function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, lo
   const inputLabel = leave ? 'Begrundelse' : 'Kommentar til planlæggeren (valgfri)';
 
   async function submit() {
-    if (requestRef.current) return;
+    if (requestRef.current || !commentReady) return;
     const controller = new AbortController();
     requestRef.current = controller;
     setPending(true);
@@ -125,6 +132,7 @@ function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, lo
     }
     if (controller.signal.aborted) return;
     setPending(false);
+    if (result.ok && commentDraft) void commentDraft.clear(comment).catch(() => undefined);
 
     if (leave) {
       if (result.ok) onDismiss();
@@ -171,15 +179,16 @@ function ConfirmationForm({ kind, summary, onConfirm, onDismiss, needsScroll, lo
                   placeholderTextColor={colors.muted}
                   onChangeText={setComment}
                   value={comment}
+                  editable={!pending && commentReady}
                   style={confirmationStyles.input}
                 />
               </View>
             )}
-            {!!error && <Txt accessibilityRole="alert" size={14} color={colors.danger}>{error}</Txt>}
+            {!!(error || commentDraft?.error) && <Txt accessibilityRole="alert" size={14} color={colors.danger}>{error || commentDraft?.error}</Txt>}
             <View style={confirmationStyles.actions}>
               <ShiftActionButton
                 label={pending && kind === 'clock-in' ? 'Stempler ind…' : copy[kind].confirm}
-                disabled={leave && !comment.trim()}
+                disabled={!commentReady || leave && !comment.trim()}
                 busy={pending}
                 onPress={submit}
               />

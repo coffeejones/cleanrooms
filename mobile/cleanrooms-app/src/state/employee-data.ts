@@ -7,7 +7,7 @@ import { parseEmployeeCompanySettings } from './company-settings-wire';
 
 export type EmployeeHoursRow = PublishedShift & {
   entry: ShiftTimeEntry | null;
-  pay: { kind: 'registered' | 'planned'; minutes: number; baseCents: number; allowanceCents: number; totalCents: number; unavailableReason?: string };
+  pay: { kind: 'registered' | 'planned'; minutes: number; baseCents: number; allowanceCents: number; totalCents: number; unavailableReason?: string; interval?: { startAt: string; endAt: string } };
   sourceLabel?: string;
 };
 export type EmployeeHours = {

@@ -44,6 +44,8 @@ export type PublishedShift = { shift: Shift; site: Site; entry?: ShiftTimeEntry 
 export type ShiftTimeOperation = 'start' | 'pause' | 'resume' | 'finish' | 'submit';
 export type ShiftTimeCommand = {
   shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null; location: ClockInLocation | null;
+  /** Local reconciliation context only; never part of the HTTP command. */
+  previousComment?: string;
 };
 export type ShiftTimeEntry = {
   version: number; status: 'running' | 'paused' | 'submitted' | 'approved' | 'rejected';
@@ -252,8 +254,9 @@ export const mobileAuthApi = {
     throw new MobileAuthError('mobile_shift_change_incomplete', 503, 'Vagtændringen kunne ikke bekræftes. Prøv igen.');
   },
   shiftTime: async (token: string, command: ShiftTimeCommand): Promise<ShiftTimeEntry> => {
+    const { previousComment, ...payload } = command;
     try {
-      const value = await request({ action: 'shiftTime', ...command }, token);
+      const value = await request({ action: 'shiftTime', ...payload }, token);
       if (!isObject(value)) throw invalidResponse();
       return readTimeEntry(value.entry);
     } catch (error) {
@@ -262,7 +265,7 @@ export const mobileAuthApi = {
       // asking the server; the original CAS version also fences a later retry.
       try {
         const latest = await mobileAuthApi.publishedShift(token, command.shiftId);
-        if (confirmsTimeCommand(command.operation, command.version, latest?.entry, command.comment)) return latest!.entry!;
+        if (confirmsTimeCommand(command.operation, command.version, latest?.entry, command.comment, previousComment)) return latest!.entry!;
       } catch (readError) {
         if (readError instanceof MobileAuthError && readError.status === 401) throw readError;
         // The result remains uncertain, never invent a local receipt.

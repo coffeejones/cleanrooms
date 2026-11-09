@@ -18,8 +18,8 @@ function durationLabel(seconds: number) {
   return {
     display: days ? `${days} d ${hours % 24} t` : `${digits(hours)}:${digits(minutes)}:${digits(seconds % 60)}`,
     spoken: days
-      ? `${days} dage og ${hours % 24} timer`
-      : `${hours ? `${hours} timer og ` : ''}${minutes} minutter`,
+      ? `${days} ${days === 1 ? 'dag' : 'dage'} og ${hours % 24} ${hours % 24 === 1 ? 'time' : 'timer'}`
+      : `${hours ? `${hours} ${hours === 1 ? 'time' : 'timer'} og ` : ''}${minutes} ${minutes === 1 ? 'minut' : 'minutter'}`,
   };
 }
 
@@ -89,7 +89,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
     : 0;
   const duration = durationLabel(waiting ? Math.ceil((start - now) / 1_000) : Math.floor(elapsed / 1_000));
   const status = running ? 'Vagt i gang' : paused ? 'På pause' : 'Næste vagt';
-  const counterLabel = entry ? 'Arbejdet' : waiting ? 'Starter om' : 'Startet kl.';
+  const counterLabel = entry ? 'Arbejdet' : waiting ? 'Starter om' : 'Planlagt fra';
   const statusColor = running ? colors.success : paused ? colors.warning : colors.muted;
   const date = dateLabel(shift.date, { weekday: 'short' });
   const compactWidth = fontScale > 1.3 || width < 350;

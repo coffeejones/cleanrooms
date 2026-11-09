@@ -1,10 +1,10 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
-import { MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
+import { mobileAuthOrigin, MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
@@ -19,11 +19,14 @@ import { invalidateEmployeeResources, usePublishedResource, usePublishedShift } 
 import { currentShiftLeave, parseShiftLeave, useEmployeeHours, useShiftLeaves, useShiftTimeChange, type ShiftLeaveRequest } from '@/state/employee-data';
 import { useScopedState } from '@/state/scoped-state';
 import { confirmsTimeCommand } from '@/state/attendance-runtime';
+import { useEmployeeDraft } from '@/state/private-drafts';
 
 export default function PublishedShiftScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const resource = usePublishedShift(id);
-  const { state: auth, readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
+  const { state: auth, sessionEpoch, readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
+  const draftScope = auth.mode === 'signedIn' ? JSON.stringify([mobileAuthOrigin, auth.session.employee.workspaceId, auth.session.employee.personId, auth.session.expiresAt, 'clock-out', id]) : '';
+  const checkoutDraft = useEmployeeDraft(draftScope ? JSON.stringify([draftScope, sessionEpoch]) : '', draftScope, auth.mode === 'signedIn' ? Date.parse(auth.session.expiresAt) : 0);
   const [form, setForm] = useState<ShiftConfirmationKind | null>(null);
   const [saved, setSaved] = useState<{ shiftId: string; entry: ShiftTimeEntry }>();
   const [actionError, setActionError] = useState<string>();
@@ -39,7 +42,7 @@ export default function PublishedShiftScreen() {
   const [leave, setLeave] = useState(false);
   const [leaveReceipt, setLeaveReceipt] = useState<{ date: string; source: ShiftLeaveRequest[] | undefined; request: ShiftLeaveRequest }>();
   const pending = useRef(false);
-  const uncertain = useRef<{ shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null } | null>(null);
+  const uncertain = useRef<{ shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null; previousComment?: string } | null>(null);
   const insets = useSafeAreaInsets();
   const now = useNow();
 
@@ -64,6 +67,13 @@ export default function PublishedShiftScreen() {
     ? taskReceipt.completedTaskIds : detail?.completedTaskIds ?? [];
   const lastSaved = saved?.shiftId === id ? saved.entry : undefined;
   const entry = lastSaved && lastSaved.version > (detail?.entry?.version ?? 0) ? lastSaved : detail?.entry;
+  useEffect(() => {
+    // Reading the same committed comment is also a valid receipt after a lost
+    // checkout response or an interrupted app. Never clear a newer edited note.
+    if (entry?.clockOut && checkoutDraft.draft && (entry.comment ?? '').trim() === checkoutDraft.draft.trim()) {
+      void checkoutDraft.clear(checkoutDraft.draft).catch(() => undefined);
+    }
+  }, [checkoutDraft, entry]);
   const running = entry?.status === 'running' || entry?.status === 'paused';
   const canStart = detail && !entry && detail.shift.date === copenhagenDate(now);
   const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'rejected' ? 'Sendt retur' :
@@ -81,8 +91,11 @@ export default function PublishedShiftScreen() {
         const previous = uncertain.current;
         const latest = await readPublishedShift(id);
         if (latest?.entry) setSaved({ shiftId: id, entry: latest.entry });
-        if (confirmsTimeCommand(previous.operation, previous.version, latest?.entry, previous.comment)) {
+        if (confirmsTimeCommand(previous.operation, previous.version, latest?.entry, previous.comment, previous.previousComment)) {
           uncertain.current = null; resource.refresh(); invalidateEmployeeResources('active-time', 'hours:');
+          if (previous.operation === operation && ['finish', 'submit'].includes(operation) && (comment ?? '').trim() !== (previous.comment ?? '').trim()) {
+            return { ok: false, error: 'Registreringen er allerede opdateret med din tidligere kommentar. Den nye tekst er bevaret som udkast.' };
+          }
           return previous.operation === operation ? { ok: true } : { ok: false, error: 'Registreringen er opdateret. Kontrollér vagten.' };
         }
         if (!latest || (latest.entry?.version ?? 0) !== previous.version) {
@@ -106,14 +119,16 @@ export default function PublishedShiftScreen() {
         }
       }
       if (signal?.aborted) return { ok: false };
-      const result = await writeShiftTime({ shiftId: id, operation, version: entry?.version ?? 0, location, comment });
+      const result = await writeShiftTime({ shiftId: id, operation, version: entry?.version ?? 0, location, comment,
+        ...(operation === 'submit' ? { previousComment: entry?.comment ?? '' } : {}) });
       uncertain.current = null;
       setSaved({ shiftId: id, entry: result });
       resource.refresh();
       invalidateEmployeeResources('active-time', 'hours:', 'inbox');
       return { ok: true };
     } catch (error) {
-      if (error instanceof MobileAuthError && error.code === 'mobile_time_unconfirmed') uncertain.current = { shiftId: id, operation, version: entry?.version ?? 0, comment };
+      if (error instanceof MobileAuthError && error.code === 'mobile_time_unconfirmed') uncertain.current = { shiftId: id, operation, version: entry?.version ?? 0, comment,
+        ...(operation === 'submit' ? { previousComment: entry?.comment ?? '' } : {}) };
       if (error instanceof MobileAuthError && (error.status === 409 || error.code === 'mobile_time_unconfirmed')) { resource.refresh(); invalidateEmployeeResources('active-time'); }
       return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Stemplingen kunne ikke bekræftes. Prøv igen.', uncertain: uncertain.current?.shiftId === id };
     } finally {
@@ -287,6 +302,7 @@ export default function PublishedShiftScreen() {
       </View>}
       <ShiftConfirmation
         kind={form}
+        commentDraft={form === 'clock-out' ? { text: checkoutDraft.draft, ready: checkoutDraft.draftReady, error: checkoutDraft.draftError, setText: checkoutDraft.setDraft, clear: checkoutDraft.clear } : undefined}
         summary={detail ? `${detail.site.name} · ${detail.shift.start}–${detail.shift.end}` : ''}
         locationCheck={detail?.clockInRadius ? 'required' : undefined}
         onConfirm={(comment, signal) => form === 'clock-in' ? register('start', null, signal) : register('finish', comment, signal)}

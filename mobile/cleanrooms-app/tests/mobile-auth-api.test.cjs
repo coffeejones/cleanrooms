@@ -241,7 +241,7 @@ test('active attendance is restored without any calendar interval and accepts an
 });
 
 test('an unknown stamping result reconciles the exact transition before reporting failure or permitting another write', async () => {
-  const receipt={version:2,status:'submitted',clockIn:'2026-11-08T07:00:00Z',clockOut:'2026-11-08T15:00:00Z',pauseAt:null};
+  const receipt={version:2,status:'submitted',clockIn:'2026-11-08T07:00:00Z',clockOut:'2026-11-08T15:00:00Z',pauseAt:null,comment:'Færdig'};
   const app=client((_url,{body})=>{
     if(JSON.parse(body).action==='shiftTime')throw new Error('Response lost after server commit');
     return Response.json({shift:publishedShift({entry:receipt})});
@@ -250,6 +250,9 @@ test('an unknown stamping result reconciles the exact transition before reportin
   assert.equal(result.version,2);assert.equal(result.status,'submitted');
   assert.deepEqual(app.calls.map(call=>JSON.parse(call.options.body).action),['shiftTime','publishedShift']);
   assert.equal(app.calls.filter(call=>JSON.parse(call.options.body).action==='shiftTime').length,1);
+  const otherComment=client((_url,{body})=>JSON.parse(body).action==='shiftTime'
+    ? new Response('',{status:503}) : Response.json({shift:publishedShift({entry:{...receipt,comment:'En anden kommentar'}})}));
+  await assert.rejects(otherComment.mobileAuthApi.shiftTime(token,{shiftId:'shift-own',operation:'finish',version:1,location:null,comment:'Færdig'}),error=>error.code==='mobile_time_unconfirmed');
   const unknown=client((_url,{body})=>JSON.parse(body).action==='shiftTime'
     ? new Response('',{status:503}) : Response.json({shift:null}));
   await assert.rejects(unknown.mobileAuthApi.shiftTime(token,{shiftId:'shift-own',operation:'finish',version:1,location:null,comment:null}),error=>error.code==='mobile_time_unconfirmed');
@@ -264,6 +267,19 @@ test('reconciliation preserves a concrete conflict and propagates an expired ses
   const expired=client((_url,{body})=>JSON.parse(body).action==='shiftTime'
     ? new Response('',{status:503}) : Response.json({error:'mobile_session_invalid',message:'Log ind igen.'},{status:401}));
   await assert.rejects(expired.mobileAuthApi.shiftTime(token,command),error=>error.code==='mobile_session_invalid');
+});
+
+test('a lost resubmission receipt reconciles the exact appended explanation without leaking local previous-comment context', async () => {
+  const receipt={version:5,status:'submitted',clockIn:'2026-11-08T07:00:00Z',clockOut:'2026-11-08T15:00:00Z',pauseAt:null,comment:'Den tidligere forklaring\n\nDen supplerende forklaring'};
+  const app=client((_url,{body})=>JSON.parse(body).action==='shiftTime'
+    ? new Response('',{status:503}) : Response.json({shift:publishedShift({entry:receipt})}));
+  const result=await app.mobileAuthApi.shiftTime(token,{shiftId:'shift-own',operation:'submit',version:4,location:null,comment:'  Den supplerende forklaring  ',previousComment:' Den tidligere forklaring '});
+  assert.equal(result.comment,receipt.comment);
+  const sent=JSON.parse(app.calls[0].options.body);assert.equal(Object.hasOwn(sent,'previousComment'),false);assert.equal(sent.comment,'  Den supplerende forklaring  ');
+  assert.equal(app.calls.filter(call=>JSON.parse(call.options.body).action==='shiftTime').length,1);
+  const different=client((_url,{body})=>JSON.parse(body).action==='shiftTime'
+    ? new Response('',{status:503}) : Response.json({shift:publishedShift({entry:{...receipt,comment:'En anden tidligere forklaring\n\nDen supplerende forklaring'}})}));
+  await assert.rejects(different.mobileAuthApi.shiftTime(token,{shiftId:'shift-own',operation:'submit',version:4,location:null,comment:'Den supplerende forklaring',previousComment:'Den tidligere forklaring'}),error=>error.code==='mobile_time_unconfirmed');
 });
 
 test('returned time keeps its reason/comment and resubmission carries no editable clock fields', async()=>{

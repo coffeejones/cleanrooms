@@ -10,13 +10,17 @@ export function elapsedSeconds(entry: AttendanceReceipt, now: number): number | 
   return Math.max(0, entry.workedSeconds! + (entry.status === 'running'
     ? Math.max(0, now - entry.receivedAtMonotonic!) / 1000 : 0));
 }
-export function confirmsTimeCommand(operation: string, previousVersion: number, entry: AttendanceReceipt | null | undefined, comment?: string | null) {
+export function confirmsTimeCommand(operation: string, previousVersion: number, entry: AttendanceReceipt | null | undefined, comment?: string | null, previousComment?: string) {
   if (!entry || entry.version <= previousVersion) return false;
+  const expectedComment = operation === 'submit' && comment != null
+    ? previousComment === undefined ? null : [previousComment.trim(), comment.trim()].filter(Boolean).join('\n\n')
+    : (comment ?? '').trim();
+  const sameComment = expectedComment !== null && (entry.comment ?? '').trim() === expectedComment;
   if (operation === 'start') return Boolean(entry.clockIn) && ['running', 'paused', 'submitted', 'approved'].includes(entry.status);
-  if (operation === 'finish') return Boolean(entry.clockOut) && ['submitted', 'approved', 'rejected'].includes(entry.status);
+  if (operation === 'finish') return Boolean(entry.clockOut) && ['submitted', 'approved', 'rejected'].includes(entry.status) && sameComment;
   if (operation === 'pause') return entry.status === 'paused' && Boolean(entry.pauseAt);
   if (operation === 'resume') return entry.status === 'running' && entry.pauseAt === null;
-  if (operation === 'submit') return Boolean(entry.clockOut) && ['submitted', 'approved'].includes(entry.status)
-    || entry.status === 'rejected' && !entry.clockOut && Boolean(comment) && entry.comment === comment;
+  if (operation === 'submit') return Boolean(entry.clockOut) && ['submitted', 'approved'].includes(entry.status) && sameComment
+    || entry.status === 'rejected' && !entry.clockOut && Boolean(comment?.trim()) && sameComment;
   return false;
 }

@@ -20,7 +20,7 @@ export default function LiveConversationScreen() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const conversation = useLiveConversation(id ?? '');
   const detail = conversation.data;
-  const [draft, setDraft] = useState('');
+  const { draft, setDraft } = conversation;
   const [selectedPin, setSelectedPin] = useState<LiveChatMessage | null>(null);
   const list = useRef<FlatList<LiveChatMessage>>(null);
   const atBottom = useRef(true);
@@ -47,7 +47,7 @@ export default function LiveConversationScreen() {
 
   async function send() {
     if (await conversation.send(draft)) {
-      setDraft(''); atBottom.current = true;
+      atBottom.current = true;
       requestAnimationFrame(() => list.current?.scrollToOffset({ offset: 0, animated: true }));
     }
   }
@@ -68,9 +68,9 @@ export default function LiveConversationScreen() {
       onPress={() => setSelectedPin(pin)} style={[cardStyles.listSurface, styles.pinned]}>
       <Text style={styles.pinnedLabel}>FASTGJORT</Text><Text numberOfLines={2} style={styles.pinnedText}>{pin.text}</Text>
     </Pressable>)}
-    {!!conversation.error && <Row gap={8} style={styles.feedback} accessibilityLiveRegion="polite">
-      <Text selectable style={styles.error}>{conversation.error}</Text>
-      <Pressable accessibilityRole="button" onPress={conversation.refresh} style={styles.retry}><Text style={styles.link}>Prøv igen</Text></Pressable>
+    {!!(conversation.error || conversation.draftError) && <Row gap={8} style={styles.feedback} accessibilityLiveRegion="polite">
+      <Text selectable style={styles.error}>{conversation.error || conversation.draftError}</Text>
+      <Pressable accessibilityRole="button" onPress={() => { conversation.refresh(); if (conversation.draftError) conversation.retryDraft(); }} style={styles.retry}><Text style={styles.link}>Prøv igen</Text></Pressable>
     </Row>}
     {conversation.loading && !detail ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter beskeder" /></View> : <FlatList
       ref={list} inverted data={messages} keyExtractor={item => item.id}
@@ -102,12 +102,12 @@ export default function LiveConversationScreen() {
       <View style={styles.composerRow}>
         <View style={[cardStyles.raisedFrame, styles.inputFrame]}>
           <TextInput accessibilityLabel="Skriv besked" placeholder="Skriv til dit team…" placeholderTextColor={colors.muted}
-            value={draft} onChangeText={setDraft} multiline editable={!conversation.sending} maxLength={10_000}
+            value={draft} onChangeText={setDraft} multiline editable={!conversation.sending && conversation.draftReady} maxLength={10_000}
             style={[cardStyles.raisedSurface, styles.input]} />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={conversation.sending ? 'Sender besked' : 'Send besked'}
-          accessibilityState={{ disabled: !draft.trim() || conversation.sending, busy: conversation.sending }}
-          disabled={!draft.trim() || conversation.sending} onPress={() => { void send(); }}
+          accessibilityState={{ disabled: !draft.trim() || conversation.sending || !conversation.draftReady, busy: conversation.sending }}
+          disabled={!draft.trim() || conversation.sending || !conversation.draftReady} onPress={() => { void send(); }}
           style={({ pressed }) => [styles.send, Boolean(draft.trim()) && !conversation.sending && styles.sendReady, pressed && styles.pressed]}>
           {conversation.sending ? <ActivityIndicator color={colors.muted} /> : <Icon name="send" size={20} color={draft.trim() ? colors.white : colors.muted} />}
         </Pressable>

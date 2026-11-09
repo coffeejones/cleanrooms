@@ -1,12 +1,12 @@
-import { randomUUID } from 'expo-crypto';
 import { useIsFocused } from 'expo-router/react-navigation';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
-import { MobileAuthError } from '@/auth/mobile-auth-api';
+import { mobileAuthOrigin, MobileAuthError } from '@/auth/mobile-auth-api';
 import { RetryGate } from './retry-policy';
 import { monotonicNow } from './attendance-runtime';
+import { useEmployeeDraft } from './private-drafts';
 
 import { integer, invalid, record, readLiveChatRooms, readLiveConversation, readMessage, readRoom, readSync, readViewer, mergeLiveMessages, type Conversation, type RoomPage } from './chat-wire';
 export type { LiveChatMessage, LiveChatRoom } from './chat-wire';
@@ -29,14 +29,16 @@ function useActiveScreen() {
 function useChatScope(roomId = '') {
   const auth = useMobileAuth();
   const employee = auth.state.mode === 'signedIn' ? auth.state.session.employee : null;
-  const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, auth.state.mode === 'signedIn' ? auth.state.session.expiresAt : '', roomId]) : '';
+  const expiresAt = auth.state.mode === 'signedIn' ? auth.state.session.expiresAt : '';
+  const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, auth.sessionEpoch, expiresAt, roomId]) : '';
+  const persistentScope = employee && roomId ? JSON.stringify([mobileAuthOrigin, employee.workspaceId, employee.personId, expiresAt, 'chat', roomId]) : '';
   const epoch = useRef(0);
   useLayoutEffect(() => {
     const generation = epoch.current + 1;
     epoch.current = generation;
     return () => { epoch.current = generation + 1; };
   }, [key]);
-  return { ...auth, key, epoch };
+  return { ...auth, key, epoch, persistentScope, expiresAt: Date.parse(expiresAt) };
 }
 
 export function useLiveChatRooms() {
@@ -86,7 +88,8 @@ export function useLiveChatRooms() {
 }
 
 export function useLiveConversation(roomId: string) {
-  const { employeeRequest, key, epoch } = useChatScope(roomId);
+  const { employeeRequest, key, epoch, persistentScope, expiresAt } = useChatScope(roomId);
+  const composer = useEmployeeDraft(key, persistentScope, expiresAt);
   const active = useActiveScreen();
   const [resource, setResource] = useState<ConversationState>();
   const current = resource?.key === key ? resource : undefined;
@@ -96,7 +99,6 @@ export function useLiveConversation(roomId: string) {
   const syncing = useRef(false);
   const queuedRead = useRef<{ before: string | null } | null>(null);
   const sending = useRef(false);
-  const pendingSend = useRef<{ text: string; clientId: string } | undefined>(undefined);
   const marked = useRef(0);
   const denied = useRef(false);
   const retry = useRef(new RetryGate());
@@ -105,7 +107,7 @@ export function useLiveConversation(roomId: string) {
   useLayoutEffect(() => { activeRef.current = active; }, [active]);
   useLayoutEffect(() => {
     data.current = undefined; reading.current = false; syncing.current = false; queuedRead.current = null; sending.current = false;
-    pendingSend.current = undefined; marked.current = 0; denied.current = false; stream.current = { afterSeq: 0, version: 1 };
+    marked.current = 0; denied.current = false; stream.current = { afterSeq: 0, version: 1 };
     retry.current = new RetryGate();
     return () => { if (markTimer.current) clearTimeout(markTimer.current); };
   }, [key]);
@@ -192,8 +194,10 @@ export function useLiveConversation(roomId: string) {
     sending.current = true;
     setResource({ key, data: data.current, loading: false, more: false, sending: true, error: undefined });
     try {
-      if (!pendingSend.current || pendingSend.current.text !== draft) pendingSend.current = { clientId: randomUUID(), text: draft };
-      const command = pendingSend.current;
+      // Commit the idempotency key before HTTP. An explicit retry after reopening
+      // then reuses the same command, even if the first server ACK was lost.
+      const command = await composer.prepare(draft);
+      if (epoch.current !== request || !data.current) return false;
       const result = await employeeRequest({ action: 'chatSend', roomId, ...command });
       if (epoch.current !== request || !data.current) return false;
       if (!record(result)) return invalid();
@@ -201,8 +205,8 @@ export function useLiveConversation(roomId: string) {
       if (room.id !== roomId || message.authorId !== viewer.userId || message.text !== draft) return invalid();
       retry.current.success(retryVersion);
       accept({ ...data.current, viewer, room, messages: mergeLiveMessages(data.current.messages, [message]) });
-      pendingSend.current = undefined;
-      return true;
+      await composer.acknowledge(command).catch(() => undefined);
+      return epoch.current === request;
     } catch (error) { if (epoch.current === request) fail(error); return false; }
     finally {
       if (epoch.current === request) {
@@ -210,7 +214,7 @@ export function useLiveConversation(roomId: string) {
         setResource(previous => previous?.key === key ? { ...previous, sending: false } : previous);
       }
     }
-  }, [accept, employeeRequest, epoch, fail, key, roomId]);
+  }, [accept, composer, employeeRequest, epoch, fail, key, roomId]);
 
   const markRead = useCallback((throughSeq: number) => {
     if (!activeRef.current || !data.current || !integer(throughSeq, 1) || throughSeq <= marked.current || throughSeq > data.current.room.latestSeq || !retry.current.ready(monotonicNow())) return;
@@ -249,6 +253,8 @@ export function useLiveConversation(roomId: string) {
   }, [accept, employeeRequest, epoch, fail, key, muting, roomId]);
 
   return { ...current, data: current?.data, loading: current?.loading ?? Boolean(key), more: current?.more ?? false,
+    draft: composer.draft, setDraft: composer.setDraft, draftReady: composer.draftReady, draftError: composer.draftError,
     sending: current?.sending ?? false, send, markRead, mute, muting, refresh: () => { denied.current = false; void read(); },
+    retryDraft: composer.restore,
     loadOlder: () => { if (data.current?.nextCursor) void read(data.current.nextCursor); } };
 }

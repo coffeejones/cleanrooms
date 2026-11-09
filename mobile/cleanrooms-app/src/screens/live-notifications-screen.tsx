@@ -11,6 +11,7 @@ import { useEmployeeInbox, type EmployeeInbox, type EmployeeWorkflowMessage, typ
 import { invalidateEmployeeResources } from '@/state/published-schedule';
 import { EmployeeShiftRequests } from '@/components/employee-shift-requests';
 import { useScopedState } from '@/state/scoped-state';
+import { parsePushTarget } from '@/notifications/push-wire';
 
 const timestamp = new Intl.DateTimeFormat('da-DK', { timeZone: TIME_ZONE, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const titles: Record<string, string> = { new: 'Ny vagt', changed: 'Vagt ændret', moved: 'Vagt flyttet', cancelled: 'Vagt aflyst', request: 'Vagtanmodning' };
@@ -20,18 +21,22 @@ function shiftLabel(shift: EmployeeWorkflowShift) {
 }
 
 export default function LiveNotificationsScreen() {
-  const { state, employeeRequest } = useMobileAuth();
+  const { state, sessionEpoch, employeeRequest } = useMobileAuth();
   const resource = useEmployeeInbox();
-  const scope = state.mode === 'signedIn' ? JSON.stringify([state.session.employee.workspaceId, state.session.employee.personId]) : '';
+  const scope = state.mode === 'signedIn' ? JSON.stringify([state.session.employee.workspaceId, state.session.employee.personId, sessionEpoch]) : '';
   const head = resource.data?.notifications.map(item => item.id).join('|') ?? '';
   const firstCursor = resource.data?.nextCursor ?? null;
   const [more, setMore] = useState<{ scope: string; head: string; firstCursor: string | null; generation: number; items: EmployeeWorkflowMessage[]; cursor?: string | null }>();
   const [read, setRead] = useState<{ scope: string; ids: string[] }>({ scope: '', ids: [] });
-  const [busy, setBusy] = useScopedState<'more' | string | null>(scope + ':' + resource.generation, null);
-  const [error, setError] = useState('');
+  const [busy, setBusy] = useScopedState<'more' | string | null>(scope, null);
+  const [error, setError] = useScopedState<string>(scope, '');
   const pending = useRef(false), mounted = useRef(true), generation = useRef(0);
+  const pageGeneration = useRef(0);
   const list = useRef<FlatList<EmployeeWorkflowMessage>>(null);
-  useLayoutEffect(() => { const value = ++generation.current; pending.current = false; return () => { generation.current = value + 1; }; }, [scope, resource.generation]);
+  // Account/session changes invalidate mutations. A refresh of this same inbox
+  // only invalidates pagination; it must not cancel a tap after the read ACK.
+  useLayoutEffect(() => { const value = ++generation.current; pending.current = false; return () => { generation.current = value + 1; }; }, [scope]);
+  useLayoutEffect(() => { pageGeneration.current++; }, [scope, resource.generation]);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const extra = more?.scope === scope && more.head === head && more.firstCursor === firstCursor && more.generation === resource.generation ? more : undefined;
   const cursor = extra ? extra.cursor : resource.data?.nextCursor;
@@ -42,15 +47,16 @@ export default function LiveNotificationsScreen() {
   async function loadMore() {
     if (!cursor || pending.current || resource.loading || resource.error) return;
     const requestGeneration = generation.current;
+    const requestPage = pageGeneration.current;
     pending.current = true; setBusy('more'); setError('');
     try {
       const page = await employeeRequest<EmployeeInbox>({ action: 'employeeInbox', limit: 50, cursor });
-      if (mounted.current && generation.current === requestGeneration) {
+      if (mounted.current && generation.current === requestGeneration && pageGeneration.current === requestPage) {
         if (page.nextCursor === cursor) throw new Error('Beskederne kunne ikke indlæses. Hent listen igen.');
         setMore({ scope, head, firstCursor, generation: resource.generation, items: [...(extra?.items ?? []), ...page.notifications], cursor: page.nextCursor });
       }
     } catch (cause) {
-      if (mounted.current && generation.current === requestGeneration) {
+      if (mounted.current && generation.current === requestGeneration && pageGeneration.current === requestPage) {
         setError(cause instanceof Error ? cause.message : 'Beskederne kunne ikke hentes. Prøv igen.');
         setMore(undefined);
         invalidateEmployeeResources('inbox');
@@ -61,20 +67,30 @@ export default function LiveNotificationsScreen() {
   async function open(item: EmployeeWorkflowMessage) {
     if (pending.current) return;
     const requestGeneration = generation.current;
+    const current = () => mounted.current && generation.current === requestGeneration;
+    let acknowledged = false;
     pending.current = true; setBusy(item.id); setError('');
     try {
-      if (!item.readAt && !readIds.includes(item.id)) {
-        await employeeRequest({ action: 'employeeInboxRead', messageId: item.id });
-        if (!mounted.current || generation.current !== requestGeneration) return;
-        setRead(previous => ({ scope, ids: [...(previous.scope === scope ? previous.ids : []), item.id] }));
-        invalidateEmployeeResources('inbox');
-      }
-      const shift = item.after ?? item.before;
-      if (item.kind === 'request' && mounted.current && generation.current === requestGeneration) list.current?.scrollToOffset({ offset: 0, animated: true });
-      if (item.kind !== 'request' && shift && mounted.current && generation.current === requestGeneration) router.push({ pathname: '/shift/[id]', params: { id: shift.id } });
+      // Read events need the same fresh authorization as unread events: the
+      // planner may have removed or reassigned the shift since this row loaded.
+      const receipt = await employeeRequest<{ messageId: string; readAt: string; target: unknown }>({ action: 'employeeInboxRead', messageId: item.id });
+      if (!current()) return;
+      if (receipt?.messageId !== item.id || typeof receipt.readAt !== 'string' || !Number.isFinite(Date.parse(receipt.readAt))) throw new Error('Beskeden kunne ikke åbnes. Prøv igen.');
+      const target = parsePushTarget({ target: receipt.target });
+      if (target.kind !== 'shift' && target.kind !== 'inbox') throw new Error('Beskeden kunne ikke åbnes. Prøv igen.');
+      acknowledged = true;
+      setRead(previous => ({ scope, ids: [...new Set([...(previous.scope === scope ? previous.ids : []), item.id])] }));
+      if (target.kind === 'shift') router.push({ pathname: '/shift/[id]', params: { id: target.shiftId } });
+      else if (item.kind === 'request') list.current?.scrollToOffset({ offset: 0, animated: true });
     } catch (cause) {
-      if (mounted.current) setError(cause instanceof Error ? cause.message : 'Beskeden kunne ikke åbnes. Prøv igen.');
-    } finally { if (generation.current === requestGeneration) { pending.current = false; if (mounted.current) setBusy(null); } }
+      if (current()) setError(cause instanceof Error ? cause.message : 'Beskeden kunne ikke åbnes. Prøv igen.');
+    } finally {
+      if (current()) {
+        pending.current = false; setBusy(null);
+        // Navigation is decided before a refresh changes the list generation.
+        if (acknowledged) invalidateEmployeeResources('inbox');
+      }
+    }
   }
 
   return (

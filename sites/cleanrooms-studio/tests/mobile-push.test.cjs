@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const { handleMobileAuthRequest } = require('../lib/mobile-auth-route.mjs');
 const { drainPushOutbox, handlePushDispatchRequest } = require('../lib/push-dispatch.mjs');
-const { handleMobilePush } = require('../lib/mobile-push-store.mjs');
+const { handleMobilePush, pushTarget, readPushDeliveryTargets } = require('../lib/mobile-push-store.mjs');
 const Auth = require('../lib/mobile-auth-store.mjs');
 const source = fs.readFileSync(require.resolve('./mobile-route-employee.test.cjs'), 'utf8').split("test('mobile employee HTTP routes")[0];
 const { setup, key, personId, peerId } = Function('require','__dirname', source + '\nreturn {setup,key,personId,peerId};')(require,__dirname);
@@ -114,6 +114,61 @@ test('two concurrent workers share one lease and network ambiguity never trigger
   await f.drain({requestProvider:provider,now:Date.now()+minute()});assert.equal(calls,1);
 });
 const minute=()=>60_000;
+
+test('provider redirects are terminal and never follow or replay a notification',async t=>{
+  const f=await fixture(t);await f.register();const event=f.message();let calls=0;
+  const provider=async(url,options)=>{
+    calls++;assert.equal(url,'https://exp.host/--/api/v2/push/send');
+    assert.equal(options.redirect,'manual');assert.equal(options.headers.get('authorization'),'Bearer synthetic-server-secret');
+    return new Response(null,{status:307,headers:{location:'https://untrusted.example/collect'}});
+  };
+  await f.drain({accessToken:'synthetic-server-secret',requestProvider:provider});
+  const row=f.sqlite.prepare('SELECT status,last_error FROM workspace_push_deliveries WHERE event_id=?').get(event.event_id);
+  assert.deepEqual({...row},{status:'failed',last_error:'provider_redirect'});
+  assert.equal(f.sqlite.prepare("SELECT last_provider_error FROM workspace_push_dispatch_state WHERE id='expo'").get().last_provider_error,'provider_redirect');
+  await f.drain({requestProvider:provider,now:Date.now()+minute()});assert.equal(calls,1);
+});
+
+test('locally invalid provider configuration is distinguished from ambiguous fetch failures',async t=>{
+  const f=await fixture(t);await f.register();const invalid=f.message('invalid-server-credential');let calls=0;
+  await f.drain({accessToken:'invalid\nserver-secret',requestProvider:async()=>{calls++;throw Error('must not be invoked');}});
+  assert.equal(calls,0,'request validation fails before any provider call');
+  assert.deepEqual({...f.sqlite.prepare('SELECT status,last_error FROM workspace_push_deliveries WHERE event_id=?').get(invalid.event_id)},
+    {status:'failed',last_error:'provider_request_invalid'});
+  const old=f.message('old-runtime-failure');
+  await f.drain({now:Date.now()+2000,requestProvider:async()=>{calls++;throw TypeError('Invalid redirect value, must be one of follow or manual');}});
+  assert.equal(f.sqlite.prepare('SELECT status FROM workspace_push_deliveries WHERE event_id=?').get(old.event_id).status,'unknown',
+    'a thrown fetch error is not classified by matching provider/runtime error text');
+  const fresh=f.message('fresh-after-config-fix');await f.drain({now:Date.now()+4000});
+  assert.equal(f.requests.length,1);assert.equal(f.requests[0].body.length,1);
+  assert.equal(f.requests[0].body[0].data.eventId,fresh.event_id);
+  assert.equal(f.sqlite.prepare('SELECT status FROM workspace_push_deliveries WHERE event_id=?').get(old.event_id).status,'unknown',
+    'fixing configuration never blindly resends an older unconfirmed attempt');
+});
+
+test('explicit self-test follows either enabled category with consistent single and batched authorization',async t=>{
+  for(const preferences of [
+    {notifications:true,chatNotifications:false},
+    {notifications:false,chatNotifications:true},
+    {notifications:true,chatNotifications:true},
+    {notifications:false,chatNotifications:false},
+    {chatNotifications:true},
+  ]) await t.test(JSON.stringify(preferences),async t=>{
+    const f=await fixture(t);await f.register();
+    f.sqlite.prepare('INSERT INTO workspace_employee_preferences VALUES(?,?,1,?,?)').run(f.workspaceId,personId,JSON.stringify(preferences),new Date().toISOString());
+    assert.equal((await f.call({action:'employeePushTest',installationId:install})).status,200);
+    const event=f.sqlite.prepare("SELECT * FROM workspace_push_events WHERE source_kind='test'").get();
+    const permitted=typeof preferences.notifications==='boolean'&&typeof preferences.chatNotifications==='boolean'&&(preferences.notifications||preferences.chatNotifications);
+    assert.deepEqual(await pushTarget(f.db,event,personId,{forDelivery:true}),permitted?{kind:'inbox'}:null);
+    assert.equal((await readPushDeliveryTargets(f.db,[{event_id:event.event_id,installation_id:install}],projectId,Date.now()+200)).length,Number(permitted));
+    const shift=f.message('ordinary-shift-category');
+    await f.drain();
+    const delivered=f.requests.flatMap(request=>request.body);
+    assert.equal(delivered.filter(payload=>payload.data.eventId===event.event_id).length,Number(permitted));
+    assert.equal(delivered.filter(payload=>payload.data.eventId===shift.event_id).length,Number(preferences.notifications===true),
+      'self-test does not enable ordinary shift notifications when only chat is enabled');
+  });
+});
 
 test('explicit transient errors back off and malformed positional tickets are never assigned to the wrong person',async t=>{
   const f=await fixture(t);await f.register();const event=f.message();

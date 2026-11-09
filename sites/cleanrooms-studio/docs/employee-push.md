@@ -8,7 +8,7 @@ Mobilgatewayens eksisterende bearer-login bruges til:
 
 - `employeePushRegister {installationId, expoPushToken, platform, projectId}` → `{registered:true}`.
 - `employeePushUnregister {installationId}` → `{registered:false}`.
-- `employeePushTest {installationId}` → `{queued:true}`. Opretter kun en generisk selvtest til den aktuelle session/enhed, højst ét event pr. installation/minut. Ingen modtager eller tekst kan angives. Gentagne tryk er idempotente.
+- `employeePushTest {installationId}` → `{queued:true}`. Opretter kun en generisk selvtest til den aktuelle session/enhed, højst ét event pr. installation/minut. Ingen modtager eller tekst kan angives. Gentagne tryk er idempotente. Selvtesten leveres, når mindst én af de to notifikationskategorier er slået til; almindelige vagt-/chatbeskeder følger fortsat hver sin indstilling.
 - `employeePushOpen {eventId, installationId}` → `{target:{kind:'shift',shiftId}}`, `{target:{kind:'chat',roomId}}` eller `{target:{kind:'inbox'}}`.
 
 InstallationId er en tilfældig RFC-UUID gemt på enheden. EventId er en servergenereret streng med 32 små hextegn. Appen accepterer kun notifikationsdata `{v:1,eventId,installationId}`; der er ingen betroet URL, arbejdsområde- eller medarbejderidentitet i payloaden. Serveren udleder identiteten fra den aktuelle session og kontrollerer igen installationens ejer og adgangen til den oprindelige vagt, anmodning eller samtale. Aflyste/overdragede vagter kan åbne medarbejderens indbakke i stedet for en anden medarbejders vagt.
@@ -47,13 +47,15 @@ Expos `ok`-ticket betyder modtagelse hos Expo. Dets kvitterings-ID gemmes; sener
 
 HTTP 429/5xx og eksplicit `MessageRateExceeded` bruger eksponentiel backoff, højst fem forsøg. HTTP 5xx kan principielt komme efter en accepteret transmission; præcis én pushbanner kan derfor ikke garanteres. Stabile collapse/tag-ID'er reducerer dubletter. Netværkstimeout, uventet/ufuldstændigt ticketsvar og en udløbet `sending`-lease markeres `unknown` uden blind automatisk gensendelse. Den autoritative indbakke er stadig tilgængelig.
 
+Providerkald bruger Workers-kompatibel `redirect: 'manual'`. Alle HTTP 3xx afvises som `provider_redirect`; hverken adgangstoken, Expo-adresse eller besked videresendes til en ny URL. Lokal `Request`-/header-validering sker før netværkskaldet, så ugyldig serverkonfiguration registreres som `provider_request_invalid`. Fejl kastet under selve `fetch` forbliver et uafklaret afsendelsesforsøg; fejltekster bruges ikke til at antage, at transmission var umulig. En rettet konfiguration genudsender aldrig automatisk eksisterende `unknown`-poster.
+
 `DeviceNotRegistered` deaktiverer kun den registreringsversion, der faktisk blev sendt til. En sen fejl for en gammel adresse kan ikke slukke en ny tokenbinding. Hver binding har også en tilfældig servergenereret generation, som gemmes på forsøget; beskyttelsen består, selv hvis en inaktiv enhedsrække ryddes op og dens UUID senere genbruges med et nyt versionsnummer. Fejl i APNs/FCM-credentials deaktiverer ikke gode enheder; de gemmes som en driftsfejl. Afsluttede leveringsposter/events ryddes op i begrænsede portioner efter 30 dage.
 
 Apple-/Firebase-credentials, notifikationstilladelse og den faktiske hardwaretest er eksterne forudsætninger. En grøn unit-/integrationstest eller et HTTP-wake er ikke dokumentation for en modtaget fysisk push.
 
 ## Verifikation
 
-`node --test tests/mobile-push.test.cjs tests/push-gateway.test.cjs tests/push-capacity.test.cjs` afprøver de faktiske HTTP-handlers og transaktioner: projekt-/identitetskontrol, malformed typer, atomisk rollback, payloadprivatliv, læsning/indstillinger/mute, konto-/afdelingsskift, logout/revocation, tokenrotation, samtidige leases, mistede svar, ticket-/receiptsemantik, installationsgrænser, D1-statementbudget og den begrænsede gateway. Desuden er samtlige migrationer, inklusive triggerne, anvendt på en separat lokal D1/Miniflare-binding.
+`node --test tests/mobile-push.test.cjs tests/push-gateway.test.cjs tests/push-capacity.test.cjs tests/push-worker-provider.test.cjs` afprøver de faktiske HTTP-handlers og transaktioner: projekt-/identitetskontrol, malformed typer, atomisk rollback, payloadprivatliv, læsning/indstillinger/mute, konto-/afdelingsskift, logout/revocation, tokenrotation, samtidige leases, mistede svar, ticket-/receiptsemantik, installationsgrænser, D1-statementbudget og den begrænsede gateway. Providerkoden køres desuden i rigtig lokal Miniflare/workerd med afskåret eksternt netværk: den tidligere ugyldige redirect-mode afvises før I/O, mens afsendelse, receipts og redirect-afvisning afprøves med providerstub. Desuden er samtlige migrationer, inklusive triggerne, anvendt på en separat lokal D1/Miniflare-binding.
 
 Primære kilder: [Expo push API og receipts](https://docs.expo.dev/push-notifications/sending-notifications/), [SDK 57 notifications](https://docs.expo.dev/versions/v57.0.0/sdk/notifications/), [Cloudflare D1 SQL](https://developers.cloudflare.com/d1/sql-api/sql-statements/).
 

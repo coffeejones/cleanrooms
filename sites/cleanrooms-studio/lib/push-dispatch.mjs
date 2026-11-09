@@ -118,11 +118,22 @@ async function disableExactDevices(db, devices, now) {
     JSON.stringify(devices.map(row => ({ installation: row.installation_id, workspace: row.workspace_id, person: row.person_id, version: row.device_version, binding: row.binding_id }))))]);
 }
 
-async function providerJson(requestProvider, url, body, accessToken) {
-  const response = await requestProvider(url, { method: 'POST', headers: {
-    'Content-Type': 'application/json', Accept: 'application/json',
-    ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
-  }, body: JSON.stringify(body), redirect: 'error', signal: AbortSignal.timeout(8000) });
+export async function providerJson(requestProvider, url, body, accessToken) {
+  let options;
+  try {
+    options = { method: 'POST', headers: new Headers({
+      'Content-Type': 'application/json', Accept: 'application/json',
+      ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
+    }), body: JSON.stringify(body), redirect: 'manual', signal: AbortSignal.timeout(8000) };
+    // Validate locally before invoking fetch. A malformed server credential or
+    // unsupported request option is a known pre-send failure, not a lost ACK.
+    // Workers support follow/manual; redirect:'error' is rejected before I/O.
+    new Request(url, options);
+  } catch { return { error: 'provider_request_invalid' }; }
+  const response = await requestProvider(url, options);
+  // Never follow a provider redirect: its new origin must not receive bearer
+  // credentials, Expo addresses or message bodies. Do not retry the redirect.
+  if (response.status >= 300 && response.status < 400) return { error: 'provider_redirect' };
   if (response.status === 429 || response.status >= 500) return { retry: true };
   if (!response.ok) return { error: 'provider_http_' + response.status };
   // The provider is external too. Bound both JSON and response shape before

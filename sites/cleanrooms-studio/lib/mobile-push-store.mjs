@@ -40,7 +40,7 @@ export async function pushTarget(db, event, personId, { forDelivery = false } = 
     if (typeof preferences?.notifications !== 'boolean' || typeof preferences?.chatNotifications !== 'boolean') return null;
   }
   const userId = employee.user_id ?? 'mobile-employee:' + personId;
-  if (event.source_kind === 'test') return event.person_id === personId && (!forDelivery || preferences.notifications) ? { kind: 'inbox' } : null;
+  if (event.source_kind === 'test') return event.person_id === personId && (!forDelivery || preferences.notifications || preferences.chatNotifications) ? { kind: 'inbox' } : null;
   if (event.source_kind === 'chat') {
     if (forDelivery && !preferences.chatNotifications) return null;
     const source = await pushFirst(db, `SELECT message.seq,message.author_id,COALESCE(reader.muted,0) muted,COALESCE(reader.last_read_seq,0) read_seq
@@ -164,6 +164,7 @@ export async function readPushDeliveryTargets(db, deliveries, projectId, now, { 
     device.version device_version,device.binding_id,device.expo_token,
     CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.notifications')='true' END notifications,
     CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.chatNotifications')='true' END chat_notifications,
+    CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.notifications') IN ('true','false') AND json_type(${preferencesJson},'$.chatNotifications') IN ('true','false') END valid_preferences,
     EXISTS(SELECT 1 FROM workspace_members member WHERE member.workspace_id=device.workspace_id AND member.person_id=device.person_id ORDER BY member.user_id LIMIT 1 OFFSET 1) ambiguous,
     message.kind message_kind,json_extract(${messageJson},'$.personId') message_person,
     COALESCE(receipt.read_at,json_extract(${messageJson},'$.readAt')) read_at,
@@ -191,7 +192,7 @@ export async function readPushDeliveryTargets(db, deliveries, projectId, now, { 
     LIMIT 50`, document, projectId, now, ...(leaseToken ? [now + 10_000, leaseToken, now + 10_000] : []));
   return loaded.filter(row => {
     if (row.ambiguous || row.event_created_at < now - 24 * 60 * 60_000 || row.event_created_at > now + 60_000) return false;
-    if (row.source_kind === 'test') return row.notifications === 1 && row.event_person === row.person_id;
+    if (row.source_kind === 'test') return row.valid_preferences === 1 && (row.notifications === 1 || row.chat_notifications === 1) && row.event_person === row.person_id;
     if (row.source_kind === 'chat') return row.chat_notifications === 1 && row.chat_id && row.in_department === 1 && row.chat_author !== row.user_id && !row.muted && row.read_seq < row.chat_seq;
     if (row.notifications !== 1 || row.event_person !== row.person_id || row.message_person !== row.person_id || row.read_at) return false;
     if (row.message_kind === 'cancelled') return true;

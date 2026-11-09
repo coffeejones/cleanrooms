@@ -9,5 +9,5 @@ const output = mkdtempSync(path.join(tmpdir(), 'cleanrooms-mobile-tests-'));
 try {
   execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '--ignoreConfig', '--target', 'es2022', '--module', 'commonjs', '--moduleResolution', 'node', '--ignoreDeprecations', '6.0', '--skipLibCheck', '--strict', '--outDir', output,
     'src/domain/model.ts', 'src/domain/demo.ts', 'src/state/transitions.ts', 'src/state/snapshot.ts', 'src/state/chat-wire.ts', 'src/state/company-settings-wire.ts', 'src/state/attendance-runtime.ts', 'src/state/retry-policy.ts', 'src/state/native-path.ts', 'src/auth/pending-logouts.ts'], { cwd: root, stdio: 'inherit' });
-  execFileSync(process.execPath, ['--test', 'tests/model.test.cjs', 'tests/mobile-auth-api.test.cjs', 'tests/chat-wire.test.cjs', 'tests/company-settings.test.cjs', 'tests/employee-runtime.test.cjs'], { cwd: root, stdio: 'inherit', env: { ...process.env, CLEANROOMS_TEST_BUILD: output } });
+  execFileSync(process.execPath, ['--test', 'tests/model.test.cjs', 'tests/mobile-auth-api.test.cjs', 'tests/chat-wire.test.cjs', 'tests/company-settings.test.cjs', 'tests/employee-runtime.test.cjs', 'tests/dependency-security.test.cjs'], { cwd: root, stdio: 'inherit', env: { ...process.env, CLEANROOMS_TEST_BUILD: output } });
 } finally { rmSync(output, { recursive: true, force: true }); }

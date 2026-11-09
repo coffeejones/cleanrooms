@@ -1,25 +1,63 @@
-# Afhængigheder og kendte fund
+# Afhængigheder og sikkerhedsrettelser
 
-Kontrolleret 9. november 2026 med `npm audit --package-lock-only --ignore-scripts`. Dette er en lokal appdemo; gennemført funktionstest er ikke en produktionsgodkendelse.
+Kontrolleret 9. november 2026. Mobilappen bliver på Expo SDK 57 og den eksisterende brugerflade. Både fuld `npm audit --package-lock-only --ignore-scripts` og samme audit med `--omit=dev` giver **0 sårbarheder** efter rettelserne. Ingen advisory er ignoreret, og ingen version er ommærket for at skjule et fund.
 
-## Runtime: afkodning af deep links
+## Rettede afhængigheder
 
-SDK 57-pakken `expo-router@57.0.30` afhænger af `query-string@7.1.3`, som bruger `decode-uri-component@0.2.2`. Der findes to kendte denial-of-service-fund ved afkodning af ugyldige procentkodede strenge: [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) og [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f). Den normale Router-sti bruger en anden parser; en konkret udnyttelig native kodevej er ikke påvist i denne gennemgang. Det er en tilgængelighedsrisiko, ikke dokumentation for adgang til andre brugeres data.
+| Kæde | Installeret rettelse | Kompatibilitet |
+| --- | --- | --- |
+| Router 57 → query-string 7 → decode-uri-component | Officiel `0.5.1`, med kontrolleret CommonJS-entry | Query-string beholder sin kaldbare `require()`-eksport; ESM-entry og selve upstreamalgoritmen er uændrede. |
+| Expo fingerprint → glob | Officiel `14.0.4` | Fingerprints faktiske `glob()`-kald, discovery, ignorevalg og AbortSignal testes. |
+| Fingerprint / TypeScript ESLint → minimatch | Officiel `11.0.5` for de berørte 7–10-versioner | De faktiske forbrugere bruger `minimatch()`/`Minimatch.pattern`/`negate`/`match`, som er bevaret. Gamle sikre 3.x-forbrugere ændres ikke. |
+| ESLint React hooks → zod/v4 | Officiel `4.6.7` via normalt understøttet semverinterval | Pluginet tillader allerede zod 4 og importerer `zod/v4`. Fejlformatter og lint testes; ingen global zod-override. |
 
-[Version 0.5.1](https://github.com/SamVerschueren/decode-uri-component/releases/tag/v0.5.1) erstatter gentagen afkodning med en enkelt gennemløbning, men er ESM med en default-eksport. `query-string@7` forventer en direkte kaldbar CommonJS-eksport. En isoleret prøve med de rigtige npm-pakker gav `typeof require('decode-uri-component') === 'object'` og `decodeComponent is not a function` ved almindelig `parse('name=Jonas%20Hansen')`. Et direkte override til 0.5.1 er derfor ikke anvendt.
+Glob14/minimatch11 fjerner visse interne/ældre API'er, bl.a. `makeRe()`. De API'er bruges ikke af de berørte installerede forbrugere; denne vurdering erstatter ikke test ved senere opdateringer. Expo CLI's versionskontrol er fortsat grøn. Der er ikke brugt `npm audit fix --force` eller foretaget en større Expo-opgradering.
 
-Den nye afkoder blev særskilt prøvet med gyldig dansk Unicode, ugyldige procentsekvenser, BOM, afbrudt UTF-8 og 300.000 ugyldigt kodede tegn. Afkoderen håndterer disse; det er integrationens moduleksport, der skal løses.
+## Decoderens CJS-adapter og forsyningskæde
 
-Før produktionsudgivelse skal kæden opdateres gennem en SDK 57-kompatibel Router-rettelse eller en afprøvet SDK-opgradering. En eventuel CommonJS-backport kræver separat kilde-/licensgennemgang, tests af query-parsing og deep links samt bundling på begge native platforme. At validere appens egne route-parametre alene lukker ikke en fejl, der kan opstå tidligere i Routerens parser.
+`query-string@7.1.3` kræver en funktion direkte fra `require('decode-uri-component')`. Den rettede upstream 0.5.1 er ESM, hvis rå namespace derfor ikke opfylder dette API. `scripts/dependency-security.cjs` gør følgende ved **hver normal npm ci/npm install**:
 
-## Udviklings- og byggeværktøjer
+1. Kontrollerer lockfilens registry-SHA512 mod `vendor/decode-uri-component/UPSTREAM.json`.
+2. Kontrollerer SHA256 af den officielle `index.js` og MIT-licensen. Registry-integriteten, kildehash, original pakkemetadata og licensen ligger til kildegennemgang i `vendor/decode-uri-component/`.
+3. Genererer `index.cjs` ved kun at omskrive `export default function` til `module.exports = function`. Der ændres ikke i afkodningsalgoritmen.
+4. Tilføjer en betinget `require`-entry; eksisterende ESM-/type-entry bevares.
+5. Kontrollerer de reelle dependency-opslag hos query-string, fingerprint, TypeScript ESLint og React hooks, så en gammel nested dependency ikke kan skygge for den sikre lockfil.
 
-De øvrige fund i den oprindelige runtime-audit kommer hovedsageligt gennem Expos medfølgende CLI-, konfigurations- og byggeværktøjer (`glob`, `minimatch`, `deepmerge`, `zod`). npm klassificerer disse som produktionsafhængigheder, fordi de følger `expo`, selv om de ikke dermed alle indgår i telefonens JavaScript-bundle. Følg SDK-kompatible sikkerhedsopdateringer, og gennemgå fundene igen ved en egentlig release.
+Den officielle MIT-licens er bevaret både i den installerede pakke og i den checkede kilde. Der er ingen netværksdownload i postinstall-scriptet og ingen adgang til credentials.
 
-Kør ikke `npm audit fix --force` ukritisk. Det foreslog blandt andet Expo 51 eller Router 58 i dette SDK 57-projekt, hvilket ændrer den understøttede platform og kan ødelægge Expo Go-kompatibiliteten.
+`npm run check:dependencies` afviser ændret kilde, licens, metadata eller manglende adapter. `npm test` kører dette som pretest; Metro kører det også før bundling. En installation med `--ignore-scripts` kan derfor ikke stiltiende bygge den forkerte modulkontrakt. Efter en eksplicit gennemgang af install-scriptet kan adapteren installeres med `npm run postinstall`.
 
-## Stabiliseringskontrol 9. november 2026
+## Regressioner og native kontrol
 
-Expo CLI’s kompatibilitetskontrol anbefalede og installerede patchversionerne `expo@57.0.32`, `expo-constants@57.0.23`, `expo-glass-effect@57.0.5`, `expo-router@57.0.30` og `expo-splash-screen@57.0.11`. Den fulde audit faldt fra 20 til 15 berørte pakkenoder: 4 high og 11 moderate, ingen low eller critical. Deepmerge-fundet er ikke længere i træet. Disse tal er advisory-/afhængighedssignaler og ikke dokumenterede produktudnyttelser.
+`tests/dependency-security.test.cjs` ligger i den almindelige testsuite og kontrollerer:
 
-Resterende `zod@3.25.76` følger lintværktøjer (`eslint-plugin-react-hooks`), mens `glob@13.0.7`/`minimatch@10.2.6` følger fingerprint-/udviklingsværktøjer. Der er ikke lavet globale major-overrides. Query-string-kæden kræver stadig en kompatibel upstreamrettelse eller særskilt afprøvet SDK-opgradering. `+native-intent` afviser nu for lange, fejlformede procentsekvenser og de gamle browsercallbacks før videre routing; det er ekstra inputbeskyttelse og fjerner ikke dependency-advisoryen.
+- CJS- og officiel ESM-adfærd mod 500 deterministiske malformed inputs, dansk Unicode, emoji, BOM og afbrudt UTF-8.
+- Query-string-array-/plus-/null-semantik og prototypefri dictionaries.
+- De faktiske Expo Router-serializers med Unicode-vagtlinks. Kun native platformvalg/container-validering stubbes i Node; parserne og afhængighederne er de rigtige.
+- Store fejlformede inputs i en separat proces med håndhævet timeout.
+- Fingerprints reelle matching-/globkontrakter og annullering, samt zod/v4's tidlige afvisning af 50.000 elementer med ét begrænset fejlobjekt.
+- Fail-closed-kontrollen ved ændret upstreamkode, ændret adapter eller genoprettet ESM-only metadata.
+
+Ren `npm ci` med postinstall er gennemført. iOS og Android er begge bundlet til Hermes gennem Metro. Sourcemaps på **begge** platforme indeholder nøjagtigt den verificerede `decode-uri-component/index.cjs`; hverken den gamle decoder eller en forkert ESM-entry bliver valgt. Dette kan gentages med:
+
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run lint
+npx expo install --check
+npx expo export --platform ios --platform android --source-maps --output-dir dist-dependency-security
+npm run verify:native-dependencies
+npm audit --package-lock-only --ignore-scripts
+npm audit --package-lock-only --ignore-scripts --omit=dev
+```
+
+Build og isolerede regressioner er ikke det samme som en fuld fysisk Android-test. Fremtidige SDK-/pakkeændringer skal genkøre kompatibilitet, routing, installintegritet og native bundlekontrol.
+
+## Primære kilder
+
+- [Decoderens officielle 0.5.1-kilde](https://github.com/SamVerschueren/decode-uri-component/tree/v0.5.1), [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr), [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f).
+- [Glob changelog](https://github.com/isaacs/node-glob/blob/main/changelog.md), [GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4).
+- [Minimatch changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md), [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+- [Zod advisory](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5), pluginets installerede dependency-/importkontrakter.
+- [Expo57 dokumentation](https://docs.expo.dev/versions/v57.0.0/), [Expos Metro-konfiguration](https://docs.expo.dev/guides/customizing-metro/).

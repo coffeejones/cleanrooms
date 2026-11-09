@@ -40,9 +40,11 @@ function waitForPosition(signal: AbortSignal, accuracyLimit: number, watch: Watc
     void watch(fix => {
       const age = Date.now() - fix.timestamp;
       if (age < 0 || age > maxClockInLocationAgeMs) return;
-      lastFix = fix;
+      // Core Location can return fractional milliseconds; the API uses whole epoch milliseconds.
+      // Keep its measured time (never replace it with Date.now(), which would refresh stale fixes).
+      lastFix = { ...fix, timestamp: Math.trunc(fix.timestamp) };
       if (fix.mocked || (fix.accuracyMeters !== null && fix.accuracyMeters >= 0 && fix.accuracyMeters <= accuracyLimit)) {
-        finish({ location: fix });
+        finish({ location: lastFix });
       }
     }, message => finish({ error: message })).then(active => {
       if (finished) active.remove();

@@ -69,6 +69,91 @@ test('published shift data uses an authenticated native API request without cook
   assert.deepEqual(plain(detail.shift.checklist), [{ id: 'task-own', text: 'Fyld sæbe op' }]);
 });
 
+test('published shift parsers preserve only valid, different previous times in details and calendar pages', async () => {
+  for (const previousTime of [{ start: '07:00', end: '15:00' }, { start: '23:00', end: '07:00' }]) {
+    const app = client((_url, { body }) => JSON.parse(body).action === 'publishedShift'
+      ? Response.json({ shift: publishedShift({ previousTime }) })
+      : Response.json({ shifts: [publishedShift({ previousTime })], nextCursor: null }));
+    assert.deepEqual(plain((await app.mobileAuthApi.publishedShift(token, 'shift-own')).shift.previousTime), previousTime);
+    assert.deepEqual(plain((await app.mobileAuthApi.publishedSchedule(token, '2026-11-01', '2026-11-30', null)).shifts[0].shift.previousTime), previousTime);
+  }
+  for (const previousTime of [null, '07:00–15:00', {}, { start: '25:00', end: '15:00' }, { start: '07:00', end: '07:00' }, { start: '08:00', end: '16:00' }]) {
+    const app = client(() => Response.json({ shift: publishedShift({ previousTime }) }));
+    assert.equal((await app.mobileAuthApi.publishedShift(token, 'shift-own')).shift.previousTime, undefined);
+  }
+});
+
+function timeChange(overrides = {}) {
+  return {
+    id: 'message-own', kind: 'changed', personId: 'employee-own', createdAt: '2026-11-07T12:00:00Z',
+    before: { id: 'shift-own', person: 'employee-own', date: '2026-11-08', start: '07:00', end: '15:00' },
+    after: { id: 'shift-own', person: 'employee-own', date: '2026-11-08', start: '08:00', end: '16:00' },
+    ...overrides,
+  };
+}
+const targetShift = () => ({ id: 'shift-own', personId: 'employee-own', date: '2026-11-08', start: '08:00', end: '16:00' });
+
+test('shift time history uses the authenticated date-scoped workflow and chooses the latest matching change across unread and read pages', async () => {
+  const older = timeChange({ id: 'unread-older', createdAt: '2026-11-06T12:00:00Z' });
+  const latest = timeChange({ id: 'read-newer', createdAt: '2026-11-07T13:00:00Z', kind: 'moved',
+    before: { id: 'shift-own', person: 'employee-own', date: '2026-11-07', start: '09:00', end: '17:00' } });
+  const app = client((_url, { body }) => JSON.parse(body).messageCursor
+    ? Response.json({ notifications: [latest], pagination: { messages: null } })
+    : Response.json({ notifications: [older], pagination: { messages: 'next-message-page' } }));
+  assert.deepEqual(plain(await app.mobileAuthApi.shiftTimeChange(token, targetShift())), { start: '09:00', end: '17:00' });
+  assert.deepEqual(app.calls.map(call => JSON.parse(call.options.body)), [
+    { action: 'workflowRead', from: '2026-11-08', to: '2026-11-08', limit: 50 },
+    { action: 'workflowRead', from: '2026-11-08', to: '2026-11-08', limit: 50, messageCursor: 'next-message-page' },
+  ]);
+  assert.ok(app.calls.every(call => call.options.headers.Authorization === `Bearer ${token}` && call.options.credentials === 'omit'));
+});
+
+test('shift time history ignores other assignments, employees, stale after times and malformed changes', async () => {
+  const change = timeChange(), after = change.after, before = change.before;
+  const invalid = [
+    null, { ...change, kind: 'new' }, { ...change, kind: 'request' }, { ...change, createdAt: 'not-a-date' },
+    { ...change, after: { ...after, id: 'another-shift' } }, { ...change, before: { ...before, id: 'another-shift' } },
+    { ...change, after: { ...after, date: '2026-11-09' } }, { ...change, after: { ...after, end: '17:00' } },
+    { ...change, personId: 'employee-other', before: { ...before, person: 'employee-other' }, after: { ...after, person: 'employee-other' } },
+    { ...change, before: { ...before, person: 'employee-other' } }, { ...change, after: { ...after, person: 'employee-other' } },
+    { ...change, before: { ...before, date: '2026-02-30' } }, { ...change, before: { ...before, start: '25:00' } },
+    { ...change, before: { ...before, end: '07:00' } }, { ...change, before: { ...before, start: after.start, end: after.end } },
+  ];
+  const app = client(() => Response.json({ notifications: invalid, pagination: { messages: null } }));
+  assert.equal(await app.mobileAuthApi.shiftTimeChange(token, targetShift()), null);
+  assert.equal(app.calls.length, 1);
+  const overnight = client(() => Response.json({ notifications: [timeChange({ before: { ...before, start: '23:00', end: '07:00' } })], pagination: { messages: null } }));
+  assert.deepEqual(plain(await overnight.mobileAuthApi.shiftTimeChange(token, targetShift())), { start: '23:00', end: '07:00' });
+});
+
+test('shift history validates its page envelope and never reports a partial or looping history as complete', async () => {
+  for (const payload of [{}, { notifications: [], pagination: {} }, { notifications: [], pagination: { messages: 42 } },
+    { notifications: Array.from({ length: 51 }, () => timeChange()), pagination: { messages: null } }]) {
+    const app = client(() => Response.json(payload));
+    await assert.rejects(app.mobileAuthApi.shiftTimeChange(token, targetShift()), error => error.code === 'mobile_shift_change_invalid');
+    assert.equal(app.calls.length, 1);
+  }
+  const looping = client(() => Response.json({ notifications: [timeChange()], pagination: { messages: 'repeated-cursor' } }));
+  await assert.rejects(looping.mobileAuthApi.shiftTimeChange(token, targetShift()), error => error.code === 'mobile_shift_change_invalid');
+  assert.equal(looping.calls.length, 2);
+  let pages = 0;
+  const incomplete = client(() => Response.json({ notifications: [timeChange()], pagination: { messages: 'page-' + ++pages } }));
+  await assert.rejects(incomplete.mobileAuthApi.shiftTimeChange(token, targetShift()), error => error.code === 'mobile_shift_change_incomplete');
+  assert.equal(incomplete.calls.length, 10);
+});
+
+test('invalid or unassigned shift history targets never issue a workflow request and session errors propagate', async () => {
+  const app = client(() => { throw Error('No request expected'); });
+  assert.equal(await app.mobileAuthApi.shiftTimeChange(token, { ...targetShift(), personId: null }), null);
+  for (const shift of [{ ...targetShift(), id: '' }, { ...targetShift(), date: '2026-02-30' }, { ...targetShift(), start: 'oops' }]) {
+    await assert.rejects(app.mobileAuthApi.shiftTimeChange(token, shift), error => error.code === 'mobile_shift_change_invalid');
+  }
+  assert.equal(app.calls.length, 0);
+  const expired = client(() => Response.json({ error: 'mobile_session_invalid', message: 'Log ind igen.' }, { status: 401 }));
+  await assert.rejects(expired.mobileAuthApi.shiftTimeChange(token, targetShift()), error => error.code === 'mobile_session_invalid');
+  assert.equal(expired.calls.length, 1);
+});
+
 test('re-reading a shift receives the current radius and GPS-off requires an explicit null', async () => {
   const radii = [100, 250, null];
   const app = client(() => Response.json({ shift: publishedShift({ clockInRadius: radii.shift() }) }));

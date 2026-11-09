@@ -27,7 +27,6 @@ function resolveOrigin(value: string | undefined): string | null {
   return null;
 }
 
-// Configure your own gateway; public checkouts never target the maintained deployment.
 export const mobileAuthOrigin = resolveOrigin(process.env.EXPO_PUBLIC_CLEANROOMS_AUTH_URL);
 export const canUseMobileAuth = mobileAuthOrigin !== null && process.env.EXPO_OS !== 'web';
 
@@ -53,6 +52,14 @@ export type ShiftTimeEntry = {
   receivedAtMonotonic?: number; comment?: string; rejectionReason?: string;
 };
 export type PublishedShiftDetail = PublishedShift & { clockInRadius: number | null; entry: ShiftTimeEntry | null; completedTaskIds: string[]; checklistToken: string | null };
+export type ShiftTimeChangeTarget = Pick<Shift, 'id' | 'date' | 'start' | 'end'> & { personId?: string | null };
+const shiftClock = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+
+function readTimePair(value: unknown): { start: string; end: string } | null {
+  if (!isObject(value) || typeof value.start !== 'string' || !shiftClock.test(value.start)
+    || typeof value.end !== 'string' || !shiftClock.test(value.end) || value.start === value.end) return null;
+  return { start: value.start, end: value.end };
+}
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -95,8 +102,11 @@ function readShift(value: unknown): PublishedShift {
     if (!isObject(task) || !isText(task.id, 512) || typeof task.text !== 'string') throw invalid();
     return { id: task.id, text: task.text };
   });
+  const previousTime = readTimePair(value.previousTime);
   return {
-    shift: { id, personId, date, start, end, breakMinutes, siteId: site.id, role: '', description: description ?? '', checklist: tasks },
+    shift: { id, personId, date, start, end, breakMinutes, siteId: site.id, role: '', description: description ?? '', checklist: tasks,
+      ...(previousTime && (previousTime.start !== start || previousTime.end !== end) ? { previousTime } : {}),
+    },
     site: { id: site.id, name: site.name, address: site.address },
     ...(value.entry !== undefined ? { entry: value.entry === null ? null : readTimeEntry(value.entry) } : {}),
   };
@@ -204,6 +214,42 @@ export const mobileAuthApi = {
     const checklistToken = value.shift.checklistToken;
     if (checklistToken !== undefined && (typeof checklistToken !== 'string' || !/^[a-f0-9]{64}$/.test(checklistToken))) throw invalidResponse();
     return { ...shift, clockInRadius, entry: entry === null ? null : readTimeEntry(entry), completedTaskIds: completedTaskIds ?? [], checklistToken: checklistToken ?? null };
+  },
+  shiftTimeChange: async (token: string, shift: ShiftTimeChangeTarget): Promise<{ start: string; end: string } | null> => {
+    const invalid = () => new MobileAuthError('mobile_shift_change_invalid', 503, 'Vagtændringen kunne ikke læses. Prøv igen.');
+    if (!isText(shift.id, 512) || !validDate(shift.date) || !readTimePair(shift)) throw invalid();
+    if (shift.personId === null) return null;
+    if (shift.personId !== undefined && !isText(shift.personId, 512)) throw invalid();
+    let messageCursor: string | null = null;
+    const cursors = new Set<string>();
+    let latest: { start: string; end: string; at: number; id: string } | null = null;
+    // Unread notifications are sorted before read ones. A matching first page
+    // does not establish which time change was most recently published.
+    for (let page = 0; page < 10; page++) {
+      const value = await request({ action: 'workflowRead', from: shift.date, to: shift.date, limit: 50,
+        ...(messageCursor ? { messageCursor } : {}),
+      }, token);
+      if (!isObject(value) || !Array.isArray(value.notifications) || value.notifications.length > 50
+        || !isObject(value.pagination) || value.pagination.messages !== null && !isText(value.pagination.messages, 2048)) throw invalid();
+      for (const message of value.notifications) {
+        if (!isObject(message) || !['changed', 'moved'].includes(String(message.kind)) || !isText(message.id, 512)
+          || !isText(message.personId, 512) || shift.personId !== undefined && message.personId !== shift.personId
+          || !isObject(message.before) || !isObject(message.after)) continue;
+        const before = message.before, after = message.after, previous = readTimePair(before), current = readTimePair(after);
+        const at = typeof message.createdAt === 'string' ? Date.parse(message.createdAt) : NaN;
+        if (!previous || !current || !Number.isFinite(at) || !validDate(before.date)
+          || before.id !== shift.id || after.id !== shift.id || before.person !== message.personId || after.person !== message.personId
+          || after.date !== shift.date || current.start !== shift.start || current.end !== shift.end
+          || previous.start === current.start && previous.end === current.end) continue;
+        if (!latest || at > latest.at || at === latest.at && message.id > latest.id) latest = { ...previous, at, id: message.id };
+      }
+      const next = value.pagination.messages;
+      if (next === null) return latest ? { start: latest.start, end: latest.end } : null;
+      if (cursors.has(next)) throw invalid();
+      cursors.add(next);
+      messageCursor = next;
+    }
+    throw new MobileAuthError('mobile_shift_change_incomplete', 503, 'Vagtændringen kunne ikke bekræftes. Prøv igen.');
   },
   shiftTime: async (token: string, command: ShiftTimeCommand): Promise<ShiftTimeEntry> => {
     try {

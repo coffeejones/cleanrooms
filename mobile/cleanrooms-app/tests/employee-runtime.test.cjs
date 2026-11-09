@@ -98,3 +98,111 @@ test('logout jobs support the configured local development origin without accept
   const sent=[];await queue.flush('http://127.0.0.1:8080',async value=>{sent.push(value);});
   assert.deepEqual(sent,[token]);assert.equal(raw,null);
 });
+
+const fs = require('node:fs'), vm = require('node:vm'), ts = require('typescript');
+const mobileRoot = path.resolve(__dirname, '..');
+function employeeData(request) {
+  const filename = path.join(mobileRoot, 'src/state/employee-data.ts'), module = { exports: {} };
+  const code = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS }, fileName: filename }).outputText;
+  vm.runInNewContext(code, { module, exports: module.exports, require(name) {
+    if(name === 'react') return { useCallback: callback => callback };
+    if(name === '@/auth/mobile-auth') return { useMobileAuth: () => ({ employeeRequest: request, state: { mode: 'signedIn', session: { employee: { personId: 'self' } } } }) };
+    if(name === '@/domain/model') return require(path.join(root, 'domain/model.js'));
+    if(name === './published-schedule') return { usePublishedResource: (scope, read, enabled) => ({ scope, read, enabled, refresh() {} }) };
+    if(name === './company-settings-wire') return require(path.join(root, 'state/company-settings-wire.js'));
+    throw Error('Unexpected dependency ' + name);
+  }});
+  return module.exports;
+}
+const leaveRequest = (patch = {}) => ({ id: 'leave-1', p: 'self', version: 1, days: ['2026-11-10'], type: 'Friønske', status: 'pending', comment: 'Familieaftale', createdAt: '2026-11-09T08:00:00Z', ...patch });
+test('reopening a shift reads its persisted leave status and rejection reason for only that employee and date', async () => {
+  const calls = []; let current = leaveRequest();
+  const api = employeeData(async payload => { calls.push(payload); return { requests: [current], nextCursor: null }; });
+  const first = api.useShiftLeaves('2026-11-10');
+  assert.equal(first.enabled, true); assert.equal(api.currentShiftLeave(await first.read(), '2026-11-10').status, 'pending');
+  current = leaveRequest({ version: 2, status: 'rejected', decision: { reason: 'Vi mangler bemanding den dag.' } });
+  const reopened = api.useShiftLeaves('2026-11-10'), latest = api.currentShiftLeave(await reopened.read(), '2026-11-10');
+  assert.equal(latest.version, 2); assert.equal(latest.status, 'rejected'); assert.equal(latest.decision.reason, 'Vi mangler bemanding den dag.');
+  assert.ok(calls.every(call => call.action === 'leaveRead' && call.from === '2026-11-10' && call.to === '2026-11-10' && call.limit === 50));
+  assert.throws(() => api.parseShiftLeave(leaveRequest({ p: 'other' }), 'self'), /Friønsket/);
+});
+test('leave history follows bounded pages and refuses incomplete or repeated cursor state', async () => {
+  const api = employeeData(async () => ({})), calls = [];
+  const requests = await api.readShiftLeaveRequests(async payload => {
+    calls.push(payload); return payload.cursor ? { requests: [leaveRequest({ id: 'latest', status: 'approved', createdAt: '2026-11-09T12:00:00Z' })], nextCursor: null }
+      : { requests: [leaveRequest({ status: 'rejected', decision: { reason: 'Tidligere svar' } })], nextCursor: 'next' };
+  }, '2026-11-10', 'self');
+  assert.equal(calls.length, 2); assert.equal(api.currentShiftLeave(requests, '2026-11-10').status, 'approved');
+  await assert.rejects(api.readShiftLeaveRequests(async () => ({ requests: [], nextCursor: 'same' }), '2026-11-10', 'self'), /ændret/);
+  let page = 0; await assert.rejects(api.readShiftLeaveRequests(async () => ({ requests: [], nextCursor: 'page-' + ++page }), '2026-11-10', 'self'), /mange friønsker/); assert.equal(page, 10);
+});
+function shiftScreenFunction(select, globals) {
+  const filename = path.join(mobileRoot, 'src/screens/published-shift-screen.tsx'), source = fs.readFileSync(filename, 'utf8'), tree = ts.createSourceFile(filename, source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
+  let chosen; function visit(node) { if(!chosen && select(node)) chosen = node; ts.forEachChild(node, visit); } visit(tree); assert.ok(chosen, 'Actual shift handler must be found');
+  const moduleSource = 'globalThis.subject = ' + chosen.getText(tree) + ';';
+  const context = vm.createContext({ ...globals }); vm.runInContext(ts.transpileModule(moduleSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText, context); return context.subject;
+}
+test('an acknowledged clock action refreshes its detail and invalidates hours exactly once', async () => {
+  const calls = [], counts = { hours: 0 }, saved = [];
+  class AuthError extends Error {}
+  const register = shiftScreenFunction(node => ts.isFunctionDeclaration(node) && node.name?.text === 'register', {
+    detail: { shift: { id: 'shift' } }, id: 'shift', entry: { version: 1 }, pending: { current: false }, uncertain: { current: null },
+    setBusy() {}, setActionError() {}, setSaved: value => saved.push(value), MobileAuthError: AuthError,
+    writeShiftTime: async payload => { calls.push(payload); return { version: 2, status: 'submitted' }; },
+    resource: { refresh: () => calls.push('detail') }, hours: { refresh: () => { counts.hours++; } },
+    invalidateEmployeeResources: (...prefixes) => { calls.push(prefixes); if(prefixes.includes('hours:')) counts.hours++; },
+  });
+  assert.equal((await register('finish', 'Mødte til tiden')).ok, true); assert.equal(counts.hours, 1); assert.equal(saved[0].entry.version, 2); assert.equal(calls[0].operation, 'finish'); assert.equal(calls[0].comment, 'Mødte til tiden');
+});
+test('sending leave rechecks persisted status and never creates another pending request', async () => {
+  const api = employeeData(async () => ({})); let created = 0, refreshed = 0;
+  const confirm = shiftScreenFunction(node => ts.isArrowFunction(node) && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword)
+    && node.parameters[0]?.name.getText() === 'comment' && node.getText().includes("action: 'shiftLeave'"), {
+    detail: { shift: { date: '2026-11-10' } }, id: 'shift', auth: { mode: 'signedIn', session: { employee: { personId: 'self' } } },
+    leaves: { read: async () => [api.parseShiftLeave(leaveRequest(), 'self')], refresh: () => { refreshed++; } },
+    currentShiftLeave: api.currentShiftLeave, parseShiftLeave: api.parseShiftLeave, employeeRequest: async () => { created++; },
+  });
+  const result = await confirm('Familieaftale'); assert.equal(result.ok, false); assert.match(result.error, /allerede et friønske/); assert.equal(created, 0); assert.equal(refreshed, 1);
+});
+
+test('native Core Location fractional timestamps keep their measured freshness and reach the integer API contract',async()=>{
+  const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
+  const filename=require.resolve('../src/location/clock-in-location.ts');
+  const source=ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS},fileName:filename}).outputText;
+  async function read(timestamp,{abort=false}={}){
+    const module={exports:{}},controller=new AbortController();let removed=0;
+    vm.runInNewContext(source,{module,exports:module.exports,AbortController,setTimeout,clearTimeout,process:{env:{EXPO_OS:'ios'}},require(name){
+      if(name==='@/domain/model')return require(path.join(root,'domain/model.js'));
+      if(name==='react-native')return{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}};
+      if(name==='expo-location')return{Accuracy:{High:4},hasServicesEnabledAsync:async()=>true,getForegroundPermissionsAsync:async()=>({granted:true}),watchPositionAsync:async(_options,onPosition)=>{
+        onPosition({coords:{latitude:55.6761,longitude:12.5683,accuracy:5},timestamp,mocked:false});
+        if(abort)queueMicrotask(()=>controller.abort());
+        return{remove(){removed++;}};
+      }};
+      throw Error('Unexpected location dependency: '+name);
+    }},{filename});
+    const result=await module.exports.readClockInLocation(controller.signal,200);
+    await Promise.resolve();return{result,removed};
+  }
+  const original=Date.now()-1234+0.375;
+  const valid=await read(original);
+  assert.equal(valid.result.location.timestamp,Math.trunc(original));
+  assert.equal(Number.isSafeInteger(valid.result.location.timestamp),true);
+  assert.equal(valid.removed,1,'GPS watcher must close after its usable fix');
+  const stale=await read(Date.now()-120_000+0.375,{abort:true});
+  assert.match(stale.result.error,/afbrudt/);
+  assert.equal(stale.result.location,undefined,'normalisation cannot make a stale native fix fresh');
+});
+
+test('an explicitly rejected leave request can be sent again and keeps only the acknowledged server receipt', async () => {
+  const api = employeeData(async () => ({})), sent = [], receipts = [], invalidated = [];
+  const older = api.parseShiftLeave(leaveRequest({ status: 'rejected', decision: { reason: 'Tidligere afvist' } }), 'self'), source = [older];
+  const confirm = shiftScreenFunction(node => ts.isArrowFunction(node) && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword)
+    && node.parameters[0]?.name.getText() === 'comment' && node.getText().includes("action: 'shiftLeave'"), {
+    detail: { shift: { date: '2026-11-10' } }, id: 'shift', auth: { mode: 'signedIn', session: { employee: { personId: 'self' } } },
+    leaves: { data: source, read: async () => source, refresh() {} }, currentShiftLeave: api.currentShiftLeave, parseShiftLeave: api.parseShiftLeave,
+    employeeRequest: async payload => { sent.push(payload); return { request: leaveRequest({ id: 'new-request' }) }; },
+    setLeaveReceipt: value => receipts.push(value), invalidateEmployeeResources: (...prefixes) => invalidated.push(prefixes),
+  });
+  assert.equal((await confirm('Ny aftale')).ok, true);assert.equal(sent.length, 1);assert.equal(sent[0].shiftId, 'shift');assert.equal(sent[0].comment, 'Ny aftale');assert.equal(receipts[0].request.id, 'new-request');assert.equal(receipts[0].source, source);assert.equal(invalidated[0][0], 'leave:');
+});

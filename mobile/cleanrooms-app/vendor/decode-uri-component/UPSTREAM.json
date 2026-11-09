@@ -1,0 +1,8 @@
+{
+  "package": "decode-uri-component",
+  "version": "0.5.1",
+  "source": "https://github.com/SamVerschueren/decode-uri-component/tree/v0.5.1",
+  "registryIntegrity": "sha512-vWHQkXgg2cE3BB4rR0c+PYw9BCQzLoNIRMI7AunIkZst74tw/vpPp7VLoYtsR/cy1f55g3XDWUslfeCZjiZJyA==",
+  "indexSha256": "6a86ac891edf15c5efa0841ebb31935e3669d58b98318b57d7b08a4530317cb0",
+  "licenseSha256": "ed7a9a0f74e43951b2520efe1a4349cb9ed5f3dff0b0f268e2e51a4d38df7ea4"
+}

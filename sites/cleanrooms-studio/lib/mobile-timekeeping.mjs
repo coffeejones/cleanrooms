@@ -55,7 +55,7 @@ export async function readMobileRecoveryShift(db, employee, shiftId) {
   const frozen = entry.frozenShift ?? { id: entry.shiftId, person: entry.personId, date: entry.date, site: entry.site,
     start: entry.plannedStart, end: entry.plannedEnd, plannedBreakMinutes: entry.plannedBreakMinutes ?? 0 };
   if (frozen.id !== shiftId || frozen.person !== employee.personId || !Time.validDate(frozen.date)
-    || Time.minute(frozen.start) === null || Time.minute(frozen.end) === null || frozen.end <= frozen.start || !Number.isInteger(frozen.site)) {
+    || Time.minute(frozen.start) === null || Time.minute(frozen.end) === null || frozen.end === frozen.start || !Number.isInteger(frozen.site)) {
     fail(503, 'mobile_time_invalid', 'Registreringens oprindelige vagt kunne ikke læses sikkert.');
   }
   const place = await readDirectorySite({ db, workspaceId: employee.workspaceId, siteIndex: frozen.site });

@@ -158,9 +158,17 @@ test('active attendance survives Sunday-to-Monday, cancellation and restart read
   const { call, token, peerToken, sqlite, workspaceId } = await setup(t, { day: '2090-01-15' });
   const write = (operation, version, comment = null) => call({ action: 'shiftTime', shiftId: 'route-own', operation, version, comment, location: null }, token);
   const started = await write('start', 0);assert.equal(started.status, 200, JSON.stringify(started.body));
+  // Historical attendance may span midnight even though new plan creation is same-day only.
+  // Its frozen evidence must remain reachable after the published assignment disappears.
+  const stored = sqlite.prepare('SELECT config FROM workspace_time_entries WHERE workspace_id=? AND shift_id=?').get(workspaceId, 'route-own');
+  const original = JSON.parse(stored.config);
+  original.plannedStart = '22:00';original.plannedEnd = '06:00';
+  original.frozenShift = { ...original.frozenShift, start: '22:00', end: '06:00' };
+  sqlite.prepare('UPDATE workspace_time_entries SET config=? WHERE workspace_id=? AND shift_id=?').run(JSON.stringify(original), workspaceId, 'route-own');
   t.mock.timers.tick(4 * 60 * 60 * 1000);
   const active = await call({ action: 'employeeActiveTime' }, token);
   assert.equal(active.status, 200, JSON.stringify(active.body));assert.equal(active.body.shift.date, '2090-01-15');
+  assert.equal(active.body.shift.start, '22:00');assert.equal(active.body.shift.end, '06:00');
   assert.equal(active.body.shift.entry.status, 'running');assert.equal(active.body.shift.entry.workedSeconds, 4 * 3600);
   assert.equal((await call({ action: 'employeeActiveTime' }, peerToken)).body.shift, null);
   sqlite.prepare('UPDATE workspace_published_shifts SET deleted=1 WHERE workspace_id=? AND id=?').run(workspaceId, 'route-own');

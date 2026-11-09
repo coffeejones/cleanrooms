@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { createContext, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 import { PendingLogouts } from './pending-logouts';
+import type { Shift } from '@/domain/model';
 
 import { canUseMobileAuth, isSessionToken, mobileAuthApi, MobileAuthError, mobileAuthOrigin, type MobileSession, type PublishedShift, type PublishedShiftDetail, type ShiftTimeCommand, type ShiftTimeEntry } from './mobile-auth-api';
 
@@ -34,6 +35,7 @@ type AuthContextValue = {
   readPublishedSchedule: (from: string, to: string, cursor: string | null) => Promise<{ shifts: PublishedShift[]; nextCursor: string | null }>;
   readPublishedShift: (shiftId: string) => Promise<PublishedShiftDetail | null>;
   readActiveTime: () => Promise<PublishedShift | null>;
+  readShiftTimeChange: (shift: Pick<Shift, 'id' | 'date' | 'start' | 'end' | 'personId'>) => Promise<{ start: string; end: string } | null>;
   writeShiftTime: (command: ShiftTimeCommand) => Promise<ShiftTimeEntry>;
   employeeRequest: <T>(payload: Record<string, unknown> & { action: string }) => Promise<T>;
 };
@@ -249,12 +251,14 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
   const readPublishedShift = useCallback((shiftId: string) =>
     readEmployeeData(token => mobileAuthApi.publishedShift(token, shiftId)), [readEmployeeData]);
   const readActiveTime = useCallback(() => readEmployeeData(token => mobileAuthApi.activeTime(token)), [readEmployeeData]);
+  const readShiftTimeChange = useCallback((shift: Pick<Shift, 'id' | 'date' | 'start' | 'end' | 'personId'>) =>
+    readEmployeeData(token => mobileAuthApi.shiftTimeChange(token, shift)), [readEmployeeData]);
   const writeShiftTime = useCallback((command: ShiftTimeCommand) =>
     readEmployeeData(token => mobileAuthApi.shiftTime(token, command)), [readEmployeeData]);
   const employeeRequest = useCallback(<T,>(payload: Record<string, unknown> & { action: string }) =>
     readEmployeeData(token => mobileAuthApi.employeeRequest<T>(token, payload)), [readEmployeeData]);
 
-  return <AuthContext value={{ state, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, readActiveTime, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
+  return <AuthContext value={{ state, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, readActiveTime, readShiftTimeChange, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
 }
 
 export function useMobileAuth() {

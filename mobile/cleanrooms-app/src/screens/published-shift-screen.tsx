@@ -9,20 +9,21 @@ import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
 import { ShiftOffer } from '@/components/shift-offer';
+import { ShiftTimeChange } from '@/components/shift-time-change';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { addDays, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
 import { readClockInLocation } from '@/location/clock-in-location';
 import { useNow } from '@/state/app-store';
 import { invalidateEmployeeResources, usePublishedResource, usePublishedShift } from '@/state/published-schedule';
-import { useEmployeeHours } from '@/state/employee-data';
+import { currentShiftLeave, parseShiftLeave, useEmployeeHours, useShiftLeaves, useShiftTimeChange, type ShiftLeaveRequest } from '@/state/employee-data';
 import { useScopedState } from '@/state/scoped-state';
 import { confirmsTimeCommand } from '@/state/attendance-runtime';
 
 export default function PublishedShiftScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const resource = usePublishedShift(id);
-  const { readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
+  const { state: auth, readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
   const [form, setForm] = useState<ShiftConfirmationKind | null>(null);
   const [saved, setSaved] = useState<{ shiftId: string; entry: ShiftTimeEntry }>();
   const [actionError, setActionError] = useState<string>();
@@ -36,13 +37,17 @@ export default function PublishedShiftScreen() {
   } | null>(null);
   const [taskError, setTaskError] = useState<string>();
   const [leave, setLeave] = useState(false);
-  const [leaveSaved, setLeaveSaved] = useState(false);
+  const [leaveReceipt, setLeaveReceipt] = useState<{ date: string; source: ShiftLeaveRequest[] | undefined; request: ShiftLeaveRequest }>();
   const pending = useRef(false);
   const uncertain = useRef<{ shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null } | null>(null);
   const insets = useSafeAreaInsets();
   const now = useNow();
 
   const detail = resource.data;
+  const timeChange = useShiftTimeChange(detail?.shift);
+  const leaves = useShiftLeaves(detail?.shift.date ?? '');
+  const leaveRequest = currentShiftLeave([...(leaves.data ?? []), ...(leaveReceipt && detail && leaveReceipt.date === detail.shift.date && leaveReceipt.source === leaves.data ? [leaveReceipt.request] : [])], detail?.shift.date ?? '');
+  const previousTime = detail?.shift.previousTime ?? timeChange.data ?? undefined;
   const hours = useEmployeeHours(detail?.shift.date ?? '', detail ? addDays(detail.shift.date, 2) : '');
   const pay = hours.data?.rows.find(row => row.shift.id === id)?.pay;
   const readColleagues = useCallback(() => employeeRequest<CoworkerPage>({ action: 'employeeColleagues', shiftId: id, cursor: null, limit: 50 }), [employeeRequest, id]);
@@ -105,7 +110,6 @@ export default function PublishedShiftScreen() {
       uncertain.current = null;
       setSaved({ shiftId: id, entry: result });
       resource.refresh();
-      hours.refresh();
       invalidateEmployeeResources('active-time', 'hours:', 'inbox');
       return { ok: true };
     } catch (error) {
@@ -143,7 +147,7 @@ export default function PublishedShiftScreen() {
   }
   function refreshShift() {
     setTaskReceipt(null); setTaskError(undefined);
-    refreshColleagues(); resource.refresh(); hours.refresh();
+    refreshColleagues(); resource.refresh(); hours.refresh();leaves.refresh();timeChange.refresh();
   }
   async function loadMoreColleagues() {
     if (!coworkerPage?.nextCursor || !coworkers.data || loadingMore || coworkers.loading || coworkers.error) return;
@@ -179,6 +183,7 @@ export default function PublishedShiftScreen() {
                   {dateLabel(detail.shift.date, { weekday: 'long', month: 'long' })}
                 </Txt>
                 <Row gap={5}>
+                  {previousTime && <ShiftTimeChange shift={{ ...detail.shift, previousTime }} />}
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusColor }} />
                   <Txt size={12} weight="500" color={colors.muted}>{status}</Txt>
                 </Row>
@@ -187,6 +192,7 @@ export default function PublishedShiftScreen() {
                 {detail.shift.start}–{detail.shift.end}
               </Txt>
             </View>
+            {timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
             <View style={{ gap: 7 }}>
               <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
               {detail.site.address ? <Row gap={7} style={{ alignItems: 'flex-start' }}>
@@ -199,8 +205,13 @@ export default function PublishedShiftScreen() {
             </View>
             <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}><Txt size={12} color={colors.muted}>{pay?.kind === 'registered' ? 'Løn før skat' : 'Forventet løn før skat'}</Txt><Txt size={16} weight="600">{pay && !pay.unavailableReason ? currency(pay.totalCents) : '—'}</Txt></Row>
             {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
-            {!entry && !leaveSaved && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>Ønsk fri</Txt></Pressable>}
-            {leaveSaved && <Txt size={13} color={colors.muted}>Friønsket afventer godkendelse.</Txt>}
+            {leaves.loading && !leaves.data && <Txt size={12} color={colors.muted}>Henter friønske…</Txt>}
+            {leaves.error && <Pressable accessibilityRole="button" onPress={leaves.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.danger}>Friønsket kunne ikke hentes. Prøv igen.</Txt></Pressable>}
+            {leaveRequest && <View style={{ gap: 5 }}>
+              <Txt size={13} weight="500" color={leaveRequest.status === 'rejected' ? colors.danger : colors.muted}>{leaveRequest.type === 'Friønske' ? 'Friønske' : 'Fravær'} {leaveRequest.status === 'pending' ? 'afventer godkendelse' : leaveRequest.status === 'approved' ? 'godkendt' : 'afvist'}.</Txt>
+              {!!leaveRequest.decision?.reason && <Txt size={13} color={colors.muted}>{leaveRequest.decision.reason}</Txt>}
+            </View>}
+            {!entry && leaves.data && !leaves.loading && !leaves.error && (!leaveRequest || leaveRequest.status === 'rejected') && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>{leaveRequest ? 'Ønsk fri igen' : 'Ønsk fri'}</Txt></Pressable>}
             {!entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
             {entry?.status === 'rejected' && <View style={{ gap: 10 }}>
               <Txt size={15} weight="600">Timer sendt retur</Txt>
@@ -282,8 +293,16 @@ export default function PublishedShiftScreen() {
         onDismiss={() => setForm(null)}
       />
       <ShiftConfirmation kind={leave ? 'leave' : null} summary="Anmod om fri hele dagen. Vagten gælder, indtil ønsket er godkendt." onDismiss={() => setLeave(false)} onConfirm={async comment => {
-        try { await employeeRequest({ action: 'shiftLeave', shiftId: id, comment }); setLeaveSaved(true); return { ok: true }; }
-        catch (error) { return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Friønsket kunne ikke sendes.' }; }
+        try {
+          if (!detail || auth.mode !== 'signedIn') return { ok: false, error: 'Hent vagten igen.' };
+          const latest = currentShiftLeave(await leaves.read(), detail.shift.date);
+          if (latest && latest.status !== 'rejected') { leaves.refresh();return { ok: false, error: latest.status === 'pending' ? 'Der er allerede et friønske, der afventer svar.' : 'Fraværet er allerede godkendt.' }; }
+          const result = await employeeRequest<{ request: unknown }>({ action: 'shiftLeave', shiftId: id, comment });
+          const request = parseShiftLeave(result.request, auth.session.employee.personId);
+          if (!request.days.includes(detail.shift.date)) throw new Error('Friønsket kunne ikke bekræftes. Hent vagten igen.');
+          setLeaveReceipt({ date: detail.shift.date, source: leaves.data, request });invalidateEmployeeResources('leave:');
+          return { ok: true };
+        } catch (error) { leaves.refresh();return { ok: false, error: error instanceof Error ? error.message : 'Friønsket kunne ikke sendes.' }; }
       }} />
     </View>
   );

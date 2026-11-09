@@ -48,3 +48,22 @@ node qa/iphone-flow/smoke.mjs
 ## Afgrænsning
 
 Dette er en rigtig native simulatorafprøvning, ikke en fysisk iPhone-test. GPS-koordinaterne er simulerede; antennenøjagtighed, baggrundsforløb og netværk på en fysisk telefon mangler stadig praktisk afprøvning. Android er bygget og valideret, men ikke betjent på en fysisk telefon. Det lokale API-udfald simulerer HTTP 503, ikke flytilstand. Der er ikke ændret på produktionsadgang, GPS-regler eller brugernes data for at få testene til at bestå.
+
+## Samlet pilotrunde · 9. november 2026
+
+Den efterfølgende runde er udført gennem appens UI i Expo Go på en dedikeret iPhone 17 Pro-simulator med iOS 26.5. Det isolerede pilot-API på port 8793 bruger de faktiske serverhandlers og syntetiske konti. Brugerfladen er bevaret. Kildegrundlag: mobil `17f6eb3`, server `c0712bb`.
+
+| Flow | Observeret resultat |
+| --- | --- |
+| Udgivelse og vagtdetaljer | To uger udgives; egne vagter, kollega og tjekliste med 1/3 fuldførte punkter vises. |
+| Stempling og kladde | GPS-indstempling lykkes. En virtuel fixtureklokke gennemløber 20 minutters arbejde, 5 minutters pause og 35 minutters arbejde. Udstemplingskommentaren overlever fuld app-genstart; et tabt udstemplingssvar afklares som succes. |
+| Retur, rettelse og løn | Efter planlæggerens afvisning genindsendes forklaringen med et tabt svar. Appen bekræfter den præcise sammenkædning af gammel og ny kommentar. Planlæggeren retter intervallet til 20:12–21:12 med 5 minutters pause og godkender. Native Timer viser det rettede interval, 55 minutter og 176,00 kr. |
+| Chat | Udkast gendannes efter fuld app-genstart. Efter tabt svar genbruger et udtrykkeligt tryk på Send samme kommandoidentitet. SQLite indeholder én besked og én sendekommando; kladden ryddes efter kvitteringen. |
+| Aflysning og læsestatus | Tryk på en aflyst vagt bevarer indbakken som destination; ulæste beskeder falder fra 17 til 16. |
+| Udløbet session | Private visninger ryddes, login vises, og et nyt login fungerer. |
+
+Den gentagelige kontrol består: HTTP-smoke med 17 flowgrupper, 1.887 servertests og 124 mobiltests samt typecheck, lint, iOS-/Android-exports og decoderkontrol. Dependency-audit viser 0 fund.
+
+Denne runde dokumenterer native UI på simulatoren. Release 1.0.0 (3) er bygget fra `17f6eb3`; selve IPA'en har bestået signatur-, bundle-, API-origin- og entitlement-kontrol. Appen indeholder produktions-API'et, ingen lokale QA-origins, produktions-APNs og ingen debuggeradgang eller generel HTTP-undtagelse. Den 9. november kl. 20:15 UTC er den oprindelige EAS-indsendelse gennemført, og Apple har bekræftet `COMPLETE`, `VALID` og `IN_BETA_TESTING` for præcis 1.0.0 (3), uden fejl eller advarsler. Den private interne testgruppe har adgang. Der blev ikke brugt alternativ upload eller annulleret en indsendelse. Den tidligere fysiske push-selvtest er brugerbekræftet på build 2; den beviser ikke disse nye flows på en fysisk iPhone.
+
+En kendt begrænsning er, at et tabt chat-svar kræver et manuelt Send-forsøg med samme kommandoidentitet for at rydde kladden. Senere polling kan vise beskeden, men beviser endnu ikke den præcise sendekvittering.

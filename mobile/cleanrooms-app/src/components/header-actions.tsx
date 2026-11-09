@@ -2,9 +2,8 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { IconButton } from '@/components/ui';
-import { useAppData, useNow } from '@/state/app-store';
-import { addDays, copenhagenDate } from '@/domain/model';
-import { useEmployeeWorkflow } from '@/state/employee-data';
+import { useAppData } from '@/state/app-store';
+import { useEmployeeInbox } from '@/state/employee-data';
 
 function DemoNotifications() {
   const { state } = useAppData();
@@ -12,8 +11,7 @@ function DemoNotifications() {
 }
 
 function EmployeeNotifications() {
-  const today = copenhagenDate(useNow());
-  const resource = useEmployeeWorkflow(addDays(today, -28), addDays(today, 27));
+  const resource = useEmployeeInbox();
   return <IconButton name="bell" label="Notifikationer" badge={(resource.data?.unreadCount ?? 0) > 0} onPress={() => router.push('/notifications')} />;
 }
 

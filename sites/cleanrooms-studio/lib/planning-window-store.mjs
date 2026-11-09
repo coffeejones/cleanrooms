@@ -4,6 +4,7 @@ import Window from '../src/planning-window.js';
 import {currentCalendarSummary,packCalendarSummary,unpackCalendarSummary,calendarSummaryChunks} from './planning-calendar-summary.mjs';
 import {decodePlanningRecord,planWindowFields,trimPlanningSnapshot,PlanningStoreError} from './planning-store.mjs';
 import {publicationWindowPage,projectPublicationWindow} from './publication-store.mjs';
+import {storedScheduleErrors} from './planning-validation.mjs';
 
 const encode=new TextEncoder(),decode=new TextDecoder('utf-8',{fatal:true});
 const statement=(db,sql,...values)=>db.prepare(sql).bind(...values);
@@ -122,7 +123,10 @@ export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor
   }else{
     const published=await publicationWindowPage({db,workspaceId,...projection,instructions,cursor:cursor.after||null,maxRows:pageRows,maxBytes:PAGE_BYTES});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};
   }
-  for(const row of records)versions[Planning.key(row.kind,row.id)]=row.version;
+  for(const row of records){
+    if(storedScheduleErrors(row.kind,row.id,row.value).length)fail(409,'planning_schedule_repair_required','Den gemte '+(row.kind==='series'?'vagtserie':'vagt')+' '+row.id+' har ugyldige tider eller datoer. Ret eller fjern posten, før kalenderperioden åbnes.');
+    versions[Planning.key(row.kind,row.id)]=row.version;
+  }
   const final=await db.batch([
     statement(db,'SELECT revision,write_token FROM studio_states WHERE owner_id=?',owner),
     statement(db,'SELECT version FROM workspace_absence_imports WHERE workspace_id=?',workspaceId)

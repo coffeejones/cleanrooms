@@ -83,6 +83,7 @@ test('mobile hours use the actual group, personal override and dated supplements
   assert.ok(!JSON.stringify(result).includes('Private Peer Name'));
   assert.ok(!JSON.stringify(result).includes('999999'));
   assert.ok(!JSON.stringify(result).includes('Secret own comment'));
+  assert.equal(result.rows[0].entry.hasComment,true);assert.equal(result.rows[0].entry.commentDeferred,true);
   assert.ok(!JSON.stringify(result).includes('agreements'));
 });
 

@@ -20,7 +20,7 @@
     let options={viewer:initialViewer||{}},identity='',epoch=0,roomEpoch=0,disposed=false,active=false,timer=null,loaded=false,readonly=false,canManage=false;
     let rooms=[],departments=[],listCursor=null,selected=null,messages=[],pins=[],messageCursor=null,hasMore=false,listPending=false,threadPending=false,olderPending=false;
     let accessKey='',accessEpoch=0,unreadRemainder=0;
-    let syncedThrough=null,syncedVersion=null,syncPending=false,syncRequest=0,syncFailures=0,nextSyncAt=0,syncError='',lastCatalogAt=-Infinity,listSilent=false,threadSilent=false;
+    let syncedThrough=null,syncedVersion=null,syncPending=false,syncRequest=0,syncFailures=0,nextSyncAt=0,syncError='',lastCatalogAt=-Infinity,listSilent=false,threadSilent=false,idleRound=0,nextIdleSyncAt=0,catalogPromise=null;
     const now=()=> (win.Date||Date).now();
     let listRequest=0,threadRequest=0,lastFeedSignature='',lastPinSignature='',lastRoomSignature='',listError='',threadError='',statusText='',newCount=0,marking=false;
     const drafts=new Map(),pendingSends=new Map(),lastMarked=new Map();
@@ -65,7 +65,9 @@
     function roomUnread(){if(loaded||listError)onUnread(Math.max(0,unreadRemainder+loadedUnread()));}
     function mergedRoom(previous,room){return {...previous,...room,...(Number(previous?.latestSeq)>Number(room.latestSeq)?{latestSeq:previous.latestSeq,lastMessage:previous.lastMessage}:{}),...(Number(previous?.version)>Number(room.version)?{version:previous.version,name:previous.name}:{})};}
     function rememberRoom(room){if(!room||typeof room.id!=='string')return;const index=rooms.findIndex(item=>item.id===room.id);if(index<0)rooms.push(room);else rooms[index]=mergedRoom(rooms[index],room);}
-    function resetSync(){syncedThrough=null;syncedVersion=null;syncPending=false;syncRequest++;syncFailures=0;nextSyncAt=0;syncError='';}
+    function wakeSync(){idleRound=0;nextIdleSyncAt=0;}
+    function scheduleSync(unchanged){if(!unchanged)idleRound=0;nextIdleSyncAt=now()+[1000,2000,5000,10000][idleRound];if(unchanged)idleRound=Math.min(3,idleRound+1);}
+    function resetSync(){syncedThrough=null;syncedVersion=null;syncPending=false;syncRequest++;syncFailures=0;nextSyncAt=0;syncError='';wakeSync();}
     function adoptReadSequence(fresh){if(syncedThrough===null)syncedThrough=Math.max(0,...fresh.map(sequence));else for(const message of sortMessages(fresh)){if(sequence(message)===syncedThrough+1)syncedThrough++;}}
     function safeError(error,fallback){return error?.message||fallback;}
     function acceptAccess(result,startedAccess){
@@ -130,12 +132,17 @@
     function canSend(){return Boolean(selected&&!readonly&&!sendingRoom&&!threadError&&text(input.value).trim()&&input.value.length<=MAX_TEXT);}
     function composerFeedback(message='',error=false){statusText=message;composeStatus.hidden=!message;composeStatus.textContent=message;composeStatus.dataset.error=String(error);send.disabled=!canSend();}
     function resetThread(){resetSync();messages=[];pins=[];messageCursor=null;hasMore=false;threadError='';newCount=0;lastFeedSignature='';lastPinSignature='';feed.replaceChildren();pinned.hidden=true;input.value=draftFor();composerFeedback();paintJump();}
-    async function loadRooms(append=false,{silent=false}={}){
+    function loadRooms(append=false,configuration={}){
+      if(listPending&&catalogPromise)return catalogPromise;
+      const request=readRooms(append,configuration);catalogPromise=request;request.finally(()=>{if(catalogPromise===request)catalogPromise=null;});return request;
+    }
+    async function readRooms(append=false,{silent=false}={}){
       if(disposed||!active||listPending&&append)return;const started=epoch,startedAccess=accessEpoch,previousCursor=listCursor,previouslyLoaded=loaded,request=++listRequest;listPending=true;listSilent=silent;listError='';paintRooms();
       try{const result=await call('chatList',append&&listCursor?{cursor:listCursor}:{});if(disposed||started!==epoch||request!==listRequest||!acceptAccess(result,startedAccess))return;
         readonly=result.readonly===true||options.readonly===true;canManage=result.canManage===true&&!readonly;if(result.viewer&&!options.viewer?.userId)options.viewer=result.viewer;
         const previousRooms=new Map(rooms.map(room=>[room.id,room])),next=list(result.rooms).map(room=>mergedRoom(previousRooms.get(room.id),room)),retained=!append&&previouslyLoaded&&rooms.length>next.length;rooms=append?[...new Map([...rooms,...next].map(room=>[room.id,room])).values()]:retained?[...next,...rooms.filter(room=>!next.some(item=>item.id===room.id))]:next;departments=list(result.departments);listCursor=retained?previousCursor:result.nextCursor||null;loaded=true;listError='';lastCatalogAt=now();if(Number.isSafeInteger(result.unreadCount))unreadRemainder=result.unreadCount-loadedUnread();
         if(selected&&!rooms.some(room=>room.id===selected)){selected=null;roomEpoch++;resetThread();}
+        else if(selected&&syncedThrough!==null&&(Number(currentRoom()?.latestSeq)>syncedThrough||Number(currentRoom()?.version)>syncedVersion))wakeSync();
         paintRooms();paintThreadHead();if(!selected&&rooms.length&&!append)await selectRoom(rooms[0].id,{open:false});
       }catch(error){if(disposed||started!==epoch||request!==listRequest)return;listError=safeError(error,'Chatrum kunne ikke hentes.');if(!deny(error)){lastCatalogAt=now();if(!loaded){syncFailures++;nextSyncAt=now()+Math.min(30000,1000*2**Math.min(syncFailures,5));}}paintThreadHead();}
       finally{if(!disposed&&started===epoch&&request===listRequest){listPending=false;listSilent=false;paintRooms();}}
@@ -147,7 +154,7 @@
     async function loadThread(id=selected,{initial=false,silent=false}={}){
       if(disposed||!active||!id||id!==selected)return;const started=epoch,startedAccess=accessEpoch,selection=roomEpoch,request=++threadRequest;threadPending=true;threadSilent=silent;threadError='';syncError='';const previousLatest=Math.max(0,...messages.map(sequence));paintThreadHead();
       try{const result=await readRoom({roomId:id,limit:50});if(disposed||started!==epoch||selection!==roomEpoch||request!==threadRequest||id!==selected||!acceptAccess(result,startedAccess))return;
-        const bottom=initial||nearBottom();rememberRoom(result.room);const fresh=list(result.messages);messages=sortMessages([...messages,...fresh]);pins=list(result.pins);adoptReadSequence(fresh);syncedVersion=result.room?.version||syncedVersion;syncFailures=0;nextSyncAt=0;if(initial||!messageCursor){messageCursor=result.nextCursor||null;hasMore=result.hasMore===true;}
+        const bottom=initial||nearBottom();rememberRoom(result.room);const fresh=list(result.messages);messages=sortMessages([...messages,...fresh]);pins=list(result.pins);adoptReadSequence(fresh);syncedVersion=result.room?.version||syncedVersion;syncFailures=0;nextSyncAt=0;wakeSync();if(initial||!messageCursor){messageCursor=result.nextCursor||null;hasMore=result.hasMore===true;}
         const arrived=fresh.filter(message=>sequence(message)>previousLatest&&message.authorId!==options.viewer?.userId).length;if(!bottom&&previousLatest&&arrived)newCount+=arrived;
         threadPending=false;threadError='';paintPins();paintMessages({bottom});paintThreadHead();paintRooms();paintJump();if(bottom)await markRead();
       }catch(error){if(disposed||started!==epoch||selection!==roomEpoch||request!==threadRequest)return;threadError=safeError(error,'Beskederne kunne ikke hentes.');if(!deny(error)){syncFailures++;nextSyncAt=now()+Math.min(30000,1000*2**Math.min(syncFailures,5));}paintThreadHead();}
@@ -167,7 +174,7 @@
       finally{marking=false;}
     }
     async function sendMessage(){
-      if(!canSend())return;const id=selected,body=input.value,started=epoch,startedAccess=accessEpoch,selection=roomEpoch;let pending=pendingSends.get(id);if(!pending||pending.text!==body){pending={text:body,clientId:globalThis.crypto?.randomUUID?.()||'chat-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)};pendingSends.set(id,pending);}sendingRoom=id;send.disabled=true;composerFeedback('Sender…');
+      if(!canSend())return;wakeSync();const id=selected,body=input.value,started=epoch,startedAccess=accessEpoch,selection=roomEpoch;let pending=pendingSends.get(id);if(!pending||pending.text!==body){pending={text:body,clientId:globalThis.crypto?.randomUUID?.()||'chat-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)};pendingSends.set(id,pending);}sendingRoom=id;send.disabled=true;composerFeedback('Sender…');
       try{const result=await call('chatSend',{roomId:id,text:pending.text,clientId:pending.clientId});if(disposed||started!==epoch||!acceptAccess(result,startedAccess))return;pendingSends.delete(id);if(drafts.get(id)===body)drafts.delete(id);rememberRoom(result.room);
         if(selected===id&&selection===roomEpoch){if(input.value===body){input.value='';drafts.delete(id);}messages=sortMessages([...messages,...(result.message?[result.message]:[])]);newCount=0;paintMessages({bottom:true});paintJump();composerFeedback('Sendt');input.focus?.({preventScroll:true});await markRead();}paintRooms();
       }catch(error){if(!disposed&&started===epoch&&selected===id&&selection===roomEpoch){if(!deny(error))composerFeedback(safeError(error,'Beskeden blev ikke sendt. Prøv igen.'),true);}}
@@ -203,7 +210,7 @@
       finally{if(!disposed&&started===epoch){mutationBusy=false;demoButton.disabled=false;}}
     }
     async function syncThread(){
-      if(!visible()||!selected||syncedThrough===null||!Number.isSafeInteger(syncedVersion)||syncPending||threadPending||olderPending||sendingRoom||mutationBusy||now()<nextSyncAt)return;
+      if(!visible()||!selected||syncedThrough===null||!Number.isSafeInteger(syncedVersion)||syncPending||threadPending||olderPending||sendingRoom||mutationBusy||now()<nextSyncAt||now()<nextIdleSyncAt)return;
       const id=selected,started=epoch,selection=roomEpoch,request=++syncRequest,readRequest=threadRequest;syncPending=true;
       try{
         for(let page=0;page<4;page++){
@@ -214,7 +221,7 @@
           const fresh=list(result.messages),through=result.throughSeq;
           if(!Number.isSafeInteger(through)||through<afterSeq||!Number.isSafeInteger(result.version)||result.version<version||result.unchanged!==true&&(result.room?.id!==id||fresh.some((message,index)=>sequence(message)!==afterSeq+index+1)||through!==(fresh.length?sequence(fresh.at(-1)):afterSeq)||result.version!==version&&!Array.isArray(result.pins))){const error=Error('Samtalens opdatering kunne ikke bekræftes. Åbn chatten igen.');error.status=409;error.code='chat_access_changed';throw error;}
           if(result.unchanged===true&&(through!==afterSeq||result.version!==version)){const error=Error('Samtalen ændrede sig under opdateringen.');error.code='chat_sync_changed';throw error;}
-          syncFailures=0;nextSyncAt=0;syncError='';threadError='';
+          syncFailures=0;nextSyncAt=0;syncError='';threadError='';scheduleSync(result.unchanged===true);
           if(result.unchanged!==true){
             const bottom=nearBottom(),known=new Set(messages.map(message=>message.id)),arrived=fresh.filter(message=>!known.has(message.id)&&message.authorId!==options.viewer?.userId).length;
             rememberRoom(result.room);messages=sortMessages([...messages,...fresh]);if(Array.isArray(result.pins))pins=result.pins;syncedThrough=through;syncedVersion=result.version;
@@ -239,16 +246,17 @@
       if(syncedThrough===null)await loadThread(selected,{initial:true,silent:messages.length>0});else await syncThread();
     }
     function syncTimer(){if(timer!==null){(win.clearInterval||clearInterval)(timer);timer=null;}if(visible())timer=(win.setInterval||setInterval)(()=>{if(visible())poll();},1000);}
-    function setActive(value){if(disposed)return;const next=value===true;if(next===active)return;active=next;if(!active){epoch++;roomEpoch++;listRequest++;threadRequest++;syncRequest++;syncPending=false;listPending=false;threadPending=false;olderPending=false;marking=false;sendingRoom=null;mutationBusy=false;modal.hidden=true;modalState=null;}syncTimer();if(active){const prior=selected;loadRooms(false,{silent:loaded}).then(()=>{if(visible()&&selected&&selected===prior){if(syncedThrough===null)loadThread(selected,{initial:!messages.length,silent:messages.length>0});else syncThread();}});}}
-    function visibility(){syncTimer();if(visible()){nextSyncAt=0;poll();}}
+    function setActive(value){if(disposed)return;const next=value===true;if(next===active)return;active=next;if(!active){epoch++;roomEpoch++;listRequest++;threadRequest++;syncRequest++;syncPending=false;listPending=false;threadPending=false;olderPending=false;marking=false;sendingRoom=null;mutationBusy=false;modal.hidden=true;modalState=null;}syncTimer();if(active){wakeSync();const prior=selected;loadRooms(false,{silent:loaded}).then(()=>{if(visible()&&selected&&selected===prior){if(syncedThrough===null)loadThread(selected,{initial:!messages.length,silent:messages.length>0});else syncThread();}});}}
+    function visibility(){syncTimer();if(visible()){wakeSync();nextSyncAt=0;poll();}}
     input.addEventListener('input',()=>{if(selected)drafts.set(selected,input.value);composerFeedback();});input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendMessage();}});composer.addEventListener('submit',event=>{event.preventDefault();sendMessage();});
     scroller.addEventListener('scroll',()=>{if(nearBottom()){newCount=0;paintJump();markRead();}});departmentSelect.addEventListener('change',()=>{const department=departments.find(item=>item.id===departmentSelect.value);if(department)nameInput.value=department.name;});modalForm.addEventListener('submit',event=>{event.preventDefault();saveRoom();});
     dialog.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeModal();return;}if(event.key!=='Tab')return;const candidates=[modalClose,departmentSelect,nameInput,cancel,confirm].filter(el=>!el.disabled&&!el.hidden),first=candidates[0],last=candidates.at(-1);if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last?.focus?.();}else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first?.focus?.();}});
     doc.addEventListener?.('visibilitychange',visibility);
+    win.addEventListener?.('focus',visibility);
     return {
       render(next={}){if(disposed)return;const merged={...options,...next},key=[merged.workspaceId||'',merged.viewer?.userId||'',merged.scopeKey||'',merged.readonly===true?'preview':'account'].join('|');if(identity&&key!==identity){setActive(false);accessKey='';accessEpoch++;unreadRemainder=0;epoch++;roomEpoch++;rooms=[];departments=[];selected=null;loaded=false;readonly=false;canManage=false;listPending=false;threadPending=false;drafts.clear();pendingSends.clear();lastMarked.clear();resetThread();lastRoomSignature='';}identity=key;options=merged;readonly=merged.readonly===true||readonly;root.dataset.employee=String(merged.employee===true);if(next.active!==undefined)setActive(next.active);else if(!active)setActive(true);paintRooms();paintThreadHead();},
       setActive,refresh,load:()=>loadRooms(),
-      destroy(){if(disposed)return;setActive(false);disposed=true;epoch++;doc.removeEventListener?.('visibilitychange',visibility);drafts.clear();pendingSends.clear();element.replaceChildren();},
+      destroy(){if(disposed)return;setActive(false);disposed=true;epoch++;doc.removeEventListener?.('visibilitychange',visibility);win.removeEventListener?.('focus',visibility);drafts.clear();pendingSends.clear();element.replaceChildren();},
       dispose(){this.destroy();}
     };
   }

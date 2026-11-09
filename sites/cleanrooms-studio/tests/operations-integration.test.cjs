@@ -15,25 +15,52 @@ assert.ok(boundary > 0 && undoHandler && saveNeedStart > boundary && saveNeedEnd
 const saveNeedSource = source.slice(saveNeedStart,saveNeedEnd);
 const plain = value => JSON.parse(JSON.stringify(value));
 
+class Element {
+  constructor(tag='input') {
+    this.tagName=tag; this.value=''; this.hidden=true; this.checked=false;
+    this.dataset={}; this.attributes={}; this.children=[]; this.className='';
+    this.valid=true; this.disabled=false; this.isConnected=true; this._text=''; this.listeners={};
+  }
+  set textContent(value) { this._text=String(value); this.children=[]; }
+  get textContent() { return this._text+this.children.map(child=>child.textContent).join(''); }
+  set innerHTML(value) { throw new Error('Descriptions must be rendered as text, not HTML.'); }
+  append(...children) { this.children.push(...children); }
+  replaceChildren(...children) { this._text=''; this.children=[...children]; }
+  get options() { return this.children; }
+  setAttribute(name,value) { this.attributes[name]=String(value); }
+  removeAttribute(name) { delete this.attributes[name]; }
+  addEventListener(type,handler) { (this.listeners[type]??=[]).push(handler); }
+  fire(type) { for(const handler of this.listeners[type]||[])handler({target:this,currentTarget:this,preventDefault(){}}); }
+  getAttribute(name) { return this.attributes[name]??null; }
+  matches(selector) { if(selector[0]==='.')return this.className.split(' ').includes(selector.slice(1));if(selector==='[data-publication-review-focus]')return !!this.dataset.publicationReviewFocus;return this.tagName.toLowerCase()===selector.toLowerCase(); }
+  querySelectorAll(selector) { return descendants(this).filter(node=>typeof node.matches==='function'&&node.matches(selector)); }
+  querySelector(selector) { return this.querySelectorAll(selector)[0]||null; }
+  contains(node) { return descendants(this).includes(node); }
+  focus() { this.focused=true;this.ownerDocument.activeElement=this; }
+  scrollIntoView(options) { this.scrollOptions=options; }
+  reportValidity() { this.validityChecks=(this.validityChecks||0)+1;return this.valid; }
+}
+
+function descendants(element) { return element.children.flatMap(child=>[child,...descendants(child)]); }
+
 // Use the real operation, transaction and lifecycle functions. Only DOM painting
 // and external persistence are isolated; production sources gain no test hooks.
 function application() {
-  const controls = new Map(), accountCalls=[];
-  const control = selector => {
-    if (!controls.has(selector)) controls.set(selector,{
-      value:'',hidden:true,disabled:false,dataset:{},isConnected:true,valid:true,children:[],get options(){return this.children;},append(...children){this.children.push(...children);},replaceChildren(...children){this.children=children;},
-      setAttribute(){},removeAttribute(){},focus(){this.focused=true;},scrollIntoView(options){this.scrollOptions=options;},
-      reportValidity(){this.validityChecks=(this.validityChecks || 0) + 1;return this.valid;}
-    });
+  const controls=new Map(),accountCalls=[];
+  const control=selector=>{
+    if(!controls.has(selector))controls.set(selector,document.createElement('input'));
     return controls.get(selector);
   };
-  const root = {querySelector:control,querySelectorAll:()=>[]};
+  const root={querySelector:control,querySelectorAll:()=>[]};
+  const document={getElementById:()=>root,createElement:tag=>{const element=new Element(tag);element.ownerDocument=document;return element;},createTextNode:text=>({textContent:String(text),children:[]})};
   const context = vm.createContext({
     CleanRoomsData:{...require('../src/studio-data.js'),anchor:'2026-10-26',today:'2026-10-30'},
     CleanRoomsRoster:require('../src/roster-model.js'),
     CleanRoomsPublication:require('../src/publication-model.js'),
+    CleanRoomsPublicationRange:require('../src/publication-range.js'),
+    CleanRoomsPublicationReview:require('../src/publication-review-view.js'),
     Date,Map,Set,Math,JSON,Number,String,Array,Object,RegExp,accountCalls,
-    window:{},document:{getElementById:()=>root,createElement:()=>control('created-'+controls.size),createTextNode:text=>({textContent:String(text),children:[]})},
+    window:{},document,
     CleanRoomsSeries:require('../src/series-engine.js'),
     CleanRoomsActions:require('../src/schedule-actions.js'),
     CleanRoomsBulk:require('../src/bulk-actions.js'),
@@ -64,7 +91,7 @@ function application() {
       replacementContext,replacementProposal,replacementCandidates,applyReplacement,
       applyNeedRule,removeNeedRule,decideLeave,validCoverageRules,validDemoSession,saveNeedForm,
       setNeedDays:days => needDays = new Set(days),
-      installDemoFixture,exitDemo,restore,weekReview,publishReviewedWeek,undo:undoAction,
+      installDemoFixture,exitDemo,restore,weekReview,openChanges,publishReviewedWeek,undo:undoAction,
       getOperationOpenings:() => operationOpenings,
       getUndo:() => lastUndo,setUndo:value => lastUndo = clone(value)
     };
@@ -263,7 +290,7 @@ test('committed leave decisions expose assigned occurrences without rewriting sh
   rejected.undo();assert.equal(rejected.state.requests.b,'rejected');
 });
 
-test('publication with newly approved absence opens operations without creating or changing a baseline or undo',async()=>{
+test('publication review blocks newly approved absence without creating or changing a baseline or undo',async()=>{
   for (const existingBaseline of [false,true]) {
     const app = application(); app.state.week = 1;
     if (existingBaseline) app.weekPlan();
@@ -271,9 +298,13 @@ test('publication with newly approved absence opens operations without creating 
     assert.equal(app.weekReview().absences.length,2);
     assert.equal(app.weekReview().overlaps.length,0,'This guard must be exercised by approved absence alone.');
     const before = plain(app.snapshot()), undo = plain(app.getUndo());
+    app.openChanges();
+    assert.equal(app.control('#cs-changes-layer').hidden,false);
+    assert.equal(app.control('#cs-changes-publish').disabled,true);
+    assert.match(app.control('#cs-publication-footer-note').textContent,/godkendt fravær/);
+    assert.match(app.control('#cs-changes-list').textContent,/vagter med konflikt/);
     await app.publishReviewedWeek();
-    assert.equal(app.getOperationOpenings().length,1);
-    assert.equal(app.getOperationOpenings()[0],app.control('#cs-publish'));
+    assert.equal(app.getOperationOpenings().length,0,'Review keeps the conflict in context rather than unexpectedly opening another panel.');
     assert.deepEqual(plain(app.snapshot()),before);
     assert.deepEqual(plain(app.getUndo()),undo);
     if (existingBaseline) {

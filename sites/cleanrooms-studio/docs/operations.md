@@ -14,8 +14,7 @@ Use a supported Node version with `node:sqlite` and `node:sqlite.backup` (at lea
 
 ```sh
 npm ci
-npm test
-npx tsc --noEmit
+npm run verify
 npm run build
 ```
 
@@ -34,6 +33,12 @@ The managed Linux build path uses `scripts/build-verified.sh` with a bounded Vin
 `npm run dev` prepares only the local D1 schema and opens the local preview. The local sign-in adapter is development-only. Keep preview services local and use the normal Sites ingress for authenticated deployed testing.
 
 A green test suite and build are necessary checks, not a provider load test. Test plan/employee visibility, login/invitation, clocking, approval and one publication in a non-production environment before release. Confirm that a description's formatting, CSP and iframe restrictions remain intact.
+
+`npm run verify` runs the authored-runtime ESLint checks, a clean-checkout-compatible typecheck and every `tests/*.test.cjs` file. Each test file runs in an isolated process with explicit test and process timeouts. A cancelled test, a leaking process or a nonzero exit fails verification; none is force-exited into a passing result. The compact machine-readable result and individual logs are written to ignored `outputs/verify/`. The checked-in CI runs the same verification and build without deployment credentials.
+
+`tests/pilot-flow-e2e.test.cjs` exercises the real web/account/mobile handlers through an in-process gateway and all migrations on disposable SQLite: create an employee, assign a pay group and allowance, save a recurring draft, publish two weeks, read the employee inbox and checklist, clock/pause/resume/finish, approve only matching hours and verify the frozen payroll after a later group change. Separate scenarios cover late arrival, reasoned rejection, employee explanation, planner correction and an active Sunday shift completed on Monday. These are application integration tests; they do not certify a real phone's location, production ingress or provider recovery.
+
+Mobile API and gateway responses include a non-secret request ID. Failure logs deliberately omit bodies, employee emails, passwords, session tokens and GPS coordinates. Correlate a failure with that ID rather than asking a customer to send credentials or a full request dump. Rate-limited mobile requests return a bounded `Retry-After`; clock-out and attendance recovery are outside the chat/read action quotas.
 
 ## Migrations and release
 

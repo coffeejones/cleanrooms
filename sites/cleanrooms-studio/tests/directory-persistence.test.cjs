@@ -51,3 +51,10 @@ test('profile caching is bounded and invalid bulk commands never reach the trans
  const h=harness({maxProfiles:1});h.seed();for(const id of ['person-one','person-two']){const loading=h.service.get('employee',id);await drain();await h.reply(h.reads.at(-1),page([values().find(row=>row.id===id)]));assert.equal((await loading).ok,true);}const reopened=h.service.get('employee','person-one');await drain();assert.equal(h.reads.length,3);await h.reply(h.reads[2],page([values()[0]]));await reopened;
  for(const changes of [[{kind:'employee',id:'__proto__',expectedVersion:0,patch:{name:'Unsafe'}}],Array.from({length:5001},(_,index)=>({kind:'employee',id:'person-'+index,expectedVersion:0,patch:{name:'Too many'}}))])assert.equal((await h.service.commit(changes)).status,400);assert.equal(h.writes.length,0);
 });
+
+
+test('directory catalog and profile caches expire and concurrent identical profile reads share one transport',async()=>{
+ let now=0;const h=harness({now:()=>now,cacheTtlMs:30000});h.seed();const first=h.service.get('employee','person-one'),same=h.service.get('employee','person-one');await drain();assert.equal(h.reads.length,1);await h.reply(h.reads[0],page([values()[0]]));assert.equal((await first).ok,true);assert.equal((await same).ok,true);assert.equal((await h.service.get('employee','person-one')).cached,true);
+ now=30001;const refresh=h.service.get('employee','person-one');await drain();assert.equal(h.reads.length,2);await h.reply(h.reads[1],page([{...values()[0],version:2,value:employee('person-one',{name:'Server update'})}],{directory:header(2)}));assert.equal((await refresh).record.value.name,'Server update');
+ const catalog=h.service.loadCatalog();await drain();assert.equal(h.reads.length,3);await h.reply(h.reads[2],page([{...values()[0],version:2,value:employee('person-one',{name:'Server update'})},...values().slice(1)],{directory:header(2)}));assert.equal((await catalog).ok,true);assert.equal(h.service.staff[0].name,'Server update');
+});

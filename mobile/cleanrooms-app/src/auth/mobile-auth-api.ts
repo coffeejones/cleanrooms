@@ -1,5 +1,7 @@
 import { fetch } from 'expo/fetch';
 import { validDate, type ChecklistItem, type ClockInLocation, type Shift, type Site } from '@/domain/model';
+import { confirmsTimeCommand, monotonicNow } from '@/state/attendance-runtime';
+import { retryAfterMilliseconds } from '@/state/retry-policy';
 
 export type Employee = {
   workspaceId: string;
@@ -32,7 +34,7 @@ export const canUseMobileAuth = mobileAuthOrigin !== null && process.env.EXPO_OS
 export const authUnavailableMessage = 'Medarbejderlogin er endnu ikke tilsluttet denne appversion.';
 
 export class MobileAuthError extends Error {
-  constructor(readonly code: string, readonly status: number, message: string) {
+  constructor(readonly code: string, readonly status: number, message: string, readonly retryAfterMs?: number) {
     super(message);
     this.name = 'MobileAuthError';
   }
@@ -40,7 +42,7 @@ export class MobileAuthError extends Error {
 
 type AuthAction = Record<string, unknown> & { action: string };
 export type PublishedShift = { shift: Shift; site: Site; entry?: ShiftTimeEntry | null };
-export type ShiftTimeOperation = 'start' | 'pause' | 'resume' | 'finish';
+export type ShiftTimeOperation = 'start' | 'pause' | 'resume' | 'finish' | 'submit';
 export type ShiftTimeCommand = {
   shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null; location: ClockInLocation | null;
 };
@@ -48,6 +50,7 @@ export type ShiftTimeEntry = {
   version: number; status: 'running' | 'paused' | 'submitted' | 'approved' | 'rejected';
   clockIn: string | null; clockOut: string | null; pauseAt: string | null;
   workedSeconds?: number; measuredAt?: number;
+  receivedAtMonotonic?: number; comment?: string; rejectionReason?: string;
 };
 export type PublishedShiftDetail = PublishedShift & { clockInRadius: number | null; entry: ShiftTimeEntry | null; completedTaskIds: string[]; checklistToken: string | null };
 
@@ -84,7 +87,7 @@ function readShift(value: unknown): PublishedShift {
   const { id, personId, date, start, end, breakMinutes, description, checklist, site } = value;
   const clock = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   if (!isText(id, 512) || !isText(personId, 512) || !validDate(date)
-    || typeof start !== 'string' || !clock.test(start) || typeof end !== 'string' || !clock.test(end) || start >= end
+    || typeof start !== 'string' || !clock.test(start) || typeof end !== 'string' || !clock.test(end) || start === end
     || typeof breakMinutes !== 'number' || !Number.isInteger(breakMinutes) || breakMinutes < 0 || breakMinutes > 1440
     || !isText(site.id, 512) || typeof site.name !== 'string' || typeof site.address !== 'string'
     || (description !== undefined && typeof description !== 'string') || (checklist !== undefined && !Array.isArray(checklist))) throw invalid();
@@ -109,7 +112,12 @@ function readTimeEntry(value: unknown): ShiftTimeEntry {
     || !stamp(clockIn) || !stamp(clockOut) || !stamp(pauseAt)) throw invalid();
   const workedSeconds = typeof value.workedSeconds === 'number' && Number.isSafeInteger(value.workedSeconds) && value.workedSeconds >= 0 ? value.workedSeconds : undefined;
   const measuredAt = typeof value.measuredAt === 'number' && Number.isSafeInteger(value.measuredAt) ? value.measuredAt : undefined;
-  return { version, status, clockIn, clockOut, pauseAt, ...(workedSeconds !== undefined && measuredAt !== undefined ? { workedSeconds, measuredAt } : {}) };
+  if (value.comment !== undefined && typeof value.comment !== 'string' || value.rejectionReason !== undefined && typeof value.rejectionReason !== 'string') throw invalid();
+  return { version, status, clockIn, clockOut, pauseAt,
+    ...(workedSeconds !== undefined && measuredAt !== undefined ? { workedSeconds, measuredAt, receivedAtMonotonic: monotonicNow() } : {}),
+    ...(value.comment !== undefined ? { comment: value.comment } : {}),
+    ...(value.rejectionReason !== undefined ? { rejectionReason: value.rejectionReason } : {}),
+  };
 }
 
 async function request(body: AuthAction, token?: string): Promise<unknown> {
@@ -139,12 +147,12 @@ async function request(body: AuthAction, token?: string): Promise<unknown> {
     }
 
     if (response.status === 429) {
-      throw new MobileAuthError('mobile_throttled', 429, 'For mange forsøg. Vent lidt, og prøv igen.');
+      throw new MobileAuthError('mobile_throttled', 429, 'For mange forsøg. Vent lidt, og prøv igen.', retryAfterMilliseconds(response.headers.get('retry-after')));
     }
     if (isObject(payload) && isText(payload.error, 100) && isText(payload.message, 300) && response.status < 500) {
       throw new MobileAuthError(payload.error, response.status, payload.message);
     }
-    throw new MobileAuthError('mobile_unavailable', response.status, 'Login er midlertidigt utilgængeligt. Prøv igen.');
+    throw new MobileAuthError('mobile_unavailable', response.status, 'Login er midlertidigt utilgængeligt. Prøv igen.', retryAfterMilliseconds(response.headers.get('retry-after')));
   } catch (error) {
     if (error instanceof MobileAuthError) throw error;
     throw new MobileAuthError('mobile_connection_failed', 503, 'Kunne ikke få forbindelse. Tjek dit netværk, og prøv igen.');
@@ -166,6 +174,14 @@ export const mobileAuthApi = {
   changePassword: (token: string, currentPassword: string, newPassword: string) =>
     authenticate({ action: 'changePassword', currentPassword, newPassword }, token),
   logout: async (token: string) => { await request({ action: 'logout' }, token); },
+  activeTime: async (token: string): Promise<PublishedShift | null> => {
+    const value = await request({ action: 'employeeActiveTime' }, token);
+    if (!isObject(value) || !Object.hasOwn(value, 'shift')) throw invalidResponse();
+    if (value.shift === null) return null;
+    const result = readShift(value.shift);
+    if (!result.entry || !['running', 'paused'].includes(result.entry.status)) throw invalidResponse();
+    return result;
+  },
   publishedSchedule: async (token: string, from: string, to: string, cursor: string | null) => {
     const value = await request({ action: 'publishedSchedule', from, to, cursor }, token);
     if (!isObject(value) || !Array.isArray(value.shifts) || (value.nextCursor !== null && !isText(value.nextCursor, 1024))) {
@@ -189,9 +205,25 @@ export const mobileAuthApi = {
     if (checklistToken !== undefined && (typeof checklistToken !== 'string' || !/^[a-f0-9]{64}$/.test(checklistToken))) throw invalidResponse();
     return { ...shift, clockInRadius, entry: entry === null ? null : readTimeEntry(entry), completedTaskIds: completedTaskIds ?? [], checklistToken: checklistToken ?? null };
   },
-  shiftTime: async (token: string, command: ShiftTimeCommand) => {
-    const value = await request({ action: 'shiftTime', ...command }, token);
-    if (!isObject(value)) throw invalidResponse();
-    return readTimeEntry(value.entry);
+  shiftTime: async (token: string, command: ShiftTimeCommand): Promise<ShiftTimeEntry> => {
+    try {
+      const value = await request({ action: 'shiftTime', ...command }, token);
+      if (!isObject(value)) throw invalidResponse();
+      return readTimeEntry(value.entry);
+    } catch (error) {
+      if (!(error instanceof MobileAuthError) || error.status < 500 && error.status !== 409) throw error;
+      // A timeout can arrive after commit. Never repeat a clock command before
+      // asking the server; the original CAS version also fences a later retry.
+      try {
+        const latest = await mobileAuthApi.publishedShift(token, command.shiftId);
+        if (confirmsTimeCommand(command.operation, command.version, latest?.entry, command.comment)) return latest!.entry!;
+      } catch (readError) {
+        if (readError instanceof MobileAuthError && readError.status === 401) throw readError;
+        // The result remains uncertain, never invent a local receipt.
+      }
+      if (error.status === 409) throw error;
+      throw new MobileAuthError('mobile_time_unconfirmed', error.status,
+        'Stemplingens status kunne ikke bekræftes. Hent vagten igen, før du prøver igen.');
+    }
   },
 };

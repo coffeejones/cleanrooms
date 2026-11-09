@@ -234,3 +234,25 @@ test('login rejects unknown and wrong passwords identically and the account limi
   assert.equal(sqlite.prepare('SELECT COUNT(*) AS count FROM workspace_mobile_sessions').get().count, 0);
   assert.equal((await login(created.temporaryPassword, { now: start + 15 * 60_000 })).temporaryPassword, true);
 });
+
+test('eight targeted guesses cannot lock the same employee out from another source', async t => {
+  const { issue, login } = setup(t);
+  const created = await issue();
+  for (let i = 0; i < 8; i++) await assert.rejects(login('incorrect', { ip: '198.51.100.10' }), { status: 401 });
+  await assert.rejects(login(created.temporaryPassword, { ip: '198.51.100.10' }), { status: 429 });
+  assert.equal((await login(created.temporaryPassword, { ip: '198.51.100.11' })).employee.personId, personId);
+});
+
+test('successful shared-network logins release their own reservations without erasing earlier failures', async t => {
+  const { sqlite, issue, login } = setup(t);
+  const { createHash } = require('node:crypto');
+  const created = await issue(), ip = '198.51.100.20';
+  const scope = createHash('sha256').update('login-source:' + ip).digest('hex');
+  sqlite.prepare('INSERT INTO workspace_mobile_auth_attempts VALUES (?,?,?,?)').run(scope, 119, start + 15 * 60_000, 'earlier-failures');
+  for (let i = 0; i < 4; i++) {
+    assert.equal((await login(created.temporaryPassword, { ip })).employee.personId, personId);
+    assert.equal(sqlite.prepare('SELECT attempts FROM workspace_mobile_auth_attempts WHERE scope_hash=?').get(scope).attempts, 119);
+  }
+  await assert.rejects(login('incorrect', { ip }), { status: 401 });
+  await assert.rejects(login(created.temporaryPassword, { ip }), { status: 429 });
+});

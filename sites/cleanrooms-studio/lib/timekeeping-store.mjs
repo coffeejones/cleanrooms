@@ -5,6 +5,7 @@ import Directory from '../src/directory-records.js';
 import {readDirectorySite} from './directory-store.mjs';
 import {ensureTimeEntries,findTimeEntry,readTimeEntries,entryInterval,TIME_ENTRY_BYTES} from './time-entry-store.mjs';
 import {readPublishedTimeShifts} from './publication-time-store.mjs';
+import {readPlannerTimePage} from './timekeeping-page.mjs';
 import {initializeTimekeepingContext,assertTimekeepingContext,timekeepingPeople,timekeepingPlannedRows} from './timekeeping-context.mjs';
 const clone=value=>JSON.parse(JSON.stringify(value));
 const validText=(v,max)=>typeof v==='string'&&v.length<=max&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v);
@@ -61,6 +62,12 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
     return safe;
   }
   async function readBundle(entry=null){
+    if(manager&&payload.queue!==undefined){
+      const page=await readPlannerTimePage({db,context,payload,range,frame,header:row,document,helpers:h,caps,stamp,hydrate:async entries=>{salaryPeople=entries.map(item=>item.personId);bundlePromise=null;return Promise.all(entries.map(dto));}});
+      const planned=payload.scope==='demo'?{plannedRows:page.plannedRows}:await timekeepingPlannedRows({db,context,frame,...range,personId:scopedPerson});
+      await assertTimekeepingContext({db,context,frame,helpers:h});
+      return {...page,from:range.from,to:range.to,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,plannedRows:planned.plannedRows,demo:document.demo?{...clone(document.demo),shifts:undefined,active:true}:{active:false},canManage:true,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};
+    }
     const beforeHeader=await h.first(db,'SELECT version FROM workspace_timekeeping WHERE workspace_id = ?',workspaceId);
     let page;try{page=await readTimeEntries({db,workspaceId,...range,personId:manager?payload.personId:personId,includeDemo:manager,limit:payload.pageSize??5000,cursor:payload.cursor??null});}catch(error){h.fail(error.status||400,error.code||'time_page_invalid',error.message);}
     // A forgotten older checkout must remain reachable even outside the employee's current calendar month.

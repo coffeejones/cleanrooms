@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
@@ -8,6 +8,7 @@ import { colors } from '@/constants/palette';
 import { addDays, dateLabel, instantForLocal } from '@/domain/model';
 import { useNow } from '@/state/app-store';
 import { useEmployeeWorkflow, type EmployeeWorkflow, type EmployeeWorkflowShift } from '@/state/employee-data';
+import { useScopedState } from '@/state/scoped-state';
 
 export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; to: string; unavailableDates: ReadonlySet<string> }) {
   const { employeeRequest, state: auth } = useMobileAuth();
@@ -15,46 +16,52 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
   const now = useNow();
   const employee = auth.mode === 'signedIn' ? auth.session.employee : null;
   const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, from, to]) : '';
-  const [pages, setPages] = useState<{ key: string; shifts: EmployeeWorkflowShift[]; cursor: string | null }>();
-  const [confirmed, setConfirmed] = useState<{ key: string; shifts: string[] }>();
-  const [busy, setBusy] = useState<string | null>(null);
-  const [paging, setPaging] = useState(false);
+  const [pages, setPages] = useState<{ key: string; generation: number; shifts: EmployeeWorkflowShift[]; cursor: string | null }>();
+  const [confirmed, setConfirmed] = useState<{ key: string; generation: number; shifts: string[] }>();
+  const [busy, setBusy] = useScopedState<string | null>(key + ':' + resource.generation, null);
+  const [paging, setPaging] = useScopedState(key + ':' + resource.generation, false);
   const [error, setError] = useState('');
   const pending = useRef(false);
-  const extra = pages?.key === key ? pages : undefined;
+  const epoch = useRef(0);
+  useLayoutEffect(() => { const value = ++epoch.current; pending.current = false; return () => { epoch.current = value + 1; }; }, [key, resource.generation]);
+  const extra = pages?.key === key && pages.generation === resource.generation ? pages : undefined;
   const cursor = extra ? extra.cursor : resource.data?.pagination.openShifts ?? null;
   const shifts = useMemo(() => [...new Map([...(resource.data?.openShifts ?? []), ...(extra?.shifts ?? [])].map(shift => [shift.id, shift])).values()]
     .filter(shift => instantForLocal(shift.date, shift.start) > now)
     .sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start)), [extra?.shifts, now, resource.data?.openShifts]);
   const requested = new Set([
     ...(resource.data?.requests ?? []).filter(request => request.kind === 'claim' && ['pending', 'awaiting_colleague'].includes(request.status)).map(request => request.shift.id),
-    ...(confirmed?.key === key ? confirmed.shifts : []),
+    ...(confirmed?.key === key && confirmed.generation === resource.generation ? confirmed.shifts : []),
   ]);
 
   async function loadMore() {
-    if (!cursor || pending.current) return;
+    if (!cursor || pending.current || resource.loading || resource.error) return;
+    const generation = epoch.current;
     pending.current = true;
     setPaging(true); setError('');
     try {
       const page = await employeeRequest<EmployeeWorkflow>({ action: 'workflowRead', from, to, openCursor: cursor, limit: 50 });
+      if (epoch.current !== generation) return;
       if (!page || !Array.isArray(page.openShifts) || !page.pagination || page.pagination.openShifts === cursor) throw new Error('De næste vagter kunne ikke indlæses. Prøv igen.');
-      setPages(previous => ({ key, shifts: [...(previous?.key === key ? previous.shifts : []), ...page.openShifts], cursor: page.pagination.openShifts ?? null }));
-    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Vagterne kunne ikke hentes. Prøv igen.'); }
-    finally { pending.current = false; setPaging(false); }
+      setPages({ key, generation: resource.generation, shifts: [...(extra?.shifts ?? []), ...page.openShifts], cursor: page.pagination.openShifts ?? null });
+    } catch (failure) { if (epoch.current === generation) { setError(failure instanceof Error ? failure.message : 'Vagterne kunne ikke hentes. Prøv igen.'); resource.refresh(); } }
+    finally { if (epoch.current === generation) { pending.current = false; setPaging(false); } }
   }
 
   async function claim(shift: EmployeeWorkflowShift) {
-    if (pending.current) return;
+    if (pending.current || resource.loading) return;
+    const generation = epoch.current;
     pending.current = true;
     setBusy(shift.id); setError('');
     try {
       const result = await employeeRequest<EmployeeWorkflow>({ action: 'workflowRequest', kind: 'claim', shiftId: shift.id, fingerprint: shift.fingerprint, comment: '', from, to });
+      if (epoch.current !== generation) return;
       if (!result || !Array.isArray(result.requests) || !result.requests.some(request => request.kind === 'claim' && request.shift.id === shift.id
         && ['pending', 'awaiting_colleague', 'approved'].includes(request.status))) throw new Error('Anmodningen kunne ikke bekræftes. Prøv igen.');
-      setConfirmed(previous => ({ key, shifts: [...new Set([...(previous?.key === key ? previous.shifts : []), shift.id])] }));
+      setConfirmed(previous => ({ key, generation: resource.generation, shifts: [...new Set([...(previous?.key === key && previous.generation === resource.generation ? previous.shifts : []), shift.id])] }));
       resource.refresh();
-    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Anmodningen kunne ikke sendes. Prøv igen.'); resource.refresh(); }
-    finally { pending.current = false; setBusy(null); }
+    } catch (failure) { if (epoch.current === generation) { setError(failure instanceof Error ? failure.message : 'Anmodningen kunne ikke sendes. Prøv igen.'); resource.refresh(); } }
+    finally { if (epoch.current === generation) { pending.current = false; setBusy(null); } }
   }
 
   return <View style={cardStyles.listSurface}>

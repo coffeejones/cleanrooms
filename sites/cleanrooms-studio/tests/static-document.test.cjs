@@ -4,6 +4,8 @@ const request=(headers={},method='GET')=>new Request('https://cleanrooms.example
 
 test('only an unchanged static shell revalidates without a response body, always privately',async()=>{
  const content='<!doctype html><p>Invariant application shell Æ</p>',serve=createStaticDocument(content),first=await serve(request());
+ assert.equal(first.headers.get('x-content-type-options'),'nosniff');
+ assert.equal(first.headers.get('content-security-policy'),"frame-ancestors 'self' https://chatgpt.com https://chat.openai.com");
  assert.equal(first.status,200);assert.equal(await first.text(),content);assert.equal(first.headers.get('cache-control'),'private, no-cache');assert.match(first.headers.get('etag'),/^"[a-f0-9]{64}"$/);
  for(const validator of [first.headers.get('etag'),'W/'+first.headers.get('etag'),'"outdated", W/'+first.headers.get('etag'),'*']){
   const cached=await serve(request({'if-none-match':validator}));assert.equal(cached.status,304);assert.equal(await cached.text(),'');assert.equal(cached.headers.get('etag'),first.headers.get('etag'));assert.equal(cached.headers.get('cache-control'),'private, no-cache');

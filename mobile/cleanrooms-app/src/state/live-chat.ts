@@ -5,6 +5,8 @@ import { AppState } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { MobileAuthError } from '@/auth/mobile-auth-api';
+import { RetryGate } from './retry-policy';
+import { monotonicNow } from './attendance-runtime';
 
 import { integer, invalid, record, readLiveChatRooms, readLiveConversation, readMessage, readRoom, readSync, readViewer, mergeLiveMessages, type Conversation, type RoomPage } from './chat-wire';
 export type { LiveChatMessage, LiveChatRoom } from './chat-wire';
@@ -27,7 +29,7 @@ function useActiveScreen() {
 function useChatScope(roomId = '') {
   const auth = useMobileAuth();
   const employee = auth.state.mode === 'signedIn' ? auth.state.session.employee : null;
-  const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, roomId]) : '';
+  const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, auth.state.mode === 'signedIn' ? auth.state.session.expiresAt : '', roomId]) : '';
   const epoch = useRef(0);
   useLayoutEffect(() => {
     const generation = epoch.current + 1;
@@ -43,27 +45,32 @@ export function useLiveChatRooms() {
   const [resource, setResource] = useState<RoomsState>();
   const current = resource?.key === key ? resource : undefined;
   const pending = useRef(false);
-  useLayoutEffect(() => { pending.current = false; }, [key]);
+  const retry = useRef(new RetryGate(15_000, 120_000));
+  useLayoutEffect(() => { pending.current = false; retry.current = new RetryGate(15_000, 120_000); }, [key]);
 
   const load = useCallback(async (next: string | null = null, manual = false) => {
-    if (!key || pending.current) return;
+    if (!key || pending.current || !retry.current.ready(monotonicNow())) return;
     const request = epoch.current;
+    const retryVersion = retry.current.version;
     pending.current = true;
     setResource(previous => ({ key, data: previous?.key === key ? previous.data : undefined, loading: !next, more: Boolean(next), refreshing: manual }));
     try {
       const response = await employeeRequest({ action: 'chatList', cursor: next, limit: 100 });
       if (epoch.current !== request) return;
       const page = readLiveChatRooms(response);
+      retry.current.success(retryVersion);
       if (next && page.nextCursor === next) throw new Error('Samtalelisten kunne ikke indlæses. Prøv igen.');
       setResource(previous => {
         const old = previous?.key === key ? previous.data : undefined;
-        const tail = !next && page.nextCursor && old ? old.rooms.filter(room => room.id > (page.rooms.at(-1)?.id ?? '')) : [];
-        const rooms = [...new Map([...(next && old ? old.rooms : []), ...page.rooms, ...tail].map(item => [item.id, item])).values()]
+        const rooms = [...new Map([...(next && old ? old.rooms : []), ...page.rooms].map(item => [item.id, item])).values()]
           .sort((a, b) => a.id.localeCompare(b.id));
-        return { key, data: { ...page, rooms, nextCursor: tail.length && old ? old.nextCursor : page.nextCursor }, loading: false, more: false, refreshing: false };
+        return { key, data: { ...page, rooms }, loading: false, more: false, refreshing: false };
       });
     } catch (error) {
-      if (epoch.current === request) setResource(previous => ({ key, data: !forbidden(error) && previous?.key === key ? previous.data : undefined, loading: false, more: false, refreshing: false, error: problem(error) }));
+      if (epoch.current === request) {
+        retry.current.fail(monotonicNow(), error instanceof MobileAuthError ? error.retryAfterMs : undefined);
+        setResource(previous => ({ key, data: !forbidden(error) && previous?.key === key ? previous.data : undefined, loading: false, more: false, refreshing: false, error: problem(error) }));
+      }
     } finally { if (epoch.current === request) pending.current = false; }
   }, [employeeRequest, epoch, key]);
 
@@ -92,12 +99,14 @@ export function useLiveConversation(roomId: string) {
   const pendingSend = useRef<{ text: string; clientId: string } | undefined>(undefined);
   const marked = useRef(0);
   const denied = useRef(false);
+  const retry = useRef(new RetryGate());
   const markTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeRef = useRef(active);
   useLayoutEffect(() => { activeRef.current = active; }, [active]);
   useLayoutEffect(() => {
     data.current = undefined; reading.current = false; syncing.current = false; queuedRead.current = null; sending.current = false;
     pendingSend.current = undefined; marked.current = 0; denied.current = false; stream.current = { afterSeq: 0, version: 1 };
+    retry.current = new RetryGate();
     return () => { if (markTimer.current) clearTimeout(markTimer.current); };
   }, [key]);
 
@@ -106,24 +115,27 @@ export function useLiveConversation(roomId: string) {
     setResource(previous => ({ key, data: next, loading: false, more: false, sending: previous?.key === key ? previous.sending : false }));
   }, [key]);
   const fail = useCallback((error: unknown) => {
+    retry.current.fail(monotonicNow(), error instanceof MobileAuthError ? error.retryAfterMs : undefined);
     if (forbidden(error)) { data.current = undefined; denied.current = true; }
     setResource(previous => ({ key, data: data.current, loading: false, more: false, sending: previous?.key === key ? previous.sending : false, error: problem(error) }));
   }, [key]);
 
   const read = useCallback(async (before: string | null = null) => {
-    if (!key || !roomId || reading.current || denied.current) return;
+    if (!key || !roomId || reading.current || denied.current || !retry.current.ready(monotonicNow())) return;
     if (syncing.current) {
       queuedRead.current = { before };
       setResource(previous => ({ key, data: data.current, loading: !before, more: Boolean(before), sending: previous?.key === key ? previous.sending : false }));
       return;
     }
     const request = epoch.current;
+    const retryVersion = retry.current.version;
     reading.current = true;
     setResource(previous => ({ key, data: data.current, loading: !before, more: Boolean(before), sending: previous?.key === key ? previous.sending : false }));
     try {
       const response = await employeeRequest({ action: 'chatRead', roomId, before, limit: 50 });
       if (epoch.current !== request) return;
       const page = readLiveConversation(response, roomId, before ? data.current?.viewer.userId : undefined);
+      retry.current.success(retryVersion);
       if (before && before === page.nextCursor) throw new Error('Ældre beskeder kunne ikke indlæses. Prøv igen.');
       const old = data.current?.viewer.userId === page.viewer.userId ? data.current : undefined;
       if (before && old) accept({ ...old, room: page.room, messages: mergeLiveMessages(old.messages, page.messages), pins: page.pins, nextCursor: page.nextCursor });
@@ -136,8 +148,9 @@ export function useLiveConversation(roomId: string) {
   }, [accept, employeeRequest, epoch, fail, key, roomId]);
 
   const sync = useCallback(async () => {
-    if (!key || !data.current || reading.current || syncing.current) return;
+    if (!key || !data.current || reading.current || syncing.current || !retry.current.ready(monotonicNow())) return;
     const request = epoch.current;
+    const retryVersion = retry.current.version;
     syncing.current = true;
     try {
       for (let pageIndex = 0; pageIndex < 4; pageIndex++) {
@@ -145,6 +158,7 @@ export function useLiveConversation(roomId: string) {
         const response = await employeeRequest({ action: 'chatSync', roomId, afterSeq: previous.afterSeq, version: previous.version, limit: 50 });
         if (epoch.current !== request || !data.current) return;
         const page = readSync(response, roomId, { afterSeq: previous.afterSeq, viewerId: data.current.viewer.userId });
+        retry.current.success(retryVersion);
         stream.current = { afterSeq: page.throughSeq, version: page.version };
         if (!page.unchanged) accept({ ...data.current, viewer: page.viewer, room: page.room ?? data.current.room,
           messages: mergeLiveMessages(data.current.messages, page.messages), pins: page.pins ?? data.current.pins });
@@ -172,8 +186,9 @@ export function useLiveConversation(roomId: string) {
   }, [active, key, read, sync]);
 
   const send = useCallback(async (draft: string) => {
-    if (!key || !data.current || sending.current || !draft.trim() || draft.length > 10_000) return false;
+    if (!key || !data.current || sending.current || !draft.trim() || draft.length > 10_000 || !retry.current.ready(monotonicNow())) return false;
     const request = epoch.current;
+    const retryVersion = retry.current.version;
     sending.current = true;
     setResource({ key, data: data.current, loading: false, more: false, sending: true, error: undefined });
     try {
@@ -184,6 +199,7 @@ export function useLiveConversation(roomId: string) {
       if (!record(result)) return invalid();
       const room = readRoom(result.room), message = readMessage(result.message), viewer = readViewer(result.viewer, data.current.viewer.userId);
       if (room.id !== roomId || message.authorId !== viewer.userId || message.text !== draft) return invalid();
+      retry.current.success(retryVersion);
       accept({ ...data.current, viewer, room, messages: mergeLiveMessages(data.current.messages, [message]) });
       pendingSend.current = undefined;
       return true;
@@ -197,11 +213,11 @@ export function useLiveConversation(roomId: string) {
   }, [accept, employeeRequest, epoch, fail, key, roomId]);
 
   const markRead = useCallback((throughSeq: number) => {
-    if (!activeRef.current || !data.current || !integer(throughSeq, 1) || throughSeq <= marked.current || throughSeq > data.current.room.latestSeq) return;
+    if (!activeRef.current || !data.current || !integer(throughSeq, 1) || throughSeq <= marked.current || throughSeq > data.current.room.latestSeq || !retry.current.ready(monotonicNow())) return;
     if (markTimer.current) clearTimeout(markTimer.current);
     const request = epoch.current;
     markTimer.current = setTimeout(() => {
-      if (epoch.current !== request || !activeRef.current) return;
+      if (epoch.current !== request || !activeRef.current || !retry.current.ready(monotonicNow())) return;
       void employeeRequest({ action: 'chatReadMark', roomId, throughSeq }).then(result => {
         if (epoch.current !== request || !data.current) return;
         if (!record(result)) return invalid();
@@ -211,13 +227,13 @@ export function useLiveConversation(roomId: string) {
         if (throughSeq < marked.current) return;
         marked.current = Math.max(marked.current, throughSeq);
         accept({ ...data.current, room });
-      }).catch(error => { if (epoch.current === request && forbidden(error)) fail(error); });
+      }).catch(error => { if (epoch.current === request) { if (forbidden(error)) fail(error); else retry.current.fail(monotonicNow(), error instanceof MobileAuthError ? error.retryAfterMs : undefined); } });
     }, 350);
   }, [accept, employeeRequest, epoch, fail, roomId]);
 
   const [muting, setMuting] = useState(false);
   const mute = useCallback(async () => {
-    if (!key || !data.current || muting) return;
+    if (!key || !data.current || muting || !retry.current.ready(monotonicNow())) return;
     const request = epoch.current;
     setMuting(true);
     try {

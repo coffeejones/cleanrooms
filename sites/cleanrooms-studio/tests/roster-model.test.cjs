@@ -39,6 +39,14 @@ test('CSV parser handles BOM, semicolons, escaped quotes and quoted newlines wit
   assert.ok(Roster.parseCSV('Navn,Timer\n"Anna"x,30').issues.length);
 });
 
+test('pasted CSV enforces byte, row and column limits before retaining unbounded input or diagnostics',()=>{
+  for(const input of ['Navn\n'+'ø'.repeat(3*1024*1024),'Navn\n'+'Anna\n'.repeat(5001),Array(34).fill('Navn').join(';')+'\nAnna']){
+    const result=Roster.parseCSV(input);assert.ok(result.issues.some(issue=>issue.code==='limit'));assert.ok(result.issues.length<=100);assert.ok(result.rows.length<=5001);
+  }
+  const malformed=Roster.parseCSV('Navn\n"Anna"'+'x'.repeat(100000));assert.equal(malformed.issues.length,1);assert.ok(JSON.stringify(malformed.issues).length<1000);
+  const manyQuotes=Roster.parseCSV('Navn\nAnna'+'"'.repeat(100000));assert.ok(manyQuotes.issues.length<=100);assert.ok(JSON.stringify(manyQuotes.issues).length<20000);
+});
+
 test('CSV preview merges explicit IDs, resolves names and stable worksite IDs, handles Danish decimal hours, and stays immutable',()=>{
   const input=freeze([person(),person({id:'person-bob',name:'Bob',initials:'B'})]);const before=JSON.stringify(input);
   const csv='ID;Navn;Initialer;Timer;Arbejdssted;Funktion;Aktiv\nperson-anna;Anna Jensen;AJ;32,5;site-nord;Teamleder;nej\n;Camilla Sørensen;;20;Havnegade;Servicemedarbejder;ja';

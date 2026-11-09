@@ -45,3 +45,8 @@ example
 # Generated verification artifacts
 dist-native/
 outputs/
+
+# Generated native verification output
+dist-ios-verification/
+dist-ios-final/
+dist-*/

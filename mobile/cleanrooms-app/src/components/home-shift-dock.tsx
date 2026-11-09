@@ -8,6 +8,7 @@ import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
 import { demoNow, useAppData } from '@/state/app-store';
+import { elapsedSeconds, monotonicNow } from '@/state/attendance-runtime';
 
 function durationLabel(seconds: number) {
   const days = Math.floor(seconds / 86_400);
@@ -55,12 +56,13 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
   start: number;
   entry?: TimeEntry;
   live?: boolean;
-  serverClock?: { workedSeconds?: number; measuredAt?: number };
+  serverClock?: { workedSeconds?: number; measuredAt?: number; receivedAtMonotonic?: number };
 }) {
   const { state } = useAppData();
   const focused = useIsFocused();
   const { fontScale, width } = useWindowDimensions();
   const [realNow, setRealNow] = useState(Date.now);
+  const [elapsedNow, setElapsedNow] = useState(monotonicNow);
   const running = entry?.status === 'running';
   const paused = entry?.status === 'paused';
   const now = live ? realNow : demoNow(state, realNow);
@@ -68,7 +70,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
 
   useEffect(() => {
     if (!focused || !counting) return;
-    const tick = () => setRealNow(Date.now());
+    const tick = () => { setRealNow(Date.now()); setElapsedNow(monotonicNow()); };
     const refresh = setTimeout(tick, 0);
     const timer = setInterval(tick, 1_000);
     return () => {
@@ -79,8 +81,9 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
 
   const waiting = !entry && start > now;
   const workedUntil = paused ? Date.parse(entry.pauses.at(-1)?.start ?? entry.clockIn) : now;
-  const elapsed = live && serverClock?.workedSeconds !== undefined && serverClock.measuredAt !== undefined
-    ? serverClock.workedSeconds * 1_000 + (running ? Math.max(0, now - serverClock.measuredAt) : 0)
+  const serverElapsed = serverClock && elapsedSeconds({ version: 1, status: running ? 'running' : 'paused', clockIn: null, clockOut: null, pauseAt: null, ...serverClock }, elapsedNow);
+  const elapsed = live
+    ? (serverElapsed ?? 0) * 1_000
     : entry
     ? workingIntervals(entry, workedUntil).reduce((total, interval) => total + interval.end - interval.start, 0)
     : 0;
@@ -110,7 +113,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
           <View style={[styles.counter, compactWidth && styles.stackedCounter]}>
             <Txt size={11} color={colors.muted}>{counterLabel}</Txt>
             <Txt size={17} weight="600" color={running ? colors.success : colors.ink} style={styles.digits}>
-              {entry || waiting ? duration.display : shift.start}
+              {live && entry && serverElapsed == null ? '—' : entry || waiting ? duration.display : shift.start}
             </Txt>
           </View>
         </View>

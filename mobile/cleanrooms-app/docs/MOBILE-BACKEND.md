@@ -43,3 +43,14 @@ Native push via APNs/FCM og enhedsregistrering er en separat integration. Indsti
 - Indlæs notifikationer og chat med stabile id'er/cursors. Modtag nye hændelser uden at udskifte hele listen eller flytte læserens scrollposition.
 
 Demoens satser og enkle tillægsregler er kun til afprøvning af brugerfladen. De erstatter ikke virksomhedens faktiske løngrupper, personlige undtagelser, lønperiodeopsætning eller overenskomstregler.
+
+## Stabiliserede medarbejderflows
+
+- `employeeInbox(cursor, limit)` og `employeeInboxRead(messageId)` er uafhængige af vagtens dato og kalenderens valgte periode. Indbakke og klokke deler invalidering; ekstra sider er bundet til en konkret frisk generation.
+- `employeeActiveTime()` gendanner egen igangværende/pause-registrering uanset valgt uge og app-genstart. Uret viser serverens varighed plus monoton tid siden modtagelse, aldrig forskellen mellem server- og telefonens vægur.
+- Et usikkert stemplingsresultat genlæser den konkrete vagt og bekræfter overgang/version før succes eller fejlsvar. Et fortsat ukendt resultat vises som uafklaret; et nyt forsøg genlæser igen og genbruger CAS, uden automatisk dobbeltstempling.
+- Returnerede timer viser planlæggerens begrundelse og medarbejderens kommentar. `shiftTime.submit` sender kun forklaring/version, aldrig redigerede tider. Manglende udstempling skal stadig afklares af planlæggeren.
+- En fremtidig egen vagt kan tilbydes en søgbar kollega. Modtagerens `workflowRespond` accepterer eller afslår, og accepterede tilbud afventer fortsat planlæggergodkendelse.
+- Chat respekterer serverens `Retry-After`, øger ventetiden med jitter efter fejl og lader ikke et gammelt succesrespons ophæve en nyere throttle. Klient-ID fastholdes ved genforsøg på afsendelse.
+
+Serverlogout har en krypteret SecureStore-kø med højst 16 originbundne jobs og serverens sessionsudløb. Et kølagt token må ikke genoprette en session efter et afbrudt logout; det bruges alene til logout-requesten. Køen prøves igen ved opstart/forgrund og fjerner først et job ved serverens ACK eller kendt udløb. Hvis kølagring fejler, gennemføres lokal logout stadig, serverlogout forsøges direkte, og appen oplyser ærligt, at serverlukning ikke er bekræftet. Det er ingen garanti for serverrevokering, mens en enhed forbliver offline, afinstalleres eller ikke kan gemme køen.

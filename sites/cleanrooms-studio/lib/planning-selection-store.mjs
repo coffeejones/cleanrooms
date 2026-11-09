@@ -5,6 +5,7 @@ import Window from '../src/planning-window.js';
 import {currentCalendarSummary,packCalendarSummary,calendarSummaryChunks} from './planning-calendar-summary.mjs';
 import Data from '../src/studio-data.js';
 import {decodePlanningRecord,PlanningStoreError,planWindowFields,readPlanningRecords} from './planning-store.mjs';
+import {storedScheduleErrors} from './planning-validation.mjs';
 import {draftWindowPage,windowMetadata,projectStudioWindow} from './planning-window-store.mjs';
 import {publicationSelection,publicationSelectionPage,projectPublicationSelection,publicationAvailabilityPage,projectPublicationWindow} from './publication-store.mjs';
 
@@ -26,6 +27,7 @@ function decodeSummary(row){
   if(row.schedule_version!==row.version||typeof row.schedule_config!=='string'||encoder.encode(row.schedule_config).length>16*1024)fail(500,'planning_schedule_invalid','Planens tidsoversigt er ikke opdateret.');
   let value;try{value=JSON.parse(row.schedule_config);}catch{fail(500,'planning_schedule_invalid','Planens tidsoversigt er ugyldig.');}
   if(value.kind!==row.kind||value.id!==row.id||typeof value.hasDescription!=='boolean'||Planning.canonical(Scope.compact(value.kind,value.id,value.value))!==Planning.canonical(value.value))fail(500,'planning_schedule_invalid','Planens tidsoversigt kunne ikke valideres.');
+  if(storedScheduleErrors(value.kind,value.id,value.value).length)fail(409,'planning_schedule_repair_required','Den gemte '+(value.kind==='series'?'vagtserie':'vagt')+' '+value.id+' har ugyldige tider eller datoer. Ret eller fjern posten.');
   return value;
 }
 

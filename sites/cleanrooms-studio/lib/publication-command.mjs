@@ -1,6 +1,8 @@
 /* Targeted authoritative publication contexts; the outer plan CAS owns commit. */
 import Publication from '../src/publication-model.js';
 import Data from '../src/studio-data.js';
+import {seriesCoreErrors} from './planning-validation.mjs';
+import Time from '../src/timekeeping-model.js';
 import Series from '../src/series-engine.js';
 import {readPublicationDraftContext} from './planning-selection-store.mjs';
 import {readPublicationCommandContext,readPublicationMetadata} from './publication-store.mjs';
@@ -43,6 +45,9 @@ export async function readPublicationLineage({db,workspaceId,before,after}){
   if(!changed.length)return {before:{},after:{},changed:false};
   const {meta}=await readPublicationMetadata({db,workspaceId}),headers=new Map();
   for(const source of changed){let cursor='';while(true){const rows=await all(db,`SELECT id,scope_key,person_id,work_date,site,start_time,end_time FROM workspace_published_shifts WHERE workspace_id=? AND deleted=0 AND id>=? AND id<? AND id>? ORDER BY id LIMIT 500`,workspaceId,source.id+'@',source.id+'A',cursor);for(const row of rows)if(Series.occurrenceAnchor(row.id,source.id)){headers.set(row.id,row);if(headers.size>50000)fail(413,'publication_context_too_large','Ændringen berører for mange udgivne vagter. Vælg en mindre aftale.');}if(rows.length<500)break;cursor=rows.at(-1).id;}}
+  // An unpublished legacy record can be repaired/deleted without expanding its
+  // invalid recurrence. No published occurrence means there is no lineage to add.
+  if(!headers.size)return {before:{},after:{},changed:false};
   // Only frozen scope headings are read. Synthetic shifts need no instruction
   // content: withLineage compares identities/dates/sites, never descriptions.
   const slots={};for(const batch of groups([...new Set([...headers.values()].map(row=>row.scope_key))])){
@@ -50,6 +55,19 @@ export async function readPublicationLineage({db,workspaceId,before,after}){
     for(const row of rows)slots[row.scope_key]={from:row.from_date,to:row.to_date,site:row.site,location:{index:row.site,id:'lineage',name:'',address:'',color:''},publicationId:'lineage',at:'2000-01-01T00:00:00.000Z',actor:{userId:'lineage',name:''},shifts:[]};
   }
   for(const row of headers.values()){if(!slots[row.scope_key])fail(500,'publication_storage_invalid','Udgivelsens vagt mangler sit arbejdssted.');slots[row.scope_key].shifts.push({id:row.id,person:row.person_id,date:row.work_date,site:row.site,start:row.start_time,end:row.end_time,note:''});}
-  const publication={...meta.value,slots,records:[]},linked=Publication.withLineage({...before,publications:publication},{...after,publications:publication}).publications;
+  const publication={...meta.value,slots,records:[]};
+  // A bad historical template must not be re-enumerated during explicit repair.
+  // Frozen publication rows below are the exact surviving occurrence evidence.
+  // The temporary no-occurrence template is used only for lineage calculation;
+  // neither the stored record nor its unknown metadata is replaced by it.
+  const safeBefore={...before,series:(before.series||[]).map(source=>{
+    if(!changed.includes(source)||!seriesCoreErrors(source).length)return source;
+    const frozen=[...headers.values()].filter(row=>Series.occurrenceAnchor(row.id,source.id));
+    const day=Time.validDate(source.startDate)&&source.startDate>='2000-01-01'&&source.startDate<='2100-12-31'?source.startDate:frozen[0]?.work_date;
+    if(!day)fail(409,'planning_series_repair_required','Den gemte vagtserie '+source.id+' skal gennemgås, før udgivne perioder ændres.');
+    const weekday=(new Date(day+'T12:00:00Z').getUTCDay()+6)%7;
+    return {...source,person:frozen[0]?.person_id||'legacy',site:frozen[0]?.site??0,startDate:day,endDate:day,weekdays:[(weekday+1)%7],start:'07:00',end:'15:00',plannedBreakMinutes:0,dayTimes:{},openEnded:false,note:'',noteRich:undefined};
+  })};
+  const linked=Publication.withLineage({...safeBefore,publications:publication},{...after,publications:publication}).publications;
   const old={...meta.value,slots:{},records:[]},next={...linked,slots:{},records:[]};return {before:{publications:old},after:{publications:next},changed:JSON.stringify(old.scopeLinks||[])!==JSON.stringify(next.scopeLinks||[])};
 }

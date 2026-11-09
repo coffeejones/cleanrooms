@@ -566,3 +566,12 @@ test('eviction and reload reserve measured border-box height, while explicit exp
  let loaded=true;const view=setup({weekState:()=>({loaded}),shifts:[{id:'one',person:'p0',site:0,date:'2026-10-26',start:'07:00',end:'15:00'}]}),root=view.result.element;root.querySelectorAll('.cs-board-week')[0].getBoundingClientRect=()=>({top:0,bottom:910,height:910});loaded=false;view.result.update(view.options);let section=root.querySelectorAll('.cs-board-week')[0];assert.equal(section.style.minHeight,'910px');assert.equal(section.style.boxSizing,'border-box');section.getBoundingClientRect=()=>({top:0,bottom:910,height:910});loaded=true;view.result.update(view.options);section=root.querySelectorAll('.cs-board-week')[0];assert.equal(section.style.minHeight,'910px');assert.equal(section.style.boxSizing,'border-box');
  const entries=Array.from({length:13},(_,index)=>({id:'extra-'+index,person:'p'+index,site:0,date:'2026-10-27',start:'07:00',end:'15:00'})),expanded=setup({shifts:entries}),board=expanded.result.element;board.querySelectorAll('.cs-board-week')[0].getBoundingClientRect=()=>({top:0,bottom:900,height:900});board.querySelectorAll('.cs-board-more')[0].dispatch('click');assert.equal(expanded.result.shown.length,13);let week=board.querySelectorAll('.cs-board-week')[0];week.getBoundingClientRect=()=>({top:0,bottom:1600,height:1600});week.querySelectorAll('.cs-board-more')[0].dispatch('click');assert.equal(expanded.result.shown.length,12);assert.equal(board.querySelectorAll('.cs-board-week')[0].style.minHeight,'');
 });
+
+
+test('asynchronous wage or budget headings preserve a protected native drag and revalidate its next target',()=>{
+ const view=setup({weekCost:()=>({state:'loading'})});view.start();view.transfer.getData=()=>'';view.over(1);
+ const before=view.previews.length;assert.equal(view.card.classList.contains('is-dragging'),true);
+ view.result.update({...view.options,weekCost:()=>({state:'ready',totalCents:123400,complete:true})});
+ assert.equal(view.card.classList.contains('is-dragging'),true);assert.equal(view.result.element.querySelectorAll('.cs-event')[0],view.card);
+ view.over(2);assert.equal(view.previews.length,before+1);assert.equal(view.previews.at(-1),'2026-10-28');view.drop(2);assert.equal(view.moves.length,1);
+});

@@ -24,6 +24,7 @@ import {handleEmployeeRead,initializeEmployeeReadContext,readEmployeePublishedSh
 import {handlePlannerDetail} from './planner-detail-store.mjs';
 import {readPublicationBudget} from './publication-budget.mjs';
 import {readPlanningCost} from './planning-cost.mjs';
+import {enforceWorkspaceRequestQuota} from './workspace-request-quota.mjs';
 import {readPlanningAvailability} from './employee-availability.mjs';
 import {lookupSiteAddress} from './site-address-lookup.mjs';
 import EmployeeCalendar from '../src/employee-calendar.js';
@@ -326,8 +327,9 @@ export function employeeProjection(studio,personId) {
   return {person:sharedData(person),shifts,sites,progress,leaveRequests,minDate:Data.minDate,maxDate:Data.maxDate};
 }
 
-function response(body,status=200) {return Response.json(body,{status,headers:{'Cache-Control':'no-store, private','Vary':'oai-authenticated-user-id','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});}
+function response(body,status=200,extraHeaders={}) {return Response.json(body,{status,headers:{'Cache-Control':'no-store, private','Vary':'oai-authenticated-user-id','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',...extraHeaders}});}
 function errorResponse(error) {
+  if(error instanceof StudioError&&error.status===429){const requestId=error.requestId||crypto.randomUUID(),retryAfter=Number.isSafeInteger(error.retryAfterSeconds)&&error.retryAfterSeconds>0?Math.min(error.retryAfterSeconds,3600):60;return response({error:error.code,message:error.message,requestId},429,{'Retry-After':String(retryAfter),'X-Request-ID':requestId});}
   if(error instanceof StudioError||error instanceof PlanningStoreError||error instanceof DirectoryError||Number.isInteger(error?.status)&&/^(directory_|employee_)/.test(error?.code||''))return response({error:error.code,message:error.message,...(error.conflicts?{conflicts:error.conflicts}:{})},error.status);
   if(/UNIQUE constraint failed: workspace_members|workspace_members_active_person_unique/i.test(String(error?.message)))return response({error:'member_conflict',message:'Medarbejderen eller kontoen er allerede tilknyttet. Hent den seneste liste.'},409);
   const requestId=crypto.randomUUID();
@@ -447,7 +449,7 @@ async function saveScopedPlanning({db,context,principal,payload,projection}){
         lineage=await readPublicationLineage({db,workspaceId:context.workspace.id,before:old,after:next});
         if(lineage.changed){old.publications=lineage.before.publications;next.publications=lineage.after.publications;}
       }
-      validateStudio(next);appendActivity(next,old,actor,previous.revision+1,at,publication);
+      validateStudio(next,{previous:old});appendActivity(next,old,actor,previous.revision+1,at,publication);
       const entries=[...originalHistory,...next.activity],persisted={...next,activity:[],checklistProgress:{},shiftWorkflow:ShiftWorkflow.empty()};delete persisted.absences;delete persisted.absenceHasMore;
       const source=previous.source,receipt=previous.planning,saved={...previous,studio:old};Object.defineProperty(saved,'source',{value:source});Object.defineProperty(saved,'planning',{value:receipt});Object.defineProperty(saved,'directory',{value:directoryContext.directory});
       const directoryCommitGuard=publication?{sql:'('+directoryContext.guard.sql+') AND ('+absenceGuard(context).sql+')',values:[...directoryContext.guard.values,...absenceGuard(context).values]}:directoryContext.guard;
@@ -526,8 +528,8 @@ export async function handleWorkspaceStudioRequest(request,storage) {
       const scoped=projection?projectRead(previous.studio,planningReceipt(previous),projection,[]):null;
       return response({revision:previous.revision,planning:scoped?.planning||planningReceipt(previous),...(scoped?scopeExtras(scoped):{}),reconciledStudio:{...sharedStudio(scoped?.studio||previous.studio),...ownPreferences}});
     }
-    let next=validateStudio(sharedStudio(submission?submission.studio:payload.studio));
     const old=sharedStudio(previous.studio||{});
+    let next=validateStudio(sharedStudio(submission?submission.studio:payload.studio),{previous:old});
     if(!Object.hasOwn(next,'roster')&&Object.hasOwn(old,'roster'))next.roster=clone(old.roster);
     if(!Object.hasOwn(next,'workspaceSettings')&&Object.hasOwn(old,'workspaceSettings'))next.workspaceSettings=clone(old.workspaceSettings);
     if(Object.hasOwn(old.workspaceSettings||{},'workHoursBudget')&&record(next.workspaceSettings)&&!Object.hasOwn(next.workspaceSettings,'workHoursBudget'))next.workspaceSettings.workHoursBudget=clone(old.workspaceSettings.workHoursBudget);
@@ -628,9 +630,8 @@ export async function handleDirectoryRequest(request,storage){
     if(payload.action==='read'){
       if(Object.keys(payload).some(key=>!['action','kind','ids','cursor','limit','catalog'].includes(key))||payload.catalog!==undefined&&typeof payload.catalog!=='boolean')fail(400,'directory_request_invalid','Oversigtens afgrænsning er ugyldig.');
       const fullAccess=caps.plan,employeeAdmin=caps.manageUsers,departmentAdmin=caps.manageDepartments;
-      if(!fullAccess){
-        if(payload.kind==='employee'&&employeeAdmin){}else if(['site','department'].includes(payload.kind)&&departmentAdmin){}else if(payload.kind==='employee'&&context.member.personId&&Array.isArray(payload.ids)&&payload.ids.length===1&&payload.ids[0]===context.member.personId&&!payload.cursor){}else fail(403,'directory_read_forbidden','Du har ikke adgang til disse virksomhedsoplysninger.');
-      }
+      const ownEmployee=payload.kind==='employee'&&context.member.personId&&Array.isArray(payload.ids)&&payload.ids.length===1&&payload.ids[0]===context.member.personId&&!payload.cursor;
+      if(!fullAccess&&!(payload.kind==='employee'&&employeeAdmin)&&!(['site','department'].includes(payload.kind)&&departmentAdmin)&&!ownEmployee)fail(403,'directory_read_forbidden','Du har ikke adgang til disse virksomhedsoplysninger.');
       const point=payload.ids!==undefined;
       if(point&&payload.kind!==undefined&&(!Array.isArray(payload.ids)||payload.ids.some(id=>typeof id!=='string')))fail(400,'directory_keys_invalid','Vælg id fra den samme type poster.');
       if(point&&(payload.cursor!==undefined||payload.limit!==undefined))fail(400,'directory_request_invalid','Vælg poster eller en side ad gangen.');
@@ -1056,7 +1057,8 @@ async function manageMobileCredential(db,context,principal,payload,caps,secret) 
     (!creating&&!reading&&(!Number.isSafeInteger(payload.version)||payload.version<1))) {
     fail(400,'mobile_admin_invalid','Vælg en gyldig medarbejder og det aktuelle app-login.');
   }
-  const options={db,workspaceId:context.workspace.id,personId:payload.personId,expectedVersion:creating?0:payload.version,actorGuard:actorGuard(context,['users.manage']),secret};
+  const options={db,workspaceId:context.workspace.id,personId:payload.personId,expectedVersion:creating?0:payload.version,actorGuard:actorGuard(context,['users.manage']),secret,
+    audit:({condition,before,after})=>accountAuditStatements({db,context,principal,operation:payload.action,id:payload.personId,condition,before,after})};
   if(reading){
     const account=await readMobileCredential(options);
     const suggestedEmail=account?null:await suggestedAppLoginEmail(options);
@@ -1116,6 +1118,7 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
     }
     const mobileAdmin=MOBILE_ADMIN_ACTIONS.has(payload.action);
     const catalogRead=['list','payrollRead','payrollPolicyRead'].includes(payload.action),inviteWrite=payload.action==='invite',operational=mobileAdmin||CHAT_ACTIONS.has(payload.action)||['timeRead','timeWrite','timeDemo','leaveRead','leaveCreate','leaveDecide','employeeRead','employeeShift','plannerDetail','checklist','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide'].includes(payload.action),context=await resolveWorkspace(db,principal,{metadataOnly:operational||catalogRead||inviteWrite||payload.action==='preferences',directoryOnly:operational||inviteWrite||payload.action==='preferences',catalogOnly:catalogRead,personIds:inviteWrite?[payload.personId]:payload.action==='preferences'?[payload.preferences?.employeePerson]:[]}),caps=capabilities(context);
+    await enforceWorkspaceRequestQuota({db,context,action:payload.action,helpers:{actorGuard,assertContext}});
     if(mobileAdmin)return await manageMobileCredential(db,context,principal,payload,caps,secret);
     if(CHAT_ACTIONS.has(payload.action))return response(await handleChatAction({db,context,payload,helpers:{actorGuard,assertContext,fail}}));
     if(payload.action==='activityRead')return response(await readActivity({db,context,payload,helpers:{capabilities,actorGuard,assertContext,fail,rows,first}}));

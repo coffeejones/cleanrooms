@@ -10,26 +10,53 @@ const undoHandler = source.match(/q\('#cs-undo'\)\.addEventListener\('click',([^
 assert.ok(boundary > 0 && undoHandler,'The integration harness must find the app setup boundary and actual undo handler.');
 const plain = value => JSON.parse(JSON.stringify(value));
 
+class Element {
+  constructor(tag='input') {
+    this.tagName=tag; this.value=''; this.hidden=true; this.checked=false;
+    this.dataset={}; this.attributes={}; this.children=[]; this.className='';
+    this.disabled=false; this.isConnected=true; this._text=''; this.listeners={};
+  }
+  set textContent(value) { this._text=String(value); this.children=[]; }
+  get textContent() { return this._text+this.children.map(child=>child.textContent).join(''); }
+  set innerHTML(value) { throw new Error('Descriptions must be rendered as text, not HTML.'); }
+  append(...children) { this.children.push(...children); }
+  replaceChildren(...children) { this._text=''; this.children=[...children]; }
+  get options() { return this.children; }
+  setAttribute(name,value) { this.attributes[name]=String(value); }
+  removeAttribute(name) { delete this.attributes[name]; }
+  addEventListener(type,handler) { (this.listeners[type]??=[]).push(handler); }
+  fire(type) { for(const handler of this.listeners[type]||[])handler({target:this,currentTarget:this,preventDefault(){}}); }
+  getAttribute(name) { return this.attributes[name]??null; }
+  matches(selector) { if(selector[0]==='.')return this.className.split(' ').includes(selector.slice(1));if(selector==='[data-publication-review-focus]')return !!this.dataset.publicationReviewFocus;return this.tagName.toLowerCase()===selector.toLowerCase(); }
+  querySelectorAll(selector) { return descendants(this).filter(node=>typeof node.matches==='function'&&node.matches(selector)); }
+  querySelector(selector) { return this.querySelectorAll(selector)[0]||null; }
+  contains(node) { return descendants(this).includes(node); }
+  focus() { this.ownerDocument.activeElement=this; }
+  scrollIntoView() {}
+  reportValidity() { return true; }
+}
+
+function descendants(element) { return element.children.flatMap(child=>[child,...descendants(child)]); }
+
 // Execute the actual planning functions in isolation. Only painting and preview
 // DOM work are replaced; commit, baselines, publication, bulk planning and undo
 // are all taken from app.js. No hooks are added to production sources.
 function application() {
-  const controls = new Map();
-  const control = selector => {
-    if (!controls.has(selector)) controls.set(selector,{
-      value:'',hidden:true,dataset:{},disabled:false,isConnected:true,
-      setAttribute(){},removeAttribute(){},focus(){},reportValidity:()=>true
-    });
+  const controls=new Map();
+  const control=selector=>{
+    if(!controls.has(selector))controls.set(selector,document.createElement('input'));
     return controls.get(selector);
   };
-  const root = {querySelector:control,querySelectorAll:()=>[]};
+  const root={querySelector:control,querySelectorAll:()=>[]};
+  const document={getElementById:()=>root,createElement:tag=>{const element=new Element(tag);element.ownerDocument=document;return element;},createTextNode:text=>({textContent:String(text),children:[]})};
   const context = vm.createContext({
     CleanRoomsData:{...require('../src/studio-data.js'),anchor:'2026-10-26',today:'2026-10-30'},
     CleanRoomsRoster:require('../src/roster-model.js'),
     CleanRoomsPublication:require('../src/publication-model.js'),
     CleanRoomsPublicationRange:require('../src/publication-range.js'),
+    CleanRoomsPublicationReview:require('../src/publication-review-view.js'),
     Date,Map,Set,Math,JSON,Number,String,Array,Object,RegExp,
-    window:{},document:{getElementById:()=>root},
+    window:{},document,
     CleanRoomsSeries:require('../src/series-engine.js'),
     CleanRoomsActions:require('../src/schedule-actions.js'),
     CleanRoomsBulk:require('../src/bulk-actions.js'),
@@ -49,8 +76,11 @@ function application() {
     const undoAction = ${undoHandler[1]};
     globalThis.planningTest = {
       state, snapshot, weekPlan, changesForWeek, publicationStatus, shiftsInRange,
-      bulkProposal, saveBulk, publishReviewedWeek, undo:undoAction,
-      getUndo:() => lastUndo,
+      bulkProposal, saveBulk, publishReviewedWeek:async()=>{openChanges();return publishReviewedWeek();}, undo:undoAction,
+      getUndo:() => lastUndo,commit,closeEditor,navigateTo,editorHasDirtyDraft,openChanges,closeChanges,
+      setSave:callback=>{persistence.save=callback;},confirm:value=>{if(value)editorDiscard?.accept();else editorDiscard?.cancel();},dialog:()=>editorDiscard,
+      beginDirtyEditor:shift=>{activeEdit=clone(shift);q('#cs-editor-layer').hidden=false;q('#cs-edit-date').value=shift.date;q('#cs-edit-start').value=shift.start;q('#cs-edit-end').value=shift.end;q('#cs-edit-note').value=shift.note||'';editorDirtyBaseline=editorDraftFingerprint();},
+      draft:()=>activeEdit,publicationContext:()=>({range:publicationRange,allSites:publicationAllSites,canSubmit:publicationCanSubmit}),setPublicationRange:value=>{publicationRange=value;renderChanges();},
       select:(members,operation,copyIds) => {
         activeBulk = {members:clone(members),operation,firstDate:members.map(shift=>shift.date).sort()[0],copyIds:copyIds || {}};
         q('#cs-bulk-layer').hidden = false;
@@ -167,4 +197,25 @@ test('an existing legacy baseline without provenance receives an initial baselin
   assert.equal(app.weekPlan().baselineKind,'initial');
   assert.deepEqual(plain(app.weekPlan().baseline),baseline);
   assert.equal(app.changesForWeek().length,0);
+});
+
+
+test('sandbox-compatible discard confirmation preserves a dirty draft on cancel and resumes only confirmed navigation',()=>{
+ const app=application(),member=app.at('2026-10-27','p0');app.beginDirtyEditor(member);app.control('#cs-edit-start').value='08:22';const before=plain(app.state);
+ assert.equal(app.editorHasDirtyDraft(),true);assert.equal(app.closeEditor(),false);assert.ok(app.dialog());assert.equal(app.control('.cs-editor').inert,true);assert.equal(app.control('#cs-editor-layer').hidden,false);app.confirm(false);assert.equal(app.dialog(),null);assert.equal(app.control('.cs-editor').inert,false);assert.equal(app.control('#cs-edit-start').value,'08:22');
+ assert.equal(app.navigateTo('2026-11-10'),false);app.confirm(false);assert.deepEqual(plain(app.state),before);assert.equal(app.draft().id,member.id);
+ assert.equal(app.navigateTo('2026-11-10'),false);app.confirm(true);assert.equal(app.draft(),null);assert.equal(app.state.week,2);assert.equal(app.state.day,1);assert.equal(app.control('#cs-editor-layer').hidden,true);
+});
+
+test('optimistic plan changes report successful saving only after the server acknowledgement',async()=>{
+ const app=application();let resolve;app.setSave(()=>new Promise(done=>{resolve=done;}));app.control('#cs-toast').hidden=true;const saving=app.commit(app.snapshot(),'Gemt på serveren');assert.equal(app.control('#cs-toast').hidden,true);resolve(true);await saving;await Promise.resolve();assert.equal(app.control('#cs-toast-text').textContent,'Gemt på serveren');
+ app.control('#cs-toast').hidden=true;app.setSave(async()=>false);await app.commit(app.snapshot(),'Falsk succes');await Promise.resolve();assert.equal(app.control('#cs-toast').hidden,true);
+});
+test('publication review restores its selected multiweek range after visiting a shift without restoring an old submit gate',()=>{
+ const app=application();app.openChanges();app.setPublicationRange({from:'2026-10-26',to:'2026-11-22'});app.closeChanges(false);app.state.week=2;app.openChanges();assert.deepEqual(plain(app.publicationContext().range),{from:'2026-10-26',to:'2026-11-22'});assert.equal(app.control('#cs-changes-layer').hidden,false);
+});
+
+
+test('the draft dialog uses explicit non-submit controls without enabling browser modals or changing the sandbox',()=>{
+ const app=application();app.beginDirtyEditor(app.at('2026-10-27','p0'));app.control('#cs-edit-start').value='08:22';app.closeEditor();const panel=app.dialog().element.children[0],buttons=panel.querySelectorAll('button');assert.equal(panel.getAttribute('role'),'alertdialog');assert.equal(panel.getAttribute('aria-modal'),'true');assert.equal(buttons.length,2);assert.ok(buttons.every(button=>button.type==='button'));assert.equal(source.includes('window.confirm'),false);const exportHtml=fs.readFileSync(path.join(__dirname,'../site/index.html'),'utf8');assert.match(exportHtml,/<iframe id="codex-visualization" sandbox="allow-scripts"/);
 });

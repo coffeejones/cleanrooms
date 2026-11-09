@@ -17,10 +17,12 @@
   const approvable=entry=>entry?.status==='submitted'&&time(entry.start)&&time(entry.end)&&!entry.flags?.some(flag=>['overlap','dst_transition'].includes(flag))&&Number.isFinite(entry.workedMinutes)&&entry.workedMinutes>0&&typeof model()?.validate==='function'&&model().validate(entry).length===0;
   const QUEUES={attention:{label:'Kræver opmærksomhed',detail:'Afvigelser til gennemgang',help:'Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.'},ready:{label:'Følger planen',detail:'Klar til samlet godkendelse',help:'Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.'},progress:{label:'I gang',detail:'Afventer afslutning',help:'Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.'},approved:{label:'Godkendte',detail:'Låst efter godkendelse',help:'Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.'}};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee}={}) {
+  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange}={}) {
     if(!element?.ownerDocument)throw new TypeError('Timeregistrering kræver et indholdsfelt.');
     const doc=element.ownerDocument,page=doc.createElement('div');page.className='cs-timekeeping-page';element.replaceChildren(page);
-    let options={},tab='entries',status=null,search='',selectedId=null,selected=new Map(),draft=null,mode=null,pending=false,disposed=false,message='',error='',conflict=false,viewScope='real',demoWasActive=false,bulkConfirm=null,rangeKey='',reviewOptions=null,reviewScope=null,reviewCache=new WeakMap(),shiftIndex=new Map(),reviewToday,listScroll=0,detailSections=new Set();
+    let options={},tab='entries',status=null,search='',selectedId=null,selected=new Map(),draft=null,mode=null,pending=false,pagePending=false,disposed=false,message='',error='',conflict=false,viewScope='real',demoWasActive=false,bulkConfirm=null,rangeKey='',reviewOptions=null,reviewScope=null,reviewCache=new WeakMap(),shiftIndex=new Map(),reviewToday,listScroll=0,detailSections=new Set();
+    const PAGE_SIZE=50,pages={entries:0,week:0,payroll:0};
+    let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey='',queueBeforePayroll='all';
     const node=(tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=String(text);return el;};
     const differenceNode=(value,{unavailable='Kan ikke sammenlignes',reasons=[]}={})=>{
       const el=node('span','cs-time-delta'),known=Number.isFinite(value),amount=known?Math.round(Math.abs(value)):null,direction=!known?'unknown':!amount?'equal':value>0?'more':'less';
@@ -30,11 +32,15 @@
       const quantity=node('strong','cs-time-delta-value',differenceLabel(value));quantity.setAttribute('aria-hidden','true');el.append(quantity,node('span','cs-time-delta-description',description));return el;
     };
     const button=(label,action,cls='cs-button',key)=>{const el=node('button',cls,label);el.type='button';el.disabled=blocked();if(key)el.dataset.timeFocus=key;el.addEventListener('click',event=>{if(!disposed&&!el.disabled)return action(event.currentTarget||el);});return el;};
-    const blocked=()=>pending||options.loading===true;
+    const serverPaged=()=>options.pagination?.server===true;
+    const blocked=()=>pending||pagePending||options.loading===true||options.pagination?.loading===true;
     const entries=()=>Array.isArray(options.entries)?options.entries:[];
     const scopedEntries=()=>entries().filter(entry=>(entry.demo===true)===(viewScope==='demo'));
     const scopeShifts=()=>Array.isArray(options.shifts)?options.shifts.filter(shift=>(shift.demo===true)===(viewScope==='demo')):[];
-    const person=id=>(options.people||[]).find(item=>(item.id||item.personId)===id)||(options.plannedRows||[]).find(item=>item.personId===id)||{name:'Medarbejder',personId:id};
+    function person(id){
+      if(personSource!==options.people||plannedPersonSource!==options.plannedRows){personSource=options.people;plannedPersonSource=options.plannedRows;personIndex=new Map();for(const item of options.plannedRows||[])personIndex.set(item.personId||item.id,item);for(const item of options.people||[])personIndex.set(item.id||item.personId,item);}
+      return personIndex.get(id)||{name:'Medarbejder',personId:id};
+    }
     const siteLabel=index=>options.sites?.[index]?.name||'Arbejdssted';
     const nameFor=entry=>entry.personName||person(entry.personId).name||'Medarbejder';
     const statusNode=(entry,compact=false)=>{const label=compact&&entry.status==='submitted'?'Afventer':STATUS[entry.status]||'Ikke registreret';const el=node('span','cs-time-status',label);el.dataset.state=entry.status;return el;};
@@ -48,7 +54,8 @@
     function review(entry){
       ensureReviews();
       if(reviewCache.has(entry))return reviewCache.get(entry);
-      const result=model()?.review?.(entry,{shift:shiftIndex.get(entry.shiftId),canViewPayroll:options.canViewPayroll===true,today:reviewToday})||{bucket:entry.status==='approved'?'approved':'attention',priority:1,reasons:[{code:'review_unavailable',label:'Registreringen skal gennemgås'}]};
+      const supplied=serverPaged()&&Object.hasOwn(QUEUES,entry.review?.bucket)&&Array.isArray(entry.review.reasons)?entry.review:null;
+      const result=supplied||model()?.review?.(entry,{shift:shiftIndex.get(entry.shiftId),canViewPayroll:options.canViewPayroll===true,today:reviewToday})||{bucket:entry.status==='approved'?'approved':'attention',priority:1,reasons:[{code:'review_unavailable',label:'Registreringen skal gennemgås'}]};
       reviewCache.set(entry,result);return result;
     }
     function plannedFacts(entry){
@@ -63,7 +70,8 @@
       const query=search.trim().toLocaleLowerCase('da-DK');
       return scopedEntries().filter(entry=>{const result=review(entry);return (status==='all'||status==='issues'&&result.bucket==='attention'||status==='unfinished'&&!entry.end||status==='submitted'&&entry.status==='submitted'||status==='rejected'&&entry.status==='rejected'||result.bucket===status)&&(!query||(nameFor(entry)+' '+siteLabel(entry.site)+' '+dateLabel(entry.date)).toLocaleLowerCase('da-DK').includes(query));}).sort((a,b)=>(status==='attention'||status==='issues'?(review(b).priority||0)-(review(a).priority||0):0)||String(a.date).localeCompare(String(b.date))||nameFor(a).localeCompare(nameFor(b),'da-DK')||String(a.id).localeCompare(String(b.id)));
     }
-    function changeFilter(value,focus){status=value;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();message='';error='';const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint(focus);}
+    function filterChanged(){if(serverPaged()&&typeof onFilterChange==='function')onFilterChange({queue:status||'all',search,scope:viewScope});}
+    function changeFilter(value,focus){status=value;pages.entries=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();message='';error='';const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint(focus);filterChanged();}
     function currentEntry(){return entries().find(item=>String(item.id)===String(selectedId));}
     function clearDraft(){draft=null;mode=null;conflict=false;}
     function openEntry(entry){listScroll=page.querySelector('.cs-timekeeping-body')?.scrollTop||0;selectedId=entry.id;detailSections.clear();clearDraft();error='';paint('detail:close');const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;}
@@ -85,7 +93,7 @@
     async function approve(entry){if(!options.canManage||!approvable(entry))return;await invoke('timeWrite',writePayload(entry,'approve'),'Timerne er godkendt. Løngrundlaget er gemt på registreringen.');}
     function prepareApproval(onlyIfMatchesPlan=false){
       if(blocked()||!options.canManage)return;
-      const visible=filteredEntries(),candidates=onlyIfMatchesPlan?visible.filter(entry=>approvable(entry)&&review(entry).bucket==='ready'):visible.filter(entry=>approvable(entry)&&selected.get(entry.id)===entry.version);
+      const filtered=filteredEntries(),visible=serverPaged()?pageRows(filtered,'entries'):filtered,candidates=onlyIfMatchesPlan?visible.filter(entry=>approvable(entry)&&review(entry).bucket==='ready'):visible.filter(entry=>approvable(entry)&&selected.get(entry.id)===entry.version);
       if(!candidates.length)return;
       bulkConfirm={items:candidates.map(entry=>({id:entry.id,version:entry.version})),onlyIfMatchesPlan,scope:viewScope,filter:status,query:search,attention:candidates.filter(entry=>review(entry).bucket==='attention').length,total:candidates.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0)};
       selectedId=null;clearDraft();error='';message='';paint('bulk:confirm');
@@ -131,17 +139,17 @@
       if(demo.active){
         demoBar=node('div','cs-time-demo-banner');demoBar.setAttribute('aria-label','Eksempelvisning');
         demoBar.append(node('span','',viewScope==='demo'?'Eksempeluge · '+dateLabel(demo.from)+' – '+dateLabel(demo.to):'Almindelige registreringer'));
-        const demoActions=node('div','cs-time-actions');demoActions.append(button(viewScope==='demo'?'Vis almindelige timer':'Vis eksempelugen',()=>{viewScope=viewScope==='demo'?'real':'demo';status=null;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();message='';error='';chooseDefaultQueue();paint();},'cs-button cs-quiet cs-chrome-quiet','demo:scope'));
+        const demoActions=node('div','cs-time-actions');demoActions.append(button(viewScope==='demo'?'Vis almindelige timer':'Vis eksempelugen',()=>{viewScope=viewScope==='demo'?'real':'demo';status=serverPaged()?'all':null;pages.entries=pages.week=pages.payroll=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();message='';error='';chooseDefaultQueue();paint();filterChanged();},'cs-button cs-quiet cs-chrome-quiet','demo:scope'));
         if(viewScope==='demo'&&typeof onDemoEmployee==='function')demoActions.append(button('Prøv Mine vagter',()=>onDemoEmployee(demo.personId),'cs-button cs-quiet cs-chrome-quiet','demo:employee'));
         demoBar.append(demoActions);
       }
       const tabs=node('div','cs-time-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Timer og løngrundlag');
       for(const [value,label] of [['entries','Registreringer'],['week','Ugens overblik'],...(options.canViewPayroll?[['payroll','Løngrundlag']]:[])]){
-        const control=button(label,()=>{tab=value;selectedId=null;bulkConfirm=null;selected.clear();clearDraft();const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint('tab:'+value);},'cs-time-tab','tab:'+value);control.setAttribute('role','tab');control.setAttribute('aria-selected',String(tab===value));tabs.append(control);
+        const control=button(label,()=>{const previous=tab;tab=value;selectedId=null;bulkConfirm=null;selected.clear();clearDraft();const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;if(serverPaged()&&value==='payroll'&&previous!=='payroll'){queueBeforePayroll=status||'all';status='approved';paint('tab:'+value);filterChanged();}else if(serverPaged()&&previous==='payroll'&&value!=='payroll'){status=queueBeforePayroll;paint('tab:'+value);filterChanged();}else paint('tab:'+value);},'cs-time-tab','tab:'+value);control.setAttribute('role','tab');control.setAttribute('aria-selected',String(tab===value));tabs.append(control);
       }
       const navigation=node('div','cs-time-navigation');navigation.append(tabs);if(demoBar)navigation.append(demoBar);page.append(navigation);
       if(message){const statusBox=node('p','cs-time-message',message);statusBox.setAttribute('role','status');page.append(statusBox);}
-      if(error||options.error){const errorBox=node('div','cs-time-error');errorBox.setAttribute('role','alert');errorBox.append(node('p','',error||options.error));if(!blocked())errorBox.append(button('Hent registreringer igen',refresh,'cs-button','reload:error'));page.append(errorBox);}
+      if(error||options.error||options.pagination?.error){const errorBox=node('div','cs-time-error');errorBox.setAttribute('role','alert');errorBox.append(node('p','',error||options.error||options.pagination.error));if(!blocked())errorBox.append(button('Hent registreringer igen',refresh,'cs-button','reload:error'));page.append(errorBox);}
       const body=node('div','cs-timekeeping-body');body.dataset.timeTab=tab;body.setAttribute('role','tabpanel');body.setAttribute('aria-label',tab==='week'?'Ugens overblik':tab==='payroll'?'Løngrundlag':'Registreringer');
       if(options.loading){const loading=node('p','cs-time-empty','Henter tidsregistreringer…');loading.setAttribute('role','status');body.append(loading);}
       else if(tab==='week')paintWeek(body);
@@ -151,44 +159,70 @@
       if(focus){const target=[...page.querySelectorAll('[data-time-focus]')].find(el=>el.dataset.timeFocus===focus);target?.focus?.({preventScroll:true});}
     }
     function metricStrip(items){const strip=node('dl','cs-time-metrics');for(const [label,value,detail] of items){const item=node('div');item.append(node('dt','',label),node('dd','',value));if(detail)item.append(node('span','cs-time-caption',detail));strip.append(item);}return strip;}
+    function pageRows(items,key){if(serverPaged()&&key!=='week')return items.slice(0,PAGE_SIZE);pages[key]=Math.min(pages[key],Math.max(0,Math.ceil(items.length/PAGE_SIZE)-1));return items.slice(pages[key]*PAGE_SIZE,(pages[key]+1)*PAGE_SIZE);}
+    async function changeServerPage(direction,key='entries'){
+      if(blocked()||typeof onPageChange!=='function')return;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();error='';message='';pagePending=true;paint();
+      try{const result=await onPageChange(direction);if(result?.ok===false)error=result.message||'Registreringerne kunne ikke hentes.';}catch(problem){error=problem?.message||'Registreringerne kunne ikke hentes.';}
+      finally{pagePending=false;if(!disposed){const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint('page:'+key+':'+direction);}}
+    }
+    function pagination(count,key){
+      if(serverPaged()&&key!=='week'){
+        const state=options.pagination,index=Math.max(0,Number.isSafeInteger(state.page)?state.page:0),hasPrevious=state.hasPrevious===true,hasNext=state.hasNext===true;
+        if(!hasPrevious&&!hasNext&&!index)return null;
+        const nav=node('nav','cs-time-pagination cs-time-actions');nav.setAttribute('aria-label','Sider i '+(key==='payroll'?'løngrundlaget':'tidsregistreringer'));
+        const knownTotal=Number.isSafeInteger(state.totalCount)&&state.totalCount>=0?state.totalCount:null,start=Number.isSafeInteger(state.offset)&&state.offset>=0?state.offset:index*PAGE_SIZE,range=node('span','cs-time-caption',(count?start+1+'–'+(start+Math.min(PAGE_SIZE,count)):'Ingen')+(knownTotal===null?'':' af '+knownTotal));range.setAttribute('role','status');
+        const previous=button('Forrige',()=>changeServerPage('previous',key),'cs-button cs-quiet','page:'+key+':previous'),next=button('Næste',()=>changeServerPage('next',key),'cs-button cs-quiet','page:'+key+':next');previous.disabled=blocked()||!hasPrevious;next.disabled=blocked()||!hasNext;nav.append(range,previous,next);return nav;
+      }
+      if(count<=PAGE_SIZE)return null;
+      const nav=node('nav','cs-time-pagination cs-time-actions');nav.setAttribute('aria-label','Sider i '+(key==='week'?'ugens overblik':key==='payroll'?'løngrundlaget':'tidsregistreringer'));
+      const start=pages[key]*PAGE_SIZE,change=(direction,focus)=>{pages[key]+=direction;const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint(focus);};
+      const previous=button('Forrige',()=>change(-1,'page:'+key+':previous'),'cs-button cs-quiet','page:'+key+':previous'),next=button('Næste',()=>change(1,'page:'+key+':next'),'cs-button cs-quiet','page:'+key+':next');previous.disabled=blocked()||pages[key]===0;next.disabled=blocked()||start+PAGE_SIZE>=count;
+      const range=node('span','cs-time-caption',start+1+'–'+Math.min(start+PAGE_SIZE,count)+' af '+count);range.setAttribute('role','status');nav.append(range,previous,next);return nav;
+    }
     function chooseDefaultQueue(){
       if(status!==null||options.loading)return;
+      if(serverPaged()){status=options.serverFilter?.queue||'all';return;}
       const all=scopedEntries();status=all.some(entry=>review(entry).bucket==='attention')?'attention':all.some(entry=>review(entry).bucket==='ready')?'ready':'all';
+    }
+    function serverSummary(){
+      if(!serverPaged()||!options.summary||options.summary.stale===true)return null;
+      const filter=options.serverFilter;if(filter&&((filter.search||'')!==search||(filter.scope||'real')!==viewScope))return null;
+      return options.summary;
     }
     function paintEntries(body){
       const opened=currentEntry();if(opened){body.append(inspector(opened));return;}
       chooseDefaultQueue();
-      const all=scopedEntries(),counts={attention:0,ready:0,progress:0,approved:0};for(const entry of all)counts[review(entry).bucket]++;
+      const all=scopedEntries(),counts={attention:0,ready:0,progress:0,approved:0},summaryData=serverSummary();for(const entry of all)counts[review(entry).bucket]++;
       const summary=node('div','cs-time-review-summary');summary.setAttribute('role','group');summary.setAttribute('aria-label','Prioritér tidsregistreringer');
       for(const [key,queue] of Object.entries(QUEUES)){
-        const control=button('',()=>changeFilter(key,'queue:'+key),'cs-time-review-queue','queue:'+key);control.dataset.bucket=key;control.dataset.empty=String(counts[key]===0);control.setAttribute('aria-pressed',String(status===key));control.setAttribute('aria-label',queue.label+' · '+counts[key]);control.append(node('span','cs-time-review-title',queue.label),node('strong','cs-time-review-count',counts[key]));summary.append(control);
+        const total=Number.isSafeInteger(summaryData?.counts?.[key])?summaryData.counts[key]:serverPaged()?(counts[key]?counts[key]+'+':'—'):counts[key],control=button('',()=>changeFilter(key,'queue:'+key),'cs-time-review-queue','queue:'+key);control.dataset.bucket=key;control.dataset.empty=String(total===0);control.setAttribute('aria-pressed',String(status===key));control.setAttribute('aria-label',queue.label+' · '+total);control.append(node('span','cs-time-review-title',queue.label),node('strong','cs-time-review-count',total));summary.append(control);
       }
       const reviewTools=node('div','cs-time-review-toolbar');reviewTools.append(summary);
       const tools=node('div','cs-time-tools'),searchField=field('search','Søg i registreringer','search',search);
-      searchField.holder.classList.add?.('cs-time-search');searchField.input.placeholder='Søg medarbejder…';searchField.input.addEventListener('input',()=>{search=searchField.input.value;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();paint('field:search');});
+      searchField.holder.classList.add?.('cs-time-search');searchField.input.placeholder='Søg medarbejder…';searchField.input.addEventListener('input',()=>{search=searchField.input.value;pages.entries=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();paint('field:search');filterChanged();});
       const allFilter=button('Alle registreringer',()=>changeFilter('all','filter:status'),'cs-button cs-time-all-filter cs-chrome-quiet','filter:status');allFilter.setAttribute('aria-pressed',String(status==='all'));
       const filters=node('div','cs-filter-rail cs-time-filter-rail');filters.append(searchField.holder,allFilter);tools.append(filters,button('Opdater',refresh,'cs-button cs-quiet cs-chrome-quiet','reload'));reviewTools.append(tools);body.append(reviewTools);
-      const visible=filteredEntries(),ready=visible.filter(entry=>approvable(entry)&&review(entry).bucket==='ready');
+      const visible=filteredEntries(),shown=pageRows(visible,'entries'),ready=(serverPaged()?shown:visible).filter(entry=>approvable(entry)&&review(entry).bucket==='ready');
       const workspace=node('div','cs-time-workspace');if(selectedId)workspace.dataset.detail='true';
       const main=node('section','cs-time-directory');main.setAttribute('aria-label','Tidsregistreringer');
       if(options.canManage&&!bulkConfirm&&(ready.length||selected.size)){
         const bar=node('div','cs-time-approval-bar');
         if(selected.size){bar.append(node('span','cs-time-caption',selected.size+' valgt'+(selected.size===1?' registrering':'e registreringer')),button('Godkend '+selected.size+(selected.size===1?' valgt':' valgte'),()=>prepareApproval(false),'cs-button cs-primary','bulk:approve'),button('Ryd valg',()=>{selected.clear();bulkConfirm=null;paint();},'cs-button cs-quiet','bulk:clear'));}
-        else if(ready.length){bar.append(node('span','cs-time-caption',ready.length+' følger planen · '+minutes(ready.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0))),button('Godkend '+ready.length+' der følger planen',()=>prepareApproval(true),'cs-button cs-primary','bulk:ready'));}
+        else if(ready.length){bar.append(node('span','cs-time-caption',ready.length+' følger planen · '+minutes(ready.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0))+(serverPaged()?' · viste registreringer':'')),button(serverPaged()?'Godkend viste der følger planen':'Godkend '+ready.length+' der følger planen',()=>prepareApproval(true),'cs-button cs-primary','bulk:ready'));}
         main.append(bar);
       }
       if(bulkConfirm){
         const confirm=node('section','cs-time-bulk-confirm');confirm.setAttribute('aria-label','Bekræft samlet godkendelse');const count=bulkConfirm.items.length;
-        confirm.append(node('strong','',count+(count===1?' registrering · ':' registreringer · ')+minutes(bulkConfirm.total)),node('p','cs-time-caption',(bulkConfirm.scope==='demo'?'Eksempelugen':'Almindelige timer')+' · '+(bulkConfirm.onlyIfMatchesPlan?'Kun de viste registreringer, der følger planen.':'Kun de viste registreringer, du har valgt.')+' Timerne bliver låst ved godkendelse.'));
+        confirm.append(node('strong','',count+(count===1?' registrering · ':' registreringer · ')+minutes(bulkConfirm.total)),node('p','cs-time-caption',(bulkConfirm.scope==='demo'?'Eksempelugen':'Almindelige timer')+' · '+(bulkConfirm.onlyIfMatchesPlan?(serverPaged()?'Kun de viste registreringer, der følger planen.':'Alle registreringer med de valgte filtre, der følger planen.'):'Kun de registreringer, du har valgt.')+' Timerne bliver låst ved godkendelse.'));
         if(!bulkConfirm.onlyIfMatchesPlan&&bulkConfirm.attention)confirm.append(node('p','cs-time-bulk-warning',bulkConfirm.attention+' af de valgte registreringer har afvigelser. Kontrollér dem før godkendelse.'));
         const actions=node('div','cs-time-actions');actions.append(button('Godkend '+count+(count===1?' registrering':' registreringer'),approveSelected,'cs-button cs-primary','bulk:confirm'),button('Annuller',()=>{bulkConfirm=null;paint('bulk:ready');},'cs-button','bulk:cancel'));confirm.append(actions);main.append(confirm);
       }
       if(!visible.length)main.append(node('p','cs-time-empty',all.length?(status==='attention'?'Ingen registreringer kræver opmærksomhed med de valgte filtre.':status==='ready'?'Ingen registreringer er klar til samlet godkendelse med de valgte filtre.':'Ingen registreringer matcher dine filtre.'):'Der er endnu ingen registrerede timer i perioden. Start en vagt fra Mine vagter, eller indlæs eksempelugen.'));
       else{
         const {table,rows}=makeTable(['','Medarbejder','Planlagt','Registreret','Pause','Afvigelse','Status','']);table.classList.add?.('cs-time-entries-table');
-        const eligible=visible.filter(approvable);
+        const eligible=shown.filter(approvable);
         if(options.canManage&&eligible.length){const check=node('input');check.type='checkbox';check.checked=eligible.every(entry=>selected.get(entry.id)===entry.version);check.indeterminate=!check.checked&&eligible.some(entry=>selected.has(entry.id));check.disabled=blocked();check.dataset.timeFocus='select:all';check.setAttribute('aria-label','Vælg alle viste registreringer, der kan godkendes');check.addEventListener('change',()=>{for(const entry of eligible)if(check.checked)selected.set(entry.id,entry.version);else selected.delete(entry.id);bulkConfirm=null;paint('select:all');});table.querySelector('th').append(check);}
-        for(const entry of visible){
+        for(const entry of shown){
           const result=review(entry),row=node('tr');row.dataset.entryId=String(entry.id);row.dataset.selected=String(entry.id===selectedId);row.dataset.review=result.bucket;
           const selection=node('td','cs-time-selection-cell');
           if(options.canManage&&approvable(entry)){const check=node('input');check.type='checkbox';check.checked=selected.get(entry.id)===entry.version;check.disabled=blocked();check.setAttribute('aria-label','Vælg registreringen for '+nameFor(entry)+' '+dateLabel(entry.date));check.dataset.timeFocus='select:'+entry.id;check.addEventListener('change',()=>{if(check.checked)selected.set(entry.id,entry.version);else selected.delete(entry.id);bulkConfirm=null;paint('select:'+entry.id);});selection.append(check);}
@@ -202,29 +236,42 @@
           const action=node('td','cs-time-row-action');action.append(button(result.bucket==='attention'?'Gennemgå':'Se',()=>openEntry(entry),'cs-button','inspect:'+entry.id));
           row.append(selection,identity,planned,actual,pause,differences,state,action);rows.append(row);
         }
-        main.append(table);
+        main.append(table);const pager=pagination(visible.length,'entries');if(pager)main.append(pager);
       }
-      workspace.append(main);const entry=currentEntry();if(entry)workspace.append(inspector(entry));body.append(workspace);
+      if(serverPaged()&&!visible.length){const pager=pagination(0,'entries');if(pager)main.append(pager);}workspace.append(main);const entry=currentEntry();if(entry)workspace.append(inspector(entry));body.append(workspace);
     }
     function makeTable(labels){const table=node('table','cs-time-table'),head=node('thead'),line=node('tr'),rows=node('tbody');labels.forEach(label=>{const th=node('th','',label);th.scope='col';line.append(th);});head.append(line);table.append(head,rows);return {table,rows};}
     function paintWeek(body){
-      const rows=Array.isArray(options.plannedRows)?options.plannedRows:[],demoPeople=new Set(scopedEntries().map(item=>item.personId));let people=rows.length?rows:(options.people||[]).map(item=>({personId:item.id||item.personId,...item}));if(viewScope==='demo'){people=people.filter(item=>demoPeople.has(item.personId||item.id)).map(item=>{const personal=scopeShifts().filter(shift=>(shift.personId||shift.person)===(item.personId||item.id));const planned=personal.length?personal.reduce((sum,shift)=>{const start=String(shift.start||'').split(':').map(Number),end=String(shift.end||'').split(':').map(Number);let value=end[0]*60+end[1]-start[0]*60-start[1];if(value<0)value+=1440;const pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes;return sum+(Number.isFinite(value)&&Number.isSafeInteger(pause)&&pause>=0&&pause<value?value-pause:0);},0):scopedEntries().filter(entry=>entry.personId===(item.personId||item.id)).reduce((sum,entry)=>sum+safeNumber(entry.plannedMinutes),0);return {...item,plannedMinutes:planned};});}
+      const rows=Array.isArray(options.plannedRows)?options.plannedRows:[],totals=new Map();
+      for(const entry of scopedEntries()){const value=totals.get(entry.personId)||{registered:0,approved:0,planned:0};value.registered+=safeNumber(entry.workedMinutes);if(entry.status==='approved')value.approved+=safeNumber(entry.workedMinutes);value.planned+=safeNumber(entry.plannedMinutes);totals.set(entry.personId,value);}
+      const aggregate=serverSummary(),aggregatePeople=aggregate?.people||aggregate?.byPerson;
+      if(Array.isArray(aggregatePeople)){totals.clear();for(const item of aggregatePeople)totals.set(item.personId,{registered:safeNumber(item.registeredMinutes),approved:safeNumber(item.approvedMinutes),planned:0});}
+      const completeDemoPlan=viewScope==='demo'&&Array.isArray(options.plannedRows);
+      let people=completeDemoPlan||rows.length?rows:(options.people||[]).map(item=>({personId:item.id||item.personId,...item}));
+      if(serverPaged()&&search.trim()){const query=search.trim().toLocaleLowerCase('da-DK');people=people.filter(item=>totals.has(item.personId||item.id)||String(item.name||'').toLocaleLowerCase('da-DK').includes(query));}
+      if(viewScope==='demo'&&!completeDemoPlan){
+        const planned=new Map();for(const shift of scopeShifts()){const id=shift.personId||shift.person,start=String(shift.start||'').split(':').map(Number),end=String(shift.end||'').split(':').map(Number);let duration=end[0]*60+end[1]-start[0]*60-start[1];if(duration<0)duration+=1440;const pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes;planned.set(id,(planned.get(id)||0)+(Number.isFinite(duration)&&Number.isSafeInteger(pause)&&pause>=0&&pause<duration?duration-pause:0));}
+        people=people.filter(item=>totals.has(item.personId||item.id)).map(item=>({...item,plannedMinutes:planned.get(item.personId||item.id)??totals.get(item.personId||item.id).planned}));
+      }
       const intro=node('div','cs-time-section-head');intro.append(node('h3','cs-time-heading','Ugens overblik'));body.append(intro);
       body.append(node('p','cs-time-caption','Planlagte timer efter aftalte, ulønnede pauser sammenholdt med registreret og godkendt tid i den valgte periode.'));
+      if(serverPaged()&&!Array.isArray(aggregatePeople))body.append(node('p','cs-time-caption','Registreret og godkendt tid vises for de indlæste registreringer.'));
       if(!people.length){body.append(node('p','cs-time-empty','Ingen medarbejdere i den valgte periode.'));return;}
       const {table,rows:tableRows}=makeTable(['Medarbejder','Planlagt','Aftalt pr. uge','Registreret','Godkendt']);table.classList.add?.('cs-time-week-table');
-      for(const member of people){const personal=scopedEntries().filter(entry=>entry.personId===member.personId||entry.personId===member.id),planned=safeNumber(member.plannedMinutes),registered=personal.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0),approved=personal.filter(entry=>entry.status==='approved').reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0),row=node('tr'),personCell=node('td','cs-time-person-cell'),name=node('strong','',member.name||'Medarbejder');personCell.append(name);if(member.role)personCell.append(node('span','cs-time-caption',member.role));row.append(personCell);
+      for(const member of pageRows(people,'week')){const total=totals.get(member.personId||member.id),planned=safeNumber(member.plannedMinutes),registered=total?.registered||0,approved=total?.approved||0,row=node('tr'),personCell=node('td','cs-time-person-cell'),name=node('strong','',member.name||'Medarbejder');personCell.append(name);if(member.role)personCell.append(node('span','cs-time-caption',member.role));row.append(personCell);
         for(const [label,value] of [['Planlagt',minutes(planned)],['Aftalt pr. uge',minutes(safeNumber(member.target)*60)],['Registreret',minutes(registered)],['Godkendt',minutes(approved)]]){const cell=node('td','cs-time-number',value);cell.dataset.label=label;row.append(cell);}tableRows.append(row);}
-      body.append(table);
+      body.append(table);const pager=pagination(people.length,'week');if(pager)body.append(pager);
     }
     function paintPayroll(body){
       const approved=scopedEntries().filter(entry=>entry.status==='approved'),priced=approved.filter(entry=>completePayroll(entry.payroll)),total=priced.reduce((sum,entry)=>sum+entry.payroll.totalCents,0);
-      body.append(metricStrip([['Godkendte timer',minutes(approved.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0))],['Timebaseret løngrundlag',priced.length?money(total):approved.length?'—':money(0),'inkl. tidsbestemte tillæg'],['Mangler lønaftale',String(approved.length-priced.length),'godkendte registreringer']]));
+      const aggregate=serverSummary(),count=Number.isSafeInteger(aggregate?.counts?.approved)?aggregate.counts.approved:approved.length,missing=Number.isSafeInteger(aggregate?.missingPayrollCount)?aggregate.missingPayrollCount:approved.length-priced.length,approvedMinutes=Number.isFinite(aggregate?.approvedMinutes)?aggregate.approvedMinutes:approved.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0),cents=Number.isSafeInteger(aggregate?.approvedCents)?aggregate.approvedCents:total;
+      body.append(metricStrip([['Godkendte timer',minutes(approvedMinutes)],['Timebaseret løngrundlag',count>missing?money(cents):count?'—':money(0),'inkl. tidsbestemte tillæg'],['Mangler lønaftale',String(missing),'godkendte registreringer']]));
+      if(serverPaged()&&!aggregate)body.append(node('p','cs-time-caption','Løngrundlaget vises for de indlæste registreringer.'));
       body.append(node('h3','cs-time-heading','Godkendt løngrundlag'),node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.'));
-      if(!approved.length){body.append(node('p','cs-time-empty','Godkend registreringer, før de indgår i løngrundlaget.'));return;}
+      if(!approved.length){body.append(node('p','cs-time-empty',serverPaged()&&count?'Ingen godkendte registreringer på denne side.':'Godkend registreringer, før de indgår i løngrundlaget.'));const pager=pagination(0,'payroll');if(pager)body.append(pager);return;}
       const {table,rows}=makeTable(['Medarbejder og dato','Grundlag','Timer','Grundløn','Tillæg','I alt','']);table.classList.add?.('cs-time-payroll-table');
-      for(const entry of approved){const row=node('tr'),identity=node('td','cs-time-person-cell');identity.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)));const source=node('td');source.append(node('strong','',entry.payroll?.sourceLabel||'Ingen lønaftale'));if(entry.payroll?.monthlyBaseCents)source.append(node('span','cs-time-caption','Fast månedsløn '+money(entry.payroll.monthlyBaseCents)));if(entry.payroll?.monthlySupplementCents)source.append(node('span','cs-time-caption','Faste månedlige tillæg '+money(entry.payroll.monthlySupplementCents)));if(!completePayroll(entry.payroll))source.append(node('span','cs-time-pay-incomplete','Løngrundlag mangler'),node('span','cs-time-caption',entry.payroll?.unavailableReason||'Der mangler en lønaftale for registreringen.'));row.append(identity,source);
-        for(const [label,value] of [['Timer',minutes(entry.workedMinutes)],['Grundløn',money(completePayroll(entry.payroll)?entry.payroll.baseCents:undefined)],['Tillæg',money(completePayroll(entry.payroll)?entry.payroll.supplementCents:undefined)],['I alt',money(completePayroll(entry.payroll)?entry.payroll.totalCents:undefined)]]){const cell=node('td','cs-time-number',value);cell.dataset.label=label;row.append(cell);}const action=node('td','cs-time-row-action');action.append(button('Se',()=>{tab='entries';openEntry(entry);},'cs-button','payroll:'+entry.id));row.append(action);rows.append(row);}body.append(table);
+      for(const entry of pageRows(approved,'payroll')){const row=node('tr'),identity=node('td','cs-time-person-cell');identity.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)));const source=node('td');source.append(node('strong','',entry.payroll?.sourceLabel||'Ingen lønaftale'));if(entry.payroll?.monthlyBaseCents)source.append(node('span','cs-time-caption','Fast månedsløn '+money(entry.payroll.monthlyBaseCents)));if(entry.payroll?.monthlySupplementCents)source.append(node('span','cs-time-caption','Faste månedlige tillæg '+money(entry.payroll.monthlySupplementCents)));if(!completePayroll(entry.payroll))source.append(node('span','cs-time-pay-incomplete','Løngrundlag mangler'),node('span','cs-time-caption',entry.payroll?.unavailableReason||'Der mangler en lønaftale for registreringen.'));row.append(identity,source);
+        for(const [label,value] of [['Timer',minutes(entry.workedMinutes)],['Grundløn',money(completePayroll(entry.payroll)?entry.payroll.baseCents:undefined)],['Tillæg',money(completePayroll(entry.payroll)?entry.payroll.supplementCents:undefined)],['I alt',money(completePayroll(entry.payroll)?entry.payroll.totalCents:undefined)]]){const cell=node('td','cs-time-number',value);cell.dataset.label=label;row.append(cell);}const action=node('td','cs-time-row-action');action.append(button('Se',()=>{tab='entries';openEntry(entry);},'cs-button','payroll:'+entry.id));row.append(action);rows.append(row);}body.append(table);const pager=pagination(approved.length,'payroll');if(pager)body.append(pager);
     }
     function inspector(entry){
       const detail=node('section','cs-time-detail cs-time-detail-focused');detail.setAttribute('aria-label','Registrering for '+nameFor(entry));
@@ -297,16 +344,20 @@
     function render(next={}){
       if(disposed)return;
       options={...options,...next};
-      const nextScope=options.demo?.active?(!demoWasActive?'demo':viewScope):'real',nextRange=(options.from||'')+'|'+(options.to||'');
-      if(nextScope!==viewScope||rangeKey!==nextRange){status=null;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();}
+      const nextScope=serverPaged()?(options.serverFilter?.scope==='demo'?'demo':'real'):options.demo?.active?(!demoWasActive?'demo':viewScope):'real',nextRange=(options.from||'')+'|'+(options.to||'');
+      if(nextScope!==viewScope||rangeKey!==nextRange){status=null;pages.entries=pages.week=pages.payroll=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();}
       viewScope=nextScope;rangeKey=nextRange;demoWasActive=!!options.demo?.active;
+      if(serverPaged()){
+        const filter=options.serverFilter||{},key=[options.pagination.page||0,filter.queue||'all',filter.search||'',filter.scope||viewScope,nextRange].join('|');
+        if(key!==serverViewKey){selected.clear();bulkConfirm=null;selectedId=null;clearDraft();status=filter.queue||'all';if(typeof filter.search==='string')search=filter.search;if(filter.scope==='real'||filter.scope==='demo')viewScope=filter.scope;serverViewKey=key;}
+      }else serverViewKey='';
       const current=new Map(scopedEntries().filter(approvable).map(item=>[item.id,item.version]));selected=new Map([...selected].filter(([id,version])=>current.get(id)===version));
       if(selectedId&&!currentEntry()){selectedId=null;clearDraft();}
       if(options.canManage!==true){selected.clear();bulkConfirm=null;clearDraft();}
       chooseDefaultQueue();paint();
     }
     function destroy(){disposed=true;options={};selected.clear();draft=null;element.replaceChildren();}
-    return {render,destroy};
+    return {render,destroy,get hasDraft(){return Boolean(draft);},get busy(){return blocked();}};
   }
   const api=Object.freeze({mount,statusLabel:value=>STATUS[value]||value,flagLabel:value=>FLAGS[value]||value,minutes,money,approvable,differenceLabel});globalThis.CleanRoomsTimekeepingView=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })();

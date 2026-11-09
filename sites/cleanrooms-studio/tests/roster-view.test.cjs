@@ -28,6 +28,16 @@ function application(staff,callbacks={}){
   return {controller,element,calls,nodes,byClass,button,field};
 }
 
+test('large employee directories render one bounded page and search the entire filtered directory',async()=>{
+  const staff=Array.from({length:501},(_,index)=>person('person-'+index,'Medarbejder '+String(index).padStart(3,'0'),{site:index%2})),opened=[],app=application(staff,{onOpenPerson:value=>opened.push(value)}),rows=()=>app.byClass('cs-roster-table').querySelectorAll('tbody')[0].children;
+  assert.equal(rows().length,50);assert.equal(app.byClass('cs-roster-pagination').children[0].textContent,'1–50 af 501');assert.equal(app.button('Forrige').disabled,true);
+  await app.button('Næste').click();assert.equal(rows()[0].dataset.personId,'person-50');assert.equal(app.byClass('cs-roster-pagination').children[0].textContent,'51–100 af 501');
+  app.controller.render({staff:staff.map(item=>({...item})),canEdit:true});assert.equal(rows()[0].dataset.personId,'person-50','Refreshing the directory preserves its current page.');
+  app.field('search').value='Medarbejder 500';await app.field('search').dispatch('input');assert.equal(rows().length,1);assert.equal(rows()[0].dataset.personId,'person-500');assert.equal(app.byClass('cs-roster-pagination').hidden,true);await app.nodes().find(node=>node.getAttribute('aria-label')==='Åbn profil for Medarbejder 500').click();assert.equal(opened[0].id,'person-500');
+  app.field('search').value='';await app.field('search').dispatch('input');assert.equal(rows()[0].dataset.personId,'person-0');await app.button('Næste').click();app.field('site-filter').value='1';await app.field('site-filter').dispatch('change');assert.equal(rows()[0].dataset.personId,'person-1');assert.equal(rows().length,50);assert.equal(app.byClass('cs-roster-shown').textContent,'250 vist');
+  for(let index=0;index<4;index++)await app.button('Næste').click();assert.equal(app.button('Næste').disabled,true);app.controller.render({staff:staff.slice(0,10)});assert.equal(rows().length,5);assert.equal(app.byClass('cs-roster-pagination').hidden,true);assert.equal(rows()[0].dataset.personId,'person-1');
+});
+
 test('creating an employee while the directory is filtered keeps all other staff and shows literal text safely',async()=>{
   const staff=[person('person-anna','Anna'),person('person-bob','Bob')],app=application(staff);
   app.field('search').value='Anna';await app.field('search').dispatch('input');assert.equal(app.byClass('cs-roster-shown').textContent,'1 vist');

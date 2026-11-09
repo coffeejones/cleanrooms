@@ -95,6 +95,7 @@ function application() {
       openChanges,publishReviewedWeek,closeEditor,updateBulkPreview,renderChanges,conflictShiftsInRange,conflictShiftsForWeeks,staffingContext,seriesCalendarAssessment,editorProjection,seriesProjection,publicationProjection,
       traceConflictReads:()=>{const reads=[],original=conflictShiftsInRange;conflictShiftsInRange=(from,to,data)=>{reads.push({from,to});return original(from,to,data);};return reads;},
       management:()=>editorSeriesManagement,persisted:()=>persisted,
+      discardDraft:()=>{closeEditor();editorDiscard?.accept();},
       days:days=>{repeatDays=new Set(days);},
       scope:value=>{q('#cs-edit-scope').value=value;changeEditorScope();},
       begin:(shift,options={})=>openEditor(shift,q('#fixture-open'),options)
@@ -191,7 +192,7 @@ test('series management starts at a future anchor rather than a past anchor or a
   app.openSeriesEditor(series,app.control('#fixture-open'));
   assert.equal(app.management(),true);assert.equal(app.active().id,future.id);assert.equal(app.control('#cs-repeat-start').value,'2026-11-03');assert.equal(app.editorCutoff(series,'future'),'2026-11-03');
   app.control('#cs-repeat-start').value='2026-11-04';assert.equal(app.editorCutoff(series,'future'),'2026-11-04','Management explicitly allows an effective date between occurrences.');
-  app.begin(app.state.edits[future.id],{scope:'future'});
+  app.discardDraft();app.begin(app.state.edits[future.id],{scope:'future'});
   assert.equal(app.management(),false);assert.equal(app.control('#cs-edit-date').value,'2026-11-12');assert.equal(app.control('#cs-repeat-start').value,'2026-11-03');
   app.control('#cs-repeat-start').value='2026-11-06';assert.equal(app.editorCutoff(series,'future'),'2026-11-03','Calendar editing keeps the original occurrence cutoff even if the replacement pattern starts later.');
 });
@@ -386,7 +387,7 @@ test('a peer change to the open shift keeps dirty inputs but blocks saving and d
  const submitted=plain(app.state),acknowledged=plain(submitted);acknowledged.edits.a.start='08:30';acknowledged.edits.a.end='16:30';app.reconcile(acknowledged,{submitted,acknowledged});
  assert.equal(app.control('#cs-edit-start').value,'10:15');assert.deepEqual(app.currentDescription(),rich('Bevar denne kladde'));assert.equal(app.control('#cs-save').disabled,true);assert.equal(app.control('#cs-delete').disabled,true);assert.equal(app.control('#cs-series-delete-apply').disabled,true);assert.match(app.control('#cs-edit-error').textContent,/andet vindue/);
  app.save();app.deleteEditedShift();assert.equal(app.persisted(),0);assert.equal(app.state.edits.a.start,'08:30');assert.equal(app.state.deleted.includes('a'),false);app.updatePreview();assert.equal(app.control('#cs-save').disabled,true);
- app.begin(app.state.edits.a);assert.equal(app.control('#cs-save').disabled,false);assert.equal(app.control('#cs-delete').disabled,false);app.control('#cs-edit-start').value='09:00';app.control('#cs-edit-end').value='17:00';app.save();assert.equal(app.state.edits.a.start,'09:00');assert.equal(app.persisted(),1);
+ app.discardDraft();app.begin(app.state.edits.a);assert.equal(app.control('#cs-save').disabled,false);assert.equal(app.control('#cs-delete').disabled,false);app.control('#cs-edit-start').value='09:00';app.control('#cs-edit-end').value='17:00';app.save();assert.equal(app.state.edits.a.start,'09:00');assert.equal(app.persisted(),1);
 });
 
 test('a parent-series change stales an open series editor without replacing its unsaved pattern',()=>{

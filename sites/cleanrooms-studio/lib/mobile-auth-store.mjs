@@ -11,6 +11,7 @@ const attemptWindowMs = 15 * 60_000;
 const sessionLifetimeMs = 30 * 24 * 60 * 60_000;
 const accountAttemptLimit = 8;
 const sourceAttemptLimit = 120;
+const distributedAccountLimit = 500;
 const tokenPattern = /^[A-Za-z0-9_-]{43}$/;
 const startCodeKeyPattern = /^[a-f0-9]{64}$/;
 const startCodeContext = Buffer.from('cleanrooms:employee-app-start-code:v1');
@@ -25,7 +26,11 @@ const fail = (status, code, message) => { throw new StudioError(status, code, me
 const invalidLogin = () => fail(401, 'mobile_credentials_invalid', 'E-mail eller adgangskode er forkert.');
 const invalidSession = () => fail(401, 'mobile_session_invalid', 'Din session er udløbet. Log ind igen.');
 const accountConflict = () => fail(409, 'mobile_account_conflict', 'Adgangen er ændret, eller e-mailen bruges allerede. Genindlæs medarbejderen og prøv igen.');
-const rateLimited = () => fail(429, 'mobile_auth_rate_limited', 'For mange forsøg. Prøv igen om lidt.');
+const rateLimited = () => {
+  const error = new StudioError(429, 'mobile_auth_rate_limited', 'For mange forsøg. Prøv igen om lidt.');
+  error.retryAfterSeconds = Math.ceil(attemptWindowMs / 1000);
+  throw error;
+};
 
 const activePersonJoin = `JOIN workspace_directory_records employee
   ON employee.workspace_id = credential.workspace_id AND employee.id = credential.person_id
@@ -165,7 +170,7 @@ export async function readMobileCredential({ db, workspaceId, personId, actorGua
   return row ? { ...mobileAccount(row), canRevealStartCode: row.has_start_code === 1 && typeof secret === 'string' && startCodeKeyPattern.test(secret) } : null;
 }
 
-export async function revealMobileStartCode({ db, workspaceId, personId, actorGuard, expectedVersion, secret }) {
+export async function revealMobileStartCode({ db, workspaceId, personId, actorGuard, expectedVersion, secret, audit }) {
   requireAdminGuard(workspaceId, personId, expectedVersion, actorGuard);
   const from = `FROM workspace_mobile_credentials credential ${activePersonJoin}
     WHERE credential.workspace_id = ? AND credential.person_id = ? AND credential.version = ? AND credential.revoked_at IS NULL
@@ -174,7 +179,15 @@ export async function revealMobileStartCode({ db, workspaceId, personId, actorGu
   const row = await first(db, 'SELECT credential.start_code_ciphertext ' + from, ...values);
   if (!row) accountConflict();
   const code = await openStartCode(row.start_code_ciphertext, secret, workspaceId, personId, expectedVersion);
-  if (!await first(db, 'SELECT 1 ' + from, ...values)) accountConflict();
+  const condition = { sql: 'EXISTS (SELECT 1 ' + from + ')', values };
+  const identity = { personId, version: expectedVersion, status: 'active' };
+  // The authorization/version check and access event share one transaction.
+  // Never release decrypted material if recording the access fails.
+  const [checked] = await db.batch([
+    statement(db, 'SELECT 1 AS allowed WHERE ' + condition.sql, ...condition.values),
+    ...(audit?.({ condition, before: identity, after: identity }) ?? []),
+  ]);
+  if (!checked?.results?.length) accountConflict();
   return code;
 }
 
@@ -195,17 +208,18 @@ export async function prepareMobileCredentialCreate({ db, workspaceId, personId,
     values: [workspaceId, personId, writeToken] }, email: address, temporaryPassword: code, version: 1 };
 }
 
-export async function issueMobileCredential({ db, workspaceId, personId, email, actorGuard, expectedVersion, secret, now = Date.now() }) {
+export async function issueMobileCredential({ db, workspaceId, personId, email, actorGuard, expectedVersion, secret, audit, now = Date.now() }) {
   requireAdminGuard(workspaceId, personId, expectedVersion, actorGuard);
   if (expectedVersion === 0) {
-    const { statement: insert, email: address, temporaryPassword: code, version } = await prepareMobileCredentialCreate(
+    const { statement: insert, commit, email: address, temporaryPassword: code, version } = await prepareMobileCredentialCreate(
       { db, workspaceId, personId, email, actorGuard, secret, now });
-    const [result] = await db.batch([insert]);
+    const [result] = await db.batch([insert, ...(audit?.({ condition: commit, before: null,
+      after: { personId, email: address, version, status: 'active' } }) ?? [])]);
     if (changes(result) !== 1) accountConflict();
     return { email: address, temporaryPassword: code, version };
   }
 
-  const current = await first(db, `SELECT email FROM workspace_mobile_credentials
+  const current = await first(db, `SELECT person_id, email, temporary, version, revoked_at FROM workspace_mobile_credentials
     WHERE workspace_id = ? AND person_id = ? AND version = ?`, workspaceId, personId, expectedVersion);
   if (!current) accountConflict();
   if (email !== undefined && normalizeMobileEmail(email) !== current.email) {
@@ -224,7 +238,11 @@ export async function issueMobileCredential({ db, workspaceId, personId, email, 
         AND (other.workspace_id <> ? OR other.person_id <> ?))`,
   salt, hash, passwordScheme, ciphertext, writeToken, now, workspaceId, personId, expectedVersion, ...guardValues,
   address, workspaceId, personId);
-  const [result] = await db.batch([write, deleteSessionsAfterWrite(db, workspaceId, personId, writeToken)]);
+  const condition = { sql: 'EXISTS (SELECT 1 FROM workspace_mobile_credentials WHERE workspace_id = ? AND person_id = ? AND write_token = ?)',
+    values: [workspaceId, personId, writeToken] };
+  const [result] = await db.batch([write, deleteSessionsAfterWrite(db, workspaceId, personId, writeToken),
+    ...(audit?.({ condition, before: mobileAccount(current),
+      after: { personId, email: address, version: expectedVersion + 1, status: 'active' } }) ?? [])]);
   if (changes(result) !== 1) accountConflict();
   return { email: address, temporaryPassword: code, version: expectedVersion + 1 };
 }
@@ -235,15 +253,19 @@ function deleteSessionsAfterWrite(db, workspaceId, personId, writeToken) {
   workspaceId, personId, workspaceId, personId, writeToken);
 }
 
-export async function revokeMobileCredential({ db, workspaceId, personId, expectedVersion, actorGuard, now = Date.now() }) {
+export async function revokeMobileCredential({ db, workspaceId, personId, expectedVersion, actorGuard, audit, now = Date.now() }) {
   requireAdminGuard(workspaceId, personId, expectedVersion, actorGuard);
   const writeToken = crypto.randomUUID();
+  const condition = { sql: 'EXISTS (SELECT 1 FROM workspace_mobile_credentials WHERE workspace_id = ? AND person_id = ? AND write_token = ?)',
+    values: [workspaceId, personId, writeToken] };
   const [result] = await db.batch([
     statement(db, `UPDATE workspace_mobile_credentials SET revoked_at = ?, updated_at = ?, version = version + 1,
       password_salt = '', password_hash = '', start_code_ciphertext = NULL, temporary = 0, write_token = ?
       WHERE workspace_id = ? AND person_id = ? AND version = ? AND revoked_at IS NULL AND (${actorGuard.sql})`,
     now, now, writeToken, workspaceId, personId, expectedVersion, ...actorGuard.values),
     deleteSessionsAfterWrite(db, workspaceId, personId, writeToken),
+    ...(audit?.({ condition, before: { personId, version: expectedVersion, status: 'active' },
+      after: { personId, version: expectedVersion + 1, status: 'revoked' } }) ?? []),
   ]);
   if (changes(result) !== 1) accountConflict();
   return { version: expectedVersion + 1 };
@@ -252,21 +274,22 @@ export async function revokeMobileCredential({ db, workspaceId, personId, expect
 async function reserveAttempt(db, scope, limit, now) {
   const scopeHash = hashText(scope);
   const writeToken = crypto.randomUUID();
-  const [result] = await db.batch([statement(db, `INSERT INTO workspace_mobile_auth_attempts
+  const [result, selected] = await db.batch([statement(db, `INSERT INTO workspace_mobile_auth_attempts
     (scope_hash, attempts, expires_at, write_token) VALUES (?, 1, ?, ?)
     ON CONFLICT(scope_hash) DO UPDATE SET
       attempts = CASE WHEN expires_at <= ? THEN 1 ELSE attempts + 1 END,
       expires_at = CASE WHEN expires_at <= ? THEN excluded.expires_at ELSE expires_at END,
       write_token = excluded.write_token
-    WHERE expires_at <= ? OR attempts < ?`, scopeHash, now + attemptWindowMs, writeToken, now, now, now, limit)]);
+    WHERE expires_at <= ? OR attempts < ?`, scopeHash, now + attemptWindowMs, writeToken, now, now, now, limit),
+    statement(db, 'SELECT expires_at FROM workspace_mobile_auth_attempts WHERE scope_hash = ?', scopeHash)]);
   if (changes(result) !== 1) rateLimited();
-  return { scopeHash, writeToken };
+  return { scopeHash, writeToken, expiresAt: selected.results[0].expires_at };
 }
 
 function releaseAttemptAfterSession(db, attempt, session) {
-  return statement(db, `DELETE FROM workspace_mobile_auth_attempts WHERE scope_hash = ? AND write_token = ?
+  return statement(db, `UPDATE workspace_mobile_auth_attempts SET attempts = MAX(0, attempts - 1) WHERE scope_hash = ? AND expires_at = ?
     AND EXISTS (SELECT 1 FROM workspace_mobile_sessions WHERE token_hash = ?)`,
-    attempt.scopeHash, attempt.writeToken, session.hash);
+    attempt.scopeHash, attempt.expiresAt, session.hash);
 }
 
 async function reserveLogin(db, email, ip, now) {
@@ -276,10 +299,14 @@ async function reserveLogin(db, email, ip, now) {
     statement(db, `DELETE FROM workspace_mobile_sessions WHERE token_hash IN
       (SELECT token_hash FROM workspace_mobile_sessions WHERE expires_at <= ? ORDER BY expires_at LIMIT 32)`, now),
   ]);
-  if (typeof ip === 'string' && ip.length > 0 && ip.length <= 128) {
-    await reserveAttempt(db, `login-source:${ip}`, sourceAttemptLimit, now);
-  }
-  return reserveAttempt(db, `login-account:${email}`, accountAttemptLimit, now);
+  const source = typeof ip === 'string' && ip.length > 0 && ip.length <= 128 ? ip : 'unknown';
+  // A known address cannot lock a legitimate login out from a different source
+  // after only eight guesses. Bound both source guessing and distributed attacks.
+  return [
+    await reserveAttempt(db, `login-source:${source}`, sourceAttemptLimit, now),
+    await reserveAttempt(db, `login-account-source:${email}:${source}`, accountAttemptLimit, now),
+    await reserveAttempt(db, `login-account:${email}`, distributedAccountLimit, now),
+  ];
 }
 
 function sessionToken(now) {
@@ -299,7 +326,7 @@ function sessionResult(session, row, temporary = row.temporary === 1) {
 export async function loginMobile({ db, email, password, ip, now = Date.now() }) {
   const address = normalizeMobileEmail(email);
   if (!address || !validPasswordInput(password)) invalidLogin();
-  const attempt = await reserveLogin(db, address, ip, now);
+  const attempts = await reserveLogin(db, address, ip, now);
   const row = await first(db, `SELECT ${employeeFields}, ${passwordFields}, credential.version, credential.temporary
     FROM workspace_mobile_credentials credential ${activePersonJoin}
     WHERE credential.email = ? AND credential.revoked_at IS NULL`, address);
@@ -311,7 +338,7 @@ export async function loginMobile({ db, email, password, ip, now = Date.now() })
       FROM workspace_mobile_credentials credential ${activePersonJoin}
       WHERE credential.workspace_id = ? AND credential.person_id = ? AND credential.version = ? AND credential.revoked_at IS NULL`,
     session.hash, session.expiry, row.workspace_id, row.person_id, row.version),
-    releaseAttemptAfterSession(db, attempt, session),
+    ...attempts.map(attempt => releaseAttemptAfterSession(db, attempt, session)),
   ]);
   if (changes(result) !== 1) invalidLogin();
   return sessionResult(session, row);

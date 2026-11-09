@@ -1,11 +1,20 @@
 import * as SecureStore from 'expo-secure-store';
 import { createContext, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
+import { PendingLogouts } from './pending-logouts';
 
 import { canUseMobileAuth, isSessionToken, mobileAuthApi, MobileAuthError, mobileAuthOrigin, type MobileSession, type PublishedShift, type PublishedShiftDetail, type ShiftTimeCommand, type ShiftTimeEntry } from './mobile-auth-api';
 
 const sessionKey = 'cleanrooms.mobile-auth.v1';
 const storageOptions = { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY };
+const pendingLogoutKey = 'cleanrooms.mobile-auth.pending-logout.v1';
+const pendingLogoutNotice = 'Logget ud på enheden. Serveradgangen lukkes, når der er forbindelse.';
+const unconfirmedLogoutNotice = 'Logget ud på enheden. Serverlukning kunne ikke bekræftes.';
+const pendingLogouts = new PendingLogouts({
+  read: () => SecureStore.getItemAsync(pendingLogoutKey, storageOptions),
+  write: value => SecureStore.setItemAsync(pendingLogoutKey, value, storageOptions),
+  clear: () => SecureStore.deleteItemAsync(pendingLogoutKey, storageOptions),
+});
 
 type AuthState =
   | { mode: 'loading' }
@@ -24,6 +33,7 @@ type AuthContextValue = {
   leaveDemo: () => void;
   readPublishedSchedule: (from: string, to: string, cursor: string | null) => Promise<{ shifts: PublishedShift[]; nextCursor: string | null }>;
   readPublishedShift: (shiftId: string) => Promise<PublishedShiftDetail | null>;
+  readActiveTime: () => Promise<PublishedShift | null>;
   writeShiftTime: (command: ShiftTimeCommand) => Promise<ShiftTimeEntry>;
   employeeRequest: <T>(payload: Record<string, unknown> & { action: string }) => Promise<T>;
 };
@@ -64,6 +74,14 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(canUseMobileAuth ? { mode: 'loading' } : { mode: 'signedOut' });
   const activeToken = useRef<string | null>(null);
   const busy = useRef(false);
+  const flushLogouts = useCallback(async () => {
+    if (!mobileAuthOrigin) return;
+    try {
+      await pendingLogouts.flush(mobileAuthOrigin, mobileAuthApi.logout);
+      if (!await pendingLogouts.hasPending(mobileAuthOrigin)) setState(previous => previous.mode === 'signedOut' && previous.notice === pendingLogoutNotice
+        ? { mode: 'signedOut' } : previous);
+    } catch { /* Remains encrypted and is retried on foreground/start. */ }
+  }, []);
 
   const expire = useCallback(async () => {
     activeToken.current = null;
@@ -75,8 +93,16 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = await readToken();
       if (!isCurrent()) return;
+      if (token && mobileAuthOrigin && await pendingLogouts.contains(mobileAuthOrigin, token)) {
+        // Recover an interrupted logout without ever restoring that credential.
+        await clearToken();
+        if (isCurrent()) setState({ mode: 'signedOut', notice: pendingLogoutNotice });
+        return;
+      }
       if (!token) {
-        setState({ mode: 'signedOut' });
+        const waiting = mobileAuthOrigin && await pendingLogouts.hasPending(mobileAuthOrigin);
+        if (!isCurrent()) return;
+        setState({ mode: 'signedOut', ...(waiting ? { notice: pendingLogoutNotice } : {}) });
         return;
       }
       const session = await mobileAuthApi.session(token);
@@ -94,10 +120,10 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     if (!canUseMobileAuth) return;
     let current = true;
     queueMicrotask(() => {
-      if (current) void restoreSession(() => current);
+      if (current) void restoreSession(() => current).finally(() => { if (current) void flushLogouts(); });
     });
     return () => { current = false; };
-  }, [restoreSession]);
+  }, [flushLogouts, restoreSession]);
 
   const retrySession = useCallback(async () => {
     if (busy.current || !canUseMobileAuth) return;
@@ -112,6 +138,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', status => {
+      if (status === 'active') void flushLogouts();
       const token = activeToken.current;
       if (status !== 'active' || !token || busy.current) return;
       void mobileAuthApi.session(token).then(session => {
@@ -121,7 +148,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       });
     });
     return () => subscription.remove();
-  }, [expire]);
+  }, [expire, flushLogouts]);
 
   const signIn = useCallback(async (email: string, password: string): Promise<Result> => {
     if (busy.current) return inProgress();
@@ -176,17 +203,26 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     busy.current = true;
     const token = activeToken.current;
     try {
+      let queued = false;
+      if (token && mobileAuthOrigin) {
+        try {
+          await pendingLogouts.enqueue(mobileAuthOrigin, token, state.mode === 'signedIn' ? Date.parse(state.session.expiresAt) : undefined);
+          queued = true;
+        } catch { /* A failed revocation-queue write must never prevent local logout. */ }
+      }
       await clearToken();
       activeToken.current = null;
-      setState({ mode: 'signedOut' });
-      if (token) void mobileAuthApi.logout(token).catch(() => undefined);
+      setState({ mode: 'signedOut', ...(token ? { notice: queued ? pendingLogoutNotice : unconfirmedLogoutNotice } : {}) });
+      if (queued) void flushLogouts();
+      else if (token) void mobileAuthApi.logout(token).then(() => setState(previous => previous.mode === 'signedOut' && previous.notice === unconfirmedLogoutNotice
+        ? { mode: 'signedOut' } : previous)).catch(() => undefined);
       return ok;
     } catch (error) {
       return failure(errorMessage(error));
     } finally {
       busy.current = false;
     }
-  }, []);
+  }, [flushLogouts, state]);
 
   const openDemo = useCallback(() => {
     if (busy.current) return;
@@ -212,12 +248,13 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     readEmployeeData(token => mobileAuthApi.publishedSchedule(token, from, to, cursor)), [readEmployeeData]);
   const readPublishedShift = useCallback((shiftId: string) =>
     readEmployeeData(token => mobileAuthApi.publishedShift(token, shiftId)), [readEmployeeData]);
+  const readActiveTime = useCallback(() => readEmployeeData(token => mobileAuthApi.activeTime(token)), [readEmployeeData]);
   const writeShiftTime = useCallback((command: ShiftTimeCommand) =>
     readEmployeeData(token => mobileAuthApi.shiftTime(token, command)), [readEmployeeData]);
   const employeeRequest = useCallback(<T,>(payload: Record<string, unknown> & { action: string }) =>
     readEmployeeData(token => mobileAuthApi.employeeRequest<T>(token, payload)), [readEmployeeData]);
 
-  return <AuthContext value={{ state, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
+  return <AuthContext value={{ state, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, readActiveTime, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
 }
 
 export function useMobileAuth() {

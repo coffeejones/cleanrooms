@@ -3,7 +3,7 @@ import Departments from '../src/department-model.js';
 import Publication from '../src/publication-model.js';
 import Roster from '../src/roster-model.js';
 import Series from '../src/series-engine.js';
-import SeriesLifecycle from '../src/series-lifecycle.js';
+import {planningCoreErrors} from './planning-validation.mjs';
 import Roles from '../src/role-model.js';
 import ShiftWorkflow from '../src/shift-workflow-model.js';
 import {ensurePlanningImported,planningState,preparePlanningWrite,PlanningStoreError} from './planning-store.mjs';
@@ -36,22 +36,14 @@ function ownerId(value) {
   return value;
 }
 
-export function validateStudio(studio) {
+export function validateStudio(studio,{readOnly=false,previous}={}) {
   if (!record(studio) || studio.storageVersion !== STORAGE_VERSION) bad('Planens lagringsversion er ugyldig.');
   for (const key of ['series','deleted','coverageRules']) if (!Array.isArray(studio[key])) bad('Planen mangler en gyldig ' + key + '-liste.');
   for (const key of ['edits','weekPlans','requests','checklistProgress']) if (!record(studio[key])) bad('Planen mangler et gyldigt ' + key + '-objekt.');
   if (studio.series.some(value => !record(value)) || studio.coverageRules.some(value => !record(value))) bad('Vagtserier og bemandingsbehov skal være objekter.');
-  for(const series of studio.series)if(Object.hasOwn(series,'dayTimes')||Object.hasOwn(series,'groupId')||Object.hasOwn(series,'plannedBreakMinutes')||Object.hasOwn(series,'openEnded')){
-    const errors=Series.validate(series);if(errors.length)bad(errors[0]);
-  }
-  const upgradedGroups=new Set(studio.series.filter(series=>Object.hasOwn(series,'dayTimes')||Object.hasOwn(series,'groupId')||Object.hasOwn(series,'plannedBreakMinutes')||Object.hasOwn(series,'openEnded')).map(series=>series.groupId||series.id));
-  if(upgradedGroups.size){
-    const phases=studio.series.filter(series=>upgradedGroups.has(series.groupId||series.id)),errors=SeriesLifecycle.validate(phases);
-    if(errors.length)bad(errors[0]);
-  }
+  if(!readOnly){const errors=planningCoreErrors(studio,previous);if(errors.length)bad(errors[0]);}
   if (studio.deleted.some(value => typeof value !== 'string')) bad('Slettede vagter skal have tekst-id.');
   for (const key of ['edits','weekPlans','checklistProgress']) if (Object.values(studio[key]).some(value => !record(value))) bad('Planen indeholder ugyldige poster i ' + key + '.');
-  for(const shift of [...Object.values(studio.edits),...Object.values(studio.weekPlans).flatMap(plan=>Array.isArray(plan.baseline)?plan.baseline:[])])if(record(shift)&&Object.hasOwn(shift,'plannedBreakMinutes')&&!Series.validPlannedBreak(shift))bad('Den planlagte pause skal være et ikke-negativt helt antal minutter og kortere end vagten.');
   if (Object.values(studio.requests).some(value => !['pending','approved','rejected'].includes(value))) bad('Planen indeholder en ugyldig fraværsbeslutning.');
   if(Object.hasOwn(studio,'leaveDecisions')) {
     if(!record(studio.leaveDecisions)||Object.entries(studio.leaveDecisions).some(([id,value])=>!id||!record(value)||!['pending','approved','rejected'].includes(value.status)||typeof value.reason!=='string'||value.reason.length>16000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value.reason)
@@ -150,7 +142,7 @@ export async function readRawStudio(db,owner) {
   }
   const serialized = chunks.map(chunk => chunk.content).join('');
   if (encoder.encode(serialized).length !== header.byte_length) throw new StudioError(500,'invalid_saved_state','Den gemte plan er ufuldstændig. Ingen data er overskrevet.');
-  try { return receipt({revision:header.revision,studio:validateStudio(JSON.parse(serialized))}); }
+  try { return receipt({revision:header.revision,studio:validateStudio(JSON.parse(serialized),{readOnly:true})}); }
   catch { throw new StudioError(500,'invalid_saved_state','Den gemte plan kunne ikke læses. Ingen data er overskrevet.'); }
 }
 
@@ -198,7 +190,7 @@ export async function readStudio(db,owner) {
       const check=(await db.batch([prepared(db,'SELECT revision,write_token FROM studio_states WHERE owner_id = ?',owner)]))[0]?.results?.[0];
       if((check?.revision||0)!==raw.source.revision||(check?.write_token||'')!==raw.source.token)continue;
       if(!await directoryUnchanged(db,workspaceId,loadedDirectory.header))continue;
-      let studio=null;if(raw.studio!==null){try{studio=validateStudio(hydrated.studio);}catch{throw new StudioError(500,'invalid_planning_records','Planens gemte poster er ugyldige. Eksisterende data er bevaret.');}}
+      let studio=null;if(raw.studio!==null){try{studio=validateStudio(hydrated.studio,{readOnly:true});}catch{throw new StudioError(500,'invalid_planning_records','Planens gemte poster er ugyldige. Eksisterende data er bevaret.');}}
       const result={revision:raw.revision,studio};
       Object.defineProperty(result,'planning',{value:hydrated.planning,enumerable:false,configurable:true});
       Object.defineProperty(result,'source',{value:raw.source,enumerable:false});if(loadedDirectory.directory)Object.defineProperty(result,'directory',{value:loadedDirectory.directory,enumerable:false});return result;
@@ -288,7 +280,7 @@ function studioGuard(owner,guard) {
 }
 
 export async function writeStudio(db,owner,expectedRevision,studio,guard) {
-  ownerId(owner); revision(expectedRevision); studio=validateStudio(studio);
+  ownerId(owner); revision(expectedRevision); studio=validateStudio(studio,{readOnly:true});
   const identityAcl=studioGuard(owner,guard),acl={sql:identityAcl.sql,values:[...identityAcl.values]};
   // Conditions are server-built and fence dependent records in the same transaction.
   if(guard?.extraCondition){
@@ -345,6 +337,7 @@ export async function writeStudio(db,owner,expectedRevision,studio,guard) {
   if(commandContext&&(!record(commandContext.saved)||typeof commandContext.prepare!=='function'||commandContext.saved.source?.workspaceId!==guard.workspaceId))throw new StudioError(400,'invalid_command_context','Ændringens lagringsgrundlag er ugyldigt.');
   const previous = commandContext?commandContext.saved:await readStudio(db,owner);
   if (previous.revision !== expectedRevision) return {ok:false,...previous};
+  validateStudio(studio,{previous:previous.studio});
   const directoryWorkspace=previous.source?.workspaceId,directoryHeader=directoryWorkspace?await readDirectoryHeader({db,workspaceId:directoryWorkspace}):null;
   if(directoryHeader){const directoryGuard=directoryVersionGuard({workspaceId:directoryWorkspace,version:previous.directory?.revision??directoryHeader.version});acl.sql+=' AND ('+directoryGuard.sql+')';acl.values.push(...directoryGuard.values);}
   // A refreshed older client can still have the current revision while its

@@ -46,7 +46,7 @@
   const motionPreference = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   let activeEdit = null, lastTrigger = null, visibleCount = 0, visibleShifts = [], lastRenderKey = null;
   let repeatDays = new Set(), editorSeriesId = '', lastUndo = null, reviewTrigger = null;
-  let editorPlanCapture=null;
+  let editorPlanCapture=null,editorDirtyBaseline=null,editorDiscard=null,saveFeedbackEpoch=0;
   let planningReadBusy=false,planningReadKey='',planningReadBlocked='',planningReadPromise=null;
   let plannerDetailBusy=false,plannerDetailEpoch=0,plannerDetailSelection=new Set();
   const plannerViewport={key:'',wanted:null,visible:[],busy:false,loadingRange:null,epoch:0,error:'',errorRange:null,restore:true};
@@ -63,7 +63,7 @@
   let activeGroup = null, calendarDispose = null, calendarViewportBoard = null;
   let selectionMode = false, selectedIds = new Set(), selectionScope = null;
   let activeBulk = null, changesTrigger = null;
-  let staffPickerOpen = false, staffingContextCache = null, staffingAssessments = new Map(), selectedStaffing = null;
+  let staffPickerOpen = false, staffingContextCache = null, staffingAssessments = new Map(), selectedStaffing = null,staffPickerPage=0,staffPickerTerm='';
   let planningAvailability=null;
   let operationsFilter = 'all', operationsTrigger = null, needsTrigger = null, needDays = new Set([0,1,2,3,4]), activeReplacement = null;
   let lastNavigationMotionKey = null, navigationAnimation = null;
@@ -84,10 +84,12 @@
   let payrollProfileReturn=null,payrollPolicyPendingOpen=null;
   let payrollPersonGroupView=null,payrollPersonGroupElement=null;
   const payrollPolicyState={policy:null,version:0,people:[],history:[],loaded:false,loading:false,error:''};
-  let timeView=null,timeElement=null,timeEpoch=0,timeLoadedKey='',timeLoadingKey='',timeRequest=null,timeBusy=false,timeDemoEmployee=false,timeContext='';
+  let timeView=null,timeElement=null,timeEpoch=0,timeLoadedKey='',timeLoadingKey='',timeRequest=null,timeBusy=false,timeDemoEmployee=false,timeContext='',timeLastRead=0;
+  const timePaging={context:'',page:0,cursors:[null],offsets:[0],nextCursor:null,generation:null,filter:{queue:'all',search:'',scope:'real'}};
+  const timePageCache=new Map();let timeFilterTimer=null,timeFilterWaiters=[];
   const timeState={entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:'',canManage:false,canViewPayroll:false};
   let publicationBusy=false,includeRelatedPublication=false,publicationAllSites=false,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
-  let publicationCanSubmit=false,publicationRead=null,publicationBudget=null;
+  let publicationCanSubmit=false,publicationRead=null,publicationBudget=null,publicationResume=null;
   const calendarBudgetCache=new Map();
   let calendarBudgetRequest=null,calendarBudgetError=null;
   const planningCostCache=new Map();
@@ -793,6 +795,10 @@
       placeholder.replaceWith(replacement);
     });
   }
+  function savedFeedback(message) {
+    const epoch=++saveFeedbackEpoch;
+    return Promise.resolve(save()).then(ok=>{if(ok&&epoch===saveFeedbackEpoch)notify(message);return ok;});
+  }
   function save() {
     state.calendarAnchor=anchor;
     if(planningReadBusy||planningReadBlocked)return Promise.resolve(false);
@@ -1206,7 +1212,7 @@
   async function loadWorkflow(force=false){
     if(!cloudLoaded||!persistence||!globalThis.CleanRoomsShiftWorkflowView||state.role==='employee'&&employeeWorkspace==='chat')return;
     const key=workflowContext();
-    if(workflowLoading&&workflowKey===key||!force&&workflowLoadedKey===key)return;
+    if(workflowLoading&&workflowKey===key||!force&&workflowLoadedKey===key&&Date.now()-workflowLastRead<(workflowError?5000:30000))return;
     if(workflowKey!==key){workflowEpoch++;workflowBundle=null;workflowLoadedKey='';workflowError='';}
     const epoch=++workflowEpoch;workflowKey=key;workflowLoading=true;workflowError='';
     const payload={...(state.role==='employee'&&!realEmployee()?{personId:state.employeePerson}:{}),...(state.role==='employee'&&employeeWorkspace==='calendar'?{summary:true}:{})};
@@ -1235,6 +1241,23 @@
       return {...result,bundle:workflowBundle};
     }finally{if(action==='workflowDecide'&&!demo)root.inert=false;}
   }
+  let freshnessRequest=null,lastFreshnessCheck=0,freshnessDeferred=false;
+  function refreshOnReturn(force=false){
+    if(!cloudLoaded||!persistence||document.hidden||freshnessRequest)return Promise.resolve(false);
+    if(publicationBusy||timeBusy||timeFilterTimer||timeView?.hasDraft||timeView?.busy||leaveBusy||persistence.hasPendingPlanSave||viewportPinned()||editorHasDirtyDraft()){freshnessDeferred=true;return Promise.resolve(false);}
+    if(!force&&Date.now()-lastFreshnessCheck<30000)return Promise.resolve(false);
+    lastFreshnessCheck=Date.now();freshnessDeferred=false;
+    freshnessRequest=(async()=>{
+      if(state.role==='employee'){if(scopedEmployee())await loadEmployeeRead(true);if(employeeWorkspace!=='chat')await loadWorkflow(true);}
+      else if(state.page==='hours')await loadTimekeeping(true);
+      else if(state.page==='workflow')await loadWorkflow(true);
+      else if(usesViewportCalendar())await loadPlannerViewport(viewportRange(),{force:true});
+      else if(state.page==='leave'){leaveRefresh++;renderLeave();}
+      else if(state.page==='people'&&!employeeProfileId)await directory?.loadCatalog({force:true});
+      return true;
+    })().catch(()=>false).finally(()=>{freshnessRequest=null;});
+    return freshnessRequest;
+  }
   async function loadMoreWorkflow(kind){
     const names={messages:'messageCursor',requests:'requestCursor',ownShifts:'ownCursor',openShifts:'openCursor',colleagues:'colleagueCursor'},cursor=workflowBundle?.pagination?.[kind]?.nextCursor??workflowBundle?.pagination?.[kind];
     if(workflowLoading||!names[kind]||typeof cursor!=='string'||!cursor)return false;
@@ -1246,7 +1269,7 @@
     const fields=kind==='messages'?['notifications','deliveries']:[kind],next={...previous,pagination:{...previous.pagination,[kind]:result.pagination?.[kind]}};
     for(const field of fields)next[field]=[...new Map([...(previous[field]||[]),...(result[field]||[])].map(item=>[item.id,item])).values()];
     if(fields.reduce((sum,field)=>sum+next[field].length,0)>50000||new TextEncoder().encode(JSON.stringify(next)).byteLength>64*1024*1024){workflowError='Listen fylder for meget. Opdater visningen eller afgræns perioden.';renderWorkflow(state.role==='employee'?employeeWorkspace==='messages'?'messages':'employee':'manager');return false;}
-    workflowBundle=next;workflowLoadedKey=key;renderWorkflow(state.role==='employee'?employeeWorkspace==='messages'?'messages':'employee':'manager');return true;
+    workflowBundle=next;workflowLoadedKey=key;workflowLastRead=Date.now();renderWorkflow(state.role==='employee'?employeeWorkspace==='messages'?'messages':'employee':'manager');return true;
   }
   async function openWorkflowShift(id,summary){
     const personId=realEmployee()?sessionViewer?.personId:state.employeePerson;
@@ -1349,6 +1372,8 @@
   }
   function setRole(role) {
     if(realEmployee()&&(role==='employee'?!employeeData?.person:!hasAccountAccess()))return;
+    if(!confirmEditorLeave(()=>setRole(role)))return false;
+    closeEditor({force:true});
     if(realEmployee()&&role!=='employee')state.page='accounts';
     if(role==='employee')state.page='schedule';
     employeeWorkspace='calendar';workflowSelectedShift=null;timeDemoEmployee=false;departmentView?.close(); closeDemoSheets(); state.role = role === 'employee' ? 'employee' : 'admin'; state.employeeShift = null;
@@ -1527,7 +1552,7 @@
     });
     clearSelection(false); Object.assign(state,data);
     if (Checklist) { const current = ranges.flatMap(([from,to]) => shiftsInRange(from,to)), ids = new Set(current.map(shift => shift.id)); state.checklistProgress = Checklist.reconcile(state.checklistProgress,current.filter(shift=>!Instructions?.isDeferred(shift)),{deletedIds:priorAssignments.filter(shift => !ids.has(shift.id)).map(shift => shift.id)}); }
-    markChanged(ranges); render(); closeEditor(); closeGroupEditor(); closeBulkEditor(); closeChanges(false); notify(message); save();
+    markChanged(ranges); render(); closeEditor({force:true}); closeGroupEditor(); closeBulkEditor(); closeChanges(false); return savedFeedback(message);
   }
   function undoPlanning(){
     if(!lastUndo)return false;
@@ -1536,7 +1561,7 @@
     const selection=detailSelection(changes.filter(change=>change.kind==='shift').map(change=>change.id),changes.filter(change=>change.kind==='series').map(change=>change.id));
     if(needsPlannerDetails(selection))return withPlannerDetails(selection,undoPlanning);
     closeOperationsSheets();clearSelection(false);closeBulkEditor(false);closeChanges(false);
-    const previous=clone(lastUndo);previous.series=restoredSeriesMetadata(previous.series,state.series);previous.edits=restoredPauseEdits(previous.edits,state.edits);lastUndo=null;Object.assign(state,previous);render();closeEditor();closeGroupEditor(false);closeReview();notify('Seneste ændring er fortrudt.');const saved=save();releasePlanningHold('undo');return saved;
+    const previous=clone(lastUndo);previous.series=restoredSeriesMetadata(previous.series,state.series);previous.edits=restoredPauseEdits(previous.edits,state.edits);lastUndo=null;Object.assign(state,previous);render();closeEditor({force:true});closeGroupEditor(false);closeReview();const saved=savedFeedback('Seneste ændring er fortrudt.');releasePlanningHold('undo');return saved;
   }
   function approvedLeaveDates() {
     return leaveRequests.filter(request => (state.requests[request.id] || request.status) === 'approved')
@@ -1821,7 +1846,7 @@
     adminSurface(result.wrap,title,caption,total);
   }
   function clearTimekeeping(){
-    timeEpoch++;timeLoadedKey='';timeLoadingKey='';timeRequest=null;timeBusy=false;timeDemoEmployee=false;
+    timeEpoch++;timeLoadedKey='';timeLoadingKey='';timeRequest=null;timeBusy=false;timeDemoEmployee=false;timeLastRead=0;timePageCache.clear();if(timeFilterTimer)clearTimeout(timeFilterTimer);timeFilterTimer=null;timeFilterWaiters.splice(0).forEach(resolve=>resolve(false));timePaging.context='';timePaging.filter={queue:'all',search:'',scope:'real'};resetTimePaging();delete timeState.summary;delete timeState.serverFilter;delete timeState.pagination;delete timeState.filterKey;
     timeView?.destroy?.();timeView=null;timeElement=null;
     Object.assign(timeState,{entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:'',canManage:false,canViewPayroll:false});
   }
@@ -1832,43 +1857,91 @@
     }
     return {from:dates()[0],to:dates()[6]};
   }
-  function timeKey(range=timeRange()){return JSON.stringify([range.from,range.to,state.role==='employee'?state.employeePerson:'all',timeDemoEmployee,sessionViewer?.userId,Boolean(cloudCapabilities.viewPayroll)]);}
+  function timeContextKey(range=timeRange()){return JSON.stringify([chatWorkspaceId,range.from,range.to,state.role==='employee'?state.employeePerson:'all',timeDemoEmployee,sessionViewer?.userId,Boolean(cloudCapabilities.viewPayroll)]);}
+  function timeKey(range=timeRange(),page=timePaging.page){return JSON.stringify([timeContextKey(range),...(state.role==='employee'?[]:[timePaging.filter,page])]);}
+  function resetTimePaging(){timePaging.page=0;timePaging.cursors=[null];timePaging.offsets=[0];timePaging.nextCursor=null;timePaging.generation=null;}
+  function changeTimeFilter(filter){
+    if(timeBusy)return Promise.resolve(false);
+    const next={queue:['all','attention','ready','progress','approved'].includes(filter?.queue)?filter.queue:'all',search:typeof filter?.search==='string'?filter.search.slice(0,120):'',scope:filter?.scope==='demo'?'demo':'real'};
+    const searchOnly=next.queue===timePaging.filter.queue&&next.scope===timePaging.filter.scope&&next.search!==timePaging.filter.search;
+    timePaging.filter=next;resetTimePaging();timeLoadedKey='';clearTimeout(timeFilterTimer);
+    // Supersede old filter reads immediately; the latest search is sent once.
+    timeEpoch++;timeLoadingKey='';timeRequest=null;timeState.loading=false;
+    const run=async()=>{timeFilterTimer=null;const waiters=timeFilterWaiters.splice(0),result=await loadTimekeeping();waiters.forEach(resolve=>resolve(result));return result;};
+    if(!searchOnly)return run();
+    return new Promise(resolve=>{timeFilterWaiters.push(resolve);timeFilterTimer=setTimeout(()=>void run(),180);});
+  }
+  function changeTimePage(direction){
+    if(!['next','previous'].includes(direction))return Promise.resolve(false);
+    if(timeBusy||timeState.loading)return Promise.resolve(false);
+    const page=timePaging.page+(direction==='next'?1:-1);
+    if(page<0||direction==='next'&&!timePaging.nextCursor)return Promise.resolve(false);
+    if(direction==='next'){if(page>200){timeState.error='Afgræns søgningen for at se flere registreringer.';paintTimekeeping();return Promise.resolve(false);}timePaging.cursors[page]=timePaging.nextCursor;timePaging.offsets[page]=(timePaging.offsets[timePaging.page]||0)+timeState.entries.length;}
+    return loadTimekeeping(false,{page});
+  }
   function paintTimekeeping(){if(state.role==='employee')renderEmployee();else if(state.page==='hours')renderHours();else if(state.page==='activity')renderActivity();}
-  async function loadTimekeeping(force=false){
+  async function loadTimekeeping(force=false,{page:requestedPage}={}){
     if(!globalThis.CleanRoomsTimekeeping||!cloudLoaded||!sessionViewer||!persistence?.action)return false;
-    const range=timeRange(),key=timeKey(range),query={...range,...(state.role==='employee'?{personId:state.employeePerson}:{})};
+    const range=timeRange(),context=timeContextKey(range),server=state.role!=='employee',filterKey=JSON.stringify(timePaging.filter);
+    if(timePaging.context!==context){timePaging.context=context;resetTimePaging();}
+    let targetPage=server?(requestedPage??timePaging.page):0,key=timeKey(range,targetPage);
+    const query={...range,...(!server?{personId:state.employeePerson}:{...timePaging.filter,pageSize:50,...(timePaging.cursors[targetPage]?{cursor:timePaging.cursors[targetPage]}:{})})};
     if(timeLoadingKey===key&&timeRequest)return timeRequest;
-    if(!force&&timeLoadedKey===key)return true;
+    if(!force&&timeLoadedKey===key&&Date.now()-timeLastRead<(timeState.error?5000:30000))return true;
+    const cached=!force&&server?timePageCache.get(key):null;
     const epoch=++timeEpoch;timeLoadingKey=key;timeState.loading=true;timeState.error='';
+    if(server){timeState.serverFilter={...timePaging.filter};timeState.pagination={server:true,page:timePaging.page,offset:timePaging.offsets[timePaging.page]||0,hasNext:Boolean(timePaging.nextCursor),hasPrevious:timePaging.page>0,loading:true};}
     const request=(async()=>{
-      let result;
-      for(let attempt=0;attempt<2;attempt++){
-        const first=await accountAction('timeRead',query),allEntries=[],allShifts=new Map(),seenCursors=new Set();let page=first,cursor=null,size=0,retry=false;
-        while(page.ok&&epoch===timeEpoch){
-          if(!Array.isArray(page.entries)||['ledgerVersion','planRevision','directoryRevision'].some(field=>page[field]!==first[field])){page={ok:false,status:409,message:'Timerne eller deres grundlag er ændret under indlæsningen. Opdater listen.'};break;}
-          size+=new TextEncoder().encode(JSON.stringify(page)).byteLength;allEntries.push(...page.entries);
-          for(const shift of page.shifts||[])if(!allShifts.has(shift.id))allShifts.set(shift.id,shift);
-          if(allEntries.length>50000||size>64*1024*1024){page={ok:false,status:413,message:'Perioden indeholder for mange tidsregistreringer til denne visning. Vælg en kortere periode.'};break;}
-          cursor=page.nextCursor;if(!cursor)break;
-          if(typeof cursor!=='string'||seenCursors.has(cursor)){page={ok:false,status:409,message:'Registreringerne ændrede sig under indlæsningen. Opdater listen.'};break;}
-          seenCursors.add(cursor);page=await accountAction('timeRead',{...query,cursor});
-        }
-        if(page.ok&&epoch===timeEpoch&&directory?.ready&&Number.isSafeInteger(first.directoryRevision)&&directory.catalogRevision!==first.directoryRevision){
-          const catalog=await directory.loadCatalog({force:true});
-          if(!catalog.ok)page={ok:false,status:catalog.status,message:catalog.message||'Medarbejderoversigten kunne ikke opdateres.'};
-          else if(directory.catalogRevision!==first.directoryRevision)page={ok:false,status:409,message:'Medarbejderne er ændret under indlæsningen. Opdater timerne.'};
-        }
+      let result,usedCache=false;
+      if(cached&&Date.now()-cached.at<30000&&cached.generation===timePaging.generation){result=clone(cached.result);usedCache=true;}
+      else for(let attempt=0;attempt<2;attempt++){
+        const first=await accountAction('timeRead',query);
         if(epoch!==timeEpoch)return false;
-        if(!page.ok&&page.status===409&&attempt===0)retry=true;
-        if(retry)continue;
-        result=page.ok?{...first,entries:allEntries,shifts:[...allShifts.values()],nextCursor:null}:page;break;
+        if(server){
+          result=first;
+          const generation=JSON.stringify([first.ledgerVersion,first.planRevision,first.directoryRevision]);
+          if(first.ok&&(!Array.isArray(first.entries)||first.entries.length>50||new TextEncoder().encode(JSON.stringify(first)).byteLength>8*1024*1024||typeof first.nextCursor==='string'&&first.nextCursor.length>16384))result={ok:false,status:413,message:'Serverens side med timer kunne ikke bekræftes. Opdater listen.'};
+          if(attempt===0&&(first.status===409||first.ok&&targetPage>0&&timePaging.generation!==generation)){
+            resetTimePaging();targetPage=0;key=timeKey(range,0);delete query.cursor;timePageCache.clear();continue;
+          }
+        }else{
+          const allEntries=[],allShifts=new Map(),seenCursors=new Set();let current=first,size=0;
+          while(current.ok&&epoch===timeEpoch){
+            if(!Array.isArray(current.entries)||['ledgerVersion','planRevision','directoryRevision'].some(field=>current[field]!==first[field])){current={ok:false,status:409,message:'Timerne eller deres grundlag er ændret under indlæsningen. Opdater listen.'};break;}
+            size+=new TextEncoder().encode(JSON.stringify(current)).byteLength;allEntries.push(...current.entries);
+            for(const shift of current.shifts||[])if(!allShifts.has(shift.id))allShifts.set(shift.id,shift);
+            if(allEntries.length>50000||size>64*1024*1024){current={ok:false,status:413,message:'Perioden indeholder for mange tidsregistreringer. Vælg en kortere periode.'};break;}
+            const cursor=current.nextCursor;if(!cursor)break;
+            if(typeof cursor!=='string'||seenCursors.has(cursor)){current={ok:false,status:409,message:'Registreringerne ændrede sig under indlæsningen. Opdater listen.'};break;}
+            seenCursors.add(cursor);current=await accountAction('timeRead',{...query,cursor});
+          }
+          if(!current.ok&&current.status===409&&attempt===0)continue;
+          result=current.ok?{...first,entries:allEntries,shifts:[...allShifts.values()],nextCursor:null}:current;
+        }
+        if(result.ok&&directory?.ready&&Number.isSafeInteger(result.directoryRevision)&&directory.catalogRevision!==result.directoryRevision){
+          const catalog=await directory.loadCatalog({force:true});
+          if(!catalog.ok)result={ok:false,status:catalog.status,message:catalog.message||'Medarbejderoversigten kunne ikke opdateres.'};
+          else if(directory.catalogRevision!==result.directoryRevision)result={ok:false,status:409,message:'Medarbejderne er ændret under indlæsningen. Opdater timerne.'};
+        }
+        if(!result.ok&&result.status===409&&attempt===0)continue;
+        break;
       }
-      if(epoch!==timeEpoch)return false;
-      timeState.loading=false;timeLoadingKey='';timeLoadedKey=key;
+      if(epoch!==timeEpoch||context!==timeContextKey())return false;
+      timeState.loading=false;timeLoadingKey='';timeLoadedKey=result.ok?key:timeKey(range,timePaging.page);timeLastRead=usedCache?cached.at:Date.now();
       if(result.ok){
+        if(server){
+          const generation=JSON.stringify([result.ledgerVersion,result.planRevision,result.directoryRevision]);
+          if(timePaging.generation!==generation||force)timePageCache.clear();
+          timePaging.generation=generation;timePaging.page=targetPage;timePaging.nextCursor=result.nextCursor||null;
+          timePageCache.delete(key);timePageCache.set(key,{at:usedCache?cached.at:Date.now(),generation,result:clone(result),bytes:new TextEncoder().encode(JSON.stringify(result)).byteLength});while(timePageCache.size>6||[...timePageCache.values()].reduce((total,value)=>total+value.bytes,0)>16*1024*1024)timePageCache.delete(timePageCache.keys().next().value);
+        }
+        if(server)timeState.filterKey=filterKey;
+        if(result.summary&&(!canViewPayroll()||realEmployee())){result=clone(result);for(const value of [result.summary,...(result.summary.people||[])])for(const field of ['approvedCents','baseCents','supplementCents','approvedBaseCents','approvedSupplementCents','approvedMonthlyBaseCents','approvedMonthlySupplementCents'])delete value[field];}
         const entries=Array.isArray(result.entries)?result.entries:[];
         Object.assign(timeState,result,{entries:entries.map(entry=>{if(canViewPayroll()&&!realEmployee())return entry;const copy={...entry};delete copy.payroll;delete copy.approvalHistory;return copy;}),shifts:Array.isArray(result.shifts)?result.shifts:[],plannedRows:Array.isArray(result.plannedRows)?result.plannedRows:[],demo:result.demo||{active:false},error:'',loading:false});
-      }else Object.assign(timeState,{entries:[],shifts:[],plannedRows:[],error:result.message||'Timerne kunne ikke indlæses. Prøv at hente dem igen.'});
+      }else {if(timeState.from!==range.from||timeState.to!==range.to||server&&timeState.filterKey!==filterKey)Object.assign(timeState,{entries:[],shifts:[],plannedRows:[],summary:null});timeState.error=result.message||'Timerne kunne ikke indlæses. Prøv at hente dem igen.';}
+      if(server)timeState.pagination={server:true,page:timePaging.page,offset:timePaging.offsets[timePaging.page]||0,hasNext:Boolean(timePaging.nextCursor),hasPrevious:timePaging.page>0,loading:false,totalCount:timeState.summary?.counts?.[timePaging.filter.queue]};
+      else{delete timeState.pagination;delete timeState.serverFilter;delete timeState.summary;}
       paintTimekeeping();return result.ok;
     })();timeRequest=request;return request;
   }
@@ -1883,8 +1956,18 @@
         const demo=result.demo;
         if(demo?.active&&Actions.validDate(demo.from))state.week=Math.floor((date(demo.from)-date(anchor))/604800000);
       }
-      if(result.ok){timeLoadedKey='';await loadTimekeeping(true);if(action==='timeDemo'){render();save();}}
-      else {timeState.error=result.message||'Tidsregistreringen kunne ikke gemmes.';if(result.status===409){timeLoadedKey='';await loadTimekeeping(true);}}
+      if(result.ok){
+        timePageCache.clear();if(timeState.summary)timeState.summary={...timeState.summary,stale:true};if(timeState.pagination)delete timeState.pagination.totalCount;
+        if(result.entry&&typeof result.entry.id==='string'){
+          const entry=clone(result.entry);if(!canViewPayroll()||realEmployee()){delete entry.payroll;delete entry.approvalHistory;}
+          const index=timeState.entries.findIndex(item=>item.id===entry.id);
+          timeState.entries=index<0?[...timeState.entries,entry]:timeState.entries.map(item=>item.id===entry.id?entry:item);
+          for(const field of ['ledgerVersion','planRevision','directoryRevision','serverNow'])if(result[field]!==undefined)timeState[field]=result[field];
+        }
+        if(state.role==='employee'||action==='timeDemo'){timeLoadedKey='';await loadTimekeeping(true);}
+        if(action==='timeDemo'){render();save();}
+      }
+      else {timeState.error=result.message||'Tidsregistreringen kunne ikke gemmes.';if(result.status===409&&state.role==='employee'){timeLoadedKey='';await loadTimekeeping(true);}}
       return result;
     }finally{timeBusy=false;paintTimekeeping();}
   }
@@ -1896,7 +1979,7 @@
   function renderHours(){
     if(!timeElement?.isConnected){
       timeView?.destroy?.();timeElement=node('div','cs-timekeeping-host');timeElement.id='cs-timekeeping-page';q('#cs-page-content').replaceChildren(timeElement);
-      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onRefresh:()=>loadTimekeeping(true),onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
+      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onRefresh:()=>loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
     }
     loadTimekeeping();
     const current=timeLoadedKey===timeKey(),plannedByPerson=new Map((current?timeState.plannedRows:[]).map(row=>[row.personId,row.plannedMinutes]));
@@ -1942,6 +2025,7 @@
     const requests=leaveViewRows();visibleCount=requests.length;leaveView?.render({requests,server:!state.demoSession,contextKey:String(sessionViewer?.userId||'')+':'+String(state.demoSession?.scenario||'live'),refreshKey:leaveRefresh,canDecide:cloudLoaded&&cloudCapabilities.plan===true&&!cloudStatus.conflict&&!leaveBusy});
   }
   function navigateTo(value, person = null) {
+    if(!confirmEditorLeave(()=>navigateTo(value,person)))return false;
     const delta = Math.floor((date(value) - date(anchor)) / 86400000), week = Math.floor(delta / 7);
     if (!Number.isFinite(delta) || week < -52 || week > 52) { notify('Vælg en dato mellem ' + shortDate(addDays(anchor,-364)) + ' og ' + shortDate(addDays(anchor,370)) + '.'); return false; }
     if (person) state.departmentId = 'all';
@@ -2185,11 +2269,11 @@
   function applyNeedRule(rule) {
     const error = needRuleError(rule); if (error) return {ok:false,reason:error};
     lastUndo = snapshot(); state.coverageRules = [...state.coverageRules.filter(item => item.id !== rule.id),clone(rule)];
-    render(); notify('Bemandingsbehovet er gemt. Vagterne er uændrede.'); save(); return {ok:true};
+    render();savedFeedback('Bemandingsbehovet er gemt. Vagterne er uændrede.');return {ok:true};
   }
   function removeNeedRule(id) {
     if (!state.coverageRules.some(rule => rule.id === id)) return false;
-    lastUndo = snapshot(); state.coverageRules = state.coverageRules.filter(rule => rule.id !== id); render(); notify('Bemandingsbehovet er fjernet. Du kan fortryde ændringen.'); save(); return true;
+    lastUndo = snapshot(); state.coverageRules = state.coverageRules.filter(rule => rule.id !== id); render();savedFeedback('Bemandingsbehovet er fjernet. Du kan fortryde ændringen.');return true;
   }
   function fillNeedForm(rule = null) {
     q('#cs-need-id').value = rule?.id || ''; q('#cs-need-site').value = String(rule?.site ?? 0); q('#cs-need-start').value = rule?.start || '07:00'; q('#cs-need-end').value = rule?.end || '14:00'; q('#cs-need-count').value = String(rule?.required ?? 1);
@@ -2695,7 +2779,11 @@
   function renderStaffPicker() {
     if (!staffingContextCache) return;
     const context = staffingContextCache, term = q('#cs-person-search').value.trim().toLocaleLowerCase('da-DK'), current = q('#cs-edit-person').value;
-    requestPlanningAvailability(context.templates,staff.filter(person=>person.active!==false&&person.name.toLocaleLowerCase('da-DK').includes(term)).slice(0,500).map(person=>person.id));
+    if(term!==staffPickerTerm){staffPickerTerm=term;staffPickerPage=0;}
+    const matching=staff.filter(person=>person.active!==false||person.id===current).filter(person=>person.name.toLocaleLowerCase('da-DK').includes(term));
+    const pages=Math.max(1,Math.ceil(matching.length/50));staffPickerPage=Math.min(staffPickerPage,pages-1);
+    const candidates=matching.slice(staffPickerPage*50,(staffPickerPage+1)*50);
+    requestPlanningAvailability(context.templates,candidates.map(person=>person.id));
     q('#cs-person-context').textContent = staffingSentence('Timer i uge ' + weekNumber(context.weekStart) + ' · ' + shortDate(context.weekStart) + ' – ' + shortDate(addDays(context.weekStart,6))) + (context.repeating ? ' Tilgængelighed kontrolleres for ' + context.templates.length + (context.limited?' vagter i den viste periode.':' vagter i perioden.') : ' Tilgængelighed gælder den valgte dato og tid.');
     const list = q('#cs-person-results'); list.replaceChildren();
     function option(person, result) {
@@ -2711,16 +2799,17 @@
       list.append(row);
     }
     if (!context.repeating && (!term || 'ledig vagt'.includes(term))) option(null,null);
-    const entries = staff.filter(person=>person.active!==false||person.id===current).filter(person => person.name.toLocaleLowerCase('da-DK').includes(term)).map(person => {
+    const entries = candidates.map(person => {
       if (!staffingAssessments.has(person.id)) staffingAssessments.set(person.id,assessStaffing(person,context));
       return {person,result:staffingAssessments.get(person.id)};
     }).sort((a,b) => Number(a.result.status === 'blocked') - Number(b.result.status === 'blocked') || Number(Boolean(a.result.unavailableDates?.length))-Number(Boolean(b.result.unavailableDates?.length)) || a.person.name.localeCompare(b.person.name,'da-DK'));
     entries.forEach(entry => option(entry.person,entry.result));
     q('#cs-person-empty').hidden = list.children.length > 0;
+    if(pages>1){const pager=node('div','cs-roster-pagination');pager.append(node('span','',String(staffPickerPage*50+1)+'–'+Math.min(matching.length,(staffPickerPage+1)*50)+' af '+matching.length));for(const [label,step]of [['Forrige',-1],['Næste',1]]){const control=node('button','cs-button',label);control.type='button';control.disabled=step<0?staffPickerPage===0:staffPickerPage===pages-1;control.addEventListener('click',()=>{staffPickerPage+=step;renderStaffPicker();list.scrollTop=0;});pager.append(control);}list.append(pager);}
   }
   function openStaffPicker() {
     if (!activeEdit) return;
-    staffPickerOpen = true; q('#cs-person-search').value = ''; q('#cs-person-picker').hidden = false; q('#cs-person-trigger').setAttribute('aria-expanded','true');
+    staffPickerOpen = true;staffPickerPage=0;staffPickerTerm=''; q('#cs-person-search').value = ''; q('#cs-person-picker').hidden = false; q('#cs-person-trigger').setAttribute('aria-expanded','true');
     refreshStaffing(); q('#cs-person-search').focus({preventScroll:true}); q('#cs-person-picker').scrollIntoView({block:'nearest'});
   }
   function closeStaffPicker(restoreFocus = true) {
@@ -2808,7 +2897,31 @@
     box.hidden = !view?.total || q('#cs-edit-scope').value !== 'one';
     box.textContent = view?.total ? 'Fremdrift på denne vagt · ' + view.checked + ' af ' + view.total + ' opgaver udført' : '';
   }
+  function editorDraftFingerprint() {
+    const fields=['#cs-edit-person','#cs-edit-site','#cs-edit-date','#cs-edit-start','#cs-edit-end','#cs-edit-break','#cs-repeat-start','#cs-repeat-end','#cs-edit-scope'];
+    return JSON.stringify({fields:fields.map(selector=>q(selector)?.value??''),repeat:q('#cs-edit-repeat').checked,preserve:q('#cs-preserve-exceptions').checked,dayTimesEnabled:q('#cs-day-times-enabled').checked,days:[...repeatDays].sort(),dayTimes:editorDayTimes,openEnded:editorOpenEnded,description:readDescriptionData()});
+  }
+  function editorHasDirtyDraft(){return Boolean(activeEdit&&editorDirtyBaseline!==null&&editorDirtyBaseline!==editorDraftFingerprint());}
+  function dismissEditorDiscard(){
+    if(!editorDiscard)return;
+    const current=editorDiscard;editorDiscard=null;current.element.hidden=true;current.element.remove?.();q('.cs-editor').inert=current.wasInert;
+  }
+  function confirmEditorLeave(continuation){
+    if(!editorHasDirtyDraft())return true;
+    if(editorDiscard)return false;
+    const origin=document.activeElement,layer=node('div','cs-editor-discard-layer'),panel=node('section','cs-editor-discard'),title=node('h3',null,'Kassér ændringer?');title.id='cs-editor-discard-title';
+    panel.setAttribute('role','alertdialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby',title.id);panel.setAttribute('aria-describedby','cs-editor-discard-copy');
+    const copy=node('p',null,'Du har ændringer, som ikke er gemt.');copy.id='cs-editor-discard-copy';
+    const actions=node('div','cs-editor-discard-actions'),cancel=node('button','cs-button cs-editor-discard-cancel','Behold kladde'),discard=node('button','cs-button cs-primary cs-editor-discard-confirm','Kassér ændringer');cancel.type=discard.type='button';
+    const current={element:layer,wasInert:Boolean(q('.cs-editor').inert)};
+    current.cancel=()=>{if(editorDiscard!==current)return;dismissEditorDiscard();(origin?.isConnected?origin:q('#cs-person-trigger'))?.focus?.({preventScroll:true});};
+    current.accept=()=>{if(editorDiscard!==current)return;dismissEditorDiscard();closeEditor({force:true});continuation?.();};
+    cancel.addEventListener('click',current.cancel);discard.addEventListener('click',current.accept);actions.append(cancel,discard);panel.append(title,copy,actions);layer.append(panel);q('#cs-editor-layer').append(layer);editorDiscard=current;q('.cs-editor').inert=true;
+    layer.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();current.cancel();}else if(event.key==='Tab'){event.preventDefault();(document.activeElement===cancel?discard:cancel).focus({preventScroll:true});}});
+    cancel.focus({preventScroll:true});return false;
+  }
   function openEditor(shift, trigger, options = {}) {
+    if(activeEdit&&!confirmEditorLeave(()=>{const current=shift.id?shiftById(shift.id):shift;if(current)openEditor(current,trigger,options);else notify('Vagten findes ikke længere.');}))return false;
     const wide=options.repeat||options.scope&&options.scope!=='one'||options.seriesManagement||options.extension;
     const selection=detailSelection(shift.id?[shift]:[]);
     if(!wide&&shift.id&&!options.detailsLoaded&&!state.demoSession&&cloudCapabilities.plan&&persistence?.details&&persistence.isPartial)return withPlannerDetails(selection,()=>{const current=shiftById(shift.id);if(current)return openEditor(current,trigger,{...options,detailsLoaded:true});notify('Vagten findes ikke længere.');return false;});
@@ -2825,6 +2938,7 @@
     }
     closeOperationsSheets();
     closeStaffPicker(false); closeBulkEditor(false); closeChanges(false); closeGroupEditor(false);
+    editorDirtyBaseline=null;
     activeEdit = {...shift,...(options.demoScenario ? {demoScenario:options.demoScenario} : {})}; renderDemoEditorGuide(); lastTrigger = trigger || q('#cs-new'); editorSeriesId = uniqueSeriesId();
     editorPlanCapture=PlanningReconcile?.capture(state,{shifts:shift.id?[shift]:[],seriesId:shift.seriesId||null,groupId:options.extension?.groupId||null})||null;
     editorOperation=options.operation||(shift.id?'edit':'create');editorTemplate=options.template||null;editorExtension=options.extension||null;seriesCalendarState={};seriesCalendarPreview=null;
@@ -2841,7 +2955,7 @@
     q('#cs-edit-sickness').hidden = !shift.id || !shift.person || state.demoSession || !cloudCapabilities.plan;
     configureRepeat(true,Boolean(options.template));
     if(options.template){editorSeriesId=options.template.id;applyEditorDraft(options.template);updatePreview();}
-    render(); q('.cs-editor-fields').scrollTop = 0; q('#cs-person-trigger').focus({preventScroll:true});
+    render();editorDirtyBaseline=editorDraftFingerprint(); q('.cs-editor-fields').scrollTop = 0; q('#cs-person-trigger').focus({preventScroll:true});
   }
   function openSeriesEditor(series, trigger) {
     const projection=seriesProjection(series);if(!scopeLoaded(projection))return withPlanningScope(projection,()=>{const fresh=state.series.find(item=>item.id===series.id);if(fresh)return openSeriesEditor(fresh,trigger);notify('Vagtserien findes ikke længere.');releasePlanningHold('editor');},'editor');
@@ -2870,16 +2984,19 @@
     openEditor({...template,date:template.startDate,id:undefined,seriesId:undefined},trigger,{repeat:true,operation:'extend',template,extension:{groupId:group.id,endDate:group.endDate,signature:JSON.stringify(group.latest)}});
   }
   function newShift(repeat = false, trigger = q('#cs-new')) { if(!repeat&&usesViewportCalendar()&&!calendarWeekLoaded(dates()[0]))return ensureBaseWeek(()=>newShift(repeat,trigger),'editor');const site = defaultShiftSite(); if (site === undefined) { departmentView?.openManager(state.departmentId); return; } openEditor({person:'',date:repeat?today:effectiveView() === 'day' ? selectedDate() : dates()[2],site,start:'07:00',end:'14:00',note:''},trigger,{repeat}); }
-  function closeEditor() {
+  function closeEditor(options={}) {
+    if(!options.force&&!confirmEditorLeave(()=>closeEditor({force:true})))return false;
+    dismissEditorDiscard();
     cancelPlannerDetails();
     releasePlanningHold('editor');
     q('#cs-demo-editor-guide').hidden = true;
     closeStaffPicker(false); staffingContextCache = null; staffingAssessments.clear(); selectedStaffing = null;
-    const wasOpen = !q('#cs-editor-layer').hidden; q('#cs-editor-layer').hidden = true;q('#cs-series-delete-confirm').hidden=true; const oldId = activeEdit?.id; activeEdit = null;editorPlanCapture=null; if (!wasOpen) return;resumePlannerViewport();
+    const wasOpen = !q('#cs-editor-layer').hidden; q('#cs-editor-layer').hidden = true;q('#cs-series-delete-confirm').hidden=true; const oldId = activeEdit?.id; activeEdit = null;editorPlanCapture=null;editorDirtyBaseline=null; if (!wasOpen) return true;resumePlannerViewport();if(freshnessDeferred)Promise.resolve().then(()=>refreshOnReturn());
     root.querySelectorAll('[data-selected]').forEach(button => button.dataset.selected = 'false');
     const match = oldId ? [...root.querySelectorAll('[data-shift]')].find(button => button.dataset.shift === oldId) : null;
     const contextMatch=lastTrigger?.dataset.productFocus?[...root.querySelectorAll('[data-product-focus]')].find(button=>button.dataset.productFocus===lastTrigger.dataset.productFocus):null;
     (match||contextMatch||(lastTrigger?.isConnected?lastTrigger:q('#cs-new'))).focus({preventScroll:true});
+    return true;
   }
   function groupProposal() {
     if (!activeGroup) return null;
@@ -3372,6 +3489,7 @@
       }});
     }
     list.append(publicationReviewElement);
+    if(publicationResume?.review){publicationReviewView.restore?.(publicationResume.review);publicationResume.review=null;}
     publicationReviewView.render({changes,people:staff,sites,scopeKey:JSON.stringify([scope.from,scope.to,scope.siteIds,scope.includeDependencies])});
     const affectedWeeks=status.scopes.length;
     button.textContent=status.published?'Allerede udgivet':'Udgiv '+affectedWeeks+(affectedWeeks===1?' uge':' uger');
@@ -3379,22 +3497,30 @@
     q('#cs-publication-footer-note').textContent=issues.size?'Ret overlap eller godkendt fravær i de markerede uger.':dependenciesMissing?'Medtag de relaterede uger og arbejdssteder.':status.published?'Planen er allerede udgivet for perioden.':'Berørte medarbejdere får besked ved udgivelse.';
     publicationCanSubmit=!status.published&&!dependenciesMissing&&!issues.size;
     updatePublicationButton();
+    if(publicationResume&&!publicationResume.scrollRestored){const resume=publicationResume;resume.scrollRestored=true;Promise.resolve().then(()=>{if(publicationResume===resume&&!q('#cs-changes-layer').hidden)q('.cs-changes-editor .cs-group-fields').scrollTop=resume.scrollTop||0;});}
   }
+  function publicationContextKey(){return JSON.stringify([chatWorkspaceId,sessionViewer?.userId,state.role]);}
   function openChanges(trigger = q('#cs-changes-toggle')) {
+    if(!confirmEditorLeave(()=>openChanges(trigger)))return false;
     closeOperationsSheets();
-    closeEditor(); closeGroupEditor(false); closeBulkEditor(false); closeReview();
-    publicationAllSites=false;includeRelatedPublication=false;publicationRange={from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;
+    closeEditor({force:true}); closeGroupEditor(false); closeBulkEditor(false); closeReview();
+    const candidate=publicationResume?.key===publicationContextKey()?publicationResume:null;
+    const resume=candidate&&(candidate.departmentId==='all'||state.organization?.departments.some(item=>item.id===candidate.departmentId))&&(candidate.site==='all'||sites[Number(candidate.site)])?candidate:null;publicationResume=resume;if(resume)resume.scrollRestored=false;
+    if(resume){state.departmentId=resume.departmentId;state.site=resume.site;q('#cs-site-filter').value=state.site;}
+    publicationAllSites=resume?.allSites||false;includeRelatedPublication=resume?.related||false;publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;
     publicationRangeView?.dispose?.();publicationRangeView=null;
     publicationReviewView?.dispose?.();publicationReviewView=null;publicationReviewElement=null;
     changesTrigger=trigger;
     q('#cs-changes-layer').hidden=false;
-    q('.cs-changes-editor .cs-group-fields').scrollTop=0;
+    q('.cs-changes-editor .cs-group-fields').scrollTop=resume?.scrollTop||0;
     renderChanges();
     q('#cs-changes-close').focus({preventScroll:true});
   }
   function closeChanges(restoreFocus = true) {
     releasePlanningHold('publication');
-    const wasOpen = !q('#cs-changes-layer').hidden; q('#cs-changes-layer').hidden = true;
+    const wasOpen = !q('#cs-changes-layer').hidden;
+    if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,scrollTop:q('.cs-changes-editor .cs-group-fields').scrollTop||0};
+    q('#cs-changes-layer').hidden = true;
     publicationAllSites=false;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
     if(wasOpen&&restoreFocus){const target=changesTrigger?.isConnected?changesTrigger:q('#cs-changes-toggle');target.focus({preventScroll:true});}
   }
@@ -3412,7 +3538,7 @@
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
     if(!result.ok){notify(result.message||'Udgivelsen kunne ikke gemmes. Kladden er bevaret.');renderChanges();return;}
-    closeChanges(false);lastUndo=null;clearSelection(false);await initializeCloud();
+    closeChanges(false);publicationResume=null;lastUndo=null;clearSelection(false);await initializeCloud();
     const publishedWeeks=expanded.scopes.length;
     notify(publishedWeeks+(publishedWeeks===1?' uge':' uger')+' udgivet. Medarbejdernes beskeder er gemt.');
     q('#cs-changes-toggle').focus({preventScroll:true});
@@ -3538,6 +3664,12 @@
     const index = options.indexOf(document.activeElement), next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : event.key === 'ArrowDown' ? Math.min(options.length - 1,index + 1) : index < 0 ? options.length - 1 : Math.max(0,index - 1);
     event.preventDefault(); options[next].focus({preventScroll:true}); options[next].scrollIntoView({block:'nearest'});
   });
+  root.addEventListener('click',event=>{
+    if(!editorHasDirtyDraft()||q('#cs-editor-layer').contains(event.target))return;
+    const target=event.target.closest?.('button,a,[role=button]')||event.target;
+    if(!confirmEditorLeave(()=>{if(target.isConnected)target.click?.();})){event.preventDefault();event.stopImmediatePropagation();return;}
+    closeEditor({force:true});
+  },true);
   root.addEventListener('click',event => { if (!event.target.isConnected) return; if (staffPickerOpen && !q('#cs-person-picker').contains(event.target) && !q('#cs-person-trigger').contains(event.target)) closeStaffPicker(false); });
   q('#cs-save').addEventListener('click',saveShift); q('#cs-edit-form').addEventListener('submit',event => event.preventDefault());
   q('#cs-edit-form').addEventListener('keydown',event => { if (!event.defaultPrevented && event.key === 'Enter' && (event.ctrlKey || event.metaKey)) saveShift(event); });
@@ -3608,6 +3740,8 @@
   q('#cs-demo-exit').addEventListener('click',exitDemo);
   root.querySelectorAll('[data-page]').forEach(button => button.addEventListener('click', () => {
     if(button.dataset.page==='accounts'?!hasAccountAccess():realEmployee())return;
+    if(!confirmEditorLeave(()=>button.click()))return;
+    closeEditor({force:true});
     accountsView?.close?.();
     departmentView?.close();
     state.role = 'admin'; state.employeeShift = null;
@@ -3671,6 +3805,10 @@
   q('#cs-employee-help').addEventListener('click',event=>openPageHelp(event.currentTarget));
   q('#cs-search').value = state.search; q('#cs-site-filter').value = state.site; render();
   if (persistence) initializeCloud();
+  window.addEventListener('focus',()=>void refreshOnReturn());
+  window.addEventListener('online',()=>void refreshOnReturn(true));
+  document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)void refreshOnReturn();});
+  window.addEventListener('beforeunload',event=>{if(editorHasDirtyDraft()||timeView?.hasDraft||timeView?.busy||timeBusy||persistence?.hasPendingPlanSave){event.preventDefault();event.returnValue='';}});
   window.addEventListener('openai:set_globals', event => { if (!persistence && event.detail?.globals?.widgetState) { restore(event.detail.globals.widgetState); q('#cs-search').value = state.search; q('#cs-site-filter').value = state.site; render(); } });
   compactViewport?.addEventListener('change', () => { renderSession(); if (state.page === 'schedule') { if (state.view === 'auto') state.pageIndex = 0; render(); } });
   motionPreference?.addEventListener('change', () => { if (motionPreference.matches) { navigationAnimation?.cancel(); navigationAnimation = null; } });

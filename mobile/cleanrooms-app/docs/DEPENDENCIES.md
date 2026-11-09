@@ -1,10 +1,10 @@
 # Afhængigheder og kendte fund
 
-Kontrolleret 4. november 2026 med `npm audit --omit=dev`. Dette er en lokal appdemo; gennemført funktionstest er ikke en produktionsgodkendelse.
+Kontrolleret 9. november 2026 med `npm audit --package-lock-only --ignore-scripts`. Dette er en lokal appdemo; gennemført funktionstest er ikke en produktionsgodkendelse.
 
 ## Runtime: afkodning af deep links
 
-SDK 57-pakken `expo-router@57.0.29` afhænger af `query-string@7.1.3`, som bruger `decode-uri-component@0.2.2`. Der findes to kendte denial-of-service-fund ved afkodning af ugyldige procentkodede strenge: [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) og [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f). Et manipuleret deep link med sådanne query-værdier kan blokere klientens JavaScript-tråd under rutning. Det er en tilgængelighedsrisiko, ikke dokumentation for adgang til andre brugeres data.
+SDK 57-pakken `expo-router@57.0.30` afhænger af `query-string@7.1.3`, som bruger `decode-uri-component@0.2.2`. Der findes to kendte denial-of-service-fund ved afkodning af ugyldige procentkodede strenge: [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) og [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f). Den normale Router-sti bruger en anden parser; en konkret udnyttelig native kodevej er ikke påvist i denne gennemgang. Det er en tilgængelighedsrisiko, ikke dokumentation for adgang til andre brugeres data.
 
 [Version 0.5.1](https://github.com/SamVerschueren/decode-uri-component/releases/tag/v0.5.1) erstatter gentagen afkodning med en enkelt gennemløbning, men er ESM med en default-eksport. `query-string@7` forventer en direkte kaldbar CommonJS-eksport. En isoleret prøve med de rigtige npm-pakker gav `typeof require('decode-uri-component') === 'object'` og `decodeComponent is not a function` ved almindelig `parse('name=Jonas%20Hansen')`. Et direkte override til 0.5.1 er derfor ikke anvendt.
 
@@ -17,3 +17,9 @@ Før produktionsudgivelse skal kæden opdateres gennem en SDK 57-kompatibel Rout
 De øvrige fund i den oprindelige runtime-audit kommer hovedsageligt gennem Expos medfølgende CLI-, konfigurations- og byggeværktøjer (`glob`, `minimatch`, `deepmerge`, `zod`). npm klassificerer disse som produktionsafhængigheder, fordi de følger `expo`, selv om de ikke dermed alle indgår i telefonens JavaScript-bundle. Følg SDK-kompatible sikkerhedsopdateringer, og gennemgå fundene igen ved en egentlig release.
 
 Kør ikke `npm audit fix --force` ukritisk. Det foreslog blandt andet Expo 51 eller Router 58 i dette SDK 57-projekt, hvilket ændrer den understøttede platform og kan ødelægge Expo Go-kompatibiliteten.
+
+## Stabiliseringskontrol 9. november 2026
+
+Expo CLI’s kompatibilitetskontrol anbefalede og installerede patchversionerne `expo@57.0.32`, `expo-constants@57.0.23`, `expo-glass-effect@57.0.5`, `expo-router@57.0.30` og `expo-splash-screen@57.0.11`. Den fulde audit faldt fra 20 til 15 berørte pakkenoder: 4 high og 11 moderate, ingen low eller critical. Deepmerge-fundet er ikke længere i træet. Disse tal er advisory-/afhængighedssignaler og ikke dokumenterede produktudnyttelser.
+
+Resterende `zod@3.25.76` følger lintværktøjer (`eslint-plugin-react-hooks`), mens `glob@13.0.7`/`minimatch@10.2.6` følger fingerprint-/udviklingsværktøjer. Der er ikke lavet globale major-overrides. Query-string-kæden kræver stadig en kompatibel upstreamrettelse eller særskilt afprøvet SDK-opgradering. `+native-intent` afviser nu for lange, fejlformede procentsekvenser og de gamle browsercallbacks før videre routing; det er ekstra inputbeskyttelse og fjerner ikke dependency-advisoryen.

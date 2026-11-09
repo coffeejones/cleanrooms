@@ -4,8 +4,12 @@ import { AppState } from 'react-native';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { MobileAuthError, type PublishedShift } from '@/auth/mobile-auth-api';
 
-type Resource<T> = { key: string; data?: T; loading: boolean; refreshing: boolean; error?: string };
+type Resource<T> = { key: string; generation: number; data?: T; loading: boolean; refreshing: boolean; error?: string };
 const inFlight = new Map<string, Promise<unknown>>();
+const invalidations = new Set<(prefixes: string[]) => void>();
+export function invalidateEmployeeResources(...prefixes: string[]) {
+  for (const listener of invalidations) listener(prefixes);
+}
 
 export function usePublishedResource<T>(scope: string, load: () => Promise<T>, enabled = true) {
   const { state } = useMobileAuth();
@@ -18,10 +22,10 @@ export function usePublishedResource<T>(scope: string, load: () => Promise<T>, e
     if (!key) return;
     const request = ++pending.current;
     setResource(previous => ({
-      key, data: previous?.key === key ? previous.data : undefined, loading: true, refreshing: manual,
+      key, generation: request, data: previous?.key === key ? previous.data : undefined, loading: true, refreshing: manual,
     }));
     try {
-      let requestData = inFlight.get(key);
+      let requestData = manual ? undefined : inFlight.get(key);
       if (!requestData) {
         requestData = Promise.resolve().then(load);
         inFlight.set(key, requestData);
@@ -29,11 +33,11 @@ export function usePublishedResource<T>(scope: string, load: () => Promise<T>, e
         void requestData.then(clear, clear);
       }
       const data = await requestData as T;
-      if (pending.current === request) setResource({ key, data, loading: false, refreshing: false });
+      if (pending.current === request) setResource({ key, generation: request, data, loading: false, refreshing: false });
     } catch (error) {
       if (pending.current !== request) return;
       const message = error instanceof MobileAuthError ? error.message : 'Oplysningerne kunne ikke hentes. Prøv igen.';
-      setResource(previous => ({ key, data: previous?.key === key ? previous.data : undefined, loading: false, refreshing: false, error: message }));
+      setResource(previous => ({ key, generation: request, data: previous?.key === key ? previous.data : undefined, loading: false, refreshing: false, error: message }));
     }
   }, [key, load]);
 
@@ -43,8 +47,10 @@ export function usePublishedResource<T>(scope: string, load: () => Promise<T>, e
     const subscription = AppState.addEventListener('change', status => {
       if (status === 'active') void fetchResource();
     });
-    return () => { subscription.remove(); pending.current++; };
-  }, [fetchResource, key]));
+    const invalidate = (prefixes: string[]) => { if (prefixes.some(prefix => scope.startsWith(prefix))) void fetchResource(true); };
+    invalidations.add(invalidate);
+    return () => { subscription.remove(); invalidations.delete(invalidate); pending.current++; };
+  }, [fetchResource, key, scope]));
 
   const current = resource?.key === key ? resource : undefined;
   return {
@@ -53,6 +59,7 @@ export function usePublishedResource<T>(scope: string, load: () => Promise<T>, e
     loading: current?.loading ?? key !== null,
     refreshing: current?.refreshing ?? false,
     error: current?.error,
+    generation: current?.generation ?? 0,
     refresh: () => { void fetchResource(true); },
   };
 }

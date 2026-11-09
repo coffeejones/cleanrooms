@@ -1,20 +1,23 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
-import { Avatar, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
+import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
+import { ShiftOffer } from '@/components/shift-offer';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { addDays, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
 import { readClockInLocation } from '@/location/clock-in-location';
 import { useNow } from '@/state/app-store';
-import { usePublishedResource, usePublishedShift } from '@/state/published-schedule';
+import { invalidateEmployeeResources, usePublishedResource, usePublishedShift } from '@/state/published-schedule';
 import { useEmployeeHours } from '@/state/employee-data';
+import { useScopedState } from '@/state/scoped-state';
+import { confirmsTimeCommand } from '@/state/attendance-runtime';
 
 export default function PublishedShiftScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,6 +27,7 @@ export default function PublishedShiftScreen() {
   const [saved, setSaved] = useState<{ shiftId: string; entry: ShiftTimeEntry }>();
   const [actionError, setActionError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [returnComment, setReturnComment] = useState('');
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const taskLock = useRef(false);
@@ -34,6 +38,7 @@ export default function PublishedShiftScreen() {
   const [leave, setLeave] = useState(false);
   const [leaveSaved, setLeaveSaved] = useState(false);
   const pending = useRef(false);
+  const uncertain = useRef<{ shiftId: string; operation: ShiftTimeOperation; version: number; comment: string | null } | null>(null);
   const insets = useSafeAreaInsets();
   const now = useNow();
 
@@ -42,11 +47,12 @@ export default function PublishedShiftScreen() {
   const pay = hours.data?.rows.find(row => row.shift.id === id)?.pay;
   const readColleagues = useCallback(() => employeeRequest<CoworkerPage>({ action: 'employeeColleagues', shiftId: id, cursor: null, limit: 50 }), [employeeRequest, id]);
   const coworkers = usePublishedResource('colleagues:' + id, readColleagues, Boolean(detail));
-  const [extraCoworkers, setExtraCoworkers] = useState<{ shiftId: string; source: CoworkerPage; page: CoworkerPage } | null>(null);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [extraCoworkers, setExtraCoworkers] = useState<{ shiftId: string; generation: number; source: CoworkerPage; page: CoworkerPage } | null>(null);
+  const [loadingMore, setLoadingMore] = useScopedState(id + ':' + coworkers.generation, false);
   const [coworkerError, setCoworkerError] = useState<string>();
   const coworkerGeneration = useRef(0);
-  const coworkerPage = extraCoworkers?.shiftId === id && extraCoworkers.source === coworkers.data
+  useLayoutEffect(() => { const value = ++coworkerGeneration.current; return () => { coworkerGeneration.current = value + 1; }; }, [id, coworkers.generation]);
+  const coworkerPage = extraCoworkers?.shiftId === id && extraCoworkers.source === coworkers.data && extraCoworkers.generation === coworkers.generation
     ? extraCoworkers.page : coworkers.data;
   // A successful refresh is authoritative even if the checklist structure is unchanged.
   const completed = taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
@@ -66,6 +72,20 @@ export default function PublishedShiftScreen() {
     setBusy(true);
     setActionError(undefined);
     try {
+      if (uncertain.current?.shiftId === id) {
+        const previous = uncertain.current;
+        const latest = await readPublishedShift(id);
+        if (latest?.entry) setSaved({ shiftId: id, entry: latest.entry });
+        if (confirmsTimeCommand(previous.operation, previous.version, latest?.entry, previous.comment)) {
+          uncertain.current = null; resource.refresh(); invalidateEmployeeResources('active-time', 'hours:');
+          return previous.operation === operation ? { ok: true } : { ok: false, error: 'Registreringen er opdateret. Kontrollér vagten.' };
+        }
+        if (!latest || (latest.entry?.version ?? 0) !== previous.version) {
+          resource.refresh();
+          return { ok: false, error: 'Registreringen er ændret. Hent vagten igen.', uncertain: true };
+        }
+        uncertain.current = null;
+      }
       let location: ClockInLocation | null = null;
       if (operation === 'start' && signal) {
         const latest = await readPublishedShift(id);
@@ -82,13 +102,16 @@ export default function PublishedShiftScreen() {
       }
       if (signal?.aborted) return { ok: false };
       const result = await writeShiftTime({ shiftId: id, operation, version: entry?.version ?? 0, location, comment });
+      uncertain.current = null;
       setSaved({ shiftId: id, entry: result });
       resource.refresh();
       hours.refresh();
+      invalidateEmployeeResources('active-time', 'hours:', 'inbox');
       return { ok: true };
     } catch (error) {
-      if (error instanceof MobileAuthError && error.status === 409) resource.refresh();
-      return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Stemplingen kunne ikke bekræftes. Prøv igen.' };
+      if (error instanceof MobileAuthError && error.code === 'mobile_time_unconfirmed') uncertain.current = { shiftId: id, operation, version: entry?.version ?? 0, comment };
+      if (error instanceof MobileAuthError && (error.status === 409 || error.code === 'mobile_time_unconfirmed')) { resource.refresh(); invalidateEmployeeResources('active-time'); }
+      return { ok: false, error: error instanceof MobileAuthError ? error.message : 'Stemplingen kunne ikke bekræftes. Prøv igen.', uncertain: uncertain.current?.shiftId === id };
     } finally {
       pending.current = false;
       setBusy(false);
@@ -131,7 +154,7 @@ export default function PublishedShiftScreen() {
       const next = await employeeRequest<CoworkerPage>({ action: 'employeeColleagues', shiftId: id, cursor: coworkerPage.nextCursor, limit: 50 });
       if (coworkerGeneration.current !== generation) return;
       const colleagues = [...new Map([...coworkerPage.colleagues, ...next.colleagues].map(person => [person.id, person])).values()];
-      setExtraCoworkers({ shiftId: id, source, page: { ...next, colleagues } });
+      setExtraCoworkers({ shiftId: id, generation: coworkers.generation, source, page: { ...next, colleagues } });
     } catch (error) {
       if (coworkerGeneration.current !== generation) return;
       setCoworkerError(error instanceof MobileAuthError ? error.message : 'Kollegaerne kunne ikke hentes. Prøv igen.');
@@ -178,6 +201,16 @@ export default function PublishedShiftScreen() {
             {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
             {!entry && !leaveSaved && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>Ønsk fri</Txt></Pressable>}
             {leaveSaved && <Txt size={13} color={colors.muted}>Friønsket afventer godkendelse.</Txt>}
+            {!entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
+            {entry?.status === 'rejected' && <View style={{ gap: 10 }}>
+              <Txt size={15} weight="600">Timer sendt retur</Txt>
+              {!!entry.rejectionReason && <Txt size={14} color={colors.muted}>{entry.rejectionReason}</Txt>}
+              {!!entry.comment && <Txt size={13} color={colors.muted}>Din kommentar: {entry.comment}</Txt>}
+              {!entry.clockOut && <Txt size={13} color={colors.muted}>Den manglende udstempling afklares af planlæggeren.</Txt>}
+              <TextInput accessibilityLabel="Kommentar til genindsendelse" value={returnComment} onChangeText={setReturnComment} multiline placeholder="Svar til planlæggeren" placeholderTextColor={colors.muted} style={{ minHeight: 86, padding: 12, color: colors.ink, borderColor: colors.line, borderWidth: 1, borderRadius: 8, textAlignVertical: 'top' }} />
+              <Button label={busy ? 'Sender…' : entry.clockOut ? 'Send timer igen' : 'Send forklaring'} disabled={busy || !returnComment.trim()} onPress={() => { void register('submit', returnComment.trim()).then(result => { if (result.ok) setReturnComment(''); else setActionError(result.error); }); }} />
+              {actionError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
+            </View>}
             {entry?.clockIn && <View style={[cardStyles.divider, { paddingTop: 18, gap: 12 }]}>
               <Row gap={16} style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
                 <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>

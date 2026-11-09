@@ -534,9 +534,12 @@
     function update(nextOptions={}){
       if(disposed||contextKey(nextOptions)!==mountedKey)return false;
       const apply=()=>{
-        clearDragState();options=nextOptions;derive();element.dataset.selectionMode=String(selectionMode);
+        options=nextOptions;derive();element.dataset.selectionMode=String(selectionMode);
+        const models=Array.from({length:weeks},(_,index)=>presentation(index));
+        if(models.some((model,index)=>!same(weekEntries.get(index).model.body,model.body)))clearDragState();
+        else {lastPreviewKey=null;lastPreview=null;}
         for(let index=0;index<weeks;index++){
-          const entry=weekEntries.get(index),model=presentation(index);if(same(entry.model,model))continue;
+          const entry=weekEntries.get(index),model=models[index];if(same(entry.model,model))continue;
           if(same(entry.model.body,model.body)){patchStatus(entry,index,model);continue;}
           const height=entry.section.getBoundingClientRect().height||viewport?.heightFor(viewportKey,addDays(options.from,index*7)),section=buildWeek(index);
           if(same(entry.model.expansion,model.expansion)&&Number.isFinite(height)&&height>0){section.style.minHeight=height+'px';section.style.boxSizing='border-box';}else if(!same(entry.model.expansion,model.expansion))section.style.minHeight='';

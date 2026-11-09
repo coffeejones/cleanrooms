@@ -7,13 +7,15 @@ import Checklist from '../src/checklist-progress.js';
 import Description from '../src/description-model.js';
 import Time from '../src/timekeeping-model.js';
 import { readDirectorySite } from './directory-store.mjs';
-import { readMobileTimeEntry, readMobileTimeEntries, writeMobileTimeEntry } from './mobile-timekeeping.mjs';
+import { readMobileTimeEntry, readMobileTimeEntries, writeMobileTimeEntry, readMobileActiveTime, readMobileRecoveryShift } from './mobile-timekeeping.mjs';
 import { readMobileHours } from './mobile-employee-data.mjs';
 import { handleMobileChat } from './mobile-chat.mjs';
 import { handleMobileEmployeeWorkflow } from './mobile-employee-workflow.mjs';
 import { handleMobileEmployeeState, mobileChecklistSnapshot } from './mobile-employee-state.mjs';
 import { readMobileCoworkers } from './mobile-coworkers.mjs';
 import { readMobileCompanySettings } from './mobile-company-settings.mjs';
+import { handleMobileInbox } from './mobile-inbox.mjs';
+import { enforceMobileRequestQuota } from './mobile-request-quota.mjs';
 
 const maxBodyBytes = 64 * 1024;
 const secretPattern = /^[a-f0-9]{64}$/;
@@ -28,6 +30,9 @@ const fields = new Map([
   ['shiftTime', ['shiftId', 'operation', 'version', 'comment', 'location']],
   ['employeeHours', ['from', 'to']],
   ['employeeCompanySettings', []],
+  ['employeeInbox', ['cursor', 'limit']],
+  ['employeeInboxRead', ['messageId']],
+  ['employeeActiveTime', []],
   ['employeePreferences', []],
   ['employeePreference', ['version', 'key', 'value']],
   ['employeeAvailability', ['version', 'date', 'unavailable']],
@@ -71,7 +76,7 @@ async function readSchedule(db, employee, { from, to, cursor }) {
 async function readShift(db, employee, shiftId) {
   const { workspaceId, personId } = employee;
   const detail = await readEmployeePublishedShift({ db, workspaceId, personId, shiftId });
-  if (!detail) return { shift: null };
+  if (!detail) return { shift: await readMobileRecoveryShift(db, employee, shiftId) };
   const { shift } = detail;
   const [workplace, entry] = await Promise.all([
     readDirectorySite({ db, workspaceId, siteIndex: shift.site }),
@@ -87,11 +92,12 @@ async function readShift(db, employee, shiftId) {
   } };
 }
 
-function reply(body, status = 200) {
+function reply(body, status = 200, extraHeaders = {}) {
   return Response.json(body, { status, headers: {
     'Cache-Control': 'no-store, private',
     'Referrer-Policy': 'no-referrer',
     'X-Content-Type-Options': 'nosniff',
+    ...extraHeaders,
   } });
 }
 
@@ -136,7 +142,7 @@ function fromGateway(request, key) {
     timingSafeEqual(Buffer.from(supplied, 'hex'), Buffer.from(key, 'hex'));
 }
 
-export async function handleMobileAuthRequest(request, db, gatewayKey) {
+async function routeMobileAuthRequest(request, db, gatewayKey) {
   if (!fromGateway(request, gatewayKey)) return reply({ error: 'not_found' }, 404);
   if (request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
   if (!db) return reply({ error: 'mobile_unavailable', message: 'Login er midlertidigt utilgængeligt. Prøv igen.' }, 503);
@@ -157,7 +163,10 @@ export async function handleMobileAuthRequest(request, db, gatewayKey) {
       return reply(await changeMobilePassword({ db, token, currentPassword: payload.currentPassword, newPassword: payload.newPassword, ip }));
     }
     const session = await readMobileSession({ db, token });
+    await enforceMobileRequestQuota(db, token, session, payload.action);
     const { expiresAt, employee, temporaryPassword } = session;
+    if (payload.action === 'employeeInbox' || payload.action === 'employeeInboxRead') return reply(await handleMobileInbox(db, token, session, payload));
+    if (payload.action === 'employeeActiveTime') return reply(await readMobileActiveTime(db, token, session));
     if (payload.action === 'employeeCompanySettings') return reply(await readMobileCompanySettings(db, token, session));
     if (payload.action === 'employeeHours') {
       const result = await readMobileHours(db, employee, payload);
@@ -182,9 +191,21 @@ export async function handleMobileAuthRequest(request, db, gatewayKey) {
     }
     return reply({ expiresAt, employee, temporaryPassword });
   } catch (error) {
-    if (error instanceof StudioError) return reply({ error: error.code, message: error.message }, error.status);
+    if (error instanceof StudioError) return reply({ error: error.code, message: error.message }, error.status,
+      error.status === 429 && Number.isSafeInteger(error.retryAfterSeconds) && error.retryAfterSeconds > 0
+        ? { 'Retry-After': String(Math.min(error.retryAfterSeconds, 3600)) } : {});
     if (error?.status === 400 && /^employee_/.test(error.code)) return reply({ error: error.code, message: error.message }, 400);
     if (error?.code === 'publication_read_conflict') return reply({ error: error.code, message: error.message }, 409);
     return reply({ error: 'mobile_unavailable', message: 'Login er midlertidigt utilgængeligt. Prøv igen.' }, 503);
   }
+}
+
+export async function handleMobileAuthRequest(request, db, gatewayKey) {
+  const candidate = request.headers.get('x-request-id') ?? '';
+  const requestId = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(candidate) ? candidate : crypto.randomUUID();
+  const started = performance.now(), result = await routeMobileAuthRequest(request, db, gatewayKey);
+  result.headers.set('X-Request-Id', requestId);
+  if (result.status >= 500) console.error(JSON.stringify({ event: 'mobile_request_failed', requestId,
+    status: result.status, durationMs: Math.round(performance.now() - started) }));
+  return result;
 }

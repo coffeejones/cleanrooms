@@ -1,6 +1,7 @@
 /* Versioned editor commands are merged with current server-owned plan state. */
 import Planning from '../src/planning-records.js';
 import {StudioError} from './studio-store.mjs';
+import {planningCoreErrors} from './planning-validation.mjs';
 const clone=value=>JSON.parse(JSON.stringify(value));
 const fail=(status,code,message,conflicts)=>{const error=new StudioError(status,code,message);if(conflicts)error.conflicts=conflicts;throw error;};
 
@@ -38,5 +39,6 @@ export function preparePlanningSubmission(payload,saved){
     change.expectedVersion=versions[Planning.key(change.kind,change.id)]||0;
   }
   try{next=Planning.apply(next,changes);}catch(error){fail(400,'invalid_planning_command',error.message);}
+  const coreErrors=planningCoreErrors(next,saved.studio);if(coreErrors.length)fail(400,'invalid_studio',coreErrors[0]);
   return {studio:next,changes,rebased:payload.revision!==saved.revision};
 }

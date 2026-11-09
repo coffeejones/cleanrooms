@@ -33,7 +33,7 @@ async function readSmallBody(request) {
   }
 }
 
-export async function handleGatewayRequest(request, env, requestStudio = fetch) {
+async function route(request, env, requestStudio, requestId) {
   const url = new URL(request.url);
   if (url.pathname !== path || url.search) return reply('not_found', 'Siden findes ikke.', 404);
   if (request.method !== 'POST') return reply('method_not_allowed', 'Brug CleanRooms-appen.', 405);
@@ -55,6 +55,7 @@ export async function handleGatewayRequest(request, env, requestStudio = fetch) 
       'Content-Type': 'application/json',
       'OAI-Sites-Authorization': `Bearer ${env.STUDIO_SITE_ACCESS_TOKEN}`,
       'X-CleanRooms-Gateway-Key': env.MOBILE_GATEWAY_KEY,
+      'X-Request-Id': requestId,
     });
     const authorization = request.headers.get('authorization');
     if (authorization && /^Bearer [A-Za-z0-9_-]{32,128}$/.test(authorization)) {
@@ -69,10 +70,27 @@ export async function handleGatewayRequest(request, env, requestStudio = fetch) 
     if (!/^application\/json(?:\s*;|$)/i.test(type) || upstream.status === 404 || upstream.status >= 500) {
       return unavailable();
     }
-    return new Response(upstream.body, { status: upstream.status, headers: { ...headers, 'Content-Type': 'application/json' } });
+    const responseHeaders = new Headers({ ...headers, 'Content-Type': 'application/json' });
+    const retryAfter = upstream.headers.get('retry-after');
+    if (upstream.status === 429 && /^\d{1,5}$/.test(retryAfter ?? '') && Number(retryAfter) > 0 && Number(retryAfter) <= 3600) {
+      responseHeaders.set('Retry-After', retryAfter);
+    }
+    return new Response(upstream.body, { status: upstream.status, headers: responseHeaders });
   } catch {
     return unavailable();
   }
+}
+
+export async function handleGatewayRequest(request, env, requestStudio = fetch) {
+  const requestId = crypto.randomUUID(), startedAt = performance.now();
+  const result = await route(request, env, requestStudio, requestId);
+  result.headers.set('X-Request-Id', requestId);
+  if (result.status >= 500) {
+    // Intentionally omit URLs, authorization, bodies, email and location.
+    console.warn(JSON.stringify({ event: 'mobile_gateway_failure', requestId, status: result.status,
+      durationMs: Math.round(performance.now() - startedAt) }));
+  }
+  return result;
 }
 
 export default { fetch: (request, env) => handleGatewayRequest(request, env) };

@@ -63,11 +63,18 @@
   }
   function parseCSV(text) {
     if(typeof text!=='string')return {delimiter:',',rows:[],issues:[{row:1,field:'',code:'format',message:'CSV-filen skal være tekst.'}]};
+    const limitIssue=(row,message)=>({row,field:'',code:'limit',message});
+    const maxBytes=5*1024*1024,maxRows=5001,maxColumns=32,maxIssues=100;
+    // Apply the same byte bound to pasted text as to an uploaded file, before
+    // retaining rows or diagnostics. Invalid input must not amplify into MB of errors.
+    if(text.length>maxBytes||new TextEncoder().encode(text).byteLength>maxBytes)return {delimiter:',',rows:[],issues:[limitIssue(1,'CSV-filen må højst være 5 MB.')]};
     text=text.replace(/^\uFEFF/,'');
     const delimiter=delimiterFor(text),rows=[],issues=[];let cells=[],value='',state='plain',line=1,startLine=1;
+    const issue=message=>issues.push({row:startLine,field:'',code:'quote',message:'Række '+startLine+': '+message});
     const cell=()=>{cells.push(value);value='';state='plain';};
     const row=()=>{cell();if(cells.some(item=>item.trim()!==''))rows.push({row:startLine,cells});cells=[];startLine=line+1;};
     for(let index=0;index<text.length;index++){
+      if(rows.length>=maxRows||cells.length>=maxColumns||issues.length>=maxIssues)return {delimiter,rows:[],issues:[...issues.slice(0,maxIssues-1),limitIssue(startLine,'Importen er for stor eller har for mange fejl. Brug højst 5000 medarbejdere og 32 kolonner.') ]};
       const char=text[index];
       if(state==='quoted'){
         if(char==='"'){if(text[index+1]==='"'){value+='"';index++;}else state='closed';}
@@ -78,13 +85,13 @@
       if(char==='\n'||char==='\r'){
         row();if(char==='\r'&&text[index+1]==='\n')index++;line++;startLine=line;continue;
       }
-      if(state==='closed'){
-        if(char!==' '&&char!=='\t')issues.push({row:startLine,field:'',code:'quote',message:'Række '+startLine+': Der må kun stå et skilletegn efter et afsluttende citationstegn.'});
+      if(state==='closed'||state==='invalid-closed'){
+        if(state==='closed'&&char!==' '&&char!=='\t'){issue('Der må kun stå et skilletegn efter et afsluttende citationstegn.');state='invalid-closed';}
         continue;
       }
       if(char==='"'){
         if(value.trim()===''){value='';state='quoted';}
-        else issues.push({row:startLine,field:'',code:'quote',message:'Række '+startLine+': Et citationstegn skal stå omkring hele feltet.'});
+        else issue('Et citationstegn skal stå omkring hele feltet.');
       }else value+=char;
     }
     if(state==='quoted')issues.push({row:startLine,field:'',code:'quote',message:'Række '+startLine+': Et felt mangler sit afsluttende citationstegn.'});
@@ -109,6 +116,7 @@
     if(issues.length)return failure(issues);
     const seenIds=new Set(),seenNames=new Set();
     for(const entry of parsed.rows.slice(1)){
+      if(issues.length>=100)break;
       if(entry.cells.length!==columns.length){issues.push({row:entry.row,field:'',code:'columns',message:'Række '+entry.row+': Antallet af felter passer ikke til overskriften.'});continue;}
       const raw=Object.fromEntries(columns.map((key,index)=>[key,entry.cells[index].trim()]));
       const previous=raw.id?next.find(person=>person.id===raw.id):null;
@@ -138,7 +146,7 @@
       if(!errors.length){const index=next.findIndex(item=>item.id===person.id);if(index<0)next.push(person);else next[index]=person;}
     }
     if(next.length>5000)issues.push({row:0,field:'',code:'limit',message:'Der må højst være 5000 medarbejdere.'});
-    return issues.length?failure(issues,rows):{ok:true,staff:next,rows,issues:[],error:null};
+    return issues.length?failure(issues.slice(0,100),rows):{ok:true,staff:next,rows,issues:[],error:null};
   }
   const api=Object.freeze({validate,normalize,propose,parseCSV,previewCSV,initials,newId,defaultEmployeeTarget,workHoursBudgetLimit,validWorkHoursBudget});
   globalThis.CleanRoomsRoster=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;

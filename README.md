@@ -38,24 +38,29 @@ Repoet indeholder kildekode, testfixtures og migrationsfiler. Det indeholder ing
 
 ## Kontrol
 
+Web/backend og de gennemgående applikationstests:
+
+```sh
+cd sites/cleanrooms-studio
+npm ci
+npm run verify
+npm run build
+```
+
+Kør fra dette komplette monorepo: gennemgangstesten bruger også gatewayens rigtige worker i `sites/cleanrooms-app-api`.
+
 Medarbejderapp:
 
 ```sh
 cd mobile/cleanrooms-app
+npm ci
 npm test
 npm run typecheck
 npm run lint
 ```
 
-Webbackendens senest ændrede flows kan kontrolleres med:
+GitHub Actions kører begge kontroller med låste afhængigheder. De tidligere kendte røde webtests og hængende kontrol er gennemgået; processer med åbne handles eller annullerede tests gør nu kontrollen rød.
 
-```sh
-cd sites/cleanrooms-studio
-node --test tests/mobile-company-settings.test.cjs tests/payroll-period-model.test.cjs tests/shift-workflow.test.cjs tests/mobile-chat.test.cjs tests/mobile-employee-state.test.cjs tests/mobile-route-employee.test.cjs tests/mobile-employee-data.test.cjs tests/timekeeping.test.cjs tests/mobile-auth-store.test.cjs tests/directory-security.test.cjs tests/planning-cost-access.test.cjs
-node --test tests/planning-availability-client.test.cjs tests/workspace-payroll-period-view.test.cjs tests/staffing-integration.test.cjs tests/series-calendar.test.cjs
-npm run build
-```
-
-Den brede webtestsuite indeholder kendte ældre fejl i `descriptions-integration`, `operations-integration` og `page-help`; `planner-point-cache` kan efterlade åbne handles. De er ikke rapporteret som løst i denne kildeudgave. Native push og afdelingsafgrænsede planlæggerrettigheder er fortsat særskilt arbejde.
+Læs [stabiliseringsnoterne](sites/cleanrooms-studio/docs/stabilisation-2026-11-09.md) for rettelser og præcise afgrænsninger. [Mobilens afhængighedsrapport](mobile/cleanrooms-app/docs/DEPENDENCIES.md) beskriver resterende advisories, som ikke er skjult med inkompatible opgraderinger. Native push, afdelingsafgrænsede planlæggerrettigheder og en hostingbaseret gendannelsesøvelse er fortsat særskilt arbejde.
 
 Se også [arkitektur](sites/cleanrooms-studio/docs/architecture.md), [drift](sites/cleanrooms-studio/docs/operations.md) og [mobilens datatilkobling](mobile/cleanrooms-app/docs/MOBILE-BACKEND.md).

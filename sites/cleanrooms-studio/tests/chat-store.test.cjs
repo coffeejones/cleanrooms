@@ -35,8 +35,10 @@ test('pinning is permission and room scoped, version checked and capped at three
  const unpin=await api(db,'chatPin',{roomId:north.id,messageId:messages[0].id,pinned:false,version});assert.equal(unpin.status,200);assert.equal((await api(db,'chatRead',{roomId:north.id},worker)).body.pins.length,2);db.sqlite.close();
 });
 
-test('bounded pagination retains every message once and binds cursors to workspace, actor and room',async()=>{
- const {db,north,clinic,studio}=await setup();for(let index=0;index<57;index++)assert.equal((await api(db,'chatSend',{roomId:north.id,clientId:'page-'+index,text:'Message '+index})).status,200);
+test('bounded pagination retains every message once and binds cursors to workspace, actor and room',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:Date.now()});
+ // Build history across ordinary send windows; pagination is not a quota bypass.
+ const {db,north,clinic,studio}=await setup();for(let index=0;index<57;index++){if(index===30)t.mock.timers.tick(61000);assert.equal((await api(db,'chatSend',{roomId:north.id,clientId:'page-'+index,text:'Message '+index})).status,200);}
  const page=await api(db,'chatRead',{roomId:north.id},worker);assert.equal(page.body.messages.length,50);assert.equal(page.body.messages[0].seq,8);assert.equal(page.body.hasMore,true);const previous=await api(db,'chatRead',{roomId:north.id,before:page.body.nextCursor},worker);assert.equal(previous.body.messages.length,7);assert.equal(previous.body.hasMore,false);assert.deepEqual([...previous.body.messages,...page.body.messages].map(item=>item.seq),Array.from({length:57},(_,index)=>index+1));
  assert.equal((await api(db,'chatRead',{roomId:clinic.id,before:page.body.nextCursor})).status,400);assert.equal((await api(db,'chatRead',{roomId:north.id,before:page.body.nextCursor})).status,400);
  assert.equal((await Store.writeStudio(db,foreign.id,0,studio)).ok,true);assert.equal((await api(db,'chatRead',{roomId:north.id},foreign)).status,403);db.sqlite.close();

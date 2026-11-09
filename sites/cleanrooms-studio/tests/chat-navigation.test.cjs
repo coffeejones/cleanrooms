@@ -14,7 +14,7 @@ test('late workflow renders cannot replace a chat or calendar surface',()=>{
 });
 test('Mine vagter leaves a persisted chat page for linked chat-only managers and employees',()=>{
  const state={role:'admin',page:'chat'},calls=[];
- const context=vm.createContext({state,realEmployee:()=>true,employeeData:{person:{id:'p0'}},hasAccountAccess:()=>false,employeeWorkspace:'chat',workflowSelectedShift:'one',timeDemoEmployee:false,departmentView:null,closeDemoSheets(){},render(){calls.push('render');},save(){calls.push('save');}});
+ const context=vm.createContext({state,confirmEditorLeave:()=>true,closeEditor(){},realEmployee:()=>true,employeeData:{person:{id:'p0'}},hasAccountAccess:()=>false,employeeWorkspace:'chat',workflowSelectedShift:'one',timeDemoEmployee:false,departmentView:null,closeDemoSheets(){},render(){calls.push('render');},save(){calls.push('save');}});
  vm.runInContext(actual('setRole','retryCloud')+';globalThis.switchRole=setRole;',context);
  context.switchRole('employee');assert.equal(state.role,'employee');assert.equal(state.page,'schedule');assert.equal(context.employeeWorkspace,'calendar');assert.deepEqual(calls,['render','save']);
 });
@@ -43,4 +43,10 @@ test('read-only employee preview can sync its selected department but cannot mar
  const from=source.indexOf('  async function chatAction('),to=source.indexOf('  async function refreshChatBadge(',from);vm.runInContext(source.slice(from,to)+';globalThis.action=chatAction;',context);
  assert.equal((await context.action('chatSync',{roomId:'room',afterSeq:7,version:3})).ok,true);assert.equal(calls[0].payload.previewPersonId,'p0');assert.equal(calls[0].payload.afterSeq,7);
  assert.equal((await context.action('chatReadMark',{roomId:'room',throughSeq:8})).status,403);assert.equal((await context.action('chatSend',{roomId:'room',text:'Forbidden'})).status,403);assert.equal(calls.length,1);
+});
+
+
+test('declining a dirty-editor discard leaves the current role and chat surface untouched',()=>{
+ const state={role:'admin',page:'chat'},calls=[],context=vm.createContext({state,realEmployee:()=>false,confirmEditorLeave:()=>false,render(){calls.push('render');},save(){calls.push('save');}});
+ vm.runInContext(actual('setRole','retryCloud')+';globalThis.switchRole=setRole;',context);assert.equal(context.switchRole('employee'),false);assert.deepEqual(state,{role:'admin',page:'chat'});assert.deepEqual(calls,[]);
 });

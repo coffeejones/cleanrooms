@@ -22,7 +22,7 @@ class Element{
  getClientRects(){if(this.className==='cs-chat-thread'&&this.ownerDocument.mobile){const root=this.ownerDocument.root.children[0];if(root?.dataset.threadOpen!=='true')return [];}return [{}];}
 }
 function fixture({manager=true,preview=false,mobile=false,totalUnread,roomPages}={}){
- const intervals=new Map();let timerId=0,clock=0;const doc={visibilityState:'visible',mobile,activeElement:null,events:{},defaultView:{Date:{now:()=>clock},setInterval:fn=>{intervals.set(++timerId,fn);return timerId;},clearInterval:id=>intervals.delete(id)},addEventListener(type,fn){(this.events[type]??=[]).push(fn);},removeEventListener(type,fn){this.events[type]=(this.events[type]||[]).filter(item=>item!==fn);},emit(type){for(const fn of this.events[type]||[])fn();}};
+ const intervals=new Map();let timerId=0,clock=0;const doc={visibilityState:'visible',mobile,activeElement:null,events:{},defaultView:{Date:{now:()=>clock},setInterval:fn=>{intervals.set(++timerId,fn);return timerId;},clearInterval:id=>intervals.delete(id),events:{},addEventListener(type,fn){(this.events[type]??=[]).push(fn);},removeEventListener(type,fn){this.events[type]=(this.events[type]||[]).filter(item=>item!==fn);},emit(type){for(const fn of this.events[type]||[])fn();}},addEventListener(type,fn){(this.events[type]??=[]).push(fn);},removeEventListener(type,fn){this.events[type]=(this.events[type]||[]).filter(item=>item!==fn);},emit(type){for(const fn of this.events[type]||[])fn();}};
  doc.createElement=tag=>new Element(tag,doc);doc.createElementNS=(_ns,tag)=>new Element(tag,doc);const host=new Element('div',doc);doc.root=host;
  const room=(id,name)=>({id,departmentId:'dep-'+id,departmentName:name,name,memberCount:7,version:1,latestSeq:2,unread:2,muted:false,lastMessage:{id:id+'-2',seq:2,text:'Der er fyldt op.',authorName:'Mikkel Jensen',createdAt:'2026-11-04T09:05:00Z'}});
  const room1=room('room-1','Kontor Nord'),room2=room('room-2','Klinikken');let rooms=[room1,room2],accessKey='1:admin:1:1:',pins=[{id:'room-1-1',seq:1,text:'Nøglen ligger ved receptionen.',authorId:'colleague',authorName:'Sara Ahmed',createdAt:'2026-11-04T09:00:00Z',pinned:true}];
@@ -59,6 +59,25 @@ test('room drafts and focused composer survive polling and switching conversatio
  app.messages.get('room-1').push({id:'arrival',seq:3,text:'En ny besked',authorId:'other',authorName:'Mikkel',createdAt:'2026-11-04T10:05:00Z'});await app.tick();
  assert.equal(app.element('cs-chat-compose-input'),input);assert.equal(input.value,'Bevar min kladde\nmed en ekstra linje');assert.equal(app.doc.activeElement,input);
  app.roomButton('room-2').click();await settle();input.value='En anden kladde';input.fire('input');app.roomButton('room-1').click();await settle();assert.equal(input.value,'Bevar min kladde\nmed en ekstra linje');app.controller.destroy();
+});
+
+test('unchanged chats adapt to 1, 2, 5 and 10 second checks while focus and new messages restore fast sync',async()=>{
+ const app=fixture();await settle();const syncs=()=>app.calls.filter(call=>call.action==='chatSync').length;
+ await app.tick();assert.equal(syncs(),1);await app.tick();assert.equal(syncs(),2);await app.tick();assert.equal(syncs(),2);await app.tick();assert.equal(syncs(),3);await app.tick(4000);assert.equal(syncs(),3);await app.tick();assert.equal(syncs(),4);
+ await app.tick(9000);assert.equal(syncs(),4);assert.equal(app.calls.filter(call=>call.action==='chatList').length,2,'Catalog freshness has its own deadline even while the thread is idle.');await app.tick();assert.equal(syncs(),5);
+ app.doc.defaultView.emit('focus');await settle();assert.equal(syncs(),6,'Returning to the window checks immediately.');app.messages.get('room-1').push({id:'arrival-idle',seq:3,text:'Nyt efter den stille periode',authorId:'other',authorName:'Mikkel',createdAt:'2026-11-04T10:05:00Z'});await app.tick();assert.equal(syncs(),7);assert.match(app.host.textContent,/Nyt efter den stille periode/);await app.tick();assert.equal(syncs(),8,'Receiving a change returns to one-second synchronization.');
+ app.controller.destroy();assert.equal(app.doc.defaultView.events.focus.length,0);assert.equal(app.intervals.size,0);
+});
+
+test('sending wakes an idle conversation without waiting for its next idle deadline',async()=>{
+ const app=fixture();await settle();await app.tick();await app.tick();await app.tick(2000);await app.tick(5000);const before=app.calls.filter(call=>call.action==='chatSync').length;assert.equal(before,4);
+ const input=app.element('cs-chat-compose-input');input.value='En besked fra mig';input.fire('input');app.button('Send besked').click();await settle();assert.equal(app.calls.filter(call=>call.action==='chatSync').length,before+1);assert.match(app.host.textContent,/En besked fra mig/);app.controller.destroy();
+});
+
+test('simultaneous room refreshes share one pending catalog read',async()=>{
+ const app=fixture();await settle();const initial=app.calls.filter(call=>call.action==='chatList').length;let release;
+ app.hook((action,payload,normal)=>action==='chatList'?new Promise(resolve=>{release=()=>normal(action,payload).then(resolve);}):normal(action,payload));
+ const first=app.controller.load(),second=app.controller.load();await settle();assert.equal(app.calls.filter(call=>call.action==='chatList').length,initial+1);assert.equal(first,second);await release();await Promise.all([first,second]);assert.equal(app.elements('cs-chat-room').length,2);app.controller.destroy();
 });
 
 test('retrying a failed send reuses the idempotency key and an acknowledged send never erases newer typing',async()=>{

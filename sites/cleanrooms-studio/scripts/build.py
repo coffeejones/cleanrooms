@@ -22,6 +22,17 @@ if '</script' in script.lower() or '</style' in css.lower():
 app = markup.replace('<!-- APP_STYLE -->', '<style>\n' + css + '\n</style>')
 app = app.replace('<!-- APP_SCRIPT -->', '<script>\n' + script + '\n</script>')
 new_inner = inner[:app_match.start()] + app + inner[app_match.end():]
+vendor = (root / 'src/vendor-runtime.bundle.js').read_text()
+if '</script' in vendor.lower():
+    raise ValueError('Unexpected closing tag in bundled runtime.')
+# Replace the original executable CDN dependencies while preserving the export's
+# iframe and CSP verbatim. Rebuilding is idempotent after the first replacement.
+vendor_tag = '<script id="cleanrooms-vendor-runtime">' + vendor + '</script>'
+vendor_match = r'<script id="cleanrooms-vendor-runtime">[\s\S]*?</script>|<script src="https://unpkg.com/@floating-ui/core@[^\"]+">\s*</script>'
+new_inner, vendor_count = re.subn(vendor_match, lambda _: vendor_tag, new_inner)
+if vendor_count != 1:
+    raise ValueError('The single pinned runtime insertion point is missing.')
+new_inner = re.sub(r'<script[^>]*src="https://unpkg.com/(?:@floating-ui/dom|lucide)@[^\"]+"[^>]*>\s*</script>', '', new_inner)
 new_inner = re.sub(r'<style id="cleanrooms-fullscreen">[\s\S]*?</style>\s*', '', new_inner)
 new_inner = re.sub(r'<title>[\s\S]*?</title>', '<title>CleanRooms · Vagtplan</title>', new_inner, count=1)
 updated = original[:frame_match.start(2)] + escape(new_inner, quote=True) + original[frame_match.end(2):]

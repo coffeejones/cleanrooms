@@ -15,6 +15,7 @@ import { addDays, copenhagenDate, dateLabel, isoWeekNumber, mondayOfWeek, shiftI
 import { useApp } from '@/state/app-store';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { usePublishedSchedule } from '@/state/published-schedule';
+import { useEmployeeActiveTime } from '@/state/employee-data';
 
 const { ink, accent, muted } = colors;
 
@@ -44,8 +45,8 @@ export default function HomeScreen() {
   const showingCurrentWeek = weekStart === currentWeek;
   const weekEnd = addDays(weekStart, 6);
   const schedule = usePublishedSchedule(weekStart, weekEnd);
-  const activeSchedule = usePublishedSchedule(currentWeek, addDays(currentWeek, 6));
-  const activeLiveRecord = activeSchedule.data?.find(item => item.entry?.status === 'running' || item.entry?.status === 'paused') ?? null;
+  const activeTime = useEmployeeActiveTime();
+  const activeLiveRecord = activeTime.data ?? null;
   const currentWeekShifts = useMemo(() => shiftsForWeek(state, currentWeek), [state, currentWeek]);
   const weekShifts = useMemo(() => {
     if (live) return (schedule.data ?? []).map(({ shift, site, entry }) => ({ shift, site, entry: entryView(shift.id, entry), ...shiftInterval(shift) }))
@@ -93,9 +94,10 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       style={styles.canvas}
       contentContainerStyle={styles.content}
-      refreshControl={live ? <RefreshControl refreshing={schedule.refreshing} onRefresh={schedule.refresh} /> : undefined}
+      refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
     >
       {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
+      {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
       <View style={styles.agenda}>
         <Row gap={12} style={styles.sectionHead}>
           <View style={styles.sectionIntro}>

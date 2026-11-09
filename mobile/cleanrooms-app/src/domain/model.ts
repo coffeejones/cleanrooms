@@ -32,7 +32,7 @@ export type AppState = {
   rooms: ChatRoom[]; messages: Message[]; notifications: AppNotification[]; preferences: Preferences;
   unavailableDates: string[];
 };
-export type Result = { ok: boolean; error?: string };
+export type Result = { ok: boolean; error?: string; uncertain?: boolean };
 export type PeriodSummary = {
   plannedMinutes: number; workedMinutes: number; approvedMinutes: number; shiftCount: number; completedCount: number;
   estimatedCents: number; earnedCents: number; approvedCents: number; progress: number;

@@ -84,3 +84,51 @@ test('actual series pause saves acknowledge rebased loaded and unseen future wee
   assert.equal(client.coverageValid,false);const refreshed=await client.scope(projection);assert.equal(refreshed.ok,true);assert.equal(client.coverageValid,true);assert.equal(refreshed.studio.series.find(item=>item.id===series.id).plannedBreakMinutes,5);assert.equal(transport.filter(item=>item.request.action==='write').length,1);
  }finally{for(const port of ports)port.close();db.sqlite.close();}
 });
+
+test('legacy and modern command paths reject the same invalid schedule cores without changing revision or audit',async()=>{
+ for(const records of [false,true]){
+  const {db}=await setup({unrelated:0});try{
+   const full=(await api(db)).body,before=await Store.readStudio(db,owner.id),audit=db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n;
+   const legacy={id:'new-legacy',person,site:0,startDate:'2026-11-02',endDate:'2026-11-08',weekdays:[0],start:'07:00',end:'15:00',note:'Original',customMetadata:{key:'retained'}};
+   for(const patch of [{start:'99:00',end:'00:00'},{startDate:'2026-02-30'},{weekdays:[]},{site:0.5},{plannedBreakMinutes:480}]){
+    const body=command(full,next=>{next.series.push({...legacy,...patch});},{projection:null});if(!records)delete body.commandReceipt;
+    const result=await api(db,{method:'PUT',body});assert.equal(result.status,400,JSON.stringify(result));assert.equal(result.body.error,'invalid_studio');
+    assert.equal((await Store.readStudio(db,owner.id)).revision,before.revision);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n,audit);
+   }
+   for(const patch of [{start:'99:00'},{date:'2026-02-30'},{end:'06:00'},{person:null},{site:-1},{plannedBreakMinutes:480}]){
+    const body=command(full,next=>{next.edits.one={...next.edits.one,...patch};},{projection:null});if(!records)delete body.commandReceipt;
+    const result=await api(db,{method:'PUT',body});assert.equal(result.status,400,JSON.stringify(result));
+   }
+   const valid=command(full,next=>{next.series.push(legacy);},{projection:null});if(!records)delete valid.commandReceipt;
+   const saved=await api(db,{method:'PUT',body:valid});assert.equal(saved.status,200,JSON.stringify(saved));
+   const restored=(await api(db)).body.studio.series.find(item=>item.id===legacy.id);
+   assert.deepEqual(restored.customMetadata,legacy.customMetadata);assert.equal(Object.hasOwn(restored,'plannedBreakMinutes'),false,'Legacy payload is validated without a lossy migration');
+  }finally{db.sqlite.close();}
+ }
+});
+
+test('pre-existing invalid series stay inspectable and can be repaired or deleted without changing frozen publications',async()=>{
+ for(const operation of ['repair','delete'])for(const published of [false,true])for(const invalidDate of [false,true]){
+  const {db,workspaceId}=await setup({unrelated:0});try{
+   if(published){const before=await Store.readStudio(db,owner.id);const frozen=Publication.publish({...before.studio,demoSeed:false,edits:{},series:before.studio.series.filter(item=>item.id==='target-series')},{from:calendar.from,to:calendar.to,siteIds:[0],actor:{userId:owner.id,name:'Owner'},at});assert.equal((await Store.writeStudio(db,owner.id,before.revision,{...before.studio,publications:frozen.studio.publications})).ok,true);}
+   const {createHash}=require('node:crypto'),{packCalendarSummary}=require('../lib/planning-calendar-summary.mjs');
+   const row=db.sqlite.prepare("SELECT * FROM workspace_plan_records WHERE workspace_id=? AND kind='series' AND id='target-series'").get(workspaceId),envelope=JSON.parse(row.config);
+   envelope.value.start='99:00';if(invalidDate)envelope.value.startDate='2026-02-30';envelope.value.customMetadata={retained:'from prior release'};
+   const serialized=JSON.stringify(envelope.value);envelope.bytes=Buffer.byteLength(serialized);envelope.sha256=createHash('sha256').update(serialized).digest('hex');
+   const summary=await packCalendarSummary('series','target-series',envelope.value);
+   db.sqlite.prepare("UPDATE workspace_plan_records SET config=?,schedule_config=?,version=version+1,schedule_version=version+1,write_token='prevalidation-release' WHERE workspace_id=? AND kind='series' AND id='target-series'").run(JSON.stringify(envelope),summary.config,workspaceId);
+   db.sqlite.prepare("UPDATE studio_states SET revision=revision+1,write_token='prevalidation-release' WHERE owner_id=?").run(owner.id);
+   db.sqlite.prepare('UPDATE studio_state_chunks SET revision=revision+1 WHERE owner_id=?').run(owner.id);
+   const full=await api(db);assert.equal(full.status,200,JSON.stringify(full));assert.equal(full.body.studio.series.find(item=>item.id==='target-series').start,'99:00');
+   const frozenBefore=Publication.publishedShifts(full.body.studio);
+   const blocked=await api(db,{projection:calendar});assert.equal(blocked.status,409,JSON.stringify(blocked));assert.equal(blocked.body.error,'planning_schedule_repair_required');assert.match(blocked.body.message,/target-series/);
+   const body=command(full.body,next=>{if(operation==='delete')next.series=next.series.filter(item=>item.id!=='target-series');else Object.assign(next.series.find(item=>item.id==='target-series'),{start:'08:00',startDate:'2026-11-02'});},{projection:null});
+   const result=await api(db,{method:'PUT',body});assert.equal(result.status,200,JSON.stringify(result));
+   const after=await api(db);assert.equal(after.status,200,JSON.stringify(after));const repaired=after.body.studio.series.find(item=>item.id==='target-series');
+   assert.deepEqual(Publication.publishedShifts(after.body.studio),frozenBefore,'Repair preserves every frozen instruction, time and assignment until explicit publication');
+   if(operation==='delete')assert.equal(repaired,undefined);else{assert.equal(repaired.start,'08:00');assert.deepEqual(repaired.customMetadata,{retained:'from prior release'});}
+   const reloadedCalendar=await selected(db);assert.ok(reloadedCalendar.studio);
+   if(published)assert.ok(Publication.publishedShifts(after.body.studio).some(item=>item.seriesId==='target-series'),'Repair does not silently cancel any published assignment');
+  }finally{db.sqlite.close();}
+ }
+});

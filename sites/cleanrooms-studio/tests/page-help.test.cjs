@@ -15,7 +15,7 @@ function fixture(){
   const doc={activeElement:null,createElement(tag){return new Element(tag,doc);}};doc.body=doc.createElement('body');const host=doc.createElement('div'),trigger=doc.createElement('button');doc.body.append(host,trigger);const controller=Help.mount({element:host}),dialog=host.children[0],close=dialog.children[0].children[1];return {doc,host,trigger,controller,dialog,close};
 }
 test('every app page has concrete guidance and payroll contexts retain their own reading order',()=>{
-  for(const page of ['schedule','series','people','hours','leave','activity','workspace','accounts','demo','employee']){const model=Help.content({page});assert.equal(model.key,page);assert.ok(model.steps.length>=3&&model.steps.length<=5);}
+  for(const page of ['schedule','series','people','hours','leave','activity','workspace','accounts','demo','employee']){const model=Help.content({page});assert.equal(model.key,page);assert.ok(model.steps.length>=3&&model.steps.length<=6);assert.equal(new Set(model.steps.map(([title])=>title)).size,model.steps.length);for(const [title,description]of model.steps){assert.ok(title.trim());assert.ok(description.trim());}}
   const profile=Help.content({page:'people',context:'profile'});assert.equal(profile.title,'Medarbejderprofil');
   const personal=Help.content({page:'people',context:'payroll-person'});assert.equal(personal.title,'Medarbejderens løn og tillæg');assert.match(personal.steps[0][0],/Aktuel lønaftale/);assert.equal(Help.content({page:'payroll',context:'payroll-group'}).title,'Løngruppe');
 });

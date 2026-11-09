@@ -36,7 +36,9 @@ function compactEntry(entry) {
   const fields = ['id', 'shiftId', 'personId', 'date', 'site', 'start', 'end', 'endDate', 'plannedStart', 'plannedEnd',
     'plannedBreakMinutes', 'breakMinutes', 'breaks', 'breakAllocation', 'status', 'version', 'clockStartAt', 'clockEndAt',
     'pauseAt', 'timingResolved', 'resolvedStartAt', 'resolvedEndAt', 'dstUnresolved', 'payroll', 'frozenShift'];
-  return Object.fromEntries(fields.filter(key => Object.hasOwn(entry, key)).map(key => [key, entry[key]]));
+  const reason=entry.status==='rejected'?[...(entry.audit??[])].reverse().find(event=>event.operation==='reject')?.reason??'':'';
+  return { ...Object.fromEntries(fields.filter(key => Object.hasOwn(entry, key)).map(key => [key, entry[key]])),
+    hasComment:typeof entry.comment==='string'&&entry.comment.length>0,rejectionReason:reason.slice(0,240),rejectionReasonDeferred:reason.length>240 };
 }
 
 function plannedEntry(shift) {
@@ -201,7 +203,9 @@ export async function readMobileHours(db, employee, { from, to }) {
       shift: { id: shift.id, personId, date: shift.date, start: shift.start, end: shift.end,
         breakMinutes: shift.plannedBreakMinutes ?? 0, siteId: site.id, role: '', description: '', checklist: [] },
       site, entry: entry ? { version: entry.version, status: entry.status,
-        clockIn: entry.clockStartAt ?? null, clockOut: entry.clockEndAt ?? null, pauseAt: entry.pauseAt ?? null } : null,
+        clockIn: entry.clockStartAt ?? null, clockOut: entry.clockEndAt ?? null, pauseAt: entry.pauseAt ?? null,
+        comment: '', hasComment:entry.hasComment, commentDeferred:entry.hasComment,
+        rejectionReason: entry.rejectionReason,rejectionReasonDeferred:entry.rejectionReasonDeferred } : null,
       pay: { kind: actualClip ? 'registered' : 'planned', minutes: chosenClip.minutes, ...amount }, sourceLabel,
     });
   }

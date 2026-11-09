@@ -21,16 +21,28 @@ export type EmployeePreferences = {
 };
 export type EmployeeWorkflowShift = { id: string; person: string; site: number; date: string; start: string; end: string; plannedBreakMinutes: number; siteName: string; fingerprint: string };
 export type EmployeeWorkflowMessage = { id: string; kind: string; before: EmployeeWorkflowShift | null; after: EmployeeWorkflowShift | null; summary: string; createdAt: string; readAt: string | null; requestId?: string };
+export type EmployeeRequest = { id: string; version: number; kind: string; status: string; fromPersonId: string; toPersonId: string; fromName: string; toName: string; shift: EmployeeWorkflowShift; comment: string; decisionReason?: string; blockedReason?: string };
 export type EmployeeWorkflow = {
   notifications: EmployeeWorkflowMessage[]; unreadCount: number;
-  requests: { id: string; version: number; kind: string; status: string; shift: EmployeeWorkflowShift; comment: string; decisionReason?: string }[];
+  requests: EmployeeRequest[];
   openShifts: EmployeeWorkflowShift[]; ownShifts: EmployeeWorkflowShift[];
-  pagination: { messages?: string | null; requests?: string | null; openShifts?: string | null }; serverNow: string;
+  colleagues: { id: string; name: string; initials: string }[];
+  pagination: { messages?: string | null; requests?: string | null; openShifts?: string | null; colleagues?: string | null }; serverNow: string;
 };
-export function useEmployeeWorkflow(from: string, to: string) {
+export type EmployeeInbox = { notifications: EmployeeWorkflowMessage[]; unreadCount: number; nextCursor: string | null; serverNow: string };
+export function useEmployeeInbox() {
   const { employeeRequest } = useMobileAuth();
-  const load = useCallback(() => employeeRequest<EmployeeWorkflow>({ action: 'workflowRead', from, to, limit: 50 }), [employeeRequest, from, to]);
-  return usePublishedResource('workflow:' + from + ':' + to, load);
+  const load = useCallback(() => employeeRequest<EmployeeInbox>({ action: 'employeeInbox', cursor: null, limit: 50 }), [employeeRequest]);
+  return usePublishedResource('inbox', load);
+}
+export function useEmployeeActiveTime() {
+  const { readActiveTime } = useMobileAuth();
+  return usePublishedResource('active-time', readActiveTime);
+}
+export function useEmployeeWorkflow(from?: string, to?: string) {
+  const { employeeRequest } = useMobileAuth();
+  const load = useCallback(() => employeeRequest<EmployeeWorkflow>({ action: 'workflowRead', ...(from && to ? { from, to } : {}), limit: 50 }), [employeeRequest, from, to]);
+  return usePublishedResource('workflow:' + (from ?? 'all') + ':' + (to ?? 'all'), load);
 }
 
 export function useEmployeeHours(from: string, to: string) {

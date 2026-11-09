@@ -113,6 +113,15 @@
         searchIndex=new Map();
         paint();
       },
+      capture(){return {filter,query,pageIndex,selectedId,instructionsOpen};},
+      restore(saved={}){
+        if(disposed)return;
+        filter=FILTERS.some(([key])=>key===saved.filter)?saved.filter:'all';
+        query=typeof saved.query==='string'?saved.query.slice(0,500):'';
+        pageIndex=Number.isSafeInteger(saved.pageIndex)&&saved.pageIndex>=0?saved.pageIndex:0;
+        selectedId=typeof saved.selectedId==='string'||typeof saved.selectedId==='number'?saved.selectedId:null;
+        instructionsOpen=saved.instructionsOpen===true;
+      },
       dispose(){disposed=true;element.replaceChildren();}
     };
   }

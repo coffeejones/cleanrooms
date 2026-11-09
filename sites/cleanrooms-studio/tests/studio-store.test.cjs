@@ -37,7 +37,8 @@ function database() {
   };
   return adapter;
 }
-const studio = (changes = {}) => ({storageVersion:1,series:[],edits:{},deleted:[],weekPlans:{},requests:{},coverageRules:[],checklistProgress:{},...changes});
+const studio = (changes = {}) => ({storageVersion:1,series:[],edits:{},deleted:[],weekPlans:{},requests:{},coverageRules:[],checklistProgress:{},...changes,
+  ...(changes.edits?{edits:Object.fromEntries(Object.entries(changes.edits).map(([id,shift])=>[id,shift&&typeof shift==='object'&&!Array.isArray(shift)?{id,person:'p0',site:0,date:'2026-10-27',start:'07:00',end:'15:00',...shift}:shift]))}:{})});
 const recurring = (changes = {}) => ({id:'series-cleaning',person:'p0',site:0,startDate:'2026-10-26',endDate:'2026-11-15',weekdays:[1,3],start:'07:00',end:'15:00',note:'Faste vagter',...changes});
 const request = (method,body,headers = {}) => new Request('https://cleanrooms.example/api/studio',{
   method,headers:{'oai-authenticated-user-id':'owner-a',...(method === 'PUT' ? {'Origin':'https://cleanrooms.example','Content-Type':'application/json'} : {}),...headers},
@@ -281,7 +282,9 @@ test('explicit agreement phases cannot overlap while adjacent periods and unrela
   const adjacent={...overlap,startDate:'2026-11-09'};assert.doesNotThrow(()=>Store.validateStudio(studio({series:[first,adjacent]})));
   const legacyRoot=recurring({id:'legacy-agreement',endDate:'2026-11-08'}),newPhase={...overlap,groupId:legacyRoot.id};
   assert.throws(()=>Store.validateStudio(studio({series:[legacyRoot,newPhase]})),error=>error.status===400,'New phases must also respect the matching legacy root period.');
-  assert.doesNotThrow(()=>Store.validateStudio(studio({series:[first,adjacent,{id:'unrelated-legacy-record'}]})),'Do not impose new structural requirements on unrelated legacy groups.');
+  const legacy=studio({series:[first,adjacent,{id:'unrelated-legacy-record'}]});
+  assert.doesNotThrow(()=>Store.validateStudio(legacy,{readOnly:true}),'Stored legacy payloads remain inspectable for explicit repair.');
+  assert.throws(()=>Store.validateStudio(legacy),error=>error.status===400,'A new incomplete legacy-shaped series must not bypass write validation.');
 });
 
 test('declared and streamed bodies beyond16MiB reject safely before storage, with no UI text cap',async()=>{

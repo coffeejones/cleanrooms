@@ -102,7 +102,7 @@ function application({richEditor=false}={}) {
     globalThis.descriptionTest={
       state,snapshot,restore,shiftsInRange,seriesOccurrences,openEditor,sameAssignment,
       configureRepeat,changeEditorScope,readDescriptionData,saveShift,weekPlan,changesForWeek,publicationStatus,renderChanges,
-      bulkProposal,saveBulk,publishReviewedWeek,undo:undoAction,
+      bulkProposal,saveBulk,publishReviewedWeek:async()=>{openChanges();return publishReviewedWeek();},undo:undoAction,
       setWeekdays:days=>{repeatDays=new Set(days);},
       select:(members,operation,copyIds)=>{
         activeBulk={members:clone(members),operation,
@@ -248,7 +248,7 @@ test('rich single-shift save, reopen, publication, clear and undo retain the act
   await app.publishReviewedWeek();assert.equal(publishedShift(app,shift.id).noteRich,richTemplate);
   const resumed=application({richEditor:true});resumed.restore({privateContent:{studio:plain(app.state)}});
   resumed.openEditor(resumed.at(shift.date,''));assert.deepEqual(resumed.getRich(),app.getRich());
-  app.setRich('','');app.save();assert.equal(app.at(shift.date,'').note,'');assert.equal(app.at(shift.date,'').noteRich,undefined);
+  app.openEditor(app.at(shift.date,''));app.setRich('','');app.save();assert.equal(app.at(shift.date,'').note,'');assert.equal(app.at(shift.date,'').noteRich,undefined);
   assert.ok(app.changesForWeek()[0].fields.includes('noteRich'));
   app.undo();assert.equal(app.at(shift.date,'').noteRich,richTemplate);
 });

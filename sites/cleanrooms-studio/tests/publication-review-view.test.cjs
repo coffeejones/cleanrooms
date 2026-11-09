@@ -64,3 +64,11 @@ test('unknown dates are readable and disposed views cannot dispatch callbacks',a
 test('missing before snapshots do not make every new shift match vacant or unknown-worksite searches',async()=>{
  const sample=fixture([change({id:'assigned',type:'added',before:null,after:shift({id:'assigned',person:'emma'})}),change({id:'vacant',type:'added',before:null,after:shift({id:'vacant',person:''})})]);await sample.input('Ledig vagt');assert.equal(sample.rows().length,1);assert.equal(sample.rows()[0].dataset.changeId,'vacant');await sample.input('Ukendt arbejdssted');assert.equal(sample.rows().length,0);
 });
+
+
+test('a closed review can restore presentation preferences without reusing publication authority or old snapshots',async()=>{
+ const first=fixture([change()]);await first.key('filter:changed').click();await first.input('Emma');await first.key('change:shift-a').click();const saved=first.view.capture();first.view.dispose();
+ const second=fixture([]);second.view.restore(saved);second.view.render({scopeKey:'week45',changes:[change({after:shift({start:'10:00',end:'18:00'})})],people:[{id:'emma',name:'Emma Nielsen'}],sites:[{name:'Kontor Nord'}]});
+ assert.ok(second.byClass('cs-publication-review-comparison'));assert.match(second.host.textContent,/10:00–18:00/);await second.key('back').click();assert.equal(second.key('filter:changed').getAttribute('aria-pressed'),'true');assert.equal(second.key('search').value,'Emma');
+ second.view.restore({...saved,filter:'publish',query:123,pageIndex:-1,selectedId:{id:'shift-a'}});second.view.render({scopeKey:'week45',changes:[]});assert.equal(second.key('filter:all').getAttribute('aria-pressed'),'true');assert.equal(second.key('search').value,'');
+});

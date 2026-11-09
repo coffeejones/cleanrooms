@@ -5,7 +5,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(require.resolve('../src/studio-persistence.js'),'utf8');
 const plain = value => JSON.parse(JSON.stringify(value));
-const loadedState = (studio,manageDepartments=false) => ({ok:true,studio,employee:null,viewer:null,workspace:null,capabilities:{manageDepartments,manageUsers:false,manageRoles:false,viewPayroll:false,managePayroll:false,managePayrollGroups:false,chat:false,manageChat:false,plan:false,previewEmployees:false}});
+const loadedState = (studio,manageDepartments=false) => ({ok:true,studio,employee:null,viewer:null,workspace:null,capabilities:{manageDepartments,manageSiteGps:false,manageAppLogins:false,manageUsers:false,manageRoles:false,viewPayroll:false,managePayroll:false,managePayrollGroups:false,chat:false,manageChat:false,plan:false,previewEmployees:false}});
 const drain = () => new Promise(resolve => setImmediate(resolve));
 const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 function receipt(promise) {

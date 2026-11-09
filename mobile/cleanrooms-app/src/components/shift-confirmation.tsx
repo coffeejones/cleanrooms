@@ -219,10 +219,10 @@ function StampFeedback({ kind, result, onDismiss, onRetry }: {
     const value = progress.get();
     return { opacity: 0.4 + value * 0.6, transform: [{ scale: 0.68 + value * 0.32 }] };
   });
-  const color = result.ok ? colors.success : colors.danger;
+  const color = result.ok ? colors.success : result.uncertain ? colors.warning : colors.danger;
   const title = result.ok
     ? (kind === 'clock-in' ? 'Stemplet ind' : 'Stemplet ud')
-    : (kind === 'clock-in' ? 'Indstempling mislykkedes' : 'Udstempling mislykkedes');
+    : result.uncertain ? 'Status ikke bekræftet' : (kind === 'clock-in' ? 'Indstempling mislykkedes' : 'Udstempling mislykkedes');
   const message = result.ok ? 'Stemplingen er registreret i appen.' : result.error ?? 'Prøv igen.';
 
   useEffect(() => {
@@ -239,14 +239,14 @@ function StampFeedback({ kind, result, onDismiss, onRetry }: {
         aria-hidden
         style={[feedbackStyles.badge, { backgroundColor: result.ok ? colors.successSoft : '#f9eeeb', borderColor: `${color}26` }, badgeMotion]}
       >
-        <Icon name={result.ok ? 'check' : 'x'} size={28} color={color} />
+        <Icon name={result.ok ? 'check' : result.uncertain ? 'clock' : 'x'} size={28} color={color} />
       </Animated.View>
       <View accessibilityLiveRegion="polite" style={feedbackStyles.copy}>
         <Txt accessibilityRole="header" size={23} weight="700" style={feedbackStyles.title}>{title}</Txt>
         <Txt size={14} color={colors.muted} style={feedbackStyles.center}>{message}</Txt>
       </View>
       <View style={feedbackStyles.actions}>
-        <ShiftActionButton label={result.ok ? 'Færdig' : 'Prøv igen'} onPress={result.ok ? onDismiss : onRetry} />
+        <ShiftActionButton label={result.ok ? 'Færdig' : result.uncertain ? 'Kontrollér igen' : 'Prøv igen'} onPress={result.ok ? onDismiss : onRetry} />
         {!result.ok && <ShiftActionButton label="Luk" secondary onPress={onDismiss} />}
       </View>
     </View>

@@ -66,3 +66,15 @@
   #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head{flex-wrap:wrap;row-gap:8px}
   #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head>div{flex-basis:100%}
 }
+
+/* Bounded long lists retain the same compact controls and layout. */
+#cleanrooms-studio :is(.cs-time-pagination,.cs-roster-pagination){display:flex;align-items:center;gap:8px;padding-block:12px;flex-wrap:wrap}
+#cleanrooms-studio :is(.cs-time-pagination,.cs-roster-pagination)>:first-child{margin-right:auto;color:var(--cs-muted);font-size:12px}
+
+/* The sandbox keeps browser modals disabled; draft confirmation stays inside the app. */
+#cleanrooms-studio .cs-editor-discard-layer{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:#001e2b40;backdrop-filter:blur(2px)}
+#cleanrooms-studio .cs-editor-discard-layer[hidden]{display:none}
+#cleanrooms-studio .cs-editor-discard{width:min(400px,100%);padding:24px;border:1px solid #c1c7c6;border-radius:8px;background:#fff;box-shadow:0 16px 64px #001e2b2b;color:#001e2b}
+#cleanrooms-studio .cs-editor-discard h3{margin:0;font-size:18px;line-height:26px;font-weight:600}
+#cleanrooms-studio .cs-editor-discard p{margin:8px 0 24px;color:#5c6c75;font-size:14px;line-height:21px}
+#cleanrooms-studio .cs-editor-discard-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}

@@ -45,3 +45,52 @@ test('pilot and TestFlight profiles embed a Release bundle and cannot require a 
   assert.equal(base.plugins.filter(item=>item==='expo-secure-store').length,1);
   assert.match(fs.readFileSync(path.join(__dirname,'../.easignore'),'utf8'), /^credentials\.json$/m, 'signing credentials must be excluded from the source upload');
 });
+
+const { verifyReleaseMetadata } = require('../scripts/verify-ios-release.cjs');
+const releaseInfo = () => ({ CFBundleIdentifier:base.ios.bundleIdentifier,CFBundleShortVersionString:base.version,CFBundleVersion:'2',
+  NSLocationWhenInUseUsageDescription:'Placering bruges ved indstempling.',NSMotionUsageDescription:'Denne metadata er påkrævet af placeringens native bibliotek.',
+  ITSAppUsesNonExemptEncryption:false });
+
+test('compiled iOS release metadata catches the first IPA motion-purpose rejection before submission', () => {
+  for(const build of ['1','2','1.0.0','10.20.30']) assert.doesNotThrow(()=>verifyReleaseMetadata({...releaseInfo(),CFBundleVersion:build},base));
+  for(const value of [undefined,false,null,'','   ','$(MOTION_USAGE_DESCRIPTION)']) {
+    assert.throws(()=>verifyReleaseMetadata({...releaseInfo(),NSMotionUsageDescription:value},base),/NSMotionUsageDescription/);
+  }
+  for(const value of [undefined,true,'false']) {
+    assert.throws(()=>verifyReleaseMetadata({...releaseInfo(),ITSAppUsesNonExemptEncryption:value},base),/export-compliance/);
+  }
+  assert.throws(()=>verifyReleaseMetadata({...releaseInfo(),CFBundleVersion:''},base),/build version/);
+  assert.throws(()=>verifyReleaseMetadata({...releaseInfo(),NSLocationWhenInUseUsageDescription:undefined},base),/NSLocationWhenInUseUsageDescription/);
+});
+
+test('native purpose metadata does not enable always-on location or a motion permission request', () => {
+  const location=base.plugins.find(item=>Array.isArray(item)&&item[0]==='expo-location')[1];
+  assert.ok(typeof location.motionUsagePermission==='string'&&location.motionUsagePermission.trim().length>0);
+  assert.equal(location.locationAlwaysPermission,false);
+  assert.equal(location.locationAlwaysAndWhenInUsePermission,false);
+  assert.equal(base.ios.config.usesNonExemptEncryption,false);
+  for(const patch of [
+    {NSLocationAlwaysUsageDescription:'Always'}, {NSLocationAlwaysAndWhenInUseUsageDescription:'Always'}, {UIBackgroundModes:['location']},
+    {NSAppTransportSecurity:{NSAllowsArbitraryLoads:true}},
+  ]) assert.throws(()=>verifyReleaseMetadata({...releaseInfo(),...patch},base));
+  const ts=require('typescript'),forbiddenModules=new Set(['expo-sensors','expo-motion','react-native-sensors']);
+  const forbiddenCalls=new Set(['requestBackgroundPermissionsAsync','startLocationUpdatesAsync','startGeofencingAsync','requestMotionPermissionsAsync']);
+  function inspect(directory) {
+    for(const entry of fs.readdirSync(directory,{withFileTypes:true})) {
+      const file=path.join(directory,entry.name);
+      if(entry.isDirectory()) { inspect(file);continue; }
+      if(!/\.tsx?$/.test(entry.name))continue;
+      const tree=ts.createSourceFile(file,fs.readFileSync(file,'utf8'),ts.ScriptTarget.Latest,true);
+      function visit(node) {
+        if(ts.isImportDeclaration(node)&&ts.isStringLiteral(node.moduleSpecifier)) assert.ok(!forbiddenModules.has(node.moduleSpecifier.text),`Unexpected motion module in ${file}`);
+        if(ts.isCallExpression(node)) {
+          if(node.expression.kind===ts.SyntaxKind.ImportKeyword&&ts.isStringLiteral(node.arguments[0])) assert.ok(!forbiddenModules.has(node.arguments[0].text),`Unexpected motion module in ${file}`);
+          if(ts.isPropertyAccessExpression(node.expression)) assert.ok(!forbiddenCalls.has(node.expression.name.text),`Unexpected motion/background permission call in ${file}`);
+        }
+        ts.forEachChild(node,visit);
+      }
+      visit(tree);
+    }
+  }
+  inspect(path.join(__dirname,'../src'));
+});

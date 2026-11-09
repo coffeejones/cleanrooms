@@ -36,7 +36,7 @@
           "locationWhenInUsePermission": "CleanRooms bruger din placering ved indstempling for at tjekke, om du er t\u00e6t p\u00e5 arbejdsstedet.",
           "locationAlwaysAndWhenInUsePermission": false,
           "locationAlwaysPermission": false,
-          "motionUsagePermission": false
+          "motionUsagePermission": "Placeringsbiblioteket underst\u00f8tter bev\u00e6gelsesdata. CleanRooms indsamler ikke bev\u00e6gelsesdata eller anmoder om adgang til dem."
         }
       ],
       [

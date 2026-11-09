@@ -64,7 +64,9 @@ Kontrollér den resulterende `.app` med:
 node scripts/verify-ios-release.cjs '/absolut/sti/CleanRooms.app'
 ```
 
-Kontrollen kræver korrekt bundle-ID, en ikke-tom indbygget `main.jsbundle`, gyldig kodesignatur, ingen udviklingslauncher og ingen generel HTTP-undtagelse. Den beviser ikke login, GPS, pushlevering eller hele brugerflowet. Start også appen med Metro stoppet. En simulatorbuild skal signeres korrekt for blandt andet Keychain/SecureStore; en usigneret build er ikke en retvisende loginprøve.
+Kontrollen kræver korrekt bundle-ID og buildversion, en ikke-tom indbygget `main.jsbundle`, gyldig kodesignatur, nødvendige formålstekster og den gennemgåede eksportmetadata. Den afviser desuden udviklingslauncher, generel HTTP-undtagelse og baggrunds-/Always-placering. Den beviser ikke login, GPS, pushlevering eller hele brugerflowet. Start også appen med Metro stoppet. En simulatorbuild skal signeres korrekt for blandt andet Keychain/SecureStore; en usigneret build er ikke en retvisende loginprøve.
+
+App Store Connect kontrollerer også statiske API-referencer i biblioteker. Expo Location 57 indeholder CoreMotion-kode, så den genererede `Info.plist` skal have en ikke-tom `NSMotionUsageDescription`, selv om CleanRooms ikke kalder bevægelses-API’erne. En formålstekst giver ikke i sig selv tilladelse eller viser en systemprompt. Appen anmoder fortsat kun om placering ved indstempling og aktiverer hverken bevægelsesregistrering eller baggrundsplacering. Den første upload blev standset af Apples efterkontrol med fejl 90683; en vellykket EAS-upload skal derfor altid følges til Apples behandlingsstatus.
 
 ## Push på den indloggede konto
 

@@ -50,6 +50,8 @@ BUILD_ID='indsæt-den-gennemgåede-builds-id'
 npx eas-cli@latest submit --platform ios --profile production --id "$BUILD_ID"
 ```
 
+Appkonfigurationens `ios.config.usesNonExemptEncryption: false` beskriver den nuværende klient: HTTPS gennem operativsystemet og systemets Keychain/SecureStore, uden egen kryptering af kommunikation. Vurder erklæringen igen, hvis en ny afhængighed eller funktion indfører anden kryptering. For ældre uploads uden denne metadata kan Apple kræve samme oplysning i App Store Connect, før intern test kan begynde. Se [Expos SecureStore-vejledning](https://docs.expo.dev/versions/v57.0.0/sdk/securestore/) og [Apples eksportvejledning](https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations).
+
 Dette er pilotdistribution via TestFlight. En offentlig App Store-udgivelse kræver en særskilt beslutning og Apples review.
 
 ## Lokal Release-kontrol

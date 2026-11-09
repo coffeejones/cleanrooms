@@ -10,7 +10,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dk.cleanrooms.studio.demo",
-      "icon": "./assets/images/app-icon.png"
+      "icon": "./assets/images/app-icon.png",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +33,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "CleanRooms bruger din placering ved indstempling for at tjekke, om du er tæt på arbejdsstedet.",
+          "locationWhenInUsePermission": "CleanRooms bruger din placering ved indstempling for at tjekke, om du er t\u00e6t p\u00e5 arbejdsstedet.",
           "locationAlwaysAndWhenInUsePermission": false,
           "locationAlwaysPermission": false,
           "motionUsagePermission": false

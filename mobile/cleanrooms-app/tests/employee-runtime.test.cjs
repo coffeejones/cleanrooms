@@ -110,6 +110,7 @@ function employeeData(request) {
     if(name === '@/domain/model') return require(path.join(root, 'domain/model.js'));
     if(name === './published-schedule') return { usePublishedResource: (scope, read, enabled) => ({ scope, read, enabled, refresh() {} }) };
     if(name === './company-settings-wire') return require(path.join(root, 'state/company-settings-wire.js'));
+    if(name === './employee-preferences-wire') return require(path.join(root, 'state/employee-preferences-wire.js'));
     throw Error('Unexpected dependency ' + name);
   }});
   return module.exports;

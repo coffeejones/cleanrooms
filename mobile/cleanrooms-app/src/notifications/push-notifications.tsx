@@ -9,6 +9,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { mobileAuthOrigin, MobileAuthError } from '@/auth/mobile-auth-api';
 import { RetryGate } from '@/state/retry-policy';
 import { invalidateEmployeeResources } from '@/state/published-schedule';
+import { pushPreferencesEnabled } from '@/state/employee-preferences-wire';
 import { onPushAccountClosing } from './push-account-events';
 import { parsePushHint, PushOpenGuard, pushRoute, validInstallationId, validProjectId, type PushHint } from './push-wire';
 
@@ -109,10 +110,9 @@ export function PushNotificationsProvider({ children }: { children: ReactNode })
       try {
         const projectId = Constants.easConfig?.projectId ?? Constants.expoConfig?.extra?.eas?.projectId;
         if (!validProjectId(projectId)) { settled({ status: 'unavailable', message: unavailable });return false; }
-        const preferences = await requestRef.current<{ notifications: boolean; chatNotifications: boolean }>({ action: 'employeePreferences' });
+        const preferences = await requestRef.current({ action: 'employeePreferences' });
         if (!current()) return false;
-        if (typeof preferences.notifications !== 'boolean' || typeof preferences.chatNotifications !== 'boolean') throw Error('Invalid preferences');
-        enabled.current = preferences.notifications || preferences.chatNotifications;
+        enabled.current = pushPreferencesEnabled(preferences);
         if (!enabled.current && !prompt) {
           await requestRef.current({ action: 'employeePushUnregister', installationId: nativeId.current });
           if (current()) lastRegistration.current = null;

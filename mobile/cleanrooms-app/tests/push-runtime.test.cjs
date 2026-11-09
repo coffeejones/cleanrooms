@@ -3,6 +3,7 @@ const root=path.resolve(__dirname,'..');
 function transpile(file){return ts.transpileModule(fs.readFileSync(path.join(root,file),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS},fileName:file}).outputText;}
 function load(file,globals={}){const module={exports:{}};vm.runInNewContext(transpile(file),{module,exports:module.exports,...globals});return module.exports;}
 const wire=load('src/notifications/push-wire.ts');
+const preferences=load('src/state/employee-preferences-wire.ts',{require:id=>{assert.equal(id,'../domain/model');return load('src/domain/model.ts');}});
 const installationId='96377345-250b-426a-b3cf-edb1481e7130',projectId='aa411426-95bc-45f2-9676-e46db520d23b';
 const hint={v:1,eventId:'a'.repeat(32),installationId};
 const plain=value=>JSON.parse(JSON.stringify(value));
@@ -56,7 +57,7 @@ function actualSync(overrides={}){
   };
   class MobileAuthError extends Error{}
   const context=vm.createContext({Date,queueMicrotask,Constants:{easConfig:{projectId}},Device:{isDevice:true},process:{env:{EXPO_OS:'ios'}},validProjectId:wire.validProjectId,permitted: (p,n)=>p.ios?.status===n.IosAuthorizationStatus.AUTHORIZED||p.ios?.status===n.IosAuthorizationStatus.PROVISIONAL,
-    MobileAuthError,clearTimeout,retryGate:{current:{ready:()=>true,success(){}}},retryTimer:{current:null},scheduleRetry:(...args)=>retries.push(args),unavailable:'unavailable',retryMessage:'retry',status:{status:'checking'},setStatus:value=>states.push(value),
+    MobileAuthError,clearTimeout,pushPreferencesEnabled:preferences.pushPreferencesEnabled,retryGate:{current:{ready:()=>true,success(){}}},retryTimer:{current:null},scheduleRetry:(...args)=>retries.push(args),unavailable:'unavailable',retryMessage:'retry',status:{status:'checking'},setStatus:value=>states.push(value),
     running:{current:null},refreshAfterCurrent:{current:false},scopeRef:{current:'account-a'},closedScope:{current:null},native:{current:module},nativeId:{current:installationId},deviceToken:{current:undefined},
     lastSync:{current:0},generation:{current:0},mounted:{current:true},lastRegistration:{current:null},enabled:{current:false},syncRef:{current:null},
     requestRef:{current:async payload=>{calls.push(plain(payload));if(payload.action==='employeePreferences')return{notifications:true,chatNotifications:false};return{registered:payload.action==='employeePushRegister'};}},...overrides,
@@ -93,6 +94,26 @@ test('revoked device permission unregisters the current installation and both-of
   assert.equal(app.calls.at(-1).action,'employeePushUnregister');assert.equal(app.context.lastRegistration.current,null);
   const disabled=actualSync({requestRef:{current:async payload=>{if(payload.action==='employeePreferences')return{notifications:false,chatNotifications:false};return{registered:false};}}});
   assert.equal(await disabled.sync(),false);assert.equal(disabled.nativeCalls.length,0);assert.equal(disabled.states.at(-1).status,'disabled');
+});
+test('either reminder category keeps a reminder-only account registered independently of chat and schedule-change switches',async()=>{
+  for(const category of ['shiftReminders','checkoutReminders']){
+    const calls=[];
+    const app=actualSync({requestRef:{current:async payload=>{calls.push(plain(payload));return payload.action==='employeePreferences'
+      ?{notifications:false,chatNotifications:false,shiftReminders:false,checkoutReminders:false,reminderLeadMinutes:30,[category]:true}
+      :{registered:payload.action==='employeePushRegister'};}}});
+    assert.equal(await app.sync(),true);
+    assert.equal(app.context.enabled.current,true);
+    assert.equal(calls.some(value=>value.action==='employeePushRegister'),true);
+    assert.equal(calls.some(value=>value.action==='employeePushUnregister'),false);
+  }
+});
+test('malformed reminder preference replies fail closed rather than silently enabling token registration',async()=>{
+  for(const patch of [{shiftReminders:'true'},{checkoutReminders:1},{reminderLeadMinutes:20},{shiftReminders:null}]){
+    const app=actualSync({requestRef:{current:async()=>({notifications:false,chatNotifications:false,...patch})}});
+    assert.equal(await app.sync(),false);
+    assert.equal(app.nativeCalls.length,0);
+    assert.equal(app.states.at(-1).status,'error');
+  }
 });
 test('account-close during native token retrieval never registers a token on the replacement account',async()=>{
   const app=actualSync();let release;app.module.getExpoPushTokenAsync=()=>new Promise(resolve=>{release=resolve;});

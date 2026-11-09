@@ -4,6 +4,8 @@ import type { PublishedShift, ShiftTimeEntry } from '@/auth/mobile-auth-api';
 import { validDate, type Shift, type PeriodSummary } from '@/domain/model';
 import { usePublishedResource } from './published-schedule';
 import { parseEmployeeCompanySettings } from './company-settings-wire';
+import { parseEmployeePreferences } from './employee-preferences-wire';
+export type { EmployeePreferences } from './employee-preferences-wire';
 
 export type EmployeeHoursRow = PublishedShift & {
   entry: ShiftTimeEntry | null;
@@ -15,9 +17,6 @@ export type EmployeeHours = {
   summary: PeriodSummary & { missingPayCount: number; missingEarnedPayCount: number; missingEstimatedPayCount: number; monthlyCents: number };
   rows: EmployeeHoursRow[]; warnings: string[];
   monthlyLines: { label: string; amountCents: number }[];
-};
-export type EmployeePreferences = {
-  version: number; notifications: boolean; chatNotifications: boolean; unavailableDates: string[];
 };
 export type EmployeeWorkflowShift = { id: string; person: string; site: number; date: string; start: string; end: string; plannedBreakMinutes: number; siteName: string; fingerprint: string };
 export type EmployeeWorkflowMessage = { id: string; kind: string; before: EmployeeWorkflowShift | null; after: EmployeeWorkflowShift | null; summary: string; createdAt: string; readAt: string | null; requestId?: string };
@@ -60,7 +59,7 @@ export function useEmployeeHours(from: string, to: string) {
 
 export function useEmployeePreferences() {
   const { employeeRequest } = useMobileAuth();
-  const load = useCallback(() => employeeRequest<EmployeePreferences>({ action: 'employeePreferences' }), [employeeRequest]);
+  const load = useCallback(async () => parseEmployeePreferences(await employeeRequest({ action: 'employeePreferences' })), [employeeRequest]);
   return usePublishedResource('preferences', load);
 }
 

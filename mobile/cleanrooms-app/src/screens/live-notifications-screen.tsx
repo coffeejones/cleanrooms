@@ -14,7 +14,7 @@ import { useScopedState } from '@/state/scoped-state';
 import { parsePushTarget } from '@/notifications/push-wire';
 
 const timestamp = new Intl.DateTimeFormat('da-DK', { timeZone: TIME_ZONE, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-const titles: Record<string, string> = { new: 'Ny vagt', changed: 'Vagt ændret', moved: 'Vagt flyttet', cancelled: 'Vagt aflyst', request: 'Vagtanmodning' };
+const titles: Record<string, string> = { new: 'Ny vagt', changed: 'Vagt ændret', moved: 'Vagt flyttet', cancelled: 'Vagt aflyst', request: 'Vagtanmodning', reminder: 'Vagtpåmindelse', checkout_reminder: 'Husk at stemple ud' };
 
 function shiftLabel(shift: EmployeeWorkflowShift) {
   return `${dateLabel(shift.date, { weekday: 'short' })} · ${shift.start}–${shift.end}`;
@@ -121,7 +121,7 @@ export default function LiveNotificationsScreen() {
           accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
           onPress={() => { void open(item); }}
           style={({ pressed }) => [styles.record, index === 0 && styles.firstRecord, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed]}>
-          <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : 'calendar'} size={18}
+          <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
             color={['changed', 'moved', 'cancelled'].includes(item.kind) ? colors.danger : seen ? colors.muted : colors.accent} /></View>
           <View style={styles.message}>
             <Row gap={8}><Txt size={15} weight={seen ? '600' : '700'} style={{ flex: 1 }}>{titles[item.kind] ?? 'Besked'}</Txt>

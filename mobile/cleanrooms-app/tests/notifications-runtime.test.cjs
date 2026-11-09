@@ -66,6 +66,15 @@ test('request replies open the inbox request controls rather than the former shi
   await h.open(item({ kind: 'request' }));
   assert.deepEqual(h.navigation, []); assert.deepEqual(h.scrolls, [{ offset: 0, animated: true }]);
 });
+test('reminder inbox taps use current server authority, including a stale reminder after reassignment', async () => {
+  for (const kind of ['reminder', 'checkout_reminder']) {
+    const current = fixture(); await current.open(item({ kind }));
+    assert.deepEqual(current.navigation, [{ pathname: '/shift/[id]', params: { id: 'current-shift' } }]);
+    const stale = fixture(); stale.send(async () => receipt({ target: { kind: 'inbox' } }));
+    await stale.open(item({ kind, after: { id: 'removed-shift' } }));
+    assert.deepEqual(stale.navigation, []); assert.deepEqual(stale.read().ids, ['notification-1']);
+  }
+});
 
 test('a pending open cannot duplicate writes and an unrelated same-account refresh cannot discard its acknowledgement', async () => {
   const h = fixture(), pending = deferred(); h.send(() => pending.promise);

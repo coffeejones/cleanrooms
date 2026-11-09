@@ -93,7 +93,8 @@ export const workspaceMembers = sqliteTable('workspace_members', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, table => [uniqueIndex('workspace_members_active_person_unique').on(table.workspaceId,table.personId)
-  .where(sql`${table.status} = 'active' AND ${table.role} = 'employee' AND ${table.personId} IS NOT NULL`)]);
+  .where(sql`${table.status} = 'active' AND ${table.role} = 'employee' AND ${table.personId} IS NOT NULL`),
+  index('workspace_push_member_identity').on(table.workspaceId,table.personId,table.userId)]);
 
 export const workspaceInvites = sqliteTable('workspace_invites', {
   id: text('id').primaryKey().notNull(),
@@ -341,3 +342,27 @@ export const workspaceChatMessages=sqliteTable('workspace_chat_messages',{
 export const workspaceChatReaders=sqliteTable('workspace_chat_readers',{
  workspaceId:text('workspace_id').notNull(),roomId:text('room_id').notNull(),userId:text('user_id').notNull(),lastReadSeq:integer('last_read_seq').notNull().default(0),muted:integer('muted').notNull().default(0),updatedAt:text('updated_at').notNull(),
 },table=>[primaryKey({columns:[table.workspaceId,table.roomId,table.userId]}),foreignKey({columns:[table.workspaceId,table.roomId],foreignColumns:[workspaceChatRooms.workspaceId,workspaceChatRooms.id]})]);
+
+export const workspacePushDevices = sqliteTable('workspace_push_devices', {
+  installationId: text('installation_id').primaryKey().notNull(), workspaceId: text('workspace_id').notNull().references(() => workspaces.id),
+  personId: text('person_id').notNull(), sessionHash: text('session_hash').notNull(), credentialVersion: integer('credential_version').notNull(),
+  expoToken: text('expo_token').notNull(), projectId: text('project_id').notNull(), platform: text('platform').notNull(), siteIndex: integer('site_index'), bindingId: text('binding_id').notNull(), version: integer('version').notNull(),
+  active: integer('active').notNull(), registeredAt: integer('registered_at').notNull(), updatedAt: integer('updated_at').notNull(),
+}, table => [uniqueIndex('workspace_push_token').on(table.expoToken).where(sql`${table.active}=1`),
+  index('workspace_push_person').on(table.workspaceId, table.personId, table.active, table.installationId),
+  index('workspace_push_fanout').on(table.workspaceId, table.active, table.installationId), index('workspace_push_session').on(table.sessionHash, table.active), index('workspace_push_site').on(table.workspaceId,table.siteIndex,table.active,table.installationId)]);
+export const workspacePushEvents = sqliteTable('workspace_push_events', {
+  eventId: text('event_id').primaryKey().notNull().default(sql`(lower(hex(randomblob(16))))`), workspaceId: text('workspace_id').notNull().references(() => workspaces.id),
+  sourceKind: text('source_kind').notNull(), sourceId: text('source_id').notNull(), roomId: text('room_id').notNull().default(''), personId: text('person_id'),
+  createdAt: integer('created_at').notNull(), expanded: integer('expanded').notNull().default(0), afterInstallation: text('after_installation').notNull().default(''), afterSite: integer('after_site').notNull().default(-1),
+}, table => [uniqueIndex('workspace_push_events_source').on(table.workspaceId, table.sourceKind, table.roomId, table.sourceId), uniqueIndex('workspace_push_test_minute').on(table.sourceId).where(sql`${table.sourceKind}='test'`), index('workspace_push_events_pending').on(table.expanded, table.createdAt, table.eventId)]);
+export const workspacePushDeliveries = sqliteTable('workspace_push_deliveries', {
+  eventId: text('event_id').notNull().references(() => workspacePushEvents.eventId, { onDelete: 'cascade' }), installationId: text('installation_id').notNull(),
+  workspaceId: text('workspace_id').notNull(), personId: text('person_id').notNull(), status: text('status').notNull(), dueAt: integer('due_at').notNull(),
+  attempts: integer('attempts').notNull().default(0), receiptAttempts: integer('receipt_attempts').notNull().default(0), leaseToken: text('lease_token'), leaseUntil: integer('lease_until'),
+  deviceVersion: integer('device_version'), bindingId: text('binding_id'), ticketId: text('ticket_id'), sentAt: integer('sent_at'), lastError: text('last_error'),
+  createdAt: integer('created_at').notNull(), updatedAt: integer('updated_at').notNull(),
+}, table => [primaryKey({ columns: [table.eventId, table.installationId] }), index('workspace_push_delivery_due').on(table.status, table.dueAt, table.eventId, table.installationId)]);
+export const workspacePushDispatchState = sqliteTable('workspace_push_dispatch_state', {
+  id: text('id').primaryKey().notNull(), leaseToken: text('lease_token'), leaseUntil: integer('lease_until').notNull().default(0), nextAt: integer('next_at').notNull().default(0), lastStartedAt: integer('last_started_at'), lastSuccessAt: integer('last_success_at'), lastError: text('last_error'), lastProviderError: text('last_provider_error'),
+});

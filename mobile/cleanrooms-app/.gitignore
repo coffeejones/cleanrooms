@@ -43,10 +43,8 @@ example
 /android
 
 # Generated verification artifacts
-dist-native/
+dist-*/
 outputs/
 
-# Generated native verification output
-dist-ios-verification/
-dist-ios-final/
-dist-*/
+# Signing material is local or managed by Expo, never source
+credentials.json

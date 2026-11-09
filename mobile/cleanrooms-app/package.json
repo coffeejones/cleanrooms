@@ -17,6 +17,7 @@
     "expo-image": "~57.0.5",
     "expo-linking": "~57.0.13",
     "expo-location": "~57.0.23",
+    "expo-notifications": "~57.0.25",
     "expo-router": "~57.0.30",
     "expo-secure-store": "~57.0.4",
     "expo-splash-screen": "~57.0.11",
@@ -53,7 +54,11 @@
     "check:dependencies": "node scripts/dependency-security.cjs --check",
     "pretest": "npm run check:dependencies",
     "test:dependencies": "node --test tests/dependency-security.test.cjs",
-    "verify:native-dependencies": "node scripts/verify-native-dependencies.cjs"
+    "verify:native-dependencies": "node scripts/verify-native-dependencies.cjs",
+    "release:preflight": "node scripts/release-preflight.cjs",
+    "ios:release": "expo run:ios --configuration Release --no-bundler",
+    "build:preview": "node scripts/expo-release.cjs preview",
+    "build:testflight": "node scripts/expo-release.cjs production"
   },
   "private": true,
   "overrides": {

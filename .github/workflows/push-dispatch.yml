@@ -1,0 +1,36 @@
+name: Wake queued push deliveries
+on:
+  schedule:
+    - cron: '2-59/5 * * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: cleanrooms-push-dispatch
+  cancel-in-progress: false
+jobs:
+  wake:
+    if: github.repository == 'coffeejones/cleanrooms' && github.ref == 'refs/heads/main' && vars.CLEANROOMS_PUSH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      DISPATCH_URL: ${{ vars.CLEANROOMS_PUSH_DISPATCH_URL }}
+      DISPATCH_KEY: ${{ secrets.CLEANROOMS_PUSH_DISPATCH_KEY }}
+    steps:
+      - name: Wake existing server deliveries
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const target = new URL(process.env.DISPATCH_URL);
+          if (target.protocol !== 'https:' || target.username || target.password || target.search || target.hash || target.port || target.pathname !== '/api/push-dispatch' || !target.hostname.endsWith('.chatgpt.site')) {
+            throw new Error('Configure the HTTPS CleanRooms gateway dispatch URL.');
+          }
+          const key = process.env.DISPATCH_KEY;
+          if (!/^[a-f0-9]{64}$/.test(key ?? '')) throw new Error('Configure the limited push dispatch secret.');
+          const response = await fetch(target, {
+            method: 'POST', redirect: 'error', signal: AbortSignal.timeout(45000),
+            headers: { 'Content-Type': 'application/json', 'X-CleanRooms-Push-Key': key },
+            body: '{}',
+          });
+          if (!response.ok) throw new Error(`Push dispatch wake returned HTTP ${response.status}.`);
+          console.log('Queued push delivery wake accepted.');
+          NODE

@@ -7,7 +7,8 @@ const windowMs = 60_000;
 const groupFor = action => action === 'chatSend' ? ['chat-send', 30, 240]
   : ['chatList', 'chatRead', 'chatSync', 'chatReadMark', 'chatMute'].includes(action) ? ['chat-read', 180, 1800]
     : action === 'employeeHours' ? ['hours-read', 30, 180]
-      : ['workflowRead', 'employeeInbox'].includes(action) ? ['workflow-read', 120, 1200] : null;
+      : ['workflowRead', 'employeeInbox'].includes(action) ? ['workflow-read', 120, 1200]
+        : ['employeePushRegister', 'employeePushUnregister', 'employeePushOpen', 'employeePushTest'].includes(action) ? ['push', 30, 600] : null;
 const query = (db, sql, ...values) => db.prepare(sql).bind(...values);
 const hash = value => createHash('sha256').update(value).digest('hex');
 

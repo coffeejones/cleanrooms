@@ -53,11 +53,25 @@
         }
       ],
       "./plugins/with-quoted-react-native-script.cjs",
-      "expo-secure-store"
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "cleanrooms",
+          "color": "#00684A",
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3514833e-c3fc-4059-a3a8-90365780f3e0"
+      }
+    },
+    "owner": "jonash0504"
   }
 }

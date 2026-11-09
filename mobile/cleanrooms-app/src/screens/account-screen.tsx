@@ -8,6 +8,7 @@ import { AuthForm, CredentialField } from '@/components/auth-form';
 import { Avatar, Button, Row, Surface, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
+import { usePushNotifications } from '@/notifications/push-notifications';
 import { useEmployeePreferences, type EmployeePreferences } from '@/state/employee-data';
 
 export default function AccountScreen() {
@@ -111,21 +112,38 @@ export default function AccountScreen() {
 function NotificationPreferences({ disabled }: { disabled: boolean }) {
   const { state, employeeRequest } = useMobileAuth();
   const resource = useEmployeePreferences();
+  const push = usePushNotifications();
   const scope = state.mode === 'signedIn' ? `${state.session.employee.workspaceId}:${state.session.employee.personId}` : '';
   const [saved, setSaved] = useState<{ scope: string; value: EmployeePreferences }>();
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testReceipt, setTestReceipt] = useState<{ scope: string; text: string; ok: boolean }>();
   const [error, setError] = useState('');
   const busy = useRef(false);
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const value = saved?.scope === scope && saved.value.version >= (resource.data?.version ?? -1) ? saved.value : resource.data;
 
+  async function testPush() {
+    if (busy.current || disabled) return;
+    busy.current = true;setTesting(true);setTestReceipt(undefined);
+    try {
+      await push.sendTest();
+      if (mounted.current) setTestReceipt({ scope, text: 'Testbesked bestilt. Den sendes til denne telefon.', ok: true });
+    } catch (cause) {
+      if (mounted.current) setTestReceipt({ scope, text: cause instanceof Error ? cause.message : 'Testbeskeden kunne ikke bestilles.', ok: false });
+    } finally {
+      busy.current = false;if (mounted.current) setTesting(false);
+    }
+  }
+
   async function change(key: 'notifications' | 'chatNotifications', next: boolean) {
     if (!value || !scope || busy.current || disabled) return;
     busy.current = true; setSaving(true); setError('');
     try {
+      if (next && !await push.enable()) return;
       const confirmed = await employeeRequest<EmployeePreferences>({ action: 'employeePreference', key, value: next, version: value.version });
-      if (mounted.current) setSaved({ scope, value: confirmed });
+      if (mounted.current) { setSaved({ scope, value: confirmed });push.refresh(); }
     } catch (cause) {
       if (mounted.current) {
         setError(cause instanceof Error ? cause.message : 'Indstillingen kunne ikke gemmes. Prøv igen.');
@@ -151,6 +169,12 @@ function NotificationPreferences({ disabled }: { disabled: boolean }) {
         {resource.loading && <ActivityIndicator size="small" color={colors.accent} />}
         <Txt size={13} color={colors.muted}>{resource.error ?? 'Henter indstillinger…'}</Txt>
       </Row>}
+      {push.status === 'permission-required' && <Button label="Tillad beskeder på denne telefon" compact variant="ghost" disabled={saving || disabled} onPress={() => { void push.enable(); }} />}
+      {push.status === 'permission-denied' && <Txt size={13} color={colors.muted}>Tillad beskeder under telefonens indstillinger for CleanRooms.</Txt>}
+      {push.status === 'error' && <><Txt accessibilityRole="alert" size={13} color={colors.danger}>{push.message}</Txt><Button label="Prøv igen" compact variant="ghost" disabled={saving || disabled} onPress={push.refresh} /></>}
+      {push.status === 'unavailable' && <Txt size={13} color={colors.muted}>{push.message}</Txt>}
+      {push.status === 'ready' && <Button label={testing ? 'Bestiller testbesked…' : 'Send testbesked'} compact variant="ghost" disabled={testing || saving || disabled} onPress={() => { void testPush(); }} />}
+      {testReceipt?.scope === scope && <Txt accessibilityLiveRegion="polite" size={13} color={testReceipt.ok ? colors.muted : colors.danger}>{testReceipt.text}</Txt>}
       {!!error && <Txt accessibilityRole="alert" size={13} color={colors.danger}>{error}</Txt>}
       {!!resource.error && <Button label="Prøv igen" compact variant="ghost" onPress={resource.refresh} disabled={saving || disabled} />}
     </Surface>

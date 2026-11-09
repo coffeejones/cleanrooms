@@ -5,6 +5,7 @@ import { AppProvider, useAppData } from '@/state/app-store';
 import { MobileAuthProvider, useMobileAuth } from '@/auth/mobile-auth';
 import { cardColors } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
+import { PushNotificationsProvider } from '@/notifications/push-notifications';
 import { MotionPreference, useReduceMotionPreference } from '@/components/motion-preference';
 import { Txt } from '@/components/ui';
 import '@/global.css';
@@ -40,5 +41,5 @@ function AppContent() {
   </View>;
 }
 export default function RootLayout() {
-  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><AppProvider><StatusBar style="dark" /><MotionPreference><AppContent /></MotionPreference></AppProvider></MobileAuthProvider></ThemeProvider>;
+  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><PushNotificationsProvider><AppProvider><StatusBar style="dark" /><MotionPreference><AppContent /></MotionPreference></AppProvider></PushNotificationsProvider></MobileAuthProvider></ThemeProvider>;
 }

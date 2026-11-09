@@ -1,0 +1,58 @@
+# Dependencies and generated output
+**/node_modules/
+**/node_modules
+**/dist/
+**/dist-*/
+**/.next/
+**/.vinext/
+**/web-build/
+**/coverage/
+**/*.tsbuildinfo
+**/expo-env.d.ts
+**/next-env.d.ts
+
+# Local app, device, database and hosting state
+**/.expo/
+**/.wrangler/
+**/.sites-runtime/
+**/ios/
+**/android/
+**/outputs/
+**/.claude/
+**/.codex/
+**/.vscode/
+**/*.db
+**/*.db-*
+**/*.sqlite
+**/*.sqlite-*
+**/*.sqlite3
+
+# Environment configuration and credentials
+**/.env*
+!**/.env.example
+**/.dev.vars*
+!**/.dev.vars.example
+**/*.pem
+**/*.key
+**/*.p8
+**/*.p12
+**/*.jks
+**/*.keystore
+**/*.mobileprovision
+
+# Archives, logs and OS files
+**/*.tar.gz
+**/*.zip
+**/*.log
+**/.DS_Store
+
+# Expo Build needs only the mobile application
+/sites/
+/qa/
+/.github/
+/README.md
+**/credentials.json
+**/.env
+**/.env.*
+
+.git

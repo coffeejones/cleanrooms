@@ -218,6 +218,13 @@
       "when": 1794170568368,
       "tag": "0030_mobile_employee_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1794229200000,
+      "tag": "0031_employee_push",
+      "breakpoints": true
     }
   ]
 }

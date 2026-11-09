@@ -53,7 +53,7 @@ Time- og løntotaler omfatter kun udstemplede vagter, også mens timerne afvente
 
 Tjeklistefremdrift gemmes pr. vagt. Indstillinger → Genskab startdata genskaber startdata efter en bekræftelse.
 
-**Demoen er ikke forbundet til en virksomhedskonto.** Beskeder sendes ikke til andre telefoner, løn er ikke en lønseddel, og pushbeskeder er ikke tilkoblet endnu. Brug ikke rigtige person-, løn- eller kundedata i denne lokale demo. Se [backendplanen](docs/MOBILE-BACKEND.md) for den konkrete tilkobling.
+**“Prøv demoen” bruger kun lokale data.** Konto-login henter medarbejderens vagter, timer, samtaler og indstillinger fra virksomhedens API. Push kræver en signeret app, medarbejderens tilladelse og serverens pushkonfiguration. Se [Release- og pushguiden](docs/native-release.md) for TestFlight, installation og den dokumenterede teststatus. Løntal er et grundlag før skat, ikke en lønseddel.
 
 ## Kontrol
 

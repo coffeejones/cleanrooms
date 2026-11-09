@@ -16,6 +16,7 @@ import { readMobileCoworkers } from './mobile-coworkers.mjs';
 import { readMobileCompanySettings } from './mobile-company-settings.mjs';
 import { handleMobileInbox } from './mobile-inbox.mjs';
 import { enforceMobileRequestQuota } from './mobile-request-quota.mjs';
+import { handleMobilePush } from './mobile-push-store.mjs';
 
 const maxBodyBytes = 64 * 1024;
 const secretPattern = /^[a-f0-9]{64}$/;
@@ -25,6 +26,10 @@ const fields = new Map([
   ['session', []],
   ['changePassword', ['currentPassword', 'newPassword']],
   ['logout', []],
+  ['employeePushRegister', ['installationId', 'expoPushToken', 'platform', 'projectId']],
+  ['employeePushUnregister', ['installationId']],
+  ['employeePushOpen', ['installationId', 'eventId']],
+  ['employeePushTest', ['installationId']],
   ['publishedSchedule', ['from', 'to', 'cursor']],
   ['publishedShift', ['shiftId']],
   ['shiftTime', ['shiftId', 'operation', 'version', 'comment', 'location']],
@@ -142,7 +147,7 @@ function fromGateway(request, key) {
     timingSafeEqual(Buffer.from(supplied, 'hex'), Buffer.from(key, 'hex'));
 }
 
-async function routeMobileAuthRequest(request, db, gatewayKey) {
+async function routeMobileAuthRequest(request, db, gatewayKey, pushOptions) {
   if (!fromGateway(request, gatewayKey)) return reply({ error: 'not_found' }, 404);
   if (request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
   if (!db) return reply({ error: 'mobile_unavailable', message: 'Login er midlertidigt utilgængeligt. Prøv igen.' }, 503);
@@ -165,6 +170,7 @@ async function routeMobileAuthRequest(request, db, gatewayKey) {
     const session = await readMobileSession({ db, token });
     await enforceMobileRequestQuota(db, token, session, payload.action);
     const { expiresAt, employee, temporaryPassword } = session;
+    if (payload.action.startsWith('employeePush')) return reply(await handleMobilePush(db, token, session, payload, pushOptions));
     if (payload.action === 'employeeInbox' || payload.action === 'employeeInboxRead') return reply(await handleMobileInbox(db, token, session, payload));
     if (payload.action === 'employeeActiveTime') return reply(await readMobileActiveTime(db, token, session));
     if (payload.action === 'employeeCompanySettings') return reply(await readMobileCompanySettings(db, token, session));
@@ -200,10 +206,10 @@ async function routeMobileAuthRequest(request, db, gatewayKey) {
   }
 }
 
-export async function handleMobileAuthRequest(request, db, gatewayKey) {
+export async function handleMobileAuthRequest(request, db, gatewayKey, pushOptions = {}) {
   const candidate = request.headers.get('x-request-id') ?? '';
   const requestId = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(candidate) ? candidate : crypto.randomUUID();
-  const started = performance.now(), result = await routeMobileAuthRequest(request, db, gatewayKey);
+  const started = performance.now(), result = await routeMobileAuthRequest(request, db, gatewayKey, pushOptions);
   result.headers.set('X-Request-Id', requestId);
   if (result.status >= 500) console.error(JSON.stringify({ event: 'mobile_request_failed', requestId,
     status: result.status, durationMs: Math.round(performance.now() - started) }));

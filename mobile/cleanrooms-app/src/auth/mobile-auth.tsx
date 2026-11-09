@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { createContext, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 import { PendingLogouts } from './pending-logouts';
+import { closePushAccount } from '@/notifications/push-account-events';
 import type { Shift } from '@/domain/model';
 
 import { canUseMobileAuth, isSessionToken, mobileAuthApi, MobileAuthError, mobileAuthOrigin, type MobileSession, type PublishedShift, type PublishedShiftDetail, type ShiftTimeCommand, type ShiftTimeEntry } from './mobile-auth-api';
@@ -26,6 +27,7 @@ type AuthState =
 type Result = { ok: true } | { ok: false; error: string };
 type AuthContextValue = {
   state: AuthState;
+  sessionEpoch: number;
   signIn: (email: string, password: string) => Promise<Result>;
   changePassword: (current: string, next: string) => Promise<Result>;
   signOut: () => Promise<Result>;
@@ -75,6 +77,7 @@ function errorMessage(error: unknown) {
 export function MobileAuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(canUseMobileAuth ? { mode: 'loading' } : { mode: 'signedOut' });
   const activeToken = useRef<string | null>(null);
+  const [sessionEpoch, setSessionEpoch] = useState(0);
   const busy = useRef(false);
   const flushLogouts = useCallback(async () => {
     if (!mobileAuthOrigin) return;
@@ -86,6 +89,8 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const expire = useCallback(async () => {
+    await closePushAccount(false);
+    setSessionEpoch(value => value + 1);
     activeToken.current = null;
     await clearToken().catch(() => undefined);
     setState({ mode: 'signedOut', notice: sessionExpired });
@@ -109,6 +114,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       }
       const session = await mobileAuthApi.session(token);
       if (!isCurrent()) return;
+      setSessionEpoch(value => value + 1);
       activeToken.current = token;
       setState({ mode: 'signedIn', session });
     } catch (error) {
@@ -163,6 +169,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
         void mobileAuthApi.logout(token).catch(() => undefined);
         throw error;
       }
+      setSessionEpoch(value => value + 1);
       activeToken.current = token;
       setState({ mode: 'signedIn', session });
       return ok;
@@ -183,12 +190,14 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       try {
         await saveToken(replacement);
       } catch {
+        setSessionEpoch(value => value + 1);
         activeToken.current = null;
         await clearToken().catch(() => undefined);
         void mobileAuthApi.logout(replacement).catch(() => undefined);
         setState({ mode: 'signedOut', notice: 'Adgangskoden er ændret. Log ind igen med den nye adgangskode.' });
         return ok;
       }
+      setSessionEpoch(value => value + 1);
       activeToken.current = replacement;
       setState({ mode: 'signedIn', session });
       return ok;
@@ -205,6 +214,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     busy.current = true;
     const token = activeToken.current;
     try {
+      await closePushAccount();
       let queued = false;
       if (token && mobileAuthOrigin) {
         try {
@@ -213,6 +223,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
         } catch { /* A failed revocation-queue write must never prevent local logout. */ }
       }
       await clearToken();
+      setSessionEpoch(value => value + 1);
       activeToken.current = null;
       setState({ mode: 'signedOut', ...(token ? { notice: queued ? pendingLogoutNotice : unconfirmedLogoutNotice } : {}) });
       if (queued) void flushLogouts();
@@ -220,6 +231,8 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
         ? { mode: 'signedOut' } : previous)).catch(() => undefined);
       return ok;
     } catch (error) {
+      // Local storage refused logout; the still-valid account may resume push.
+      setSessionEpoch(value => value + 1);
       return failure(errorMessage(error));
     } finally {
       busy.current = false;
@@ -258,7 +271,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
   const employeeRequest = useCallback(<T,>(payload: Record<string, unknown> & { action: string }) =>
     readEmployeeData(token => mobileAuthApi.employeeRequest<T>(token, payload)), [readEmployeeData]);
 
-  return <AuthContext value={{ state, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, readActiveTime, readShiftTimeChange, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
+  return <AuthContext value={{ state, sessionEpoch, signIn, changePassword, signOut, retrySession, openDemo, leaveDemo, readPublishedSchedule, readPublishedShift, readActiveTime, readShiftTimeChange, writeShiftTime, employeeRequest }}>{children}</AuthContext>;
 }
 
 export function useMobileAuth() {

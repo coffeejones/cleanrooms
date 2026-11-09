@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {execFileSync}=require('node:child_process');
+const app=path.resolve(process.argv[2]||'');
+assert.ok(app.endsWith('.app'),'Provide a compiled Release .app directory.');
+const info=JSON.parse(execFileSync('/usr/bin/plutil',['-convert','json','-o','-',path.join(app,'Info.plist')],{encoding:'utf8'}));
+const expected=require('../app.json').expo;
+assert.equal(info.CFBundleIdentifier,expected.ios.bundleIdentifier);
+const bundle=path.join(app,'main.jsbundle');
+assert.ok(fs.existsSync(bundle)&&fs.statSync(bundle).size>0,'The Release app must embed its JavaScript, without needing Metro.');
+assert.notEqual(info.NSAppTransportSecurity?.NSAllowsArbitraryLoads,true,'A standalone release must not bypass HTTPS.');
+assert.ok(!fs.existsSync(path.join(app,'EXDevLauncher.bundle')),'A pilot release must not depend on a development launcher.');
+execFileSync('/usr/bin/codesign',['--verify','--deep','--strict',app],{stdio:'pipe'});
+console.log(JSON.stringify({bundleIdentifier:info.CFBundleIdentifier,version:info.CFBundleShortVersionString,embeddedJSBytes:fs.statSync(bundle).size,signatureVerified:true,arbitraryHTTPLoads:false}));

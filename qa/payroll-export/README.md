@@ -27,3 +27,8 @@ Check closing, downloading the full CSV, a custom profile with employee numbers
 Custom CSV profiles are configurable mappings, not certified vendor import
 formats. Keep screenshots and downloaded synthetic files under ignored
 `outputs/`; never replace them with customer data.
+
+Use `node qa/payroll-export/server.mjs --missing` to include a third published
+shift without a registration. In the period drawer, enter confirmed times and a
+reason, save, then explicitly approve. The period must stay blocked between those
+two steps. After approval, expected totals are 180 minutes and 3,038,400 øre.

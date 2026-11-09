@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 const require=createRequire(import.meta.url),here=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(here,'../..'),studio=path.join(root,'sites/cleanrooms-studio');
 const esbuild=require(path.join(studio,'node_modules/esbuild'));
 const {createPayrollPeriodFixture}=require(path.join(studio,'tests/helpers/payroll-period-fixture.cjs'));
-const fixture=await createPayrollPeriodFixture({withPending:false});
+const fixture=await createPayrollPeriodFixture({withPending:false,withMissing:process.argv.includes('--missing')});
 const {handleMobileAuthRequest}=await import(path.join(studio,'lib/mobile-auth-route.mjs'));
 const {handleGatewayRequest}=await import(path.join(root,'sites/cleanrooms-app-api/worker/index.js'));
 const gatewayKey='d'.repeat(64),siteGate='isolated-payroll-reminder-qa';

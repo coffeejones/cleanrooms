@@ -1979,7 +1979,7 @@
   async function payrollPeriodAction(action,payload={}){
     if(!canViewPayroll())return {ok:false,status:403,message:'Din rolle har ikke adgang til løngrundlaget.'};
     const viewer=sessionViewer;
-    const result=await accountAction(action,payload);
+    const result=action==='timeWrite'?await timeCommand(action,payload):await accountAction(action,payload);
     if(viewer!==sessionViewer||!canViewPayroll())return {ok:false,status:403,message:'Kontoens adgang er ændret. Åbn lønperioden igen.'};
     return result;
   }

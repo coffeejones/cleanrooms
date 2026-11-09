@@ -31,3 +31,25 @@ test('older profile refreshes cannot replace a later saved export mapping',async
  pending[0]({ok:true,profiles:[{id:'custom',name:'Lønfil',version:2}]});await older;
  app.key('download').click();await flush();assert.equal(app.calls.find(call=>call.action==='payrollPeriodDownload').payload.profileVersion,3);app.panel.destroy();
 });
+
+
+test('a completely missing registration requires a reason and a separate explicit approval',async()=>{
+ let approved=false;const shift={shiftId:'forgotten',personId:'person-A',personName:'Freja',date:'2026-10-05',start:'07:00',end:'08:00',plannedBreakMinutes:0,siteName:'Kontor'},entry={id:'entry-forgotten',shiftId:'forgotten',personId:'person-A',version:1,status:'submitted',date:shift.date,start:shift.start,end:shift.end,endDate:shift.date,breakMinutes:0,correctionReason:'Bekræftet af teamleder'};
+ const app=setup((action,payload)=>{
+  if(action==='timeWrite'&&payload.operation==='correct'){assert.deepEqual(payload,{operation:'correct',shiftId:'forgotten',personId:'person-A',version:0,start:'07:00',end:'08:00',endDate:'2026-10-05',breakMinutes:0,reason:'Bekræftet af teamleder'});return{ok:true,entry};}
+  if(action==='timeWrite'&&payload.operation==='approve'){assert.deepEqual(payload,{operation:'approve',entryId:entry.id,version:1});approved=true;return{ok:true,entry:{...entry,status:'approved',version:2}};}
+  return frame({canClose:approved,blockers:approved?[]:[{code:'missing_registration',count:1,message:'Vagt mangler registrering'}],missingRegistrations:approved?[]:[shift],missingRegistrationCount:approved?0:1});
+ });
+ await flush();app.key('missing:forgotten').click();assert.equal(app.key('manual:save').disabled,true);const reason=app.key('manual:reason');reason.value='Bekræftet af teamleder';reason.fire('input');assert.equal(app.key('manual:save').disabled,false);app.key('manual:save').click();await flush();assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,1);assert.match(app.host.textContent,/Kontrollér registreringen/);assert.equal(app.key('finish').disabled,true);app.key('manual:approve').click();await flush();assert.equal(approved,true);assert.equal(app.key('finish').disabled,false);assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,2);app.panel.destroy();
+});
+
+test('missing registration forms are not available to payroll readers without management rights',async()=>{
+ const app=setup(()=>frame({canManage:false,canClose:false,missingRegistrationCount:1,missingRegistrations:[{shiftId:'forgotten',personId:'person-A',personName:'Freja',date:'2026-10-05',start:'07:00',end:'08:00'}]}));await flush();assert.equal(app.key('missing:forgotten'),undefined);assert.equal(app.calls.some(call=>call.action==='timeWrite'),false);app.panel.destroy();
+});
+
+
+test('a lost manual registration receipt never approves or blindly repeats the write',async()=>{
+ let committed=false;const shift={shiftId:'forgotten',personId:'person-A',personName:'Freja',date:'2026-10-05',start:'07:00',end:'08:00',plannedBreakMinutes:0,siteName:'Kontor'};
+ const app=setup(action=>{if(action==='timeWrite'){committed=true;throw Error('lost receipt');}return frame({canClose:false,blockers:[{code:committed?'unapproved':'missing_registration',count:1,message:committed?'Afventer godkendelse':'Mangler registrering'}],missingRegistrations:committed?[]:[shift],missingRegistrationCount:committed?0:1});});
+ await flush();app.key('missing:forgotten').click();const reason=app.key('manual:reason');reason.value='Bekræftet fremmøde';reason.fire('input');app.key('manual:save').click();await flush();assert.match(app.host.textContent,/Registreringen kan være gemt/);assert.equal(app.key('manual:approve'),undefined);assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,1);app.find('Hent perioden igen').click();await flush();assert.match(app.host.textContent,/Afventer godkendelse/);assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,1);assert.equal(app.key('finish').disabled,true);app.panel.destroy();
+});

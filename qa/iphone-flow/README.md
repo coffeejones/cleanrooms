@@ -146,10 +146,28 @@ En genstart indlæser den aktuelle backendkode og bevarer de syntetiske data. `.
 
 Harnessen er QA-værktøj, ikke en ny produktbackend, loginmetode, GPS-omgåelse, UI-mockup eller produktionsdeployment.
 
+## Separat pilotrunde
+
+`node qa/iphone-flow/server.mjs --pilot` starter en tredje, uafhængig fixture på **127.0.0.1:8793** med `.pilot-runtime`. Tilføj `--pilot` til CLI-kald, eksempelvis `node qa/iphone-flow/qa-cli.mjs --pilot review`, og brug `EXPO_PUBLIC_CLEANROOMS_AUTH_URL=http://127.0.0.1:8793` til den lokale native afprøvning. De eksisterende 8791- og 8792-forløb berøres ikke. Stop/genstart bevarer data; `--reset` er kun til en afsluttet, disponibel pilotrunde.
+
+Ekstra kontroller til fejl- og beskedforløb:
+
+```sh
+node qa/iphone-flow/qa-cli.mjs --pilot cancel '{"shiftId":"qa-distant-change"}'
+node qa/iphone-flow/qa-cli.mjs --pilot requests
+node qa/iphone-flow/qa-cli.mjs --pilot decide-request '{"requestId":"ID-fra-requests","decision":"approve"}'
+node qa/iphone-flow/qa-cli.mjs --pilot fault '{"afterCommit":"chatSend"}'
+node qa/iphone-flow/qa-cli.mjs --pilot fault '{"delayMs":1500}'
+node qa/iphone-flow/qa-cli.mjs --pilot fault '{"delayMs":0,"offline":false}'
+node qa/iphone-flow/qa-cli.mjs --pilot expire-session
+```
+
+`cancel` gemmer og udgiver aflysningen gennem de faktiske planhandlers. `decide-request` bruger planlæggerens aktuelle planrevision og anmodningens version. Den tabte chatkvittering sker efter faktisk commit; eksplicit retry skal bruge samme clientId og give samme besked. `expire-session` ændrer kun den syntetiske medarbejders sessionsudløb i den lokale fixturedatabase. Det er en kontrolleret sessionstest, ikke en ændring af telefonens eller Mac’ens ur.
+
 ## Separat automatisk HTTP-smoke
 
 ```sh
 node qa/iphone-flow/smoke.mjs
 ```
 
-Denne test starter sin egen server **kun på `127.0.0.1:8792`**, nulstiller alene `.smoke-runtime` og stopper serveren igen efter testen. Den berører aldrig 8791-fixturen eller telefonens konto. Den kontrollerer de rigtige HTTP-handlers for kladdeprivathed, udgivelse, fjernændringsbeskeder, tjeklister, GPS-indstempling, pause, udstempling med tabt kvittering, versionssikker genlæsning, retur/genindsendelse uden ændret klokkeevidens, godkendelse, frosset løn, chat-idempotens og offline recovery. Det er et supplement til telefonens manuelle UI-test, ikke et bevis for native rendering eller produktionsinfrastruktur.
+Denne test starter sin egen server **kun på `127.0.0.1:8792`**, nulstiller alene `.smoke-runtime` og stopper serveren igen efter testen. Den berører aldrig 8791- eller 8793-fixturen eller telefonens konto. Den kontrollerer de rigtige HTTP-handlers for kladdeprivathed, udgivelse, fjernændringsbeskeder, tjeklister, GPS-indstempling, pause, udstempling med tabt kvittering, versionssikker genlæsning, retur/genindsendelse uden ændret klokkeevidens, godkendelse, frosset løn, ledig vagt og planlæggergodkendelse, aflysning og indbakkedestination, chat-idempotens efter tabt kvittering, offline recovery samt udløbet session og nyt login. Det er et supplement til telefonens manuelle UI-test, ikke et bevis for native rendering eller produktionsinfrastruktur.

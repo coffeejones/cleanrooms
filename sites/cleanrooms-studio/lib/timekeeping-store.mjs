@@ -13,6 +13,16 @@ const summaryFields=e=>e?{start:e.start,end:e.end,endDate:e.endDate,breakMinutes
 const frozenPlan=shift=>Object.fromEntries(['id','person','date','site','start','end','endDate','plannedBreakMinutes'].filter(key=>shift[key]!==undefined).map(key=>[key,shift[key]]));
 const monday=value=>Time.addDays(value,-((new Date(value+'T12:00:00Z').getUTCDay()+6)%7));
 
+function hasFutureAttendance(entry,at){
+  const interval=Time.absoluteInterval(entry),instants=[interval?.start,interval?.end];
+  if(!entry.end)instants.push(Time.instantForLocal(entry.date,entry.start));
+  // The interval uses billing minutes. Preserve the stronger original evidence
+  // when a clocked or explicitly resolved timestamp contains seconds as well.
+  const fields=entry.timingResolved?['resolvedStartAt','resolvedEndAt']:entry.breakAllocation==='clocked'?['clockStartAt','clockEndAt']:[];
+  for(const field of fields)if(Time.validInstant(entry[field]))instants.push(Date.parse(entry[field]));
+  return instants.some(instant=>Number.isFinite(instant)&&instant>at);
+}
+
 const EARTH_RADIUS_METERS=6_371_000;
 const MAX_LOCATION_AGE_MS=30_000,MAX_CLOCK_SKEW_MS=5_000,MAX_LOCATION_ACCURACY_METERS=50;
 const radians=degrees=>degrees*Math.PI/180;
@@ -35,7 +45,7 @@ function checkClockInLocation(site,location,receivedAt,fail){
 }
 
 export async function handleTimekeepingAction({db,context,payload,principal,helpers:h}){
-  const caps=h.capabilities(context),manager=caps.plan,personId=context.member.personId,workspaceId=context.workspace.id,stamp=new Date().toISOString(),local=Time.localNow();
+  const caps=h.capabilities(context),manager=caps.plan,personId=context.member.personId,workspaceId=context.workspace.id,stamp=new Date().toISOString(),local=Time.localNow(new Date(stamp));
   if(!manager&&!personId)h.fail(403,'time_forbidden','Kontoen skal være knyttet til en medarbejder.');
   const range={from:payload.from||monday(local.date),to:payload.to||Time.addDays(monday(local.date),6)};
   if(!Time.validDate(range.from)||!Time.validDate(range.to)||range.to<range.from||(Date.parse(range.to)-Date.parse(range.from))/86400000>366)h.fail(400,'time_range_invalid','Vælg en periode på højst ét år.');
@@ -231,6 +241,7 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   if(payload.comment!==undefined&&['finish','correct'].includes(operation))entry.comment=payload.comment.trim();
   if(isDemo)entry.lastClockOffset=point.offset;
   const errors=Time.validate(entry,{allowOpen:['running','paused','rejected'].includes(entry.status)});if(errors.length)h.fail(400,'time_validation',errors[0]);
+  if(!isDemo&&['correct','approve'].includes(operation)&&hasFutureAttendance(entry,Date.parse(stamp)))h.fail(400,'time_future_entry','Registrerede start- og sluttider må ikke ligge i fremtiden.');
   const interval=entryInterval(entry);
   if(interval&&['submitted','approved'].includes(entry.status)&&await h.first(db,'SELECT id FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND work_date >= ? AND work_date <= ? AND id <> ? AND interval_start < ? AND interval_end > ? LIMIT 1',workspaceId,entry.personId,isDemo?1:0,Time.addDays(entry.date,-2),Time.addDays(entry.date,2),entry.id,interval.end,interval.start))h.fail(409,'time_overlap','Registreringen overlapper en anden registrering for medarbejderen.');
   let rateBundle=null;if(operation==='approve'){const salaryResult=await salary(entry);entry.payroll=salaryResult.snapshot;entry.approvalHistory=[...(entry.approvalHistory||[]),{at:stamp,actor:clone(entry.approvedBy),snapshot:clone(entry.payroll)}];rateBundle=salaryResult.bundle;}

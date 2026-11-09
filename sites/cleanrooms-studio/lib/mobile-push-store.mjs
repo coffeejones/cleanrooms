@@ -141,13 +141,34 @@ export async function handleMobilePush(db, token, session, payload, { projectId 
     return { queued: true };
   }
   if (payload.action !== 'employeePushOpen' || typeof payload.eventId !== 'string' || !pushEventId.test(payload.eventId)) fail(400, 'mobile_push_invalid', 'Notifikationen er ugyldig.');
-  const event = await pushFirst(db, `SELECT event.* FROM workspace_push_deliveries delivery JOIN workspace_push_events event ON event.event_id=delivery.event_id
+  const event = await pushFirst(db, `SELECT event.*,delivery.binding_id AS opened_binding_id FROM workspace_push_deliveries delivery JOIN workspace_push_events event ON event.event_id=delivery.event_id
     JOIN workspace_push_devices device ON device.installation_id=delivery.installation_id AND device.workspace_id=delivery.workspace_id AND device.person_id=delivery.person_id AND device.active=1 AND device.binding_id=delivery.binding_id
     WHERE delivery.event_id=? AND delivery.installation_id=? AND delivery.workspace_id=? AND delivery.person_id=? AND device.session_hash=? AND ${guard.sql}`,
     payload.eventId, installationId, workspaceId, personId, session.tokenHash, ...guard.values);
   const target = event ? await pushTarget(db, event, personId) : null;
+  let acknowledged = true;
+  if (target && event.source_kind === 'shift') {
+    // This RPC is called for an explicit banner tap, never a delivery receipt.
+    // Share the employee's read acknowledgement with the planner even when the
+    // destination is the shift page and the inbox screen is never opened.
+    await db.batch([pushQuery(db, `INSERT INTO workspace_message_receipts(workspace_id,message_id,person_id,read_at)
+      SELECT message.workspace_id,message.id,message.person_id,COALESCE(json_extract(message.config,'$.readAt'),?)
+      FROM workspace_shift_messages message WHERE message.workspace_id=? AND message.id=? AND message.person_id=?
+        AND ${guard.sql} AND EXISTS(SELECT 1 FROM workspace_push_deliveries delivery
+          JOIN workspace_push_events event ON event.event_id=delivery.event_id AND event.source_kind='shift'
+            AND event.source_id=message.id AND event.workspace_id=message.workspace_id AND event.person_id=message.person_id
+          JOIN workspace_push_devices device ON device.installation_id=delivery.installation_id
+            AND device.workspace_id=delivery.workspace_id AND device.person_id=delivery.person_id
+            AND device.binding_id=delivery.binding_id AND device.active=1
+          WHERE delivery.event_id=? AND delivery.installation_id=? AND delivery.workspace_id=? AND delivery.person_id=?
+            AND device.session_hash=? AND device.binding_id=?)
+      ON CONFLICT(workspace_id,message_id) DO NOTHING`,
+      new Date(now).toISOString(), workspaceId, event.source_id, personId, ...guard.values,
+      payload.eventId, installationId, workspaceId, personId, session.tokenHash, event.opened_binding_id)]);
+    acknowledged = Boolean(await pushFirst(db, 'SELECT 1 valid FROM workspace_message_receipts WHERE workspace_id=? AND message_id=? AND person_id=?', workspaceId, event.source_id, personId));
+  }
   await readMobileSession({ db, token });
-  if (!target || !await pushFirst(db, `SELECT 1 valid FROM workspace_push_devices WHERE installation_id=? AND workspace_id=? AND person_id=? AND session_hash=? AND active=1`, installationId, workspaceId, personId, session.tokenHash)) fail(404, 'mobile_push_missing', 'Notifikationen er ikke tilgængelig for denne konto.');
+  if (!target || !acknowledged || !await pushFirst(db, `SELECT 1 valid FROM workspace_push_devices WHERE installation_id=? AND workspace_id=? AND person_id=? AND session_hash=? AND binding_id=? AND active=1`, installationId, workspaceId, personId, session.tokenHash, event.opened_binding_id)) fail(404, 'mobile_push_missing', 'Notifikationen er ikke tilgængelig for denne konto.');
   return { target };
 }
 

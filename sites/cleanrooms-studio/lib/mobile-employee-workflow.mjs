@@ -59,10 +59,9 @@ export async function handleMobileEmployeeWorkflow(db, token, session, payload) 
     }
     result = await handleAbsenceAction({ db, context, payload: normalized, principal, helpers });
   } else {
-    if (normalized.from === undefined && normalized.to === undefined) {
-      normalized.from = Time.localNow().date;
-      normalized.to = Time.addDays(normalized.from, 55);
-    }
+    // The inbox's pending requests are independent of the current calendar
+    // window. The shared store still pages requests and future shift summaries
+    // by limit/cursor, while an explicit caller-supplied period remains scoped.
     result = await handleShiftWorkflowAction({ db, context, payload: normalized, principal, helpers });
   }
   await helpers.assertContext();

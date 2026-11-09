@@ -37,8 +37,13 @@ export async function handleMobileInbox(db, token, session, payload) {
   const workspaceId = context.workspace.id, personId = context.member.personId;
   if (payload.action === 'employeeInboxRead') {
     if (!readable(payload.messageId, 512)) fail(400, 'employee_message_invalid', 'Vælg en gyldig besked.');
-    const message = await first(db, `SELECT id,json_extract(config,'$.readAt') AS legacy_read FROM workspace_shift_messages
-      WHERE workspace_id=? AND id=? AND person_id=?`, workspaceId, payload.messageId, personId);
+    const message = await first(db, `SELECT message.id,json_extract(message.config,'$.readAt') AS legacy_read,
+      CASE WHEN message.kind IN ('new','changed','moved') THEN (
+        SELECT published.id FROM workspace_published_shifts published
+        WHERE published.workspace_id=message.workspace_id AND published.person_id=message.person_id
+          AND published.id=json_extract(message.config,'$.after.id') AND published.deleted=0
+      ) END AS target_shift_id FROM workspace_shift_messages message
+      WHERE message.workspace_id=? AND message.id=? AND message.person_id=?`, workspaceId, payload.messageId, personId);
     if (!message) fail(404, 'workflow_message_missing', 'Beskeden findes ikke på din konto.');
     const guard = helpers.actorGuard(), stamp = new Date().toISOString();
     await db.batch([query(db, `INSERT INTO workspace_message_receipts(workspace_id,message_id,person_id,read_at)
@@ -50,7 +55,11 @@ export async function handleMobileInbox(db, token, session, payload) {
     const count = await first(db, ownUnread, workspaceId, personId);
     await helpers.assertContext();
     if (!receipt) fail(409, 'employee_message_changed', 'Beskeden er ændret. Hent den igen.');
-    return { messageId: message.id, readAt: receipt.read_at, unreadCount: Number(count?.n ?? 0) };
+    // A notification is history, not authority to open its former assignment.
+    // Return a fresh point-key destination alongside the idempotent receipt so
+    // even an already-read event cannot send the app to a removed/handed-off shift.
+    return { messageId: message.id, readAt: receipt.read_at, unreadCount: Number(count?.n ?? 0),
+      target: message.target_shift_id ? { kind: 'shift', shiftId: message.target_shift_id } : { kind: 'inbox' } };
   }
   if (payload.action !== 'employeeInbox') fail(400, 'employee_inbox_action_invalid', 'Vælg en gyldig beskedhandling.');
   if (!Number.isInteger(payload.limit) || payload.limit < 1 || payload.limit > 100) fail(400, 'employee_inbox_limit_invalid', 'Vælg højst 100 beskeder ad gangen.');

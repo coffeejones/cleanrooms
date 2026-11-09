@@ -72,7 +72,8 @@ async function route(request, env, requestStudio, requestId) {
       method: 'POST', headers: upstreamHeaders, body, redirect: 'manual', signal: AbortSignal.timeout(10_000),
     });
     const type = upstream.headers.get('content-type') ?? '';
-    if (!/^application\/json(?:\s*;|$)/i.test(type) || upstream.status === 404 || upstream.status >= 500) {
+    const apiNotFound = upstream.status === 404 && upstream.headers.get('x-request-id') === requestId;
+    if (!/^application\/json(?:\s*;|$)/i.test(type) || upstream.status === 404 && !apiNotFound || upstream.status >= 500) {
       return unavailable();
     }
     const responseHeaders = new Headers({ ...headers, 'Content-Type': 'application/json' });

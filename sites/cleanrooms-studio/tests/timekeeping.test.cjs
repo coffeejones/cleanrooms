@@ -153,6 +153,40 @@ test('planned pauses are never filled into the actual registration or used to hi
   const manual=await action(db,'timeWrite',{operation:'approve',entryId:entry.id,version:entry.version});assert.equal(manual.status,200);assert.equal(manual.body.entry.payroll.baseCents,158400,'Only actual pauses affect wages.');db.sqlite.close();
 });
 
+test('manager corrections cannot create future starts or checkouts on an otherwise valid work date',async t=>{
+  const {db}=await setup();t.after(()=>db.sqlite.close());
+  t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-26T06:00:00Z')});
+  for(const patch of [
+    {start:'07:00',end:'15:00',endDate:'2026-10-26',breakMinutes:0},
+    {start:'07:01',end:null,breakMinutes:0},
+    {start:'23:00',end:'01:00',endDate:'2026-10-27',breakMinutes:0},
+  ]){
+    const result=await correct(db,patch);assert.equal(result.status,400,JSON.stringify(result));
+    assert.equal(result.body.error,'time_future_entry');
+    assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_time_entries').get().n,0);
+  }
+  // A real overnight correction remains possible once its checkout has passed.
+  t.mock.timers.setTime(Date.parse('2026-10-26T23:10:00Z'));
+  const overnight=await correct(db,{start:'23:00',end:'00:00',endDate:'2026-10-27',breakMinutes:0});
+  assert.equal(overnight.status,200,JSON.stringify(overnight));assert.equal(overnight.body.entry.workedMinutes,60);
+});
+
+test('legacy future submissions cannot freeze pay until their recorded checkout has occurred',async t=>{
+  const {db,workspace}=await setup();t.after(()=>db.sqlite.close());await configure(db,workspace);
+  t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-26T14:00:00Z')});
+  const submitted=await correct(db,{breakMinutes:0});assert.equal(submitted.status,200,JSON.stringify(submitted));
+  const entry=submitted.body.entry,before=db.sqlite.prepare('SELECT config FROM workspace_time_entries WHERE id=?').get(entry.id).config;
+  // Model a legacy forward-dated row without changing the host clock or source plan.
+  t.mock.timers.setTime(Date.parse('2026-10-26T06:00:00Z'));
+  const refused=await action(db,'timeWrite',{operation:'approve',entryId:entry.id,version:entry.version});
+  assert.equal(refused.status,400,JSON.stringify(refused));assert.equal(refused.body.error,'time_future_entry');
+  assert.equal(db.sqlite.prepare('SELECT config FROM workspace_time_entries WHERE id=?').get(entry.id).config,before);
+  t.mock.timers.setTime(Date.parse('2026-10-26T14:00:00Z'));
+  const approved=await action(db,'timeWrite',{operation:'approve',entryId:entry.id,version:entry.version});
+  assert.equal(approved.status,200,JSON.stringify(approved));assert.equal(approved.body.entry.status,'approved');
+  assert.ok(approved.body.entry.payroll.totalCents>0);
+});
+
 test('review explains pauses and corrections once and fails closed on DST, overlap and unknown flags',()=>{
   const result=Time.review(reviewEntry({start:'07:20',breakMinutes:75,workedMinutes:385,correctionReason:'Kontrolleret',flags:['late_start','long_break','corrected','dst_transition']}),{shift:reviewShift});
   assert.equal(result.bucket,'attention');assert.equal(result.priority,100);assert.equal(result.reasons[0].code,'dst_transition');

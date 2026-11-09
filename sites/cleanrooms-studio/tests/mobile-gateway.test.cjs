@@ -22,3 +22,18 @@ test('gateway discards invalid and excessive Retry-After values', async () => {
     assert.equal(response.headers.get('retry-after'), null);
   }
 });
+
+test('gateway preserves an authenticated API not-found without exposing framework or Site gate failures', async () => {
+  for (const marker of ['matching', 'missing', 'forged']) {
+    const response = await handleGatewayRequest(request(), env, async (_url, options) => Response.json({ error: 'mobile_inbox_not_found' }, {
+      status: 404, headers: marker === 'matching' ? { 'X-Request-Id': options.headers.get('x-request-id') } : marker === 'forged' ? { 'X-Request-Id': 'forged' } : {},
+    }));
+    assert.equal(response.status, marker === 'matching' ? 404 : 503);
+    assert.equal((await response.json()).error, marker === 'matching' ? 'mobile_inbox_not_found' : 'mobile_unavailable');
+  }
+  const html = await handleGatewayRequest(request(), env, async (_url, options) => new Response('<h1>Site gate</h1>', {
+    status: 404, headers: { 'Content-Type': 'text/html', 'X-Request-Id': options.headers.get('x-request-id') },
+  }));
+  assert.equal(html.status, 503);
+  assert.equal((await html.json()).error, 'mobile_unavailable');
+});

@@ -206,7 +206,10 @@ export async function readMobileHours(db, employee, { from, to }) {
         clockIn: entry.clockStartAt ?? null, clockOut: entry.clockEndAt ?? null, pauseAt: entry.pauseAt ?? null,
         comment: '', hasComment:entry.hasComment, commentDeferred:entry.hasComment,
         rejectionReason: entry.rejectionReason,rejectionReasonDeferred:entry.rejectionReasonDeferred } : null,
-      pay: { kind: actualClip ? 'registered' : 'planned', minutes: chosenClip.minutes, ...amount }, sourceLabel,
+      pay: { kind: actualClip ? 'registered' : 'planned', minutes: chosenClip.minutes, ...amount,
+        // Use the same corrected/clipped interval as the amount. Original clock
+        // evidence above deliberately remains unchanged after a planner edit.
+        ...(actualClip ? { interval: { startAt: actualClip.entry.resolvedStartAt, endAt: actualClip.entry.resolvedEndAt } } : {}) }, sourceLabel,
     });
   }
   const monthlyLines = monthlyPay(resolved, from, to);

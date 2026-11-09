@@ -1976,10 +1976,17 @@
     timeDemoEmployee=true;timeLoadedKey='';state.employeePerson=personId;state.employeeDate=demo.demoClockDate||demo.clockDate||demo.from;
     state.employeeWeek=staffingMonday(state.employeeDate);state.employeeView='week';state.employeeShift=null;state.role='employee';render();save();
   }
+  async function payrollPeriodAction(action,payload={}){
+    if(!canViewPayroll())return {ok:false,status:403,message:'Din rolle har ikke adgang til løngrundlaget.'};
+    const viewer=sessionViewer;
+    const result=await accountAction(action,payload);
+    if(viewer!==sessionViewer||!canViewPayroll())return {ok:false,status:403,message:'Kontoens adgang er ændret. Åbn lønperioden igen.'};
+    return result;
+  }
   function renderHours(){
     if(!timeElement?.isConnected){
       timeView?.destroy?.();timeElement=node('div','cs-timekeeping-host');timeElement.id='cs-timekeeping-page';q('#cs-page-content').replaceChildren(timeElement);
-      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onRefresh:()=>loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
+      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=>loadTimekeeping(true),onRefresh:()=>loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
     }
     loadTimekeeping();
     const current=timeLoadedKey===timeKey(),plannedByPerson=new Map((current?timeState.plannedRows:[]).map(row=>[row.personId,row.plannedMinutes]));

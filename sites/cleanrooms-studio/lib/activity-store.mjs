@@ -105,6 +105,7 @@ export async function readActivity({db,context,payload,helpers:h}){
   const clauses=['workspace_id = ?'],values=[context.workspace.id],add=(sql,value)=>{clauses.push(sql);values.push(value);};
   const caps=h.capabilities(context),canReadAccess=caps.manageUsers||caps.manageRoles;
   if(!canReadAccess)clauses.push("kind <> 'access'");
+  if(!caps.viewPayroll)clauses.push("kind <> 'payroll'");
   if(filters.from)add('at >= ?',dayStart(filters.from));
   if(filters.to)add('at < ?',dayStart(Time.addDays(filters.to,1)));
   if(filters.actorId&&filters.actorId!=='all')add('actor_id = ?',filters.actorId);
@@ -117,7 +118,7 @@ export async function readActivity({db,context,payload,helpers:h}){
   }
   if(cursor){clauses.push('(at < ? OR (at = ? AND id < ?))');values.push(cursor[0],cursor[0],cursor[1]);}
   const result=await h.rows(db,`SELECT id,at,entry FROM workspace_activity WHERE ${clauses.join(' AND ')} ORDER BY at DESC,id DESC LIMIT ?`,...values,limit+1);
-  const actors=await h.rows(db,"SELECT actor_id AS userId,MAX(actor_name) AS name FROM workspace_activity WHERE workspace_id = ?"+(canReadAccess?'':" AND kind <> 'access'")+" GROUP BY actor_id ORDER BY name,actor_id",context.workspace.id);
+  const actors=await h.rows(db,"SELECT actor_id AS userId,MAX(actor_name) AS name FROM workspace_activity WHERE workspace_id = ?"+(canReadAccess?'':" AND kind <> 'access'")+(caps.viewPayroll?'':" AND kind <> 'payroll'")+" GROUP BY actor_id ORDER BY name,actor_id",context.workspace.id);
   await h.assertContext(db,context);
   const hasMore=result.length>limit,selected=result.slice(0,limit),last=selected.at(-1);
   return {entries:selected.map(item=>JSON.parse(item.entry)),hasMore,nextCursor:hasMore&&last?btoa(JSON.stringify([last.at,last.id])):null,actors,legacyNotice:'Ældre historik omfatter de poster, der stadig var bevaret ved opdateringen. Nye handlinger gemmes løbende i det samlede historikarkiv.'};

@@ -1,6 +1,7 @@
 /* Device addresses are capabilities: keep them server-side, bound to the native session. */
 import { StudioError } from './studio-store.mjs';
 import { readMobileSession } from './mobile-auth-store.mjs';
+import { readReminderStates, reminderKinds, reminderPreferences } from './shift-reminders.mjs';
 
 export const pushUuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 export const pushEventId = /^[a-f0-9]{32}$/;
@@ -34,13 +35,15 @@ export async function pushTarget(db, event, personId, { forDelivery = false } = 
     WHERE employee.workspace_id=? AND employee.kind='employee' AND employee.id=? AND employee.active=1 AND employee.deleted=0 LIMIT 1`, event.workspace_id, personId);
   const employee = people[0];
   if (!employee || employee.ambiguous) return null;
-  let preferences = { notifications: true, chatNotifications: true };
+  let preferences = { notifications: true, chatNotifications: true, shiftReminders: false, checkoutReminders: false, reminderLeadMinutes: 30 };
   if (employee.preferences !== null) {
     try { preferences = JSON.parse(employee.preferences); } catch { return null; }
     if (typeof preferences?.notifications !== 'boolean' || typeof preferences?.chatNotifications !== 'boolean') return null;
   }
+  const reminders = reminderPreferences(preferences);
+  const anyNotifications = preferences.notifications || preferences.chatNotifications || reminders?.shiftReminders || reminders?.checkoutReminders;
   const userId = employee.user_id ?? 'mobile-employee:' + personId;
-  if (event.source_kind === 'test') return event.person_id === personId && (!forDelivery || preferences.notifications || preferences.chatNotifications) ? { kind: 'inbox' } : null;
+  if (event.source_kind === 'test') return event.person_id === personId && (!forDelivery || anyNotifications) ? { kind: 'inbox' } : null;
   if (event.source_kind === 'chat') {
     if (forDelivery && !preferences.chatNotifications) return null;
     const source = await pushFirst(db, `SELECT message.seq,message.author_id,COALESCE(reader.muted,0) muted,COALESCE(reader.last_read_seq,0) read_seq
@@ -54,7 +57,7 @@ export async function pushTarget(db, event, personId, { forDelivery = false } = 
     if (!source || forDelivery && (source.author_id === userId || source.muted || source.read_seq >= source.seq)) return null;
     return { kind: 'chat', roomId: event.room_id };
   }
-  if (event.source_kind !== 'shift' || event.person_id !== personId || forDelivery && !preferences.notifications) return null;
+  if (event.source_kind !== 'shift' || event.person_id !== personId) return null;
   const source = await pushFirst(db, `SELECT message.kind,message.config,receipt.read_at FROM workspace_shift_messages message
     LEFT JOIN workspace_message_receipts receipt ON receipt.workspace_id=message.workspace_id AND receipt.message_id=message.id AND receipt.person_id=message.person_id
     WHERE message.workspace_id=? AND message.id=? AND message.person_id=?`, event.workspace_id, event.source_id, personId);
@@ -62,6 +65,13 @@ export async function pushTarget(db, event, personId, { forDelivery = false } = 
   let message;
   try { message = JSON.parse(source.config); } catch { return null; }
   if (message?.personId !== personId || forDelivery && (source.read_at || message.readAt)) return null;
+  if (reminderKinds.includes(source.kind)) {
+    if (typeof message.reminderId !== 'string' || !/^[a-f0-9]{64}$/.test(message.reminderId)) return null;
+    const valid = await readReminderStates(db, [{ workspace: event.workspace_id, id: message.reminderId, person: personId }], Date.now(), { forDelivery });
+    const shiftId = valid.get(event.workspace_id + ':' + message.reminderId + ':' + personId)?.shiftId;
+    return shiftId ? { kind: 'shift', shiftId } : forDelivery ? null : { kind: 'inbox' };
+  }
+  if (forDelivery && !preferences.notifications) return null;
   if (source.kind === 'cancelled') return { kind: 'inbox' };
   if (!['new', 'changed', 'moved', 'request'].includes(source.kind)) return null;
   const shiftId = message.after?.id;
@@ -185,9 +195,10 @@ export async function readPushDeliveryTargets(db, deliveries, projectId, now, { 
     device.version device_version,device.binding_id,device.expo_token,
     CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.notifications')='true' END notifications,
     CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.chatNotifications')='true' END chat_notifications,
+    preferences.config reminder_preferences_config,json_type(${preferencesJson},'$.shiftReminders')='true' shift_reminders,json_type(${preferencesJson},'$.checkoutReminders')='true' checkout_reminders,
     CASE WHEN preferences.person_id IS NULL THEN 1 ELSE json_type(${preferencesJson},'$.notifications') IN ('true','false') AND json_type(${preferencesJson},'$.chatNotifications') IN ('true','false') END valid_preferences,
     EXISTS(SELECT 1 FROM workspace_members member WHERE member.workspace_id=device.workspace_id AND member.person_id=device.person_id ORDER BY member.user_id LIMIT 1 OFFSET 1) ambiguous,
-    message.kind message_kind,json_extract(${messageJson},'$.personId') message_person,
+    json_extract(${messageJson},'$.reminderId') reminder_id,message.kind message_kind,json_extract(${messageJson},'$.personId') message_person,
     COALESCE(receipt.read_at,json_extract(${messageJson},'$.readAt')) read_at,
     json_extract(${messageJson},'$.after.fingerprint') after_fingerprint,published.workflow_fingerprint current_fingerprint,published.id published_id,
     request.id request_id,chat.id chat_id,chat.seq chat_seq,chat.author_id chat_author,${identity} user_id,
@@ -211,13 +222,21 @@ export async function readPushDeliveryTargets(db, deliveries, projectId, now, { 
     WHERE delivery.event_id=json_extract(selected.value,'$.event') AND delivery.installation_id=json_extract(selected.value,'$.installation')
       ${leaseToken ? "AND device.version=delivery.device_version AND device.binding_id=delivery.binding_id AND delivery.status='sending' AND delivery.lease_token=json_extract(selected.value,'$.lease') AND delivery.lease_until>=? AND EXISTS(SELECT 1 FROM workspace_push_dispatch_state dispatch WHERE dispatch.id='expo' AND dispatch.lease_token=? AND dispatch.lease_until>=?)" : "AND delivery.status='pending'"}
     LIMIT 50`, document, projectId, now, ...(leaseToken ? [now + 10_000, leaseToken, now + 10_000] : []));
-  return loaded.filter(row => {
+  const eligible = loaded.filter(row => {
     if (row.ambiguous || row.event_created_at < now - 24 * 60 * 60_000 || row.event_created_at > now + 60_000) return false;
-    if (row.source_kind === 'test') return row.valid_preferences === 1 && (row.notifications === 1 || row.chat_notifications === 1) && row.event_person === row.person_id;
+    if (row.source_kind === 'test') {
+      let reminders = null;try { reminders = reminderPreferences(JSON.parse(row.reminder_preferences_config ?? '{}')); } catch { /* Fail closed for malformed preferences. */ }
+      return row.valid_preferences === 1 && (row.notifications === 1 || row.chat_notifications === 1 || reminders && (reminders.shiftReminders || reminders.checkoutReminders)) && row.event_person === row.person_id;
+    }
     if (row.source_kind === 'chat') return row.chat_notifications === 1 && row.chat_id && row.in_department === 1 && row.chat_author !== row.user_id && !row.muted && row.read_seq < row.chat_seq;
+    if (reminderKinds.includes(row.message_kind)) return row.valid_preferences === 1 && row.event_person === row.person_id && row.message_person === row.person_id && !row.read_at && typeof row.reminder_id === 'string' && /^[a-f0-9]{64}$/.test(row.reminder_id);
     if (row.notifications !== 1 || row.event_person !== row.person_id || row.message_person !== row.person_id || row.read_at) return false;
     if (row.message_kind === 'cancelled') return true;
     if (row.message_kind === 'request') return Boolean(row.request_id);
     return ['new','changed','moved'].includes(row.message_kind) && Boolean(row.published_id) && (!row.after_fingerprint || row.current_fingerprint === row.after_fingerprint);
   });
+  const reminders = eligible.filter(row => reminderKinds.includes(row.message_kind));
+  const valid = await readReminderStates(db, reminders.map(row => ({ workspace: row.workspace_id, id: row.reminder_id, person: row.person_id })), now);
+  return eligible.filter(row => !reminderKinds.includes(row.message_kind) || valid.has(row.workspace_id + ':' + row.reminder_id + ':' + row.person_id))
+    .map(row => reminderKinds.includes(row.message_kind) ? { ...row, reminder_expires_at: valid.get(row.workspace_id + ':' + row.reminder_id + ':' + row.person_id).expiresAt } : row);
 }

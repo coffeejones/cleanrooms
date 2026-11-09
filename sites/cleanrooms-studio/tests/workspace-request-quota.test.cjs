@@ -46,3 +46,30 @@ test('quota reservation rollback and a concurrently revoked member leave no coun
  const denied=await call('chatSend',{roomId:room.id,clientId:'revoked',text:'Denied'},two);assert.ok(revoked);assert.equal(denied.status,403,JSON.stringify(denied));
  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM workspace_chat_messages WHERE workspace_id=?').get(workspaceId).n,1);
 });
+
+
+test('payroll preview and closing share a bounded company budget, independently of clocking and full-file export pages',async t=>{
+ const {call,sqlite,workspaceId}=await setup(t);
+ const preview=await call('payrollPeriodRead',{});assert.equal(preview.status,200,JSON.stringify(preview));
+ const personal=hash(`web-action:v1:${workspaceId}:${owner.id}:payroll-period`),shared=hash(`web-action:v1:${workspaceId}:payroll-period`);
+ assert.equal(sqlite.prepare('SELECT attempts FROM workspace_mobile_auth_attempts WHERE scope_hash=?').get(personal).attempts,1);
+ sqlite.prepare('UPDATE workspace_mobile_auth_attempts SET attempts=30 WHERE scope_hash=?').run(personal);
+ for(const action of ['payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen']){const result=await call(action,{});assert.equal(result.status,429,action);assert.equal(result.retry,'60');}
+ assert.equal(sqlite.prepare('SELECT attempts FROM workspace_mobile_auth_attempts WHERE scope_hash=?').get(shared).attempts,1,'personal exhaustion does not spend company capacity');
+ const clock=await call('timeWrite',{operation:'finish',shiftId:'missing',version:0});assert.notEqual(clock.status,429);
+ const read=await call('timeRead',{from:'2026-11-02',to:'2026-11-08'});assert.equal(read.status,200);
+ const payload={from:preview.body.from,to:preview.body.to,revision:1,limit:500};
+ for(let index=0;index<300;index++){const page=await call('payrollPeriodExport',payload);assert.notEqual(page.status,429,'up to300 bounded pages remain available independently of the exhausted preview allowance');}
+ const blocked=await call('payrollPeriodExport',payload);assert.equal(blocked.status,429);assert.equal(blocked.retry,'60');
+});
+
+test('forbidden payroll callers cannot consume another payroll users company budget and tenants remain isolated',async t=>{
+ const {call,sqlite,workspaceId,db,studio}=await setup(t);
+ const preview=await call('payrollPeriodRead',{});assert.equal(preview.status,200);
+ const shared=hash(`web-action:v1:${workspaceId}:payroll-period`);
+ for(let i=0;i<40;i++){assert.equal((await call('payrollPeriodRead',{},one)).status,403);assert.equal((await call('payrollPeriodClose',{},one)).status,403);}
+ assert.equal(sqlite.prepare('SELECT attempts FROM workspace_mobile_auth_attempts WHERE scope_hash=?').get(shared).attempts,1);
+ const unprivileged=hash(`web-action:v1:${workspaceId}:${one.id}:payroll-period`);assert.equal(sqlite.prepare('SELECT attempts FROM workspace_mobile_auth_attempts WHERE scope_hash=?').get(unprivileged),undefined);
+ sqlite.prepare('UPDATE workspace_mobile_auth_attempts SET attempts=120 WHERE scope_hash=?').run(shared);assert.equal((await call('payrollPeriodRead',{})).status,429);
+ const foreign={id:'quota-other-payroll-owner',email:'other-payroll@example.test'};await Store.writeStudio(db,foreign.id,0,studio);assert.equal((await call('payrollPeriodRead',{},foreign)).status,200);
+});

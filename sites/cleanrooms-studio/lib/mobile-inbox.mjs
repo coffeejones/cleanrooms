@@ -38,7 +38,7 @@ export async function handleMobileInbox(db, token, session, payload) {
   if (payload.action === 'employeeInboxRead') {
     if (!readable(payload.messageId, 512)) fail(400, 'employee_message_invalid', 'Vælg en gyldig besked.');
     const message = await first(db, `SELECT message.id,json_extract(message.config,'$.readAt') AS legacy_read,
-      CASE WHEN message.kind IN ('new','changed','moved') THEN (
+      CASE WHEN message.kind IN ('new','changed','moved','reminder','checkout_reminder') THEN (
         SELECT published.id FROM workspace_published_shifts published
         WHERE published.workspace_id=message.workspace_id AND published.person_id=message.person_id
           AND published.id=json_extract(message.config,'$.after.id') AND published.deleted=0
@@ -99,7 +99,7 @@ export async function handleMobileInbox(db, token, session, payload) {
   const notifications = selected.map(header => {
     let message; try { message = JSON.parse(messages.get(header.id)); } catch { fail(503, 'employee_inbox_invalid', 'Beskeden kunne ikke læses sikkert.'); }
     if (message.id !== header.id || message.personId !== personId || message.createdAt !== header.created_at
-      || typeof message.summary!=='string'||!['new','changed','moved','cancelled','request'].includes(message.kind)) fail(503, 'employee_inbox_invalid', 'Beskeden kunne ikke læses sikkert.');
+      || typeof message.summary!=='string'||!['new','changed','moved','cancelled','request','reminder','checkout_reminder'].includes(message.kind)) fail(503, 'employee_inbox_invalid', 'Beskeden kunne ikke læses sikkert.');
     return { id: message.id, kind: message.kind, before: safeShift(message.before), after: safeShift(message.after),
       summary: message.summary, createdAt: message.createdAt, readAt: header.read_at ?? null,
       ...(message.requestId ? { requestId: message.requestId } : {}) };

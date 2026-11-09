@@ -5,11 +5,12 @@ import { handleChecklistAction, readChecklistProgress } from './engagement-store
 import Checklist from '../src/checklist-progress.js';
 import Time from '../src/timekeeping-model.js';
 import { createHash } from 'node:crypto';
+import { reminderPreferences } from './shift-reminders.mjs';
 
 const fail = (status, code, message) => { throw new StudioError(status, code, message); };
 const query = (db, sql, ...values) => db.prepare(sql).bind(...values);
 const first = async (db, sql, ...values) => (await db.batch([query(db, sql, ...values)]))[0]?.results?.[0] ?? null;
-const defaults = () => ({ version: 0, notifications: true, chatNotifications: true, unavailableDates: [] });
+const defaults = () => ({ version: 0, notifications: true, chatNotifications: true, shiftReminders: false, checkoutReminders: false, reminderLeadMinutes: 30, unavailableDates: [] });
 const checklistToken = view => createHash('sha256').update(view.signature).digest('hex');
 
 async function preferences(db, { workspaceId, personId }) {
@@ -19,7 +20,9 @@ async function preferences(db, { workspaceId, personId }) {
   try { config = JSON.parse(row.config); } catch { fail(503, 'employee_preferences_invalid', 'Indstillingerne kunne ikke læses. Prøv igen.'); }
   if (typeof config?.notifications !== 'boolean' || typeof config?.chatNotifications !== 'boolean' || !Array.isArray(config.unavailableDates)
     || config.unavailableDates.some(date => !Time.validDate(date))) fail(503, 'employee_preferences_invalid', 'Indstillingerne kunne ikke læses. Prøv igen.');
-  return { ...config, version: row.version };
+  const reminders = reminderPreferences(config);
+  if (!reminders) fail(503, 'employee_preferences_invalid', 'Indstillingerne kunne ikke læses. Prøv igen.');
+  return { ...config, ...reminders, version: row.version };
 }
 
 export async function handleMobileEmployeeState(db, token, session, payload) {
@@ -35,7 +38,7 @@ export async function handleMobileEmployeeState(db, token, session, payload) {
     if (!Number.isSafeInteger(payload.version) || payload.version !== current.version) fail(409, 'employee_preferences_changed', 'Indstillingerne er ændret. Hent dem igen.');
     const { version, ...next } = current;
     if (payload.action === 'employeePreference') {
-      if (!['notifications', 'chatNotifications'].includes(payload.key) || typeof payload.value !== 'boolean') fail(400, 'employee_preference_invalid', 'Vælg en gyldig indstilling.');
+      if (payload.key === 'reminderLeadMinutes' ? ![15, 30, 60].includes(payload.value) : !['notifications', 'chatNotifications', 'shiftReminders', 'checkoutReminders'].includes(payload.key) || typeof payload.value !== 'boolean') fail(400, 'employee_preference_invalid', 'Vælg en gyldig indstilling.');
       next[payload.key] = payload.value;
     } else {
       if (!Time.validDate(payload.date) || typeof payload.unavailable !== 'boolean' || payload.unavailable && payload.date < Time.localNow().date) fail(400, 'employee_availability_invalid', 'Vælg i dag eller en kommende dato.');

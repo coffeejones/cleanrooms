@@ -203,7 +203,7 @@
       await connect(); const id = ++nextId;
       return new Promise((resolve,reject) => {
         const clockIn=action==='account'&&data.operation==='timeWrite'&&data.payload?.operation==='start';
-        const deadline = setTimeout(() => { requests.delete(id); reject(new Error('Gemningen tog for lang tid. Prøv igen.')); },clockIn?45000:30000);
+        const deadline = setTimeout(() => { requests.delete(id); reject(new Error('Gemningen tog for lang tid. Prøv igen.')); },clockIn?45000:action==='account'&&data.operation==='payrollPeriodDownload'?180000:30000);
         requests.set(id,{resolve,deadline}); port.postMessage({id,action,...data});
       });
     }
@@ -513,12 +513,12 @@
     }
     async function action(operation,payload={}) {
       if(!ready)return {ok:false,status:503,message:'Indlæs din konto, før du fortsætter.'};
-      if(!['list','invite','updateMember','revokeInvite','createRole','updateRole','createEmployeeUser','readAppLogin','revealAppStartCode','createAppLogin','resetAppLogin','revokeAppLogin','preferences','checklist','employeeRead','employeeShift','payrollRead','payrollSave','payrollPolicyRead','payrollPolicyPreview','payrollPolicySave','payrollPersonPolicySave','timeRead','timeWrite','timeDemo','leaveRead','leaveCreate','leaveDecide','activityRead','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide','workflowDemo','chatList','chatRead','chatSync','chatCreate','chatUpdate','chatSend','chatPin','chatReadMark','chatMute','chatDemo','siteAddressLookup','publicationBudgetRead','planningCostRead','planningAvailability'].includes(operation))return {ok:false,status:400,message:'Ukendt kontohandling.'};
+      if(!['list','invite','updateMember','revokeInvite','createRole','updateRole','createEmployeeUser','readAppLogin','revealAppStartCode','createAppLogin','resetAppLogin','revokeAppLogin','preferences','checklist','employeeRead','employeeShift','payrollRead','payrollSave','payrollPolicyRead','payrollPolicyPreview','payrollPolicySave','payrollPersonPolicySave','payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen','payrollPeriodExport','payrollPeriodDownload','payrollExportProfilesRead','payrollExportProfileRead','payrollExportProfileSave','payrollExportProfileArchive','payrollExportProfileEmployees','timeRead','timeWrite','timeDemo','leaveRead','leaveCreate','leaveDecide','activityRead','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide','workflowDemo','chatList','chatRead','chatSync','chatCreate','chatUpdate','chatSend','chatPin','chatReadMark','chatMute','chatDemo','siteAddressLookup','publicationBudgetRead','planningCostRead','planningAvailability'].includes(operation))return {ok:false,status:400,message:'Ukendt kontohandling.'};
       if(operation==='preferences'&&planning){
         if(!payload||typeof payload!=='object'||Array.isArray(payload)||Object.keys(payload).some(name=>name!=='preferences')||!payload.preferences||typeof payload.preferences!=='object'||Array.isArray(payload.preferences)||Object.keys(payload.preferences).some(name=>!Planning.PREFS.includes(name)))return {ok:false,status:400,message:'Indstillingerne er ugyldige.'};
         return queuePreferences(payload.preferences,{structured:true,merge:true});
       }
-      const timeMutation=operation==='timeWrite'||operation==='timeDemo'||operation==='workflowDecide';
+      const timeMutation=['timeWrite','timeDemo','workflowDecide','payrollPeriodClose','payrollPeriodReopen'].includes(operation);
       if(timeMutation){
         await flush();
         if(preferencePromise)await preferencePromise;

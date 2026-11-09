@@ -234,7 +234,7 @@ export const workspaceShiftRequests = sqliteTable('workspace_shift_requests', {
 export const workspaceShiftMessages = sqliteTable('workspace_shift_messages', {
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id), id: text('id').notNull(),
   personId: text('person_id').notNull(), kind: text('kind').notNull(), createdAt: text('created_at').notNull(), config: text('config').notNull(),
-}, table => [primaryKey({columns:[table.workspaceId,table.id]}),index('workspace_shift_messages_person').on(table.workspaceId,table.personId,table.createdAt,table.id)]);
+}, table => [primaryKey({columns:[table.workspaceId,table.id]}),index('workspace_shift_messages_person').on(table.workspaceId,table.personId,table.createdAt,table.id),index('workspace_shift_messages_planner').on(table.workspaceId,table.createdAt,table.id).where(sql`${table.kind} NOT IN ('reminder','checkout_reminder')`)]);
 
 export const workspaceEngagementImports = sqliteTable('workspace_engagement_imports', {
   workspaceId: text('workspace_id').primaryKey().notNull().references(() => workspaces.id), planRevision: integer('plan_revision').notNull(), token: text('token').notNull(),
@@ -316,7 +316,7 @@ export const workspacePublishedShifts = sqliteTable('workspace_published_shifts'
   employeeVersion:integer('employee_version').notNull().default(0),hasDescription:integer('has_description').notNull().default(0),
   checklistTotal:integer('checklist_total').notNull().default(0),checklistStructure:text('checklist_structure').notNull().default(''),workflowFingerprint:text('workflow_fingerprint').notNull().default(''),
   instructionToken:text('instruction_token').notNull().default(''),instructionVersion:integer('instruction_version').notNull().default(0),
-}, table => [primaryKey({columns:[table.workspaceId,table.id]}),index('workspace_published_shifts_person').on(table.workspaceId,table.personId,table.workDate,table.id),index('workspace_published_shifts_scope').on(table.workspaceId,table.scopeKey,table.deleted),index('workspace_published_shifts_window').on(table.workspaceId,table.workDate,table.id),index('workspace_published_shifts_time_dirty').on(table.workspaceId,table.timeVersion,table.workDate,table.id)]);
+}, table => [primaryKey({columns:[table.workspaceId,table.id]}),index('workspace_published_shifts_person').on(table.workspaceId,table.personId,table.workDate,table.id),index('workspace_published_shifts_scope').on(table.workspaceId,table.scopeKey,table.deleted),index('workspace_published_shifts_window').on(table.workspaceId,table.workDate,table.id),index('workspace_published_shifts_time_dirty').on(table.workspaceId,table.timeVersion,table.workDate,table.id),index('workspace_reminder_published_day').on(table.workDate,table.workspaceId,table.id).where(sql`${table.deleted}=0`)]);
 
 export const workspacePublishedChecklistItems=sqliteTable('workspace_published_checklist_items',{
   workspaceId:text('workspace_id').notNull().references(()=>workspaces.id),shiftId:text('shift_id').notNull(),taskKey:text('task_key').notNull(),signature:text('signature').notNull(),structure:text('structure').notNull(),publishedVersion:integer('published_version').notNull(),
@@ -366,3 +366,25 @@ export const workspacePushDeliveries = sqliteTable('workspace_push_deliveries', 
 export const workspacePushDispatchState = sqliteTable('workspace_push_dispatch_state', {
   id: text('id').primaryKey().notNull(), leaseToken: text('lease_token'), leaseUntil: integer('lease_until').notNull().default(0), nextAt: integer('next_at').notNull().default(0), lastStartedAt: integer('last_started_at'), lastSuccessAt: integer('last_success_at'), lastError: text('last_error'), lastProviderError: text('last_provider_error'),
 });
+
+export const workspacePayrollPeriods = sqliteTable('workspace_payroll_periods', {
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id), periodFrom: text('period_from').notNull(), periodTo: text('period_to').notNull(),
+  status: text('status').notNull(), version: integer('version').notNull(), revision: integer('revision').notNull().default(0), writeToken: text('write_token').notNull(), updatedAt: text('updated_at').notNull(),
+}, table => [primaryKey({ columns: [table.workspaceId, table.periodFrom, table.periodTo] }), index('workspace_payroll_period_locks').on(table.workspaceId, table.status, table.periodFrom, table.periodTo)]);
+export const workspacePayrollClosures = sqliteTable('workspace_payroll_closures', {
+  workspaceId: text('workspace_id').notNull(), periodFrom: text('period_from').notNull(), periodTo: text('period_to').notNull(), revision: integer('revision').notNull(), config: text('config').notNull(), writeToken: text('write_token').notNull(), closedAt: text('closed_at').notNull(),
+}, table => [primaryKey({ columns: [table.workspaceId, table.periodFrom, table.periodTo, table.revision] }), foreignKey({ columns: [table.workspaceId, table.periodFrom, table.periodTo], foreignColumns: [workspacePayrollPeriods.workspaceId, workspacePayrollPeriods.periodFrom, workspacePayrollPeriods.periodTo] })]);
+export const workspacePayrollExportRows = sqliteTable('workspace_payroll_export_rows', {
+  workspaceId: text('workspace_id').notNull(), periodFrom: text('period_from').notNull(), periodTo: text('period_to').notNull(), revision: integer('revision').notNull(), rowId: text('row_id').notNull(), config: text('config').notNull(),
+}, table => [primaryKey({ columns: [table.workspaceId, table.periodFrom, table.periodTo, table.revision, table.rowId] }), foreignKey({ columns: [table.workspaceId, table.periodFrom, table.periodTo, table.revision], foreignColumns: [workspacePayrollClosures.workspaceId, workspacePayrollClosures.periodFrom, workspacePayrollClosures.periodTo, workspacePayrollClosures.revision] }), index('workspace_payroll_export_person').on(table.workspaceId, table.periodFrom, table.periodTo, table.revision, sql`json_extract(${table.config}, '$.employeeId')`, sql`json_extract(${table.config}, '$.lineKind')`, table.rowId)]);
+
+export const workspaceShiftReminders = sqliteTable('workspace_shift_reminders', {
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id), id: text('id').notNull(), shiftId: text('shift_id').notNull(), personId: text('person_id').notNull(), kind: text('kind').notNull(), workDate: text('work_date').notNull(), startTime: text('start_time').notNull(), endTime: text('end_time').notNull(), site: integer('site').notNull(), leadMinutes: integer('lead_minutes').notNull(), dueAt: integer('due_at').notNull(), expiresAt: integer('expires_at').notNull(), nextAt: integer('next_at').notNull(), status: text('status').notNull(), createdAt: integer('created_at').notNull(),
+}, table => [primaryKey({ columns: [table.workspaceId, table.id] }), uniqueIndex('workspace_shift_reminder_occurrence').on(table.workspaceId, table.shiftId, table.personId, table.workDate, table.startTime, table.endTime, table.site, table.kind, table.leadMinutes), index('workspace_shift_reminder_due').on(table.status, table.nextAt, table.workspaceId, table.id)]);
+
+export const workspacePayrollExportProfiles = sqliteTable('workspace_payroll_export_profiles', {
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id), id: text('id').notNull(), name: text('name').notNull(), version: integer('version').notNull(), config: text('config').notNull(), writeToken: text('write_token').notNull(), createdAt: text('created_at').notNull(), updatedAt: text('updated_at').notNull(), archivedAt: text('archived_at'),
+}, table => [primaryKey({ columns: [table.workspaceId, table.id] }), index('workspace_payroll_export_profile_list').on(table.workspaceId, table.archivedAt, table.name, table.id)]);
+export const workspacePayrollExportProfileRevisions = sqliteTable('workspace_payroll_export_profile_revisions', {
+  workspaceId: text('workspace_id').notNull(), profileId: text('profile_id').notNull(), version: integer('version').notNull(), config: text('config').notNull(), createdAt: text('created_at').notNull(), createdBy: text('created_by').notNull(),
+}, table => [primaryKey({ columns: [table.workspaceId, table.profileId, table.version] }), foreignKey({ columns: [table.workspaceId, table.profileId], foreignColumns: [workspacePayrollExportProfiles.workspaceId, workspacePayrollExportProfiles.id] })]);

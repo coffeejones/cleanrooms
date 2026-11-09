@@ -114,8 +114,8 @@ test('monthly salary and monthly allowances are period amounts rather than dupli
   policy(monthly, rate(20000), 'group'); shifts.forEach(item => attendance(item));
   const result = await readMobileHours(db, employee, { from: '2026-11-01', to: '2026-11-15' });
   assert.equal(result.summary.workedMinutes, 900); assert.equal(result.summary.earnedCents, 0);
-  assert.equal(result.summary.monthlyCents, 1650000);
-  assert.equal(result.monthlyLines.reduce((amount, line) => amount + line.amountCents, 0), 1650000);
+  assert.equal(result.summary.monthlyCents, 1596774); // 15 selected days in the configured Oct26–Nov25 cycle.
+  assert.equal(result.monthlyLines.reduce((amount, line) => amount + line.amountCents, 0), 1596774);
   assert.equal(result.monthlyLines.length, 2);
 });
 

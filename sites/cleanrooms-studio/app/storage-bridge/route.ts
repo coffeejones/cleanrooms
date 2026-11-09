@@ -80,6 +80,38 @@ const directoryBody = ${directoryBody.toString()};
   const readResponse = async result => {
     try { return await result.json(); } catch { return { error:'invalid_storage_response' }; }
   };
+  async function downloadPayroll(payload) {
+    const invalid={ok:false,status:400,message:'Vælg en gyldig lønperiode og eksportversion.'};
+    if(!payload||typeof payload!=='object'||Array.isArray(payload)||Object.keys(payload).some(key=>!['from','to','revision','profileId','profileVersion'].includes(key))
+      ||!/^\\d{4}-\\d{2}-\\d{2}$/.test(payload.from||'')||!/^\\d{4}-\\d{2}-\\d{2}$/.test(payload.to||'')
+      ||!Number.isSafeInteger(payload.revision)||payload.revision<1||payload.profileId!==undefined&&(typeof payload.profileId!=='string'||payload.profileId.length>160)||payload.profileVersion!==undefined&&(!Number.isSafeInteger(payload.profileVersion)||payload.profileVersion<1))return invalid;
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),175000),parts=[],seen=new Set();
+    let cursor=null,filename=null,workspaceId=null,profileVersion=payload.profileVersion,rowCount=null,receivedRows=0,size=0;
+    try {
+      for(let index=0;index<1000;index++) {
+        const result=await fetch('/api/accounts',{method:'POST',credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'payrollPeriodExport',...payload,...(profileVersion!==undefined?{profileVersion}:{}),limit:500,...(cursor?{cursor}:{})})});
+        const page=await readResponse(result);
+        if(!result.ok)return {ok:false,status:result.status,message:page.message||'Lønfilen kunne ikke hentes.'};
+        if(typeof page.text!=='string'||page.text.length>4*1024*1024||page.revision!==payload.revision||typeof page.filename!=='string'||page.filename.length>180||!page.filename.endsWith('.csv')||/[\\/\\\\\\r\\n\\u0000-\\u001f]/.test(page.filename))throw Error('invalid_export');
+        if(!Number.isSafeInteger(page.rowCount)||page.rowCount<0||!Number.isSafeInteger(page.pageCount)||page.pageCount<0||page.pageCount>500||page.profileId!==(payload.profileId??'standard-v1')||(page.nextCursor!==null&&(typeof page.nextCursor!=='string'||!page.nextCursor||page.nextCursor.length>16384)))throw Error('invalid_export_page');
+        if(index===0){rowCount=page.rowCount;if(typeof page.workspaceId!=='string'||!page.workspaceId||!Number.isSafeInteger(page.profileVersion)||page.profileVersion<1||profileVersion!==undefined&&profileVersion!==page.profileVersion)throw Error('invalid_export_scope');filename=page.filename;workspaceId=page.workspaceId;profileVersion=page.profileVersion;}
+        else if(rowCount!==page.rowCount||filename!==page.filename||workspaceId!==page.workspaceId||profileVersion!==page.profileVersion)throw Error('export_changed');
+        receivedRows+=page.pageCount;if(receivedRows>rowCount||page.nextCursor!==null&&page.pageCount===0)throw Error('invalid_export_count');
+        size+=new TextEncoder().encode(page.text).byteLength;if(size>64*1024*1024)throw Error('export_too_large');parts.push(page.text);
+        if(page.nextCursor===null) {
+          if(receivedRows!==rowCount)throw Error('incomplete_export');
+          return await new Promise(resolve=>{
+            const channel=new MessageChannel(),deadline=setTimeout(()=>{channel.port1.close();resolve({ok:false,status:503,message:'Download kunne ikke startes. Prøv igen.'});},10000);
+            channel.port1.onmessage=event=>{clearTimeout(deadline);channel.port1.close();resolve(event.data?.ok===true?{ok:true,status:200,filename}:{ok:false,status:503,message:'Download kunne ikke startes. Prøv igen.'});};
+            parent.postMessage({type:'cleanrooms-payroll-download',filename,text:parts.join('')},location.origin,[channel.port2]);
+          });
+        }
+        if(typeof page.nextCursor!=='string'||page.nextCursor.length>16384||seen.has(page.nextCursor))throw Error('invalid_export_cursor');seen.add(page.nextCursor);cursor=page.nextCursor;
+      }
+      throw Error('export_too_large');
+    } catch {return {ok:false,status:503,message:'Lønfilen kunne ikke hentes samlet. Ingen delvis fil er downloadet. Prøv igen.'};}
+    finally {clearTimeout(timeout);controller.abort();}
+  }
   let connected = false;
   addEventListener('message', event => {
     if (connected || event.source !== parent || event.origin !== location.origin
@@ -104,10 +136,11 @@ const directoryBody = ${directoryBody.toString()};
         }
         let clockInBody;
         if(message.action === 'account') {
-          if(!['list','invite','updateMember','revokeInvite','createRole','updateRole','createEmployeeUser','readAppLogin','revealAppStartCode','createAppLogin','resetAppLogin','revokeAppLogin','preferences','checklist','employeeRead','employeeShift','plannerDetail','publicationBudgetRead','planningCostRead','planningAvailability','payrollRead','payrollSave','payrollPolicyRead','payrollPolicyPreview','payrollPolicySave','payrollPersonPolicySave','timeRead','timeWrite','timeDemo','leaveRead','leaveCreate','leaveDecide','activityRead','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide','workflowDemo','chatList','chatRead','chatSync','chatCreate','chatUpdate','chatSend','chatPin','chatReadMark','chatMute','chatDemo','siteAddressLookup'].includes(message.operation)
+          if(!['list','invite','updateMember','revokeInvite','createRole','updateRole','createEmployeeUser','readAppLogin','revealAppStartCode','createAppLogin','resetAppLogin','revokeAppLogin','preferences','checklist','employeeRead','employeeShift','plannerDetail','publicationBudgetRead','planningCostRead','planningAvailability','payrollRead','payrollSave','payrollPolicyRead','payrollPolicyPreview','payrollPolicySave','payrollPersonPolicySave','payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen','payrollPeriodExport','payrollPeriodDownload','payrollExportProfilesRead','payrollExportProfileRead','payrollExportProfileSave','payrollExportProfileArchive','payrollExportProfileEmployees','timeRead','timeWrite','timeDemo','leaveRead','leaveCreate','leaveDecide','activityRead','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide','workflowDemo','chatList','chatRead','chatSync','chatCreate','chatUpdate','chatSend','chatPin','chatReadMark','chatMute','chatDemo','siteAddressLookup'].includes(message.operation)
             || !message.payload || typeof message.payload!=='object' || Array.isArray(message.payload)) {
             port.postMessage({id:message.id,ok:false,status:400,message:'Ukendt kontohandling.'});return;
           }
+          if(message.operation==='payrollPeriodDownload'){port.postMessage({id:message.id,...await downloadPayroll(message.payload)});return;}
           options.headers={'Content-Type':'application/json'};
           const body={...message.payload,action:message.operation};
           if(message.operation==='timeWrite'&&body.operation==='start'){

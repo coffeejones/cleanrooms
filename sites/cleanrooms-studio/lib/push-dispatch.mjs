@@ -1,5 +1,6 @@
 /* Durable, bounded fanout and provider handoff. A ticket is not a read receipt. */
 import { timingSafeEqual } from 'node:crypto';
+import { generateShiftReminders } from './shift-reminders.mjs';
 import { Buffer } from 'node:buffer';
 import { configuredPushProject, pushQuery as query, pushRows as rows, pushFirst as first, readPushDeliveryTargets } from './mobile-push-store.mjs';
 
@@ -170,9 +171,9 @@ async function sendPending(db, projectId, accessToken, requestProvider, now, dis
   if (timeLeft() < 1500) {
     await applyDeliveryOutcomes(db, ready.map(row => deliveryOutcome(row, 'pending', now, { due: now + 5000, error: 'dispatch_budget' })));return 0;
   }
-  const messages = ready.map(row => ({ to: row.expo_token, title: row.source_kind === 'test' ? 'CleanRooms' : row.source_kind === 'chat' ? 'Ny besked' : 'Vagtplanen er opdateret',
-    body: row.source_kind === 'test' ? 'Beskeder virker på denne telefon.' : row.source_kind === 'chat' ? 'Der er nyt i en af dine samtaler.' : 'Åbn CleanRooms for at se ændringen.',
-    sound: 'default', ttl: 24 * 60 * 60, channelId: 'cleanrooms', collapseId: row.event_id, tag: row.event_id,
+  const messages = ready.map(row => ({ to: row.expo_token, title: row.source_kind === 'test' ? 'CleanRooms' : row.source_kind === 'chat' ? 'Ny besked' : row.message_kind === 'reminder' ? 'Vagtpåmindelse' : row.message_kind === 'checkout_reminder' ? 'Tidsregistrering' : 'Vagtplanen er opdateret',
+    body: row.source_kind === 'test' ? 'Beskeder virker på denne telefon.' : row.source_kind === 'chat' ? 'Der er nyt i en af dine samtaler.' : row.message_kind === 'reminder' ? 'Åbn CleanRooms for at se din kommende vagt.' : row.message_kind === 'checkout_reminder' ? 'Husk at stemple ud, når du er færdig.' : 'Åbn CleanRooms for at se ændringen.',
+    sound: 'default', ttl: Number.isSafeInteger(row.reminder_expires_at) ? Math.max(1, Math.min(24 * 60 * 60, Math.floor((row.reminder_expires_at - Date.now()) / 1000))) : 24 * 60 * 60, channelId: 'cleanrooms', collapseId: row.event_id, tag: row.event_id,
     data: { v: 1, eventId: row.event_id, installationId: row.installation_id } }));
   let result;
   try { result = await providerJson(requestProvider, sendUrl, messages, accessToken); }
@@ -250,6 +251,7 @@ export async function drainPushOutbox({ db, projectId, accessToken, requestProvi
     // to operations and the durable inbox remains authoritative; do not duplicate.
     await db.batch([query(db, `UPDATE workspace_push_deliveries SET status='unknown',last_error='send_unconfirmed',lease_token=NULL,lease_until=NULL,updated_at=?
       WHERE status='sending' AND lease_until<=?`, now, now)]);
+    await generateShiftReminders(db, project, now);
     await expandShiftEvents(db, project, now);
     await expandChatEvents(db, project, now);
     const receipts = await checkReceipts(db, accessToken, provider, now, health);
@@ -297,9 +299,10 @@ export async function readPushDispatchHealth(db, now = Date.now()) {
   const state = await first(db, `SELECT last_started_at,last_success_at,last_error,last_provider_error,
     (SELECT due_at FROM workspace_push_deliveries WHERE status='pending' ORDER BY due_at LIMIT 1) pending_due,
     (SELECT due_at FROM workspace_push_deliveries WHERE status='receipt' ORDER BY due_at LIMIT 1) receipt_due,
-    (SELECT created_at FROM workspace_push_events WHERE expanded=0 ORDER BY created_at LIMIT 1) event_due
+    (SELECT created_at FROM workspace_push_events WHERE expanded=0 ORDER BY created_at LIMIT 1) event_due,
+    (SELECT next_at FROM workspace_shift_reminders WHERE status='pending' ORDER BY next_at LIMIT 1) reminder_due
     FROM workspace_push_dispatch_state WHERE id='expo'`);
-  const due = [state?.pending_due, state?.receipt_due, state?.event_due].filter(value => Number.isSafeInteger(value));
+  const due = [state?.pending_due, state?.receipt_due, state?.event_due, state?.reminder_due].filter(value => Number.isSafeInteger(value));
   const oldestDueAt = due.length ? Math.min(...due) : null;
   return { lastWakeAt: state?.last_started_at ?? null, lastSuccessAt: state?.last_success_at ?? null,
     lastError: state?.last_error ?? null, lastProviderError: state?.last_provider_error ?? null, oldestDueAt,

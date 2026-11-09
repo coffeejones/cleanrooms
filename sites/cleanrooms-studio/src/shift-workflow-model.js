@@ -27,7 +27,7 @@
     if(!record(value)||value.version!==1||!Number.isSafeInteger(value.sequence)||value.sequence<0||!Array.isArray(value.notifications)||!Array.isArray(value.requests)||value.notifications.length>MAX_NOTIFICATIONS||value.requests.length>MAX_REQUESTS)return ['Beskederne eller vagtanmodningerne er ugyldige.'];
     const ids=new Set();
     for(const message of value.notifications){
-      if(!record(message)||!id(message.id)||ids.has(message.id)||!id(message.personId)||!['new','changed','moved','cancelled','request'].includes(message.kind)||!timestamp(message.createdAt)||message.readAt!==null&&!timestamp(message.readAt)||!text(message.summary,1000)||message.before!==null&&!validSummary(message.before)||message.after!==null&&!validSummary(message.after)||message.requestId!==undefined&&!id(message.requestId))return ['En besked er ugyldig.'];ids.add(message.id);
+      if(!record(message)||!id(message.id)||ids.has(message.id)||!id(message.personId)||!['new','changed','moved','cancelled','request','reminder','checkout_reminder'].includes(message.kind)||!timestamp(message.createdAt)||message.readAt!==null&&!timestamp(message.readAt)||!text(message.summary,1000)||message.before!==null&&!validSummary(message.before)||message.after!==null&&!validSummary(message.after)||message.requestId!==undefined&&!id(message.requestId))return ['En besked er ugyldig.'];ids.add(message.id);
     }
     ids.clear();
     for(const request of value.requests){

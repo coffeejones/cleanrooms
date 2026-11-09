@@ -1,0 +1,51 @@
+#cleanrooms-studio .cs-payroll-period-layer{position:absolute;inset:0;z-index:40;display:flex;justify-content:flex-end;isolation:isolate}
+#cleanrooms-studio .cs-payroll-period-backdrop{position:absolute;inset:0;z-index:-1;border:0;background:#001e2b38}
+#cleanrooms-studio .cs-payroll-period-dialog{width:min(610px,100%);height:100%;min-height:0;display:flex;flex-direction:column;background:#fff;color:var(--cs-access-ink,#001e2b);border-left:1px solid #c1c7c6;box-shadow:-12px 0 48px #001e2b18;font-size:13px;text-align:left}
+#cleanrooms-studio .cs-payroll-period-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid #e2e8e6}
+#cleanrooms-studio .cs-payroll-period-header h3{margin:0;font-size:18px;line-height:26px;font-weight:650;letter-spacing:-.3px}
+#cleanrooms-studio .cs-payroll-period-header p{margin:3px 0 0;color:#5c6c75;font-size:12px}
+#cleanrooms-studio .cs-payroll-period-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:20px 24px 28px;display:flex;flex-direction:column;gap:20px}
+#cleanrooms-studio .cs-payroll-period-nav{display:flex;align-items:center;gap:12px}
+#cleanrooms-studio .cs-payroll-period-range{flex:1;text-align:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+#cleanrooms-studio select.cs-payroll-period-range{min-width:0;height:36px;padding:0 8px;border:1px solid #c1c7c6;border-radius:6px;color:#243943;background:#fff;font-family:inherit}
+#cleanrooms-studio .cs-payroll-period-status{align-self:flex-start;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#5c6c75}
+#cleanrooms-studio .cs-payroll-period-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#89979b}
+#cleanrooms-studio .cs-payroll-period-status[data-state=closed]{color:#00684a}
+#cleanrooms-studio .cs-payroll-period-status[data-state=closed]::before{background:#00a35c}
+#cleanrooms-studio .cs-payroll-period-metrics{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:16px;margin:0;padding:0 0 20px;border-bottom:1px solid #e2e8e6}
+#cleanrooms-studio .cs-payroll-period-metrics dt{margin:0 0 7px;color:#5c6c75;font-size:12px}
+#cleanrooms-studio .cs-payroll-period-metrics dd{margin:0;font-size:20px;font-weight:600;letter-spacing:-.4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-payroll-period-breakdown{display:grid;gap:12px}
+#cleanrooms-studio .cs-payroll-period-breakdown>div{display:flex;justify-content:space-between;gap:16px;color:#5c6c75}
+#cleanrooms-studio .cs-payroll-period-breakdown strong{font-weight:500;color:#243943;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-payroll-period-caption{margin:0;font-size:12px;line-height:19px;color:#5c6c75}
+#cleanrooms-studio .cs-payroll-period-blockers{padding:16px;border:1px solid #e6d5bc;border-radius:6px;background:#fffcf7}
+#cleanrooms-studio .cs-payroll-period-body h4{margin:0 0 10px;font-size:13px;font-weight:650}
+#cleanrooms-studio .cs-payroll-period-blockers ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+#cleanrooms-studio .cs-payroll-period-blockers li{display:flex;justify-content:space-between;gap:20px;font-size:12px;line-height:18px;color:#785625}
+#cleanrooms-studio .cs-payroll-period-confirm{display:grid;gap:14px;padding:18px;border:1px solid #c1c7c6;border-radius:6px;background:#f9fbfa}
+#cleanrooms-studio .cs-payroll-period-confirm h4{margin:0}
+#cleanrooms-studio .cs-payroll-period-confirm p{margin:0;color:#5c6c75;font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-payroll-period-field{display:grid;gap:7px;font-size:12px;font-weight:600}
+#cleanrooms-studio .cs-payroll-period-field textarea{width:100%;min-height:88px;resize:vertical;padding:10px 12px;border:1px solid #89979b;border-radius:6px;background:#fff;color:#243943;font:inherit;line-height:20px}
+#cleanrooms-studio .cs-payroll-period-history{margin:0;padding-top:16px;border-top:1px solid #e2e8e6}
+#cleanrooms-studio .cs-payroll-period-history summary{font-size:12px;font-weight:600;cursor:pointer}
+#cleanrooms-studio .cs-payroll-period-history>div{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px}
+#cleanrooms-studio .cs-payroll-period-history>div>div{display:grid;gap:4px;font-size:12px}
+#cleanrooms-studio .cs-payroll-period-history span{color:#5c6c75}
+#cleanrooms-studio .cs-payroll-period-footer{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding:16px 24px;border-top:1px solid #e2e8e6;background:#fff}
+#cleanrooms-studio .cs-payroll-period-dialog .cs-button{height:36px;min-height:36px;padding:0 12px;border:1px solid #89979b;border-radius:6px;background:#f9fbfa;color:#001e2b;font:inherit;font-weight:600;box-shadow:none}
+#cleanrooms-studio .cs-payroll-period-dialog .cs-button.cs-primary{background:#00684a;border-color:#00684a;color:#fff}
+#cleanrooms-studio .cs-payroll-period-dialog .cs-icon-button{width:32px;height:32px;min-height:32px;border:0;background:transparent;color:#5c6c75;font-size:24px;box-shadow:none}
+#cleanrooms-studio .cs-payroll-period-dialog button:disabled{opacity:.45;cursor:default}
+#cleanrooms-studio .cs-payroll-period-layer :focus-visible{outline:2px solid #016bf8;outline-offset:2px}
+#cleanrooms-studio .cs-payroll-period-error{color:#9d4534;font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-payroll-period-error p{margin:0 0 10px}
+#cleanrooms-studio .cs-payroll-period-message{margin:0;color:#00684a;font-size:12px;line-height:19px}
+#cleanrooms-studio .cs-payroll-period-export-tools{display:flex;align-items:flex-end;gap:12px}
+#cleanrooms-studio .cs-payroll-period-profile-field{flex:1;min-width:0;display:grid;gap:7px;font-size:12px;font-weight:600;color:#5c6c75}
+#cleanrooms-studio .cs-payroll-period-profile-field select{width:100%;height:36px;padding:0 10px;border:1px solid #89979b;border-radius:6px;background:#fff;color:#243943;font:inherit}
+#cleanrooms-studio .cs-time-payroll-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px}
+#cleanrooms-studio .cs-time-payroll-heading h3{margin:0}
+@media(max-width:600px){#cleanrooms-studio .cs-payroll-period-header,#cleanrooms-studio .cs-payroll-period-body,#cleanrooms-studio .cs-payroll-period-footer{padding-left:18px;padding-right:18px}#cleanrooms-studio .cs-payroll-period-metrics{gap:10px}#cleanrooms-studio .cs-payroll-period-metrics dd{font-size:17px}#cleanrooms-studio .cs-time-payroll-heading{align-items:flex-start}}
+@media(prefers-reduced-motion:no-preference){#cleanrooms-studio .cs-payroll-period-dialog{animation:cs-payroll-period-enter .18s ease-out}@keyframes cs-payroll-period-enter{from{transform:translateX(20px);opacity:.6}to{transform:translateX(0);opacity:1}}}

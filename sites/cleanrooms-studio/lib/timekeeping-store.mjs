@@ -6,6 +6,7 @@ import {readDirectorySite} from './directory-store.mjs';
 import {ensureTimeEntries,findTimeEntry,readTimeEntries,entryInterval,TIME_ENTRY_BYTES} from './time-entry-store.mjs';
 import {readPublishedTimeShifts} from './publication-time-store.mjs';
 import {readPlannerTimePage} from './timekeeping-page.mjs';
+import {closedPayrollPeriod,payrollPeriodWriteGuard} from './payroll-period-store.mjs';
 import {initializeTimekeepingContext,assertTimekeepingContext,timekeepingPeople,timekeepingPlannedRows} from './timekeeping-context.mjs';
 const clone=value=>JSON.parse(JSON.stringify(value));
 const validText=(v,max)=>typeof v==='string'&&v.length<=max&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v);
@@ -108,7 +109,8 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
     }
     const serialized=JSON.stringify(entry);if(bytes()>TIME_ENTRY_BYTES)h.fail(413,'time_entry_full','Registreringen fylder for meget til én sikker handling. Kontakt administratoren for sikker arkivering; eksisterende data er bevaret.');
     const guard=commitGuard(rateBundle,entry.personId),token=crypto.randomUUID(),interval=entryInterval(entry);
-    let condition=guard.sql,values=[...guard.values];
+    const payrollLock=entry.demo?{sql:'1 = 1',values:[]}:payrollPeriodWriteGuard(workspaceId,entry.date,entry.endDate||entry.date);
+    let condition='('+guard.sql+') AND ('+payrollLock.sql+')',values=[...guard.values,...payrollLock.values];
     if(interval&&['submitted','approved'].includes(entry.status)){
       condition+=` AND NOT EXISTS (SELECT 1 FROM workspace_time_entries other WHERE other.workspace_id = ? AND other.person_id = ? AND other.demo = ? AND other.work_date >= ? AND other.work_date <= ? AND other.id <> ? AND other.interval_start < ? AND other.interval_end > ?)`;
       values.push(workspaceId,entry.personId,entry.demo?1:0,Time.addDays(entry.date,-2),Time.addDays(entry.date,2),entry.id,interval.end,interval.start);
@@ -119,8 +121,9 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
     // Header version is a publication/workflow fence, not a CAS shared by unrelated employee writes.
     const header=h.statement(db,`INSERT INTO workspace_timekeeping (workspace_id,config,version,write_token,updated_at) SELECT ?,?,1,?,? WHERE ${receipt.sql} ON CONFLICT(workspace_id) DO UPDATE SET version = workspace_timekeeping.version + 1,write_token = excluded.write_token,updated_at = excluded.updated_at`,workspaceId,JSON.stringify({schema:2,entries:[],demo:null}),token,stamp,...receipt.values);
     const audit=h.timeActivityStatements?.({db,context,next:{entries:[auditSource]},previous:{entries:current?[current]:[]},condition:receipt})||[];
-    let written;try{written=await db.batch([query,header,...audit]);}catch(error){if(/UNIQUE constraint|constraint failed/i.test(String(error)))h.fail(409,'time_conflict','Medarbejderen har allerede en igangværende eller ændret registrering. Hent timerne igen.');throw error;}
+    let written;try{written=await db.batch([query,header,...audit]);}catch(error){if(/payroll_period_closed/i.test(String(error)))h.fail(409,'payroll_period_closed','Lønperioden er afsluttet. En lønansvarlig skal genåbne perioden med en begrundelse først.');if(/UNIQUE constraint|constraint failed/i.test(String(error)))h.fail(409,'time_conflict','Medarbejderen har allerede en igangværende eller ændret registrering. Hent timerne igen.');throw error;}
     await h.assertContext(db,context);
+    if(written[0]?.meta?.changes!==1&&!entry.demo&&await closedPayrollPeriod(db,workspaceId,entry.date,entry.endDate||entry.date))h.fail(409,'payroll_period_closed','Lønperioden er afsluttet. En lønansvarlig skal genåbne perioden med en begrundelse først.');
     if(written[0]?.meta?.changes!==1)h.fail(409,'time_conflict','Registreringen overlapper andre timer, eller registreringen, vagtplanen eller lønsatserne er ændret. Hent den seneste version.');
   }
   async function commitDemo(next){
@@ -176,6 +179,7 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   if(payload.comment!==undefined&&!validText(payload.comment,100000))h.fail(400,'time_note_invalid','Kommentaren indeholder ugyldige tegn eller er for lang.');
   const entry=current?clone(current):{id:'time-'+crypto.randomUUID(),version:0,shiftId:shift.id,personId:shift.person,date:shift.date,site:shift.site,plannedStart:shift.start,plannedEnd:shift.end,plannedBreakMinutes:shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes,start:null,end:null,endDate:shift.date,breakMinutes:0,breaks:[],breakAllocation:'clocked',status:'running',comment:'',correctionReason:'',demo:isDemo,createdAt:stamp,updatedAt:stamp,approvedAt:null,approvedBy:null,audit:[]};
   if(!entry.frozenShift)entry.frozenShift=frozenPlan(shift);
+  if(!isDemo&&await closedPayrollPeriod(db,workspaceId,entry.date,entry.endDate||entry.date))h.fail(409,'payroll_period_closed','Lønperioden er afsluttet. En lønansvarlig skal genåbne perioden med en begrundelse først.');
   const before=summaryFields(current);
   function clockPoint(){
     if(!isDemo){const dayDelta=Math.round((Date.parse(local.date)-Date.parse(entry.date))/86400000),elapsed=entry.clockStartAt?Math.floor(Date.parse(stamp)/60000)-Math.floor(Date.parse(entry.clockStartAt)/60000):null;return {date:local.date,time:local.time,offset:elapsed===null?dayDelta*1440+Time.minute(local.time):Time.minute(entry.start)+elapsed};}

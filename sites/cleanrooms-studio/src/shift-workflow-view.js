@@ -3,7 +3,7 @@
   'use strict';
   const STATUS={awaiting_colleague:'Afventer kollega',pending:'Afventer godkendelse',accepted:'Afventer godkendelse',declined:'Afslået af kollega',cancelled:'Trukket tilbage',approved:'Godkendt',rejected:'Afvist',stale:'Vagten er ændret'};
   const ACTIVE=new Set(['awaiting_colleague','pending','accepted']);
-  const KIND={new:'Ny vagt',changed:'Vagten er ændret',moved:'Vagten er flyttet',cancelled:'Vagten er aflyst',request:'Svar på anmodning'};
+  const KIND={new:'Ny vagt',changed:'Vagten er ændret',moved:'Vagten er flyttet',cancelled:'Vagten er aflyst',request:'Svar på anmodning',reminder:'Vagtpåmindelse',checkout_reminder:'Husk at stemple ud'};
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(new Date(value+'T12:00:00Z').getTime())&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
   const dateLabel=(value,full=false)=>validDate(value)?new Date(value+'T12:00:00Z').toLocaleDateString('da-DK',{weekday:full?'long':'short',day:'numeric',month:'short',timeZone:'UTC'}):'Dato mangler';
   const stamp=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?d.toLocaleString('da-DK',{dateStyle:'short',timeStyle:'short'}):'';};

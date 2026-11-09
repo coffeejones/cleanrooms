@@ -1,5 +1,6 @@
 /* Employee-owned attendance and pay. Never return payroll policy or another person's rows. */
 import { StudioError } from './studio-store.mjs';
+import {readEmployeeMonthlyPay} from './employee-monthly-pay.mjs';
 import { readPublishedTimeShifts } from './publication-time-store.mjs';
 import { readTimeEntries } from './time-entry-store.mjs';
 import Time from '../src/timekeeping-model.js';
@@ -17,9 +18,8 @@ const sum = values => {
   if (total > BigInt(Number.MAX_SAFE_INTEGER)) fail(422, 'mobile_pay_overflow', 'Beløbet er for stort til at kunne vises sikkert.');
   return Number(total);
 };
-const roundFraction = (numerator, denominator) => Number((numerator + denominator / 2n) / denominator);
 
-async function frame(db, { workspaceId, personId }) {
+async function frame(db, { workspaceId, personId }, {from,to}) {
   const result = await db.batch([
     query(db, "SELECT version FROM workspace_directory_records WHERE workspace_id=? AND kind='employee' AND id=? AND deleted=0 AND active=1", workspaceId, personId),
     query(db, 'SELECT version,write_token FROM workspace_directory_state WHERE workspace_id=?', workspaceId),
@@ -27,9 +27,10 @@ async function frame(db, { workspaceId, personId }) {
     query(db, 'SELECT version,write_token FROM workspace_timekeeping WHERE workspace_id=?', workspaceId),
     query(db, 'SELECT version FROM workspace_payroll_policies WHERE workspace_id=?', workspaceId),
     query(db, 'SELECT version FROM workspace_payroll WHERE workspace_id=? AND person_id=?', workspaceId, personId),
+    query(db, 'SELECT period_from,period_to,status,version,revision,updated_at FROM workspace_payroll_periods WHERE workspace_id=? AND period_from<=? AND period_to>=? ORDER BY period_from,period_to', workspaceId, to, from),
   ]);
   if (!result[0]?.results?.length) fail(403, 'mobile_employee_inactive', 'Din medarbejderkonto er ikke længere aktiv.');
-  return JSON.stringify(result.map(item => item.results?.[0] ?? null));
+  return JSON.stringify(result.map((item,index) => index===6 ? item.results??[] : item.results?.[0]??null));
 }
 
 function compactEntry(entry) {
@@ -93,36 +94,13 @@ function unavailable(reason) {
   return { baseCents: 0, allowanceCents: 0, totalCents: 0, sourceLabel: 'Afventer afklaring', unavailableReason: reason };
 }
 
-function monthlyPay(resolved, from, to) {
-  const amounts = new Map();
-  for (let day = from; day <= to; day = Time.addDays(day, 1)) {
-    const month = day.slice(0, 7), monthDays = new Date(Number(day.slice(0, 4)), Number(day.slice(5, 7)), 0).getDate();
-    const agreement = resolved.payroll.agreements.filter(item => item.from <= day).at(-1);
-    const components = [
-      ...(agreement?.type === 'monthly' ? [{ ...agreement, label: 'Fast månedsløn', kind: 'base' }] : []),
-      ...resolved.payroll.supplements.filter(item => item.type === 'monthly' && item.from <= day && (!item.to || item.to >= day))
-        .map(item => ({ ...item, label: item.name, kind: 'supplement' })),
-    ];
-    for (const component of components) {
-      const key = [month, component.id, component.kind, component.amountCents].join('|');
-      const previous = amounts.get(key);
-      if (previous) { previous.days++; previous.to = day; }
-      else amounts.set(key, { label: component.label, type: component.kind, calculation: 'monthly', from: day, to: day,
-        rateCents: component.amountCents, days: 1, monthDays });
-    }
-  }
-  return [...amounts.values()].map(line => ({ ...line,
-    amountCents: roundFraction(BigInt(line.rateCents) * BigInt(line.days), BigInt(line.monthDays)),
-  }));
-}
-
 /** Read only the authenticated person's attendance, published assignments and applicable pay. */
 export async function readMobileHours(db, employee, { from, to }) {
   if (!Time.validDate(from) || !Time.validDate(to) || from > to || (Date.parse(to) - Date.parse(from)) / 86_400_000 >= 366) {
     fail(400, 'mobile_hours_period_invalid', 'Vælg en periode på højst 366 dage.');
   }
   const { workspaceId, personId } = employee;
-  const before = await frame(db, employee), lower = Time.addDays(from, -2);
+  const before = await frame(db, employee, {from,to}), lower = Time.addDays(from, -2);
   const counted = await first(db, `SELECT COUNT(*) AS n FROM workspace_published_shifts
     WHERE workspace_id=? AND person_id=? AND deleted=0 AND work_date>=? AND work_date<=?`, workspaceId, personId, lower, to);
   if ((counted?.n ?? 0) > maximumRows) fail(413, 'mobile_hours_period_full', 'Vælg en kortere periode for at se timerne.');
@@ -212,7 +190,7 @@ export async function readMobileHours(db, employee, { from, to }) {
         ...(actualClip ? { interval: { startAt: actualClip.entry.resolvedStartAt, endAt: actualClip.entry.resolvedEndAt } } : {}) }, sourceLabel,
     });
   }
-  const monthlyLines = monthlyPay(resolved, from, to);
+  const monthlyLines=await readEmployeeMonthlyPay({db,workspaceId,personId,from,to,policy,payroll:personal});
   summary.missingPayCount = missingPay.size;
   summary.missingEarnedPayCount = missingEarned.size;
   summary.missingEstimatedPayCount = missingEstimated.size;
@@ -221,7 +199,7 @@ export async function readMobileHours(db, employee, { from, to }) {
   for (const key of Object.keys(summary)) if (key !== 'progress' && !Number.isSafeInteger(summary[key])) {
     fail(422, 'mobile_hours_overflow', 'Periodens beløb eller timer er for store til at kunne vises sikkert.');
   }
-  if (before !== await frame(db, employee)) fail(409, 'mobile_hours_changed', 'Timerne eller lønoplysningerne blev ændret. Hent perioden igen.');
+  if (before !== await frame(db, employee, {from,to})) fail(409, 'mobile_hours_changed', 'Timerne eller lønoplysningerne blev ændret. Hent perioden igen.');
   return { from, to, currency: 'DKK', summary, rows: resultRows.sort((a, b) =>
     a.shift.date.localeCompare(b.shift.date) || a.shift.start.localeCompare(b.shift.start)), monthlyLines, warnings: [...warnings] };
 }

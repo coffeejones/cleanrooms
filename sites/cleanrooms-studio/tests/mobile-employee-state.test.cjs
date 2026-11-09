@@ -62,9 +62,10 @@ async function setup(t) {
 
 test('native notification preferences use CAS and persist per employee across fresh sessions', async t => {
   const { db, call, account } = await setup(t);
-  assert.deepEqual(await call({ action: 'employeePreferences' }), { version: 0, notifications: true, chatNotifications: true, unavailableDates: [] });
+  assert.deepEqual(await call({ action: 'employeePreferences' }), { version: 0, notifications: true, chatNotifications: true, shiftReminders: false, checkoutReminders: false, reminderLeadMinutes: 30, unavailableDates: [] });
   const updated = await call({ action: 'employeePreference', key: 'notifications', value: false, version: 0 });
   assert.equal(updated.notifications, false); assert.equal(updated.version, 1);
+  assert.equal(updated.shiftReminders, false); assert.equal(updated.checkoutReminders, false); assert.equal(updated.reminderLeadMinutes, 30);
   await assert.rejects(call({ action: 'employeePreference', key: 'chatNotifications', value: false, version: 0 }), { code: 'employee_preferences_changed' });
   const fresh = await Auth.readMobileSession({ db, token: account.token });
   const read = await handleMobileEmployeeState(db, account.token, fresh, { action: 'employeePreferences' });

@@ -1,0 +1,1 @@
+CREATE INDEX workspace_payroll_export_person ON workspace_payroll_export_rows(workspace_id,period_from,period_to,revision,json_extract(config,'$.employeeId'),json_extract(config,'$.lineKind'),row_id);

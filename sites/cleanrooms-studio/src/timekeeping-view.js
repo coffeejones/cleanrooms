@@ -17,9 +17,10 @@
   const approvable=entry=>entry?.status==='submitted'&&time(entry.start)&&time(entry.end)&&!entry.flags?.some(flag=>['overlap','dst_transition'].includes(flag))&&Number.isFinite(entry.workedMinutes)&&entry.workedMinutes>0&&typeof model()?.validate==='function'&&model().validate(entry).length===0;
   const QUEUES={attention:{label:'Kræver opmærksomhed',detail:'Afvigelser til gennemgang',help:'Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.'},ready:{label:'Følger planen',detail:'Klar til samlet godkendelse',help:'Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.'},progress:{label:'I gang',detail:'Afventer afslutning',help:'Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.'},approved:{label:'Godkendte',detail:'Låst efter godkendelse',help:'Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.'}};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange}={}) {
+  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged}={}) {
     if(!element?.ownerDocument)throw new TypeError('Timeregistrering kræver et indholdsfelt.');
     const doc=element.ownerDocument,page=doc.createElement('div');page.className='cs-timekeeping-page';element.replaceChildren(page);
+    let periodPanel=null;
     let options={},tab='entries',status=null,search='',selectedId=null,selected=new Map(),draft=null,mode=null,pending=false,pagePending=false,disposed=false,message='',error='',conflict=false,viewScope='real',demoWasActive=false,bulkConfirm=null,rangeKey='',reviewOptions=null,reviewScope=null,reviewCache=new WeakMap(),shiftIndex=new Map(),reviewToday,listScroll=0,detailSections=new Set();
     const PAGE_SIZE=50,pages={entries:0,week:0,payroll:0};
     let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey='',queueBeforePayroll='all';
@@ -267,7 +268,11 @@
       const aggregate=serverSummary(),count=Number.isSafeInteger(aggregate?.counts?.approved)?aggregate.counts.approved:approved.length,missing=Number.isSafeInteger(aggregate?.missingPayrollCount)?aggregate.missingPayrollCount:approved.length-priced.length,approvedMinutes=Number.isFinite(aggregate?.approvedMinutes)?aggregate.approvedMinutes:approved.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0),cents=Number.isSafeInteger(aggregate?.approvedCents)?aggregate.approvedCents:total;
       body.append(metricStrip([['Godkendte timer',minutes(approvedMinutes)],['Timebaseret løngrundlag',count>missing?money(cents):count?'—':money(0),'inkl. tidsbestemte tillæg'],['Mangler lønaftale',String(missing),'godkendte registreringer']]));
       if(serverPaged()&&!aggregate)body.append(node('p','cs-time-caption','Løngrundlaget vises for de indlæste registreringer.'));
-      body.append(node('h3','cs-time-heading','Godkendt løngrundlag'),node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.'));
+      const payrollHead=node('div','cs-time-payroll-heading');payrollHead.append(node('h3','cs-time-heading','Godkendt løngrundlag'));
+      if(viewScope==='real'&&typeof onPayrollPeriodAction==='function'&&globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button('Lønperiode og eksport',()=>{
+        periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.('#cleanrooms-studio')||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onClose:()=>{periodPanel=null;}});
+      },'cs-button cs-quiet','payroll:period'));
+      body.append(payrollHead,node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.'));
       if(!approved.length){body.append(node('p','cs-time-empty',serverPaged()&&count?'Ingen godkendte registreringer på denne side.':'Godkend registreringer, før de indgår i løngrundlaget.'));const pager=pagination(0,'payroll');if(pager)body.append(pager);return;}
       const {table,rows}=makeTable(['Medarbejder og dato','Grundlag','Timer','Grundløn','Tillæg','I alt','']);table.classList.add?.('cs-time-payroll-table');
       for(const entry of pageRows(approved,'payroll')){const row=node('tr'),identity=node('td','cs-time-person-cell');identity.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)));const source=node('td');source.append(node('strong','',entry.payroll?.sourceLabel||'Ingen lønaftale'));if(entry.payroll?.monthlyBaseCents)source.append(node('span','cs-time-caption','Fast månedsløn '+money(entry.payroll.monthlyBaseCents)));if(entry.payroll?.monthlySupplementCents)source.append(node('span','cs-time-caption','Faste månedlige tillæg '+money(entry.payroll.monthlySupplementCents)));if(!completePayroll(entry.payroll))source.append(node('span','cs-time-pay-incomplete','Løngrundlag mangler'),node('span','cs-time-caption',entry.payroll?.unavailableReason||'Der mangler en lønaftale for registreringen.'));row.append(identity,source);
@@ -356,7 +361,7 @@
       if(options.canManage!==true){selected.clear();bulkConfirm=null;clearDraft();}
       chooseDefaultQueue();paint();
     }
-    function destroy(){disposed=true;options={};selected.clear();draft=null;element.replaceChildren();}
+    function destroy(){disposed=true;periodPanel?.destroy?.();periodPanel=null;options={};selected.clear();draft=null;element.replaceChildren();}
     return {render,destroy,get hasDraft(){return Boolean(draft);},get busy(){return blocked();}};
   }
   const api=Object.freeze({mount,statusLabel:value=>STATUS[value]||value,flagLabel:value=>FLAGS[value]||value,minutes,money,approvable,differenceLabel});globalThis.CleanRoomsTimekeepingView=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;

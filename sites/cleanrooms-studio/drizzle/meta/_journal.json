@@ -225,6 +225,34 @@
       "when": 1794229200000,
       "tag": "0031_employee_push",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1794258000000,
+      "tag": "0032_payroll_periods",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1794258000001,
+      "tag": "0033_shift_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1794258000002,
+      "tag": "0034_payroll_export_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1794258000003,
+      "tag": "0035_payroll_export_person_index",
+      "breakpoints": true
     }
   ]
 }

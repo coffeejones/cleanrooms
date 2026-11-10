@@ -24,6 +24,19 @@ function durationLabel(seconds: number) {
   };
 }
 
+function countdownLabel(seconds: number) {
+  if (seconds < 60) return { display: 'Under 1 min', spoken: 'under 1 minut' };
+  const roundedSeconds = Math.ceil(seconds / 60) * 60;
+  const duration = durationLabel(roundedSeconds);
+  if (roundedSeconds >= 86_400) return duration;
+  const hours = Math.floor(roundedSeconds / 3_600);
+  const minutes = (roundedSeconds / 60) % 60;
+  return {
+    ...duration,
+    display: hours ? `${hours} t ${String(minutes).padStart(2, '0')} min` : `${minutes} min`,
+  };
+}
+
 function ShiftStatusIcon({ running, paused, focused }: { running: boolean; paused: boolean; focused: boolean }) {
   const opacity = useSharedValue(1);
   useEffect(() => {
@@ -134,7 +147,7 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
     : entry
     ? workingIntervals(entry, workedUntil).reduce((total, interval) => total + interval.end - interval.start, 0)
     : 0;
-  const duration = durationLabel(waiting ? Math.ceil((start - now) / 1_000) : Math.floor(elapsed / 1_000));
+  const duration = waiting ? countdownLabel((start - now) / 1_000) : durationLabel(Math.floor(elapsed / 1_000));
   const status = running ? 'Vagt i gang' : paused ? 'På pause' : 'Næste vagt';
   const counterLabel = entry ? 'Arbejdet' : waiting ? 'Starter om' : 'Planlagt fra';
   const statusColor = running ? colors.success : paused ? colors.warning : colors.muted;
@@ -159,7 +172,7 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
         <View style={[styles.cardContent, compactWidth && styles.stacked]}>
           <View style={styles.details}>
             <Animated.View style={statusLabelStyle}>
-              <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
+              <Txt size={12} weight={running || paused ? '600' : '500'} color={statusColor}>{status}</Txt>
             </Animated.View>
             <Txt size={15} weight="600" style={styles.site}>{siteName}</Txt>
             <Txt size={12} color={colors.muted}>{visibleDate} · {shift.start}–{shift.end}</Txt>
@@ -187,7 +200,7 @@ const styles = StyleSheet.create({
   pressed: { backgroundColor: colors.paper },
   icon: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center' },
   chevron: { width: 12, height: 20, alignItems: 'center', justifyContent: 'center' },
-  cardContent: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  cardContent: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'flex-start', gap: 9 },
   details: { flex: 1, minWidth: 0 },
   site: { lineHeight: 21, letterSpacing: -0.15 },
   counter: { alignItems: 'flex-end', minWidth: 73 },

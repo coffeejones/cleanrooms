@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, Row } from '@/components/ui';
+import { UnreadMessageDivider } from '@/components/unread-message-divider';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
 import { useAppData } from '@/state/app-store';
@@ -18,9 +19,9 @@ function time(value: string) {
 export default function ConversationScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { state, actions } = useAppData();
+  const { state, actions, demoChatDrafts, setDemoChatDraft } = useAppData();
   const room = state.rooms.find((item) => item.id === id && item.memberIds.includes(state.selfId));
-  const [draft, setDraft] = useState('');
+  const draft = demoChatDrafts.get(id) ?? '';
   const [error, setError] = useState('');
   const list = useRef<FlatList<Message>>(null);
   const atBottom = useRef(true);
@@ -28,6 +29,14 @@ export default function ConversationScreen() {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const messages = useMemo(() => state.messages.filter((message) => message.roomId === id).sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [id, state.messages]);
+  const [unreadAtOpen, setUnreadAtOpen] = useState<{ roomId: string; viewerId: string; messageId?: string }>();
+  if (unreadAtOpen?.roomId !== room?.id || (room && unreadAtOpen?.viewerId !== state.selfId)) {
+    setUnreadAtOpen(room ? {
+      roomId: room.id,
+      viewerId: state.selfId,
+      messageId: messages.find(message => message.personId !== state.selfId && !message.read)?.id,
+    } : undefined);
+  }
 
   useEffect(() => {
     if (room && messages.some((message) => message.personId !== state.selfId && !message.read)) actions.markRoomRead(room.id);
@@ -47,7 +56,7 @@ export default function ConversationScreen() {
   function send() {
     const result = actions.sendMessage(id, draft);
     if (!result.ok) { setError(result.error ?? 'Beskeden kunne ikke sendes.'); return; }
-    setDraft('');
+    setDemoChatDraft(id, '');
     setError('');
     shouldScroll.current = true;
   }
@@ -83,6 +92,7 @@ export default function ConversationScreen() {
             const newDay = !previous || new Date(previous.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
             return <View style={{ gap: 12 }}>
               {newDay && <Text selectable style={{ textAlign: 'center', color: c.muted, fontSize: 11, fontWeight: '500', paddingVertical: 6 }}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
+              {item.id === unreadAtOpen?.messageId && <UnreadMessageDivider />}
               <View style={{ maxWidth: '86%', alignSelf: mine ? 'flex-end' : 'flex-start', gap: 5 }}>
                 {!mine && <Text selectable style={{ color: c.muted, fontSize: 11, paddingLeft: 13 }}>{person?.name ?? 'Kollega'}</Text>}
                 <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
@@ -103,7 +113,7 @@ export default function ConversationScreen() {
               placeholder="Skriv til dit team…"
               placeholderTextColor={c.muted}
               value={draft}
-              onChangeText={setDraft}
+              onChangeText={text => setDemoChatDraft(id, text)}
               multiline
               style={[cardStyles.raisedSurface, styles.input]}
             />

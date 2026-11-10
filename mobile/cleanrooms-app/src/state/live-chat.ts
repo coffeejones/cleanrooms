@@ -6,7 +6,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { mobileAuthOrigin, MobileAuthError } from '@/auth/mobile-auth-api';
 import { RetryGate } from './retry-policy';
 import { monotonicNow } from './attendance-runtime';
-import { useEmployeeDraft } from './private-drafts';
+import { useEmployeeDraft, useEmployeeDraftPreviews } from './private-drafts';
 
 import { integer, invalid, record, readLiveChatRooms, readLiveConversation, readMessage, readRoom, readSync, readViewer, mergeLiveMessages, type Conversation, type RoomPage } from './chat-wire';
 export type { LiveChatMessage, LiveChatRoom } from './chat-wire';
@@ -30,22 +30,26 @@ function useChatScope(roomId = '') {
   const auth = useMobileAuth();
   const employee = auth.state.mode === 'signedIn' ? auth.state.session.employee : null;
   const expiresAt = auth.state.mode === 'signedIn' ? auth.state.session.expiresAt : '';
-  const key = employee ? JSON.stringify([employee.workspaceId, employee.personId, auth.sessionEpoch, expiresAt, roomId]) : '';
-  const persistentScope = employee && roomId ? JSON.stringify([mobileAuthOrigin, employee.workspaceId, employee.personId, expiresAt, 'chat', roomId]) : '';
+  const workspaceId = employee?.workspaceId;
+  const personId = employee?.personId;
+  const key = employee ? JSON.stringify([workspaceId, personId, auth.sessionEpoch, expiresAt, roomId]) : '';
+  const scopeForRoom = useCallback((id: string) => workspaceId && personId && id
+    ? JSON.stringify([mobileAuthOrigin, workspaceId, personId, expiresAt, 'chat', id]) : '', [workspaceId, personId, expiresAt]);
   const epoch = useRef(0);
   useLayoutEffect(() => {
     const generation = epoch.current + 1;
     epoch.current = generation;
     return () => { epoch.current = generation + 1; };
   }, [key]);
-  return { ...auth, key, epoch, persistentScope, expiresAt: Date.parse(expiresAt) };
+  return { ...auth, key, epoch, scopeForRoom, persistentScope: scopeForRoom(roomId), expiresAt: Date.parse(expiresAt) };
 }
 
 export function useLiveChatRooms() {
-  const { employeeRequest, key, epoch } = useChatScope();
+  const { employeeRequest, key, epoch, scopeForRoom } = useChatScope();
   const active = useActiveScreen();
   const [resource, setResource] = useState<RoomsState>();
   const current = resource?.key === key ? resource : undefined;
+  const draftPreviews = useEmployeeDraftPreviews(key, current?.data?.rooms, scopeForRoom, active);
   const pending = useRef(false);
   const retry = useRef(new RetryGate(15_000, 120_000));
   useLayoutEffect(() => { pending.current = false; retry.current = new RetryGate(15_000, 120_000); }, [key]);
@@ -83,7 +87,7 @@ export function useLiveChatRooms() {
     return () => clearInterval(timer);
   }, [active, key, load]);
 
-  return { ...current, data: current?.data, loading: current?.loading ?? Boolean(key), more: current?.more ?? false,
+  return { ...current, data: current?.data, draftPreviews, loading: current?.loading ?? Boolean(key), more: current?.more ?? false,
     refresh: () => { void load(null, true); }, loadMore: () => { if (current?.data?.nextCursor) void load(current.data.nextCursor); } };
 }
 

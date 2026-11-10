@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Tex
 import Animated from 'react-native-reanimated';
 
 import { FlowScreen } from '@/components/flow-screen';
+import { ChatRoomPreview } from '@/components/chat-room-preview';
 import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
 import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Icon, Row } from '@/components/ui';
@@ -52,9 +53,11 @@ export default function LiveChatScreen() {
         </Pressable> : null}
         renderItem={({ item: room, index }) => {
           const unread = room.unread;
+          const draft = resource.draftPreviews.get(room.id);
+          const preview = room.lastMessage ? `${room.lastMessage.authorName.split(' ')[0]}: ${room.lastMessage.text}` : room.departmentName;
           const initials = room.name.trim().split(/\s+/).slice(0, 2).map(part => [...part][0]).join('').toUpperCase();
           return <Animated.View style={searchMotion}>
-            <PressFeedback accessibilityRole="button" accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}`}
+            <PressFeedback accessibilityRole="button" accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}`}
               haptic="light"
               onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
               style={({ pressed }) => [styles.room, index === 0 ? styles.firstRoom : cardStyles.divider, index === rooms.length - 1 && styles.lastRoom, pressed && styles.pressed]}>
@@ -65,9 +68,7 @@ export default function LiveChatScreen() {
                   <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(room.lastMessage?.createdAt)}</Text>
                 </Row>
                 <Row gap={10}>
-                  <Text numberOfLines={2} style={[styles.preview, unread > 0 && styles.unreadPreview]}>
-                    {room.lastMessage ? `${room.lastMessage.authorName.split(' ')[0]}: ${room.lastMessage.text}` : room.departmentName}
-                  </Text>
+                  <ChatRoomPreview draft={draft} text={preview} style={[styles.preview, !draft && unread > 0 && styles.unreadPreview]} />
                   {room.muted && <Icon name="bell" size={13} color={colors.muted} />}
                   {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread > 99 ? '99+' : unread}</Text></View>}
                 </Row>

@@ -8,7 +8,9 @@ import { PressFeedback } from '@/components/press-feedback';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel, TIME_ZONE } from '@/domain/model';
+import { copenhagenDate, dateLabel, TIME_ZONE } from '@/domain/model';
+import { notificationDateGroups } from '@/notifications/notification-date-groups';
+import { useNow } from '@/state/app-store';
 import { useEmployeeInbox, type EmployeeInbox, type EmployeeWorkflowMessage, type EmployeeWorkflowShift } from '@/state/employee-data';
 import { invalidateEmployeeResources } from '@/state/published-schedule';
 import { EmployeeShiftRequests } from '@/components/employee-shift-requests';
@@ -25,6 +27,7 @@ function shiftLabel(shift: EmployeeWorkflowShift) {
 export default function LiveNotificationsScreen() {
   const { state, sessionEpoch, employeeRequest } = useMobileAuth();
   const resource = useEmployeeInbox();
+  const today = copenhagenDate(useNow());
   const scope = state.mode === 'signedIn' ? JSON.stringify([state.session.employee.workspaceId, state.session.employee.personId, sessionEpoch]) : '';
   const head = resource.data?.notifications.map(item => item.id).join('|') ?? '';
   const firstCursor = resource.data?.nextCursor ?? null;
@@ -44,6 +47,7 @@ export default function LiveNotificationsScreen() {
   const cursor = extra ? extra.cursor : resource.data?.nextCursor;
   const items = useMemo(() => [...new Map([...(resource.data?.notifications ?? []), ...(extra?.items ?? [])]
     .map(item => [item.id, item])).values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)), [resource.data, extra]);
+  const groups = useMemo(() => notificationDateGroups(items, today), [items, today]);
   const readIds = read.scope === scope ? read.ids : [];
 
   async function loadMore() {
@@ -115,32 +119,38 @@ export default function LiveNotificationsScreen() {
           : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Her er stille lige nu" body="Her får du besked, når der er nyt om dine vagter." /></View> : null}
         ListFooterComponent={cursor ? <Button label={busy === 'more' ? 'Henter flere…' : 'Vis flere beskeder'} compact variant="ghost" disabled={busy !== null} onPress={() => { void loadMore(); }} style={styles.more} /> : null}
         renderItem={({ item, index }) => {
+          const { heading, isLastInGroup } = groups[index];
           const seen = Boolean(item.readAt || readIds.includes(item.id));
           const after = item.after, before = item.before;
           const changedTime = Boolean(before && (!after || shiftLabel(before) !== shiftLabel(after)));
           const changedSite = before && after && before.siteName !== after.siteName;
-          return <PressFeedback haptic="light" accessibilityRole="button" disabled={busy !== null}
-            accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
-            accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
-            onPress={() => { void open(item); }}
-            style={({ pressed }) => [styles.record, index === 0 && styles.firstRecord, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed]}>
-            <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
-              color={['changed', 'moved', 'cancelled'].includes(item.kind) ? colors.danger : seen ? colors.muted : colors.accent} /></View>
-            <View style={styles.message}>
-              <Row gap={8}><Txt size={15} weight={seen ? '600' : '700'} style={{ flex: 1 }}>{titles[item.kind] ?? 'Besked'}</Txt>
-                {!seen && <View style={styles.unreadDot} />}
-                {busy === item.id && <ActivityIndicator size="small" color={colors.accent} />}
-              </Row>
-              {item.kind === 'request' && <Txt size={13} color={colors.text}>{item.summary}</Txt>}
-              {before && changedTime && <Txt size={13} color={colors.muted} style={styles.struck}>{shiftLabel(before)}</Txt>}
-              {after && <Txt size={14} weight="500">{shiftLabel(after)}</Txt>}
-              {changedSite && before && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
-              {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
-              {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
-              <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
+          return (
+            <View>
+              {heading && <Txt accessibilityRole="header" size={13} weight="600" color={colors.muted} style={styles.groupHeading}>{heading}</Txt>}
+              <PressFeedback haptic="light" accessibilityRole="button" disabled={busy !== null}
+                accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
+                accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
+                onPress={() => { void open(item); }}
+                style={({ pressed }) => [styles.record, heading && styles.firstRecord, isLastInGroup && styles.lastRecord, pressed && styles.pressed]}>
+                <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
+                  color={['changed', 'moved', 'cancelled'].includes(item.kind) ? colors.danger : seen ? colors.muted : colors.accent} /></View>
+                <View style={styles.message}>
+                  <Row gap={8}><Txt size={15} weight={seen ? '600' : '700'} style={{ flex: 1 }}>{titles[item.kind] ?? 'Besked'}</Txt>
+                    {!seen && <View style={styles.unreadDot} />}
+                    {busy === item.id && <ActivityIndicator size="small" color={colors.accent} />}
+                  </Row>
+                  {item.kind === 'request' && <Txt size={13} color={colors.text}>{item.summary}</Txt>}
+                  {before && changedTime && <Txt size={13} color={colors.muted} style={styles.struck}>{shiftLabel(before)}</Txt>}
+                  {after && <Txt size={14} weight="500">{shiftLabel(after)}</Txt>}
+                  {changedSite && before && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
+                  {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
+                  {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
+                  <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
+                </View>
+                {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
+              </PressFeedback>
             </View>
-            {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
-          </PressFeedback>;
+          );
         }}
       />
     </FlowScreen>
@@ -151,6 +161,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: 'transparent' },
   content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 28 },
   header: { paddingBottom: 12, gap: 8 },
+  groupHeading: { paddingTop: 14, paddingBottom: 8, paddingHorizontal: 2 },
   feedback: { gap: 6 },
   loading: { padding: 24, alignItems: 'center', gap: 10 },
   record: { backgroundColor: colors.white, borderColor: cardColors.border, borderWidth: 1, borderBottomWidth: 0,

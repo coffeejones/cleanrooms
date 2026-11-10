@@ -6,12 +6,14 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import LiveChatScreen from '@/screens/live-chat-screen';
 
 import { FlowScreen } from '@/components/flow-screen';
+import { ChatRoomPreview } from '@/components/chat-room-preview';
 import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
 import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
 import { useAppData } from '@/state/app-store';
+import { chatDraftPreview } from '@/state/private-draft-store';
 
 function messageTime(value?: string) {
   if (!value) return '';
@@ -25,7 +27,7 @@ export default function ChatScreen() {
 }
 
 function DemoChatScreen() {
-  const { state } = useAppData();
+  const { state, demoChatDrafts } = useAppData();
   const [query, setQuery] = useState('');
   const searchMotion = useChatSearchMotion(query);
   const rooms = useMemo(() => state.rooms
@@ -54,12 +56,14 @@ function DemoChatScreen() {
           const last = messages[messages.length - 1];
           const author = last ? state.people.find((person) => person.id === last.personId) : undefined;
           const unread = messages.filter((message) => message.personId !== state.selfId && !message.read).length;
+          const draft = chatDraftPreview(demoChatDrafts.get(room.id) ?? '');
+          const preview = last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle;
           const initials = room.name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
           return (
             <Animated.View style={searchMotion}>
               <PressFeedback
                 accessibilityRole="button"
-                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}`}
+                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}`}
                 haptic="light"
                 onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
                 style={({ pressed }) => [
@@ -75,9 +79,7 @@ function DemoChatScreen() {
                     <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(last?.createdAt)}</Text>
                   </Row>
                   <Row gap={10}>
-                    <Text numberOfLines={2} style={[styles.preview, unread > 0 && styles.unreadPreview]}>
-                      {last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle}
-                    </Text>
+                    <ChatRoomPreview draft={draft} text={preview} style={[styles.preview, !draft && unread > 0 && styles.unreadPreview]} />
                     {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>}
                   </Row>
                 </View>

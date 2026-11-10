@@ -1,10 +1,9 @@
-import { router } from 'expo-router';
 import { View } from 'react-native';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
 import { dateLabel, type Shift } from '@/domain/model';
 import { useAppData } from '@/state/app-store';
-import { PressFeedback } from './press-feedback';
+import { ShiftDetailsButton } from './shift-details-button';
 import { Icon, LiveClock, Row, Txt } from './ui';
 
 export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday, showDate = true, dateTile = false, endedWithoutEntry = false }: {
@@ -46,11 +45,11 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   ].filter(Boolean).join(', ');
 
   return (
-    <PressFeedback
+    <ShiftDetailsButton
+      shiftId={shift.id}
       accessibilityRole="button"
       accessibilityLabel={label}
       haptic="light"
-      onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
       style={({ pressed }) => ({
         paddingVertical: dateTile ? 16 : 9,
         paddingHorizontal: dateTile ? 16 : undefined,
@@ -116,6 +115,6 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
           </View>
         </Row>
       </View>
-    </PressFeedback>
+    </ShiftDetailsButton>
   );
 }

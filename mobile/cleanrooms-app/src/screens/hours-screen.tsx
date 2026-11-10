@@ -1,4 +1,4 @@
-import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import type { NavigationProp } from 'expo-router/react-navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
@@ -12,6 +12,7 @@ import { PressFeedback } from '@/components/press-feedback';
 import { PeriodArrows } from '@/components/period-arrows';
 import { PeriodPicker } from '@/components/period-picker';
 import { PeriodProgress } from '@/components/period-progress';
+import { ShiftDetailsButton } from '@/components/shift-details-button';
 import { EmptyState, Icon, LiveClock, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -255,10 +256,9 @@ function HoursRecord({ shift, state, from, to, last }: {
   const payCaption = registered ? `${minutesLabel(pay.minutes)} registreret`
     : active || missing ? 'Forventet' : `Forventet · ${minutesLabel(pay.minutes)}`;
   return (
-    <PressFeedback haptic="light"
+    <ShiftDetailsButton shiftId={shift.id} haptic="light"
       accessibilityRole="button"
       accessibilityLabel={`${date}, ${worksite}, planlagt ${plannedTime}, ${status}, ${amount} før skat, ${payCaption}`}
-      onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
       style={({ pressed }) => [
         styles.record, last && styles.lastRecord, pressed && styles.pressed,
       ]}>
@@ -285,7 +285,7 @@ function HoursRecord({ shift, state, from, to, last }: {
         </Txt>
       </View>
       <Icon name="chevron-right" size={12} color={colors.muted} />
-    </PressFeedback>
+    </ShiftDetailsButton>
   );
 }
 

@@ -30,6 +30,23 @@ test('long Unicode drafts and their exact pending command survive process recrea
   assert.equal(await reopened.read(scope('other-origin/person/room'), reopened.lease()), null);
 });
 
+test('chat previews expose only matching drafts, and disappear when the draft is cleared', async () => {
+  const native = storage();
+  const repository = new PrivateDraftStore(native, uuid);
+  const lease = repository.lease();
+  const room = scope('origin/employee-a/session/chat/room-one');
+  const otherEmployee = scope('origin/employee-b/session/chat/room-one');
+  const checkout = scope('origin/employee-a/session/clock-out/room-one');
+  await repository.save(room, { text: '  Spørg Mette\n  om nøglen  ', pending: null }, expiresAt, lease);
+  await repository.save(otherEmployee, { text: 'En anden medarbejders kladde', pending: null }, expiresAt, lease);
+  await repository.save(checkout, { text: 'En kommentar til en vagt', pending: null }, expiresAt, lease);
+  assert.deepEqual(await repository.readPreviews([room], lease), new Map([[room, 'Spørg Mette om nøglen']]));
+  await repository.save(room, { text: '', pending: null }, expiresAt, lease);
+  assert.equal((await repository.readPreviews([room], lease)).size, 0);
+  await repository.clear();
+  await assert.rejects(repository.readPreviews([room], lease), /account changed/);
+});
+
 test('checkout explanation storage preserves the existing 100,000-character server limit while chat commands retain their own limit', async () => {
   const native = storage(), repository = new PrivateDraftStore(native, uuid), key = scope('account/clock-out/long-shift');
   const text = '💬'.repeat(50_000);

@@ -7,8 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
+import { UnreadMessageDivider } from '@/components/unread-message-divider';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
+import { firstUnreadLiveMessageId, type LiveUnreadSnapshot } from '@/state/chat-unread';
 import { useLiveConversation, type LiveChatMessage } from '@/state/live-chat';
 
 const viewability = { itemVisiblePercentThreshold: 60, minimumViewTime: 500 };
@@ -30,6 +32,16 @@ export default function LiveConversationScreen() {
   useLayoutEffect(() => { mark.current = conversation.markRead; }, [conversation.markRead]);
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
+  const [unreadAtOpen, setUnreadAtOpen] = useState<(LiveUnreadSnapshot & { roomId: string })>();
+  if (unreadAtOpen?.roomId !== detail?.room.id || unreadAtOpen?.viewerId !== detail?.viewer.userId) {
+    setUnreadAtOpen(detail ? {
+      roomId: detail.room.id,
+      viewerId: detail.viewer.userId,
+      unread: detail.room.unread,
+      latestSeq: detail.room.latestSeq,
+    } : undefined);
+  }
+  const unreadMessageId = useMemo(() => unreadAtOpen && firstUnreadLiveMessageId(detail?.messages ?? [], unreadAtOpen), [detail?.messages, unreadAtOpen]);
   const messages = useMemo(() => [...(detail?.messages ?? [])].reverse(), [detail?.messages]);
   const latest = detail?.messages.at(-1)?.seq ?? 0;
   useEffect(() => {
@@ -90,6 +102,7 @@ export default function LiveConversationScreen() {
           const newDay = !older || new Date(older.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
           return <View style={styles.message}>
             {newDay && <Text selectable style={styles.date}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
+            {item.id === unreadMessageId && <UnreadMessageDivider />}
             <View style={[styles.messageBody, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>
               {!mine && <Text selectable style={styles.author}>{item.authorName}</Text>}
               <View style={[styles.bubble, mine ? styles.sent : styles.received]}>

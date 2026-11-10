@@ -2414,9 +2414,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio #cs-jump-date{min-height:32px;padding:6px 8px;border:1px solid #ccd6e3;border-radius:2px;color:#5d6672;font-size:12px}
 #cleanrooms-studio .cs-date-jump-panel&gt;label{color:#68717d}
 #cleanrooms-studio .cs-delete{color:#9b6f67}
-#cleanrooms-studio button:focus-visible,#cleanrooms-studio input:focus-visible,#cleanrooms-studio select:focus-visible,#cleanrooms-studio textarea:focus-visible{outline:2px solid #7187a5;outline-offset:2px}
+#cleanrooms-studio button:focus-visible,#cleanrooms-studio input:focus-visible,#cleanrooms-studio select:focus-visible,#cleanrooms-studio textarea:focus-visible{outline:2px solid var(--cs-access-blue,#7187a5);outline-offset:2px}
 #cleanrooms-studio .cs-board-day button:focus-visible{outline-offset:-2px;z-index:1}
-#cleanrooms-studio .cs-time-group .cs-event:focus-visible{outline:2px solid #7187a5;outline-offset:-2px}
+#cleanrooms-studio .cs-time-group .cs-event:focus-visible{outline:2px solid var(--cs-access-blue,#7187a5);outline-offset:-2px}
 #cleanrooms-studio ::-webkit-scrollbar-thumb{background:#cfd6df;border-radius:2px}
 
 /* Fit the calendar&#x27;s actual width rather than forcing an off-screen week. */
@@ -7717,12 +7717,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-planned-break-field{display:grid;grid-template-columns:160px minmax(0,1fr);align-items:end;gap:20px;margin-top:16px}
 #cleanrooms-studio .cs-planned-break-copy{min-width:0;padding-bottom:2px}
 #cleanrooms-studio .cs-planned-break-copy&gt;strong{display:block;margin:0 0 4px;color:#41515c;font-size:12px;font-weight:600;line-height:20px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-planned-break-copy .cs-field-help{display:block;margin:0;color:#7a858d;font-size:11px;line-height:18px}
+#cleanrooms-studio .cs-planned-break-copy .cs-field-help{display:block;margin:0;color:var(--cs-access-muted,#7a858d);font-size:11px;line-height:18px}
 #cleanrooms-studio .cs-planned-break-field[hidden],#cleanrooms-studio #cs-day-break-help[hidden]{display:none!important}
 #cleanrooms-studio #cs-day-times .cs-day-time-head,#cleanrooms-studio #cs-day-times .cs-day-time-row{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1fr) minmax(72px,.72fr);gap:12px;align-items:center}
 #cleanrooms-studio .cs-day-time-head{padding:0 0 4px;color:#7a858d;font-size:11px;font-weight:500;line-height:18px}
 #cleanrooms-studio .cs-day-time-row input{width:100%;min-width:0}
-#cleanrooms-studio #cs-day-break-help{margin:10px 0 0;color:#7a858d;font-size:11px;line-height:18px}
+#cleanrooms-studio #cs-day-break-help{margin:10px 0 0;color:var(--cs-access-muted,#7a858d);font-size:11px;line-height:18px}
 #cleanrooms-studio .cs-series-planned-break{display:block;margin-top:5px;color:#6c7c86;font-size:11px;line-height:18px}
 @media(max-width:520px){
  #cleanrooms-studio .cs-planned-break-field{grid-template-columns:140px minmax(0,1fr);gap:14px}
@@ -8828,7 +8828,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   line-height:20px;
 }
 #cleanrooms-studio[data-page][data-role] :is(.cs-editor-caption,.cs-group-footnote){
-  color:#74818b;
+  color:var(--cs-access-muted,#74818b);
   font-size:12px;
   line-height:19px;
 }
@@ -8917,7 +8917,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   box-shadow:inset 0 1px 0 #ffffff1a,0 1px 2px #1c29331a;
 }
 #cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days &gt; button:focus-visible{
-  outline:2px solid #526878;
+  outline:2px solid var(--cs-access-blue,#526878);
   outline-offset:3px;
 }
 #cleanrooms-studio[data-page][data-role] .cs-repeat-options .cs-field-pair:has(&gt; #cs-repeat-end-field[hidden]){grid-template-columns:minmax(0,1fr)}
@@ -26605,6 +26605,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

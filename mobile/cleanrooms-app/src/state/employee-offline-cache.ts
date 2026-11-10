@@ -146,9 +146,27 @@ export class EmployeeOfflineCache {
       if (kind === 'schedule' && (!range || !(data as unknown[]).every(item => { const shift = shiftFrom(item); return shift && shiftOverlapsDates(shift, range[0], range[1]); }))) return false;
       let records = clone(stored.records.filter(record => !(record.kind === kind && record.key === key) && record.savedAt + offlineMaxAge > this.now()));
       if (kind === 'schedule' && range) {
-        // An authoritative complete window removes cancelled/reassigned details.
-        const ids = new Set((data as unknown[]).map(item => shiftFrom(item)?.id));
-        records = records.filter(record => record.kind !== 'detail' || !shiftFrom(record.data) || !shiftOverlapsDates(shiftFrom(record.data)!, range[0], range[1]) || ids.has(shiftFrom(record.data)?.id));
+        // A newer complete window supersedes both positive geometry and known
+        // absence. Keep older window expiry; observing one part is not a new
+        // download receipt for its other shifts.
+        const incoming = new Map((data as unknown[]).map(item => [shiftFrom(item)!.id, item]));
+        records = records.filter(record => {
+          if (record.kind !== 'detail') return true;
+          const point = shiftFrom(record.data); if (!point) return true; // Keep explicit withdrawal tombstones.
+          const summary = incoming.get(point.id), fresh = shiftFrom(summary);
+          if (!fresh) return !shiftOverlapsDates(point, range[0], range[1]);
+          const oldSite = (record.data as { site: { name: string; address: string } }).site;
+          const newSite = (summary as { site: { name: string; address: string } }).site;
+          return (['personId', 'date', 'start', 'end', 'siteId', 'breakMinutes', 'role'] as const).every(field => point[field] === fresh[field])
+            && oldSite.name === newSite.name && oldSite.address === newSite.address
+            && (!fresh.previousTime || point.previousTime?.start === fresh.previousTime.start && point.previousTime?.end === fresh.previousTime.end);
+        });
+        for (const record of records) if (record.kind === 'schedule' && Array.isArray(record.data)) {
+          const period = rangeFromKey(record.key); if (!period) continue;
+          const untouched = record.data.filter(item => { const shift = shiftFrom(item); return shift && !incoming.has(shift.id) && !shiftOverlapsDates(shift, range[0], range[1]); });
+          record.data = [...untouched, ...(data as unknown[]).filter(item => shiftOverlapsDates(shiftFrom(item)!, period[0], period[1]))];
+        }
+        records = records.filter(record => record.kind !== 'schedule' || Array.isArray(record.data) && record.data.length <= 5000 && bytes(record.data) <= maximumRecordBytes);
       } else if (kind === 'detail') {
         const shift = shiftFrom(data);
         for (const record of records) if (record.kind === 'schedule' && Array.isArray(record.data)) {

@@ -192,3 +192,25 @@ test('point updates keep calendar windows compact instead of duplicating instruc
  for(const record of JSON.parse(native.raw()).records.filter(record=>record.kind==='schedule')){const value=record.data[0];assert.equal(value.shift.description,'');assert.deepEqual(value.shift.checklist,[]);assert.equal(value.site.worksiteInfo,undefined);assert.equal(value.clockInRadius,undefined);}
  assert.equal((await cache.read(scope,'detail','own-night',0)).data.shift.description,large.shift.description,'the opened point still retains the complete allowed instructions');
 });
+
+
+test('a newer same-ID calendar time invalidates stale opened instructions and offline detail falls back to the fresh time',async()=>{
+ const {cache}=await fixture();await cache.save(scope,'schedule',period,[shift()],0);await cache.save(scope,'detail','own-night',detail(),0);
+ const changed=shift({start:'23:00',end:'07:00'});await cache.save(scope,'schedule',period,[changed],0);
+ const read=await cache.read(scope,'detail','own-night',0);assert.equal(read.data.offlineSummary,true);assert.equal(read.data.shift.start,'23:00');assert.equal(read.data.shift.end,'07:00');assert.equal(read.data.shift.description,'');assert.equal(read.data.site.worksiteInfo,undefined);
+ const freshPoint={...detail({start:'23:00',end:'07:00'}),site:changed.site};await cache.save(scope,'detail','own-night',freshPoint,0);
+ await cache.save(scope,'schedule',period,[changed],0);const unchanged=await cache.read(scope,'detail','own-night',0);assert.equal(unchanged.data.offlineSummary,undefined);assert.equal(unchanged.data.shift.description,'Sensitive instructions Æøå','an unchanged summary keeps the previously opened full instructions');
+});
+test('cross-week/site relocation supersedes the old point and all cached calendar geometry despite identical download timestamps',async()=>{
+ const {cache}=await fixture();await cache.save(scope,'schedule',period,[shift()],0);await cache.save(scope,'detail','own-night',detail(),0);
+ const nextPeriod=JSON.stringify(['2026-11-16','2026-11-22']),moved={...shift({date:'2026-11-16',siteId:'new-site'}),site:{id:'new-site',name:'New workplace',address:'New address'}};
+ await cache.save(scope,'schedule',nextPeriod,[moved],0);const point=await cache.read(scope,'detail','own-night',0);
+ assert.equal(point.data.offlineSummary,true);assert.equal(point.data.shift.date,'2026-11-16');assert.equal(point.data.site.id,'new-site');assert.equal(point.data.site.address,'New address');assert.deepEqual((await cache.read(scope,'schedule',period,0)).data,[],'the old window cannot retain a contradictory row');
+ await cache.save(scope,'schedule',nextPeriod,[],0);assert.equal(await cache.read(scope,'detail','own-night',0),null,'a later complete empty window cannot resurrect an older cached calendar summary');
+});
+test('changed pause or workplace name/address invalidates only the incompatible opened point',async()=>{
+ for(const change of [{shift:{breakMinutes:45}},{shift:{role:'New role'}},{shift:{previousTime:{start:'21:00',end:'05:00'}}},{site:{name:'Renamed site'}},{site:{address:'Changed entrance address'}}]){
+  const {cache}=await fixture();await cache.save(scope,'schedule',period,[shift()],0);await cache.save(scope,'detail','own-night',detail(),0);const summary=shift();Object.assign(summary.shift,change.shift);Object.assign(summary.site,change.site);await cache.save(scope,'schedule',period,[summary],0);
+  const point=await cache.read(scope,'detail','own-night',0);assert.equal(point.data.offlineSummary,true);assert.equal(point.data.shift.breakMinutes,summary.shift.breakMinutes);assert.equal(point.data.site.name,summary.site.name);assert.equal(point.data.site.address,summary.site.address);assert.equal(point.data.shift.role,summary.shift.role??'');assert.deepEqual(point.data.shift.previousTime,summary.shift.previousTime);
+ }
+});

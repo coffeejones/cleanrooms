@@ -4,18 +4,6 @@ A planning and employee demo hosted on Sites with Vinext and Cloudflare D1. The 
 
 Run `npm ci`, `npm test`, then `npm run build`. The prebuild regenerates `site/index.html` from `src/` and builds the rich editor locally. Vinext emits the Worker in `dist/`. Run `npm run dev` for local preview; the supplied Sites local sign-in is development-only. Apply generated migrations to local D1 as described in the Sites starter before exercising persistence locally.
 
-For UI work in a fresh checkout, run `npm ci` and `npm run dev:ui`. Open
-<http://127.0.0.1:5176/signin-with-chatgpt?return_to=/> to use the existing local
-test identity. This command migrates only the checkout-local D1 database, creates
-a sample plan if none exists, builds the UI document and starts the actual app
-server on loopback. Saved local changes survive restarts. It does not use a hosted
-database or change production authentication. The portable profile is required.
-
-After editing `src/`, run `python3 scripts/build.py` and reload the browser. If
-changing the rich editor or vendor entry points, run `npm run build:editor` first.
-Serving `site/` with a static HTTP server is insufficient: the app also needs
-`/storage-bridge` and the API routes supplied by the development server.
-
 `/api/studio` requires Sites identity and resolves a server-owned workspace membership. Draft shifts, series and week caches have independent D1 records and versions. Employees, worksites and departments have separate directory records and versions. A workspace revision still fences atomic multi-record plan changes; member preferences are separate and saved atomically with permitted plan writes. Existing authenticated snapshot owners bootstrap as immutable workspace owners. Unknown visitors need an invitation; there is no first-visitor signup. The current Site remains owner-private. The employee picker is available only to users who may plan and remains an explicit preview of the published plan.
 
 Optional instructions use backward-compatible plain `note` and canonical JSON-string `noteRich`. The model allowlists structure, formatting and safe links and renders with DOM text nodes. Untouched legacy text remains exact; there is no low text-length cap. Requests have a16MiB bound and report storage failures visibly.

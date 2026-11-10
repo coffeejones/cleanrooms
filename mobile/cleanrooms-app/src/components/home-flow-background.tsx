@@ -1,112 +1,103 @@
 import { useIsFocused } from 'expo-router/react-navigation';
-import { useEffect, useRef, useState } from 'react';
-import { AppState, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import Svg, { Defs, G, LinearGradient, Path, Stop } from 'react-native-svg';
+import { useEffect, useMemo, useState } from 'react';
+import { AppState, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { useReduceMotionPreference } from './motion-preference';
 
-type DriftStep = { target: number; duration: number };
+type FlowLayer = {
+  id: string; base: number; amplitude: number; skew: number; strands: number;
+  speed: number; start: number; lineOpacity: number; fillOpacity: number; strokeWidth: number;
+};
 
-function driftSteps(center: number, range: number, minimumDuration: number): DriftStep[] {
-  return Array.from({ length: 5 }, () => ({
-    target: center + (Math.random() * 2 - 1) * range,
-    duration: minimumDuration + Math.random() * 12_000,
-  }));
-}
-
-type Ribbon = { id: string; curve: string; band: string; opacity: number; fillOpacity: number };
-
-const ribbons: Ribbon[] = [
-  {
-    id: 'home-flow-ripple',
-    curve: 'M -40 104 C 24 148 80 148 146 114 S 286 52 440 98',
-    band: 'M -40 104 C 24 148 80 148 146 114 S 286 52 440 98 L 440 106 C 286 60 212 90 146 122 C 80 158 24 156 -40 111 Z',
-    opacity: .78, fillOpacity: .11,
-  },
-  {
-    id: 'home-flow-bend',
-    curve: 'M -40 80 C 58 38 120 130 214 137 S 350 126 440 58',
-    band: 'M -40 80 C 58 38 120 130 214 137 S 350 126 440 58 L 440 64 C 350 133 308 153 214 145 C 120 138 58 44 -40 87 Z',
-    opacity: .72, fillOpacity: .08,
-  },
-  {
-    id: 'home-flow-sweep',
-    curve: 'M -40 148 C 94 150 184 106 440 86',
-    band: 'M -40 148 C 94 150 184 106 440 86 L 440 92 C 184 112 94 156 -40 153 Z',
-    opacity: .62, fillOpacity: .06,
-  },
+const layers: FlowLayer[] = [
+  { id: 'home-flow-silk', base: 114, amplitude: 28, skew: -10, strands: 18, speed: 6, start: 0, lineOpacity: .10, fillOpacity: .03, strokeWidth: .42 },
+  { id: 'home-flow-mist', base: 122, amplitude: 18, skew: -4, strands: 12, speed: 4.5, start: .08, lineOpacity: .085, fillOpacity: .02, strokeWidth: .36 },
 ];
 
-function FlowRibbon({ ribbon }: { ribbon: Ribbon }) {
-  const paint = `url(#${ribbon.id})`;
-  return (
-    <Svg width="100%" height="100%" viewBox="0 0 400 160" preserveAspectRatio="none">
-      <Defs>
-        <LinearGradient id={ribbon.id} x1="0%" y1="0%" x2="100%" y2="0%">
-          <Stop offset="0%" stopColor="#77a7df" />
-          <Stop offset="52%" stopColor="#8ec6e0" />
-          <Stop offset="100%" stopColor="#70c8bb" />
-        </LinearGradient>
-      </Defs>
-      <G opacity={ribbon.opacity}>
-        <Path d={ribbon.band} fill={paint} opacity={ribbon.fillOpacity} />
-        <Path d={ribbon.curve} fill="none" stroke={paint} strokeWidth={.65} opacity={.15} />
-      </G>
-    </Svg>
-  );
+function flowCurve(base: number, amplitude: number, skew: number, period: number, reverse = false) {
+  const p = (value: number) => Number(value.toFixed(3));
+  let path = `M ${reverse ? p(period * 2) : 0} ${p(base)}`;
+  // Each period has matching endpoint heights and tangents for seamless travel.
+  for (const tile of reverse ? [1, 0] : [0, 1]) {
+    const x = tile * period;
+    if (reverse) {
+      path += ` C ${p(x + period * .88)} ${p(base - amplitude)} ${p(x + period * .65)} ${p(base - amplitude + skew)} ${p(x + period * .5)} ${p(base + skew)}`;
+      path += ` C ${p(x + period * .35)} ${p(base + amplitude + skew)} ${p(x + period * .12)} ${p(base + amplitude)} ${p(x)} ${p(base)}`;
+    } else {
+      path += ` C ${p(x + period * .12)} ${p(base + amplitude)} ${p(x + period * .35)} ${p(base + amplitude + skew)} ${p(x + period * .5)} ${p(base + skew)}`;
+      path += ` C ${p(x + period * .65)} ${p(base - amplitude + skew)} ${p(x + period * .88)} ${p(base - amplitude)} ${p(x + period)} ${p(base)}`;
+    }
+  }
+  return path;
 }
 
-function DriftingRibbon({ ribbon, active, reduceMotion, style }: {
-  ribbon: Ribbon;
+function TravellingRibbon({ layer, period, active, reduceMotion }: {
+  layer: FlowLayer;
+  period: number;
   active: boolean;
   reduceMotion: boolean;
-  style: StyleProp<ViewStyle>;
 }) {
-  const x = useSharedValue(0);
-  const y = useSharedValue(0);
-  const scaleX = useSharedValue(1.02);
-  const scaleY = useSharedValue(1);
-  const plan = useRef<DriftStep[][] | null>(null);
-  const motion = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: x.get() }, { translateY: y.get() },
-      { scaleX: scaleX.get() }, { scaleY: scaleY.get() },
-    ],
-  }));
+  const phase = useSharedValue(period * layer.start);
+  const motion = useAnimatedStyle(() => ({ transform: [{ translateX: -(phase.get() % period) }] }));
+  const paths = useMemo(() => {
+    const curve = (offset: number, reverse = false) => flowCurve(
+      layer.base + offset * .62,
+      layer.amplitude + offset * .24,
+      layer.skew + offset * .05,
+      period,
+      reverse,
+    );
+    const edge = (layer.strands - 1) / 2 + 1.5;
+    return {
+      band: `${curve(-edge)} ${curve(edge, true).replace(/^M /, 'L ')} Z`,
+      strands: Array.from({ length: layer.strands }, (_, index) => ({
+        path: curve(index - (layer.strands - 1) / 2),
+        opacity: layer.lineOpacity * (.4 + .6 * Math.sin(Math.PI * (index + .5) / layer.strands)),
+      })),
+    };
+  }, [layer, period]);
 
   useEffect(() => {
-    const values = [x, y, scaleX, scaleY];
-    const stop = () => values.forEach(value => cancelAnimation(value));
-    stop();
-    if (reduceMotion) {
-      x.set(0);
-      y.set(0);
-      scaleX.set(1.02);
-      scaleY.set(1);
-    } else if (active) {
-      // Generate once per layer, independently of the home screen's clock ticks.
-      const layerPlans = plan.current ??= [
-        driftSteps(0, 9, 16_000), driftSteps(0, 5, 18_000),
-        driftSteps(1.02, .018, 22_000), driftSteps(1, .035, 20_000),
-      ];
-      const timing = { easing: Easing.inOut(Easing.sin), reduceMotion: ReduceMotion.Never };
-      values.forEach((value, index) => {
-        const origin = value.get();
-        const steps = layerPlans[index];
-        const sequence = steps.map(step => withTiming(step.target, { ...timing, duration: step.duration }));
-        // Return to this run's origin so repetition and focus resumes stay seamless.
-        sequence.push(withTiming(origin, { ...timing, duration: steps[0].duration }));
-        value.set(withRepeat(withSequence(ReduceMotion.Never, ...sequence), -1, false, undefined, ReduceMotion.Never));
-      });
+    cancelAnimation(phase);
+    if (active && !reduceMotion) {
+      const origin = phase.get() % period;
+      phase.set(origin);
+      phase.set(withRepeat(withTiming(origin + period, {
+        duration: period / layer.speed * 1_000,
+        easing: Easing.linear,
+        reduceMotion: ReduceMotion.Never,
+      }), -1, false, undefined, ReduceMotion.Never));
     }
-    return stop;
-  }, [active, reduceMotion, scaleX, scaleY, x, y]);
+    return () => cancelAnimation(phase);
+  }, [active, layer.speed, period, phase, reduceMotion]);
 
-  return <Animated.View style={[style, motion]}><FlowRibbon ribbon={ribbon} /></Animated.View>;
+  const paint = `url(#${layer.id})`;
+  return (
+    <Animated.View style={[styles.lower, { width: period * 2 }, motion]}>
+      <Svg width="100%" height="100%" viewBox={`0 0 ${period * 2} 160`} preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id={layer.id} x1="0%" y1="0%" x2="100%" y2="0%">
+            <Stop offset="0%" stopColor="#77a7df" />
+            <Stop offset="25%" stopColor="#70c8bb" />
+            <Stop offset="50%" stopColor="#77a7df" />
+            <Stop offset="75%" stopColor="#70c8bb" />
+            <Stop offset="100%" stopColor="#77a7df" />
+          </LinearGradient>
+        </Defs>
+        <Path d={paths.band} fill={paint} opacity={layer.fillOpacity} />
+        {paths.strands.map((strand, index) => (
+          <Path key={index} d={strand.path} fill="none" stroke={paint} strokeWidth={layer.strokeWidth} opacity={strand.opacity} />
+        ))}
+      </Svg>
+    </Animated.View>
+  );
 }
 
 export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) {
   const focused = useIsFocused();
+  const { width } = useWindowDimensions();
+  const period = Math.max(width * 2, 640);
   const reduceMotion = useReduceMotionPreference();
   const [foreground, setForeground] = useState(AppState.currentState === 'active');
   useEffect(() => {
@@ -117,8 +108,8 @@ export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) 
 
   return (
     <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.frame, style]}>
-      {ribbons.map(ribbon => (
-        <DriftingRibbon key={ribbon.id} ribbon={ribbon} active={active} reduceMotion={reduceMotion} style={styles.lower} />
+      {layers.map(layer => (
+        <TravellingRibbon key={layer.id} layer={layer} period={period} active={active} reduceMotion={reduceMotion} />
       ))}
     </View>
   );
@@ -126,5 +117,5 @@ export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) 
 
 const styles = StyleSheet.create({
   frame: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' },
-  lower: { position: 'absolute', bottom: -8, left: -20, right: -20, height: 160 },
+  lower: { position: 'absolute', bottom: -8, left: 0, height: 160 },
 });

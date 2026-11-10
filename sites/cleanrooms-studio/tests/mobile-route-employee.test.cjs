@@ -9,10 +9,11 @@ const { writeStudio } = require('../lib/studio-store.mjs');
 const Workspace = require('../lib/workspace-store.mjs');
 const Departments = require('../src/department-model.js');
 const Publication = require('../src/publication-model.js');
+const Time = require('../src/timekeeping-model.js');
 
 const key = 'a'.repeat(64), personId = 'person-route-own', peerId = 'person-route-peer';
 const owner = 'mobile-route-owner';
-async function setup(t, { day = '2090-01-10' } = {}) {
+async function setup(t, { day = '2090-01-10', start = '08:00', end = '16:00' } = {}) {
   const sqlite = new DatabaseSync(':memory:'); sqlite.exec('PRAGMA foreign_keys=ON');
   for (const file of fs.readdirSync(path.join(__dirname, '../drizzle')).filter(file => file.endsWith('.sql')).sort()) {
     sqlite.exec(fs.readFileSync(path.join(__dirname, '../drizzle', file), 'utf8'));
@@ -33,10 +34,11 @@ async function setup(t, { day = '2090-01-10' } = {}) {
     { type: 'taskItem', attrs: { checked: false }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Fyld sæbe op' }] }] },
   ] }] });
   const roster = [personId, peerId].map((id, i) => ({ id, name: i ? 'Peer Name' : 'Own Name', initials: 'ON', site: 0, target: 37, role: 'Service', active: true }));
-  const shifts = [personId, peerId].map((person, i) => ({ id: i ? 'route-peer' : 'route-own', person, date: day, start: '08:00', end: '16:00', site: 0, noteRich }));
+  const shifts = [personId, peerId].map((person, i) => ({ id: i ? 'route-peer' : 'route-own', person, date: day, start, end, site: 0, noteRich }));
+  const week=Time.addDays(day,-((new Date(day+'T12:00:00Z').getUTCDay()+6)%7)),period={from:week,to:Time.addDays(week,6)};
   const studio = Publication.publish({ storageVersion: 1, demoSeed: false, roster, organization: Departments.defaultOrganization(),
     series: [], edits: Object.fromEntries(shifts.map(shift => [shift.id, shift])), deleted: [], requests: {}, weekPlans: {}, checklistProgress: {}, coverageRules: [],
-  }, { from: '2090-01-09', to: '2090-01-15', siteIds: [0], actor: { userId: owner, name: 'Owner' }, at: new Date().toISOString() }).studio;
+  }, { ...period, siteIds: [0], actor: { userId: owner, name: 'Owner' }, at: new Date().toISOString() }).studio;
   assert.equal((await writeStudio(db, owner, 0, studio)).ok, true);
   const web = async (action, payload) => {
     const response = await Workspace.handleAccountsRequest(new Request('https://studio.example/api/accounts', {
@@ -46,7 +48,7 @@ async function setup(t, { day = '2090-01-10' } = {}) {
     }), db);
     const body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body;
   };
-  await web('timeRead', { from: '2090-01-09', to: '2090-01-15' });
+  await web('timeRead', period);
   const workspaceId = sqlite.prepare('SELECT id FROM workspaces WHERE owner_user_id=?').get(owner).id;
   async function call(payload, token, customKey = key, raw) {
     const response = await handleMobileAuthRequest(new Request('https://studio.example/api/mobile-auth', {

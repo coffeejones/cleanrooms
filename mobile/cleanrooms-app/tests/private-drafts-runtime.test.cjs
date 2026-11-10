@@ -187,7 +187,7 @@ test('real composer scope changes and synchronous account teardown fence a pendi
 function authCallback(name, globals) {
   const filename = path.join(mobile, 'src/auth/mobile-auth.tsx'), source = fs.readFileSync(filename, 'utf8'), tree = ts.createSourceFile(filename, source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
   let callback; function visit(node) { if (ts.isVariableDeclaration(node) && node.name.getText(tree) === name) callback = node.initializer.arguments[0]; ts.forEachChild(node, visit); } visit(tree); assert.ok(callback);
-  const context = vm.createContext({ ...globals }); vm.runInContext(ts.transpileModule('globalThis.subject=' + callback.getText(tree) + ';', { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText, context); return context.subject;
+  const context = vm.createContext({ sessionValue: { current: null }, offlineMode: { current: false }, clearEmployeeOffline: async () => {}, acceptSession: (_token, session) => globals.setState?.({ mode: 'signedIn', session }), ...globals }); vm.runInContext(ts.transpileModule('globalThis.subject=' + callback.getText(tree) + ';', { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText, context); return context.subject;
 }
 test('actual logout invalidates drafts before yielding and storage cleanup failure does not block local logout', async () => {
   let invalidated = false; const states = [], token = { current: 'old-token' };
@@ -243,7 +243,7 @@ test('the actual reopened checkout reconciles the old command without reporting 
   let chosen; function visit(node) { if (ts.isFunctionDeclaration(node) && node.name?.text === 'register') chosen = node; ts.forEachChild(node, visit); } visit(tree); assert.ok(chosen);
   let writes = 0, refreshed = 0;
   const { confirmsTimeCommand } = require(path.join(compiled, 'state/attendance-runtime.js'));
-  const context = vm.createContext({ detail: { shift: { id: 'shift' } }, id: 'shift', pending: { current: false }, uncertain: { current: { shiftId: 'shift', operation: 'finish', version: 1, comment: 'Oprindelig forklaring' } }, entry: { version: 1 },
+  const context = vm.createContext({ offline: false, detail: { shift: { id: 'shift' } }, id: 'shift', pending: { current: false }, uncertain: { current: { shiftId: 'shift', operation: 'finish', version: 1, comment: 'Oprindelig forklaring' } }, entry: { version: 1 },
     setBusy() {}, setActionError() {}, setSaved() {}, readPublishedShift: async () => ({ entry: { version: 2, status: 'submitted', clockIn: '2026-11-09T08:00:00Z', clockOut: '2026-11-09T16:00:00Z', pauseAt: null, comment: 'Oprindelig forklaring' } }),
     resource: { refresh() { refreshed++; } }, invalidateEmployeeResources() {}, confirmsTimeCommand, writeShiftTime: async () => { writes++; }, MobileAuthError: class extends Error {},
   });
@@ -281,15 +281,16 @@ test('concurrent real session expirations revoke synchronously, share teardown a
 
 function publishedResource() {
   const harness = hooks(), module = { exports: {} }, filename = path.join(mobile, 'src/state/published-schedule.ts');
-  const auth = { sessionEpoch: 1, state: { mode: 'signedIn', session: { employee: { workspaceId: 'own-workspace', personId: 'own-person' }, expiresAt: '2026-12-09T12:00:00Z' } } };
+  const auth = { offlineLease: 0, readOfflineResource: async () => null, saveOfflineResource: async () => {}, sessionEpoch: 1, state: { mode: 'signedIn', session: { employee: { workspaceId: 'own-workspace', personId: 'own-person' }, expiresAt: '2026-12-09T12:00:00Z' } } };
   const source = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS }, fileName: filename }).outputText;
   class MobileAuthError extends Error { constructor(status) { super('Scoped request failed'); this.status = status; } }
   vm.runInNewContext(source, { module, exports: module.exports, require(name) {
     if (name === 'react') return harness.react;
     if (name === 'expo-router') return { useFocusEffect: callback => harness.react.useLayoutEffect(callback, [callback]) };
     if (name === 'react-native') return { AppState: { addEventListener: () => ({ remove() {} }) } };
-    if (name === '@/auth/mobile-auth') return { useMobileAuth: () => auth };
+    if (name === '@/auth/mobile-auth') return { useMobileAuth: () => auth, offlineConnectionFailure: error => error.status === 503 };
     if (name === '@/auth/mobile-auth-api') return { MobileAuthError };
+    if (name === './employee-offline-cache') return require(path.join(compiled, 'state/employee-offline-cache.js'));
     if (name === '@/domain/model') return require(path.join(compiled, 'domain/model.js'));
     throw Error('Unexpected resource dependency ' + name);
   } });

@@ -29,6 +29,7 @@
     const next=active||personal.find(shift=>engine().shiftDates(shift).some(day=>day>=today)),selected=personal.find(shift=>String(shift.id)===String(options.selectedShiftId));
     const previous=memory.get(host),hadSelected=previous?.selectedId,samePerson=previous?.person===person.id,sameShift=samePerson&&previous?.selectedId===selected?.id;
     const state=samePerson?previous:{person:person.id,calendarTop:0,detailTop:0,focus:null,returnFocus:null};
+    const worksiteOpen=sameShift&&Boolean(previous?.detail?.querySelector?.('.cs-employee-worksite-info')?.open);
     if (previous?.page?.isConnected) {
       state.calendarTop=previous.calendar?.scrollTop||0;
       state.detailTop=previous.detail?.scrollTop||0;
@@ -130,6 +131,11 @@
       head.append(node('p','cs-employee-detail-date',fullDate(selected.date)),node('p','cs-employee-detail-time',clockLabel(selected)),node('p','cs-employee-detail-site',site.name));
       if(Number.isSafeInteger(selected.plannedBreakMinutes)&&selected.plannedBreakMinutes>0)head.append(node('p','cs-employee-muted cs-employee-detail-planned-pause',selected.plannedBreakMinutes+' min ulønnet pause · '+hours(duration(selected))+' arbejdstid'));
       if(addressFor(site))head.append(node('p','cs-employee-address',addressFor(site)));detail.append(head);detailBody=node('div','cs-employee-detail-body');
+      const worksiteInfo=options.worksiteInfo??site.worksiteInfo;
+      if(worksiteInfo&&typeof worksiteInfo==='object'&&!Array.isArray(worksiteInfo)){
+        const rows=[['Kontaktperson',worksiteInfo.contactName],['Telefon',worksiteInfo.contactPhone],['Parkering',worksiteInfo.parking],['Adgangsvejledning',worksiteInfo.accessInstructions]].filter(([,value])=>typeof value==='string'&&value.trim());
+        if(rows.length){const information=node('details','cs-employee-worksite-info'),toggle=node('summary','','Oplysninger om arbejdsstedet'),list=node('dl','cs-employee-worksite-info-fields');for(const [label,value]of rows){const row=node('div');row.append(node('dt','',label),node('dd','',value));list.append(row);}information.open=worksiteOpen;information.append(toggle,list);detailBody.append(information);}
+      }
       if(typeof options.onOfferShift==='function'&&selected.date>=today)detailBody.append(button('Tilbyd vagt til en kollega','cs-button cs-employee-offer',()=>options.onOfferShift(selected),'Tilbyd vagten til en kollega'));
       if(options.timekeeping&&Timekeeping)detailBody.append(Timekeeping.render(doc,{...options.timekeeping,shift:selected,entry:timeFor(selected),today,preview:options.preview===true||options.timekeeping.preview===true,onAction:options.onTimeAction}));
       const summary = node('div','cs-employee-task-summary'), progressText = node('strong','cs-employee-task-count'), progressBar = node('progress','cs-employee-task-bar'); progressBar.setAttribute('aria-label','Opgaver udført på denne vagt'); summary.append(progressText,progressBar);

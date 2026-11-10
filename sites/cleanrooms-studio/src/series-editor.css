@@ -106,3 +106,8 @@
 #cleanrooms-studio[data-page] .cs-series-date-pending{color:#8e671e}
 #cleanrooms-studio[data-page] .cs-series-date-clear{color:#78858d}
 @media(max-width:760px){#cleanrooms-studio[data-page] .cs-day-time-row{gap:8px}#cleanrooms-studio[data-page] .cs-day-time-row input{font-size:16px}#cleanrooms-studio[data-page] .cs-series-calendar-control{width:36px;height:36px;min-height:36px}#cleanrooms-studio[data-page] .cs-series-calendar-head{grid-template-columns:36px minmax(0,1fr) 36px}#cleanrooms-studio[data-page] .cs-series-calendar-grid > .cs-series-calendar-date{height:36px;min-height:36px}}
+
+#cleanrooms-studio .cs-repeat-pattern-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+#cleanrooms-studio .cs-repeat-pattern-heading .cs-field-label{margin:0}
+#cleanrooms-studio .cs-repeat-interval-field{display:block;min-width:160px;margin:0}
+#cleanrooms-studio .cs-repeat-interval-field select{width:100%}

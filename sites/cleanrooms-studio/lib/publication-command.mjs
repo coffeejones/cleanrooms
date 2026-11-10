@@ -68,7 +68,7 @@ export async function readPublicationLineage({db,workspaceId,before,after}){
     const day=Time.validDate(source.startDate)&&source.startDate>='2000-01-01'&&source.startDate<='2100-12-31'?source.startDate:frozen[0]?.work_date;
     if(!day)fail(409,'planning_series_repair_required','Den gemte vagtserie '+source.id+' skal gennemgås, før udgivne perioder ændres.');
     const weekday=(new Date(day+'T12:00:00Z').getUTCDay()+6)%7;
-    return {...source,person:frozen[0]?.person_id||'legacy',site:frozen[0]?.site??0,startDate:day,endDate:day,weekdays:[(weekday+1)%7],start:'07:00',end:'15:00',plannedBreakMinutes:0,dayTimes:{},openEnded:false,note:'',noteRich:undefined};
+    return {...source,person:frozen[0]?.person_id||'legacy',site:frozen[0]?.site??0,startDate:day,endDate:day,weekdays:[(weekday+1)%7],weekInterval:1,weekAnchor:Series.weekMonday(day),start:'07:00',end:'15:00',plannedBreakMinutes:0,dayTimes:{},openEnded:false,note:'',noteRich:undefined};
   })};
   const linked=Publication.withLineage({...safeBefore,publications:publication},{...after,publications:publication}).publications;
   const old={...meta.value,slots:{},records:[]},next={...linked,slots:{},records:[]};return {before:{publications:old},after:{publications:next},changed:JSON.stringify(old.scopeLinks||[])!==JSON.stringify(next.scopeLinks||[])};

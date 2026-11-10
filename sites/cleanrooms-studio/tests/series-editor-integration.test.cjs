@@ -613,3 +613,43 @@ test('a six-month editor preview materializes conflict context twice while prese
  const reads=app.traceConflictReads();app.updatePreview();assert.equal(reads.length,2,'Staffing and the calendar each materialize one combined range, instead of 26 weekly ranges');assert.ok(reads.every(range=>range.from==='2026-10-25'&&range.to==='2027-04-26'));assert.equal(app.control('#cs-save').disabled,false);assert.equal(app.persisted(),0);
  const collision={id:'preserved-peer',person:'p0',site:1,date:'2027-02-01',start:'10:00',end:'12:00',note:''};app.state.edits[collision.id]=collision;reads.length=0;app.updatePreview();assert.equal(reads.length,2);assert.equal(app.control('#cs-save').disabled,true);assert.match(app.control('#cs-series-calendar').textContent,/Overlap|konflikt/);app.save();assert.equal(app.persisted(),0);assert.equal(app.state.series[0].start,'07:00');
 });
+
+test('the actual series editor saves every-other-week shifts across ISO week 53 and week 1',()=>{
+ const app=application();app.state.demoSeed=false;app.state.series=[];
+ app.openEditor({person:'p0',site:0,date:'2026-12-29',start:'22:00',end:'06:00',note:''},app.control('#fixture-open'),{repeat:true});
+ app.control('#cs-repeat-interval').value='2';app.control('#cs-repeat-end').value='2027-01-31';app.updatePreview();
+ const draft=app.readSeriesDraft();assert.equal(draft.weekInterval,2);assert.equal(draft.weekAnchor,'2026-12-28');
+ assert.match(app.control('#cs-series-sentence').textContent,/hver anden uge/);app.save();assert.equal(app.persisted(),1);
+ assert.deepEqual(plain(app.shiftsInRange('2026-12-28','2027-01-31').map(shift=>shift.date)),['2026-12-29','2027-01-12','2027-01-26']);
+});
+
+test('a new every-other-week draft follows its chosen start week before it is saved',()=>{
+ const app=application();app.state.demoSeed=false;app.state.series=[];
+ app.openEditor({person:'p0',site:0,date:'2026-12-29',start:'07:00',end:'15:00',note:''},app.control('#fixture-open'),{repeat:true});
+ app.control('#cs-repeat-interval').value='2';assert.equal(app.readSeriesDraft().weekAnchor,'2026-12-28');
+ app.control('#cs-repeat-start').value='2027-01-05';app.control('#cs-repeat-end').value='2027-01-31';app.updatePreview();assert.equal(app.readSeriesDraft().weekAnchor,'2027-01-04');
+ app.save();assert.deepEqual(plain(app.shiftsInRange('2027-01-01','2027-01-31').map(shift=>shift.date)),['2027-01-05','2027-01-19']);
+});
+
+test('editing a future period of an anchored two-week series never shifts its selected weeks',()=>{
+ const app=application();app.state.demoSeed=false;
+ const source={id:'two-week-editor',person:'p0',site:0,startDate:'2026-12-28',endDate:'2027-01-31',weekdays:[0],weekInterval:2,weekAnchor:'2026-12-28',start:'07:00',end:'15:00',note:''};app.state.series=[source];
+ app.openSeriesEditor(source,app.control('#fixture-open'));app.control('#cs-repeat-start').value='2027-01-05';app.control('#cs-edit-start').value='08:00';app.control('#cs-edit-end').value='16:00';app.updatePreview();
+ assert.equal(app.readSeriesDraft().weekAnchor,'2026-12-28');app.save();assert.equal(app.persisted(),1);
+ assert.deepEqual(plain(app.shiftsInRange('2026-12-28','2027-01-31').map(shift=>[shift.date,shift.start])),[['2026-12-28','07:00'],['2027-01-11','08:00'],['2027-01-25','08:00']]);
+ assert.ok(app.state.series.every(phase=>phase.weekAnchor==='2026-12-28'&&phase.weekInterval===2));
+});
+
+test('undoing a cadence change restores the original weekly schedule with explicit compatible metadata',()=>{
+ const app=application();app.state.demoSeed=false;const source=app.state.series[0],before=plain(app.shiftsInRange(source.startDate,'2026-11-30'));
+ app.openSeriesEditor(source,app.control('#fixture-open'));app.scope('all');app.control('#cs-repeat-interval').value='2';app.updatePreview();app.save();assert.equal(app.persisted(),1);assert.equal(app.state.series[0].weekInterval,2);
+ app.undo();assert.deepEqual(plain(app.shiftsInRange(source.startDate,'2026-11-30')),before);assert.equal(app.state.series[0].weekInterval,1);assert.equal(app.state.series[0].weekAnchor,require('../src/series-engine.js').weekMonday(source.startDate));
+});
+
+test('future editing retains earlier two-week phases whose first week contains no occurrence',()=>{
+ const app=application();app.state.demoSeed=false;
+ const source={id:'off-week-phase',person:'p0',site:0,startDate:'2027-01-04',endDate:'2027-02-28',weekdays:[0],weekInterval:2,weekAnchor:'2026-12-28',start:'07:00',end:'15:00',note:''};app.state.series=[source];
+ app.openSeriesEditor(source,app.control('#fixture-open'));app.control('#cs-repeat-start').value='2027-01-26';app.control('#cs-edit-start').value='08:00';app.control('#cs-edit-end').value='16:00';app.updatePreview();app.save();
+ assert.equal(app.persisted(),1);assert.equal(app.state.series.length,2);
+ assert.deepEqual(plain(app.shiftsInRange('2027-01-01','2027-02-28').map(shift=>[shift.date,shift.start])),[['2027-01-11','07:00'],['2027-01-25','07:00'],['2027-02-08','08:00'],['2027-02-22','08:00']]);
+});

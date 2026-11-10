@@ -49,7 +49,7 @@ export async function readMobileTimeEntry(db, { workspaceId, personId }, shiftId
 }
 
 /** Original attendance owns its frozen assignment after cancellation or reassignment. */
-export async function readMobileRecoveryShift(db, employee, shiftId) {
+export async function readMobileRecoveryShift(db, employee, shiftId,{includeWorksiteInfo=false}={}) {
   const entry = await findTimeEntry({ db, workspaceId: employee.workspaceId, shiftId });
   if (!entry || entry.demo || entry.personId !== employee.personId) return null;
   const frozen = entry.frozenShift ?? { id: entry.shiftId, person: entry.personId, date: entry.date, site: entry.site,
@@ -58,10 +58,11 @@ export async function readMobileRecoveryShift(db, employee, shiftId) {
     || Time.minute(frozen.start) === null || Time.minute(frozen.end) === null || frozen.end === frozen.start || !Number.isInteger(frozen.site)) {
     fail(503, 'mobile_time_invalid', 'Registreringens oprindelige vagt kunne ikke læses sikkert.');
   }
-  const place = await readDirectorySite({ db, workspaceId: employee.workspaceId, siteIndex: frozen.site });
+  const currentInfo=includeWorksiteInfo&&['running','paused'].includes(entry.status);
+  const place = await readDirectorySite({ db, workspaceId: employee.workspaceId, siteIndex: frozen.site,includeWorksiteInfo:currentInfo });
   return { id: frozen.id, personId: employee.personId, date: frozen.date, start: frozen.start, end: frozen.end,
     breakMinutes: frozen.plannedBreakMinutes ?? 0,
-    site: { id: place?.id ?? 'site-' + frozen.site, name: place?.name ?? 'Arbejdssted', address: place?.address ?? '' },
+    site: { id: place?.id ?? 'site-' + frozen.site, name: place?.name ?? 'Arbejdssted', address: place?.address ?? '',...(currentInfo&&place?.worksiteInfo?{worksiteInfo:place.worksiteInfo}:{}) },
     description: '', checklist: [], completedTaskIds: [], clockInRadius: null, entry: receipt(entry) };
 }
 

@@ -131,3 +131,14 @@
     font-size:12px;
   }
 }
+
+#cleanrooms-studio[data-page="workspace"] .cs-settings-worksite-info{display:grid;gap:16px;padding-top:24px;border-top:1px solid var(--cs-compass-rule);min-width:0}
+#cleanrooms-studio[data-page="workspace"] .cs-settings-worksite-info-title{margin:0;font-size:14px;font-weight:700;color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page="workspace"] .cs-settings-worksite-info>p{margin:0}
+#cleanrooms-studio[data-page="workspace"] .cs-settings-worksite-info textarea{min-height:100px;resize:vertical}
+.cs-employee-worksite-info{margin:0 0 20px;border-bottom:1px solid var(--cs-border,#dce2e5);padding-bottom:16px}
+.cs-employee-worksite-info>summary{font-size:13px;font-weight:600;cursor:pointer;padding:6px 0;color:var(--cs-ink,#19313b)}
+.cs-employee-worksite-info-fields{display:grid;gap:16px;margin:16px 0 0}
+.cs-employee-worksite-info-fields>div{display:grid;gap:4px}
+.cs-employee-worksite-info-fields dt{font-size:12px;color:var(--cs-muted,#63747c)}
+.cs-employee-worksite-info-fields dd{margin:0;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}

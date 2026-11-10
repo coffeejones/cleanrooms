@@ -46,3 +46,32 @@ test('unrelated refreshes preserve an in-progress payroll period draft',async()=
 test('the period preview uses actual clamped boundaries rather than claiming every 31st ends on the 30th',()=>{
   assert.equal(Guide.payrollPeriodPreview(31,'2026-04-15'),'Denne periode: 31. mar. – 29. apr.');assert.equal(Guide.payrollPeriodPreview(31,'2026-03-15'),'Denne periode: 28. feb. – 30. mar.');assert.equal(Guide.payrollPeriodPreview(1,'2028-02-15'),'Denne periode: 1. feb. – 29. feb.');
 });
+
+const Departments=require('../src/department-model.js');
+const settle=()=>new Promise(resolve=>setImmediate(resolve));
+function siteInfoFixture({read,save,allowed=true}={}){
+ const doc={activeElement:null,createElement:tag=>new Element(tag,doc)},host=new Element('div',doc),saves=[],reads=[],sites=Departments.defaultOrganization().sites.map(site=>({...site,_directoryVersion:1}));
+ const record=(id,version=1,worksiteInfo={contactName:'Receptionen',contactPhone:'+45 12 34 56 78',parking:'Mod øst',accessInstructions:'Brug receptionen'})=>({...sites.find(site=>site.id===id),_directoryVersion:version,worksiteInfo});
+ const view=Guide.mount({element:host,onReadSiteInfo:async payload=>{reads.push(payload);return read?read(payload):{ok:true,site:record(payload.id)};},onSaveSiteInfo:async payload=>{saves.push(payload);return save?save(payload):{ok:true,site:record(payload.id,payload.expectedVersion+1,payload.worksiteInfo)};}});
+ const options={settings:{},stats:{demoEnabled:false},sites,canManageSiteGps:false,gpsReady:true,canManageSiteInfo:allowed,siteInfoReady:true};view.render(options);
+ const selector=walk(host).find(node=>node.tagName==='SELECT'&&node.parentElement.children[0]?.textContent==='Arbejdssted');selector.value=sites[0].id;view.render(options);
+ const field=key=>walk(host).find(node=>node.id?.startsWith('cs-worksite-info-'+key)),button=label=>walk(host).find(node=>node.tagName==='BUTTON'&&node.textContent===label&&node.parentElement?.parentElement?.className==='cs-settings-worksite-info');
+ return {view,host,sites,options,record,selector,field,button,saves,reads,render:patch=>view.render({...options,...patch})};
+}
+test('worksite contact and guidance use the existing site selector and permit department managers without GPS access',async()=>{
+ const app=siteInfoFixture();await settle();assert.equal(app.reads.length,1);assert.equal(app.field('contactName').value,'Receptionen');assert.equal(app.field('parking').disabled,false);assert.equal(walk(app.host).find(node=>node.className==='cs-settings-gps-form').hidden,true);
+ app.field('parking').value='   Ved gavlen   ';await app.field('parking').fire('input');await app.button('Gem faste oplysninger').click();assert.equal(app.saves.length,1);assert.deepEqual(app.saves[0],{id:'site-nord',expectedVersion:1,worksiteInfo:{contactName:'Receptionen',contactPhone:'+45 12 34 56 78',parking:'Ved gavlen',accessInstructions:'Brug receptionen'}});assert.match(app.host.textContent,/De faste oplysninger er gemt/);app.view.destroy();
+});
+test('worksite info refreshes preserve dirty drafts and require a current version before saving',async()=>{
+ const app=siteInfoFixture({read:async({id,force})=>{await settle();return {ok:true,site:app.record(id,force?2:1,force?{parking:'New saved value'}:undefined)};}});await settle();app.field('parking').value='Unsaved local text';await app.field('parking').fire('input');app.render({sites:app.sites.map(site=>({...site,_directoryVersion:2}))});assert.equal(app.field('parking').value,'Unsaved local text');assert.equal(app.button('Gem faste oplysninger').disabled,true);assert.match(app.host.textContent,/Arbejdsstedet er ændret/);
+ app.selector.value='site-klinik';await app.selector.fire('change');assert.equal(app.selector.value,'site-nord');assert.match(app.host.textContent,/før du skifter arbejdssted/);
+ await app.button('Hent gemte værdier').click();assert.equal(app.field('parking').value,'New saved value');assert.equal(app.reads.at(-1).force,true);app.field('parking').value='Final';await app.field('parking').fire('input');await app.button('Gem faste oplysninger').click();assert.equal(app.saves[0].expectedVersion,2);app.view.destroy();
+});
+test('late worksite reads cannot overwrite another site or restore data after permission loss',async()=>{
+ const waits=[],app=siteInfoFixture({read:payload=>new Promise(resolve=>waits.push({payload,resolve}))});await settle();app.selector.value='site-klinik';await app.selector.fire('change');assert.equal(waits.length,2);waits[1].resolve({ok:true,site:app.record('site-klinik',1,{parking:'Selected clinic'})});await settle();waits[0].resolve({ok:true,site:app.record('site-nord',1,{parking:'LATE FOREIGN SCREEN'})});await settle();assert.equal(app.field('parking').value,'Selected clinic');
+ app.render({canManageSiteInfo:false,canManageSiteGps:false});assert.equal(walk(app.host).find(node=>node.className==='cs-settings-worksite-info').hidden,true);assert.equal(app.field('parking').value,'');assert.equal(app.field('parking').disabled,true);assert.equal(app.saves.length,0);app.view.destroy();
+});
+test('empty info is explicitly cleared and invalid injected values never reach a save',async()=>{
+ const app=siteInfoFixture();await settle();for(const key of ['contactName','contactPhone','parking','accessInstructions']){app.field(key).value='';await app.field(key).fire('input');}await app.button('Gem faste oplysninger').click();assert.equal(app.saves[0].worksiteInfo,null);
+ app.field('contactName').value='x'.repeat(121);await app.field('contactName').fire('input');await app.button('Gem faste oplysninger').click();assert.equal(app.saves.length,1);assert.match(app.host.textContent,/ugyldige eller for lange/);app.view.destroy();
+});

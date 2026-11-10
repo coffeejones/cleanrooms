@@ -202,6 +202,8 @@
             if(Object.hasOwn(change.after,'groupId')&&!Object.hasOwn(restored,'groupId'))restored.groupId=restored.id;
             if((Object.hasOwn(change.after,'plannedBreakMinutes')||Object.values(change.after.dayTimes||{}).some(times=>Series.plannedBreakMinutes(times)>0))&&!Object.hasOwn(restored,'plannedBreakMinutes'))restored.plannedBreakMinutes=0;
             if(Object.hasOwn(change.after,'openEnded')&&!Object.hasOwn(restored,'openEnded'))restored.openEnded=false;
+            if(Object.hasOwn(change.after,'weekInterval')&&!Object.hasOwn(restored,'weekInterval'))restored.weekInterval=1;
+            if(Object.hasOwn(change.after,'weekAnchor')&&!Object.hasOwn(restored,'weekAnchor'))restored.weekAnchor=Series.weekMonday(restored.startDate);
           }
           next[field].push(restored);
         }

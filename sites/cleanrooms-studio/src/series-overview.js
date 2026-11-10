@@ -17,6 +17,7 @@
   const phaseOrder = (a,b) => str(a.startDate).localeCompare(str(b.startDate)) || str(a.endDate).localeCompare(str(b.endDate)) || str(a.id).localeCompare(str(b.id));
   const patternTimes = phase => [...new Set(Array.isArray(phase.weekdays) ? phase.weekdays : [])].filter(day => Number.isInteger(day) && day >= 0 && day < 7).sort((a,b) => a-b).map(day => ({day,start:phase.dayTimes?.[day]?.start || phase.start,end:phase.dayTimes?.[day]?.end || phase.end,plannedBreakMinutes:phase.dayTimes?.[day]?.plannedBreakMinutes??phase.plannedBreakMinutes??0}));
   const pauseLabel=phase=>{const pauses=[...new Set(patternTimes(phase).map(item=>item.plannedBreakMinutes))].sort((a,b)=>a-b);return pauses.some(value=>value>0)?(pauses.length===1?pauses[0]+' min ulønnet pause':pauses[0]+'–'+pauses.at(-1)+' min pause · varierer pr. dag'):'';};
+  const patternNote=phase=>[phase.weekInterval===2?'Hver anden uge':'',pauseLabel(phase)].filter(Boolean).join(' · ');
   const patternLabel = phase => { const times = patternTimes(phase), unique = [...new Set(times.map(time => clockLabel(time)))]; return unique.length > 1 ? 'Varierende tider' : unique[0] || clockLabel(phase); };
 
   function fallbackGroups(phases,options,today) {
@@ -113,7 +114,7 @@
       const selected = new Set(Array.isArray(series.weekdays) ? series.weekdays : []), week = node('div','cs-series-week-pattern'); week.setAttribute('role','img'); week.setAttribute('aria-label','Gentages: '+days.filter((_,index) => selected.has(index)).join(', '));
       weekdayLetters.forEach((day,index) => { const item = node('span','cs-series-weekday',day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute('aria-hidden','true'); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+' '+clockLabel(time); } week.append(item); }); pattern.append(week);
       if (patternLabel(series) === 'Varierende tider') { const times=node('span','cs-series-pattern-times',patternTimes(series).map(time => shortDays[time.day]+' '+clockLabel(time)).join(' · '));times.title=times.textContent;pattern.append(times); }
-      if(pauseLabel(series))pattern.append(node('span','cs-series-planned-break',pauseLabel(series)));
+      if(patternNote(series))pattern.append(node('span','cs-series-planned-break',patternNote(series)));
       row.append(pattern);
       const period = field('Samlet periode','cs-series-row-period'),range=node('span','cs-series-row-value');
       range.append(node('span','cs-series-period-start',formatDate(entry.startDate)),node('span','cs-series-period-end',entry.openEnded?'Uden slutdato':'– '+formatDate(entry.endDate)));period.append(range);
@@ -156,7 +157,7 @@
         const range = node('div','cs-series-period-range'); range.append(node('strong',null,formatDate(phase.startDate)+' – '+endLabel(phase)),node('span','cs-series-period-state',phase.startDate > options.today ? 'Kommende periode' : !isOpenEnded(phase) && phase.endDate < options.today ? 'Afsluttet periode' : 'Gældende periode'));
         const person = node('div','cs-series-period-person'); person.append(node('strong',null,options.personName?.(phase.person) || 'Ledig vagt'),node('span',null,siteName(phase.site)));
         const rhythm = node('div','cs-series-period-rhythm'); rhythm.append(node('strong',null,patternLabel(phase)),node('span',null,patternTimes(phase).map(time => shortDays[time.day]+(patternLabel(phase) === 'Varierende tider' ? ' '+clockLabel(time) : '')).join(' · ')));
-        if(pauseLabel(phase))rhythm.append(node('span','cs-series-planned-break',pauseLabel(phase)));
+        if(patternNote(phase))rhythm.append(node('span','cs-series-planned-break',patternNote(phase)));
         item.append(range,person,rhythm);
         if (typeof options.onEdit === 'function') { const edit = button('Rediger periode',trigger => options.onEdit(phase,trigger),'cs-button cs-quiet'); edit.dataset.productFocus = 'series:'+str(phase.id)+':edit-period'; edit.setAttribute('aria-label','Rediger perioden '+(isOpenEnded(phase)?'fra '+formatDate(phase.startDate)+' uden slutdato':formatDate(phase.startDate)+' til '+formatDate(phase.endDate))+' for '+(options.personName?.(phase.person) || 'Ledig vagt')); item.append(edit); }
         periods.append(item);

@@ -33,7 +33,7 @@
   function compact(kind,id,value){
     if(value===null)return null;
     const compactValue=(source,names)=>({...fields(source,names),...(Instructions?{_instructions:Instructions.metadata(source)}:{})});
-    if(kind==='series')return compactValue(value,['id','person','site','startDate','endDate','openEnded','weekdays','start','end','plannedBreakMinutes','dayTimes','groupId']);
+    if(kind==='series')return compactValue(value,['id','person','site','startDate','endDate','openEnded','weekdays','start','end','plannedBreakMinutes','dayTimes','groupId','weekInterval','weekAnchor']);
     if(kind==='shift')return {edit:value?.edit?compactValue(value.edit,['id','person','site','date','start','end','plannedBreakMinutes','seriesId']):null,suppressed:value?.suppressed===true};
     if(kind==='published')return compactValue(value,['id','person','site','date','start','end','plannedBreakMinutes','seriesId']);
     if(kind==='week')return {...clone(value),...(Array.isArray(value.baseline)?{baseline:value.baseline.map(shift=>compact('published',shift.id,shift))}:{})};

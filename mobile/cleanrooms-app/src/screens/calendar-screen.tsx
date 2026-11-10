@@ -330,7 +330,7 @@ export default function CalendarScreen() {
               </View>
             )}
             <View style={cardStyles.divider}>
-              <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
+              <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} offline={schedule.offline} savedAt={schedule.savedAt} onRetry={schedule.refresh} />
               {selectedShifts.map((shift, index) => (
                 <View key={shift.id} style={index > 0 && cardStyles.divider}>
                   <ShiftRow shift={shift} publishedSite={publishedSites.get(shift.id)} publishedEntry={publishedEntries.get(shift.id)} publishedToday={live ? today : undefined} showDate={shift.date !== selection} dateTile />

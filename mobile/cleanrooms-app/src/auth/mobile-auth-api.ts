@@ -2,6 +2,7 @@ import { fetch } from 'expo/fetch';
 import { validDate, type ChecklistItem, type ClockInLocation, type Shift, type Site } from '@/domain/model';
 import { confirmsTimeCommand, monotonicNow } from '@/state/attendance-runtime';
 import { retryAfterMilliseconds } from '@/state/retry-policy';
+import { readWorksiteInfo } from '@/domain/worksite-information';
 
 export type Employee = {
   workspaceId: string;
@@ -53,7 +54,7 @@ export type ShiftTimeEntry = {
   workedSeconds?: number; measuredAt?: number;
   receivedAtMonotonic?: number; comment?: string; rejectionReason?: string;
 };
-export type PublishedShiftDetail = PublishedShift & { clockInRadius: number | null; entry: ShiftTimeEntry | null; completedTaskIds: string[]; checklistToken: string | null };
+export type PublishedShiftDetail = PublishedShift & { clockInRadius: number | null; entry: ShiftTimeEntry | null; completedTaskIds: string[]; checklistToken: string | null; offlineSummary?: boolean };
 export type ShiftTimeChangeTarget = Pick<Shift, 'id' | 'date' | 'start' | 'end'> & { personId?: string | null };
 const shiftClock = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
@@ -206,7 +207,9 @@ export const mobileAuthApi = {
     if (!isObject(value)) throw invalidResponse();
     if (value.shift === null) return null;
     const shift = readShift(value.shift);
-    if (!isObject(value.shift)) throw invalidResponse();
+    if (!isObject(value.shift) || !isObject(value.shift.site)) throw invalidResponse();
+    let worksiteInfo: Site['worksiteInfo'];
+    try { worksiteInfo = readWorksiteInfo(value.shift.site.worksiteInfo); } catch { throw invalidResponse(); }
     const { clockInRadius, entry } = value.shift;
     if (clockInRadius !== null && (typeof clockInRadius !== 'number' || !Number.isSafeInteger(clockInRadius) || clockInRadius < 1)) {
       throw invalidResponse();
@@ -215,7 +218,7 @@ export const mobileAuthApi = {
     if (completedTaskIds !== undefined && (!Array.isArray(completedTaskIds) || !completedTaskIds.every(id => typeof id === 'string'))) throw invalidResponse();
     const checklistToken = value.shift.checklistToken;
     if (checklistToken !== undefined && (typeof checklistToken !== 'string' || !/^[a-f0-9]{64}$/.test(checklistToken))) throw invalidResponse();
-    return { ...shift, clockInRadius, entry: entry === null ? null : readTimeEntry(entry), completedTaskIds: completedTaskIds ?? [], checklistToken: checklistToken ?? null };
+    return { ...shift, site: { ...shift.site, ...(worksiteInfo ? { worksiteInfo } : {}) }, clockInRadius, entry: entry === null ? null : readTimeEntry(entry), completedTaskIds: completedTaskIds ?? [], checklistToken: checklistToken ?? null };
   },
   shiftTimeChange: async (token: string, shift: ShiftTimeChangeTarget): Promise<{ start: string; end: string } | null> => {
     const invalid = () => new MobileAuthError('mobile_shift_change_invalid', 503, 'Vagtændringen kunne ikke læses. Prøv igen.');

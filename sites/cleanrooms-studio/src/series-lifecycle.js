@@ -52,7 +52,7 @@
     const errors=validate(phases);if(errors.length)throw new TypeError(errors.join(' '));
     if(!phases.length)return [];
     if(!record(edits)||!Array.isArray(deleted)||deleted.some(id=>typeof id!=='string'))throw new TypeError('Seriens manuelle ændringer er ugyldige.');
-    const dayMs=86400000,stamp=day=>Date.parse(day+'T12:00:00Z'),iso=value=>new Date(value).toISOString().slice(0,10),todayStamp=stamp(today);
+    const dayMs=86400000,stamp=day=>Date.parse(day+'T12:00:00Z'),todayStamp=stamp(today);
     const byId=new Map(phases.map(phase=>[phase.id,{phase,edits:[],deleted:new Set()}])),groups=new Map();
     const parent=id=>{const key=id.slice(0,-11),own=byId.get(key);return own&&Engine.occurrenceAnchor(id,key)?own:null;};
     for(const [id,shift]of Object.entries(edits)){const own=parent(id);if(own)own.edits.push([id,shift]);}
@@ -68,11 +68,9 @@
       const exceptions={count:0,edited:0,deleted:0,ids:[]},exceptionIds=new Set();let total=0,upcomingCount=0,next=null;
       const choose=candidate=>{if(!next||shiftOrder(candidate,next)<0)next=candidate;};
       for(const phase of ordered){
-        const own=byId.get(phase.id),start=stamp(phase.startDate),end=stamp(phase.endDate),weekdays=[...new Set(phase.weekdays)],selected=new Set(weekdays),startWeekday=(new Date(start).getUTCDay()+6)%7;
-        const weekday=value=>(startWeekday+Math.round((value-start)/dayMs))%7;
-        const count=from=>{const lower=Math.max(start,from);if(lower>end)return 0;const length=Math.round((end-lower)/dayMs)+1,whole=Math.floor(length/7),remainder=length%7,begin=weekday(lower);let result=whole*weekdays.length;for(let offset=0;offset<remainder;offset++)if(selected.has((begin+offset)%7))result++;return result;};
-        const belongs=anchor=>anchor>=phase.startDate&&anchor<=phase.endDate&&selected.has(weekday(stamp(anchor)));
-        const blocked=new Set();total+=count(start);upcomingCount+=count(todayStamp);
+        const own=byId.get(phase.id);
+        const belongs=anchor=>Engine.occursOn(phase,anchor);
+        const blocked=new Set();total+=Engine.countOccurrences(phase);upcomingCount+=Engine.countOccurrences(phase,today);
         exceptions.edited+=own.edits.length;exceptions.deleted+=own.deleted.size;
         for(const [key]of own.edits)exceptionIds.add(key);for(const key of own.deleted)exceptionIds.add(key);
         for(const key of own.deleted){const anchor=key.slice(-10);if(!belongs(anchor))continue;blocked.add(key);total--;if(anchor>=today)upcomingCount--;}
@@ -81,12 +79,10 @@
           if(shift.seriesId&&shift.seriesId!==phase.id||own.deleted.has(key))continue;
           blocked.add(key);if(anchor>=today)upcomingCount--;if(shift.date>=today){upcomingCount++;choose({id:shift.id,date:shift.date,start:shift.start,shift});}
         }
-        let candidate=Math.max(start,todayStamp);
-        while(candidate<=end){
-          const begin=weekday(candidate),offset=Math.min(...weekdays.map(day=>(day-begin+7)%7));candidate+=offset*dayMs;if(candidate>end)break;
-          const day=iso(candidate),key=phase.id+'@'+day;
-          if(!blocked.has(key)){const times=phase.dayTimes&&Object.hasOwn(phase.dayTimes,String(weekday(candidate)))?phase.dayTimes[weekday(candidate)]:phase;choose({id:key,date:day,start:times.start,phase});break;}
-          candidate+=dayMs;
+        for(let day=Engine.nextOccurrenceDate(phase,today);day;){
+          const key=phase.id+'@'+day,weekday=(new Date(day+'T12:00:00Z').getUTCDay()+6)%7;
+          if(!blocked.has(key)){const times=phase.dayTimes&&Object.hasOwn(phase.dayTimes,String(weekday))?phase.dayTimes[weekday]:phase;choose({id:key,date:day,start:times.start,phase});break;}
+          day=day===phase.endDate?null:Engine.nextOccurrenceDate(phase,addDay(day));
         }
       }
       exceptions.ids=[...exceptionIds].sort();exceptions.count=exceptions.ids.length;
@@ -97,7 +93,7 @@
   }
   const fail=errors=>({ok:false,draft:null,errors,error:errors[0]||'Vagtserien kunne ikke oprettes.'});
   function template(source){
-    const draft={};for(const field of ['person','site','start','end','plannedBreakMinutes','note','noteRich','weekdays','dayTimes'])if(source[field]!==undefined)draft[field]=clone(source[field]);
+    const draft={};for(const field of ['person','site','start','end','plannedBreakMinutes','note','noteRich','weekdays','dayTimes','weekInterval','weekAnchor'])if(source[field]!==undefined)draft[field]=clone(source[field]);
     return draft;
   }
   function copyDraft(source,{id,startDate,endDate,person,site,openEnded}={}){

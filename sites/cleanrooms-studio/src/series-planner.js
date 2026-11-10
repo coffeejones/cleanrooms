@@ -40,9 +40,9 @@
     const preferred=Engine.occurrenceAnchor(preferredId,series.id);if(preferred){const result=candidate(preferred);if(result)return result;}
     // At most the finite exception set can suppress recurring dates. Never
     // materialize the agreement simply to locate its next editable occurrence.
-    for(let day=today>series.startDate?today:series.startDate;day<=series.endDate;){
+    for(let day=Engine.nextOccurrenceDate(series,today);day;){
       const result=candidate(day);if(result)return result;
-      if(day===series.endDate)break;const next=new Date(day+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);day=next.toISOString().slice(0,10);
+      if(day===series.endDate)break;const next=new Date(day+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);day=Engine.nextOccurrenceDate(series,next.toISOString().slice(0,10));
     }
     return null;
   }

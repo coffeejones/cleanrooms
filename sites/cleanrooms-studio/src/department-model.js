@@ -6,6 +6,7 @@
   const LEGACY_SITE_IDS=Object.freeze(['site-nord','site-klinik','site-havn']);
   const GPS_MIN_RADIUS_METERS=1,GPS_MAX_RADIUS_METERS=1000;
   const GPS_FIELDS=Object.freeze(['enabled','latitude','longitude','radiusMeters']);
+  const WORKSITE_INFO_LIMITS=Object.freeze({contactName:120,contactPhone:80,parking:200000,accessInstructions:200000});
   const record=value=>Boolean(value&&typeof value==='object'&&!Array.isArray(value));
   const identifier=value=>typeof value==='string'&&value.length>0&&value===value.trim();
   const name=value=>identifier(value)&&value.length<=120;
@@ -14,6 +15,17 @@
     if(value==null)return [];
     const roster=globalThis.CleanRoomsRoster||(typeof require==='function'?require('./roster-model.js'):null);
     return roster?.validWorkHoursBudget(value)?[]:['Timebudgettet skal have en gyldig periode og højst to decimaler.'];
+  }
+
+  function validateWorksiteInfo(value) {
+    if(value==null)return [];
+    if(!record(value)||Object.keys(value).some(key=>!Object.hasOwn(WORKSITE_INFO_LIMITS,key)))return ['Arbejdsstedets faste oplysninger er ugyldige.'];
+    for(const [key,text]of Object.entries(value))if(typeof text!=='string'||text.length>WORKSITE_INFO_LIMITS[key]||key.startsWith('contact')&&/[\u0000-\u001f\u007f]/.test(text))return ['Arbejdsstedets kontaktoplysninger eller vejledning er ugyldige eller for lange.'];
+    return [];
+  }
+  function normalizeWorksiteInfo(value) {
+    const errors=validateWorksiteInfo(value);if(errors.length)throw new TypeError(errors[0]);
+    const fields=Object.entries(value||{}).map(([key,text])=>[key,text.trim()]).filter(([,text])=>text);return fields.length?Object.fromEntries(fields):null;
   }
 
   function defaultGps() {
@@ -69,6 +81,7 @@
         if (typeof site.address!=='string'||site.address.length>500) errors.push('Arbejdsstedets adresse skal være tekst på højst 500 tegn.');
         if (!COLORS.includes(site.color)) errors.push('Vælg en af de tilladte farver til arbejdsstedet.');
         errors.push(...validateGps(site.gps));
+        errors.push(...validateWorksiteInfo(site.worksiteInfo));
         errors.push(...validateWorkHoursBudget(site.workHoursBudget));
       });
     }
@@ -118,14 +131,15 @@
       next.sites.push({id:draft.newSite.id===undefined?'site-'+draft.id+'-'+siteIndex:draft.newSite.id,
         name:draft.newSite.name,address:draft.newSite.address,color:draft.newSite.color===undefined?COLORS[siteIndex%COLORS.length]:draft.newSite.color,
         ...(draft.newSite.gps!==undefined?{gps:clone(draft.newSite.gps)}:{}),
-        ...(draft.newSite.workHoursBudget!==undefined?{workHoursBudget:clone(draft.newSite.workHoursBudget)}:{})});
+        ...(draft.newSite.workHoursBudget!==undefined?{workHoursBudget:clone(draft.newSite.workHoursBudget)}:{}),
+        ...(draft.newSite.worksiteInfo!==undefined?{worksiteInfo:normalizeWorksiteInfo(draft.newSite.worksiteInfo)}:{})});
       department.siteIds.push(siteIndex);
     }
     const errors=validate(next);if(errors.length)return failure(errors[0]);
     return {ok:true,organization:next,department:clone(department),error:null};
   }
 
-  const api=Object.freeze({COLORS,LEGACY_SITE_IDS,GPS_MIN_RADIUS_METERS,GPS_MAX_RADIUS_METERS,defaultGps,validateGps,normalizeGps,validateWorkHoursBudget,defaultOrganization,validate,normalize,propose});
+  const api=Object.freeze({COLORS,LEGACY_SITE_IDS,GPS_MIN_RADIUS_METERS,GPS_MAX_RADIUS_METERS,defaultGps,validateGps,normalizeGps,WORKSITE_INFO_LIMITS,validateWorksiteInfo,normalizeWorksiteInfo,validateWorkHoursBudget,defaultOrganization,validate,normalize,propose});
   globalThis.CleanRoomsDepartments=api;
   if (typeof module!=='undefined'&&module.exports) module.exports=api;
 })();

@@ -30,6 +30,20 @@
 
   function iso(date) { return date.toISOString().slice(0, 10); }
 
+  const weekInterval=series=>series?.weekInterval===undefined?1:series.weekInterval;
+  function weekMonday(day){const value=parseDate(day);if(!value)return null;value.setUTCDate(value.getUTCDate()-(value.getUTCDay()+6)%7);return iso(value);}
+  const weekAnchor=series=>series?.weekAnchor===undefined?weekMonday(series?.startDate):series.weekAnchor;
+  function cadenceValid(series){const anchor=parseDate(weekAnchor(series));return [1,2].includes(weekInterval(series))&&Boolean(anchor)&&(anchor.getUTCDay()+6)%7===0&&(weekInterval(series)!==2||series.weekAnchor!==undefined);}
+  // A fixed Monday anchor avoids ISO week-number parity changing at year 53/1.
+  function cadenceMatches(series,day){const anchor=parseDate(weekAnchor(series));return cadenceValid(series)&&Math.floor((day-anchor.getTime())/(7*DAY))%weekInterval(series)===0;}
+  function occurrenceDates(series,from,to){
+    const first=parseDate(from>series.startDate?from:series.startDate),last=parseDate(to<series.endDate?to:series.endDate),anchor=parseDate(weekAnchor(series)),period=weekInterval(series)*7*DAY;
+    if(!first||!last||first>last||!cadenceValid(series))return [];
+    return [...new Set(series.weekdays)].map(day=>{const base=anchor.getTime()+day*DAY;return {first:base+Math.ceil((first.getTime()-base)/period)*period,last:last.getTime(),period};}).filter(span=>span.first<=span.last);
+  }
+  function countOccurrences(series,from=series.startDate,to=series.endDate){return occurrenceDates(series,from,to).reduce((sum,span)=>sum+Math.floor((span.last-span.first)/span.period)+1,0);}
+  function nextOccurrenceDate(series,from=series.startDate,to=series.endDate){const spans=occurrenceDates(series,from,to);return spans.length?iso(new Date(Math.min(...spans.map(span=>span.first)))):null;}
+
   function addMonths(value, count) {
     const date = parseDate(value);
     if (!date) throw new TypeError('Vælg en gyldig dato i formatet ÅÅÅÅ-MM-DD.');
@@ -55,6 +69,8 @@
     const startDate = parseDate(series.startDate), endDate = parseDate(series.endDate);
     if (!startDate) errors.push('Vælg en gyldig startdato i formatet ÅÅÅÅ-MM-DD.');
     if (!endDate) errors.push('Vælg en gyldig slutdato i formatet ÅÅÅÅ-MM-DD.');
+    if(![1,2].includes(weekInterval(series)))errors.push('Vagtserien skal gentages hver uge eller hver anden uge.');
+    if(series.weekAnchor!==undefined&&(!parseDate(series.weekAnchor)||weekMonday(series.weekAnchor)!==series.weekAnchor)||weekInterval(series)===2&&series.weekAnchor===undefined)errors.push('Vælg en gyldig mandag som vagtseriens faste startuge.');
     if (startDate && endDate) {
       const days = (endDate - startDate) / DAY + 1;
       if (days < 1) errors.push('Slutdatoen skal være på eller efter startdatoen.');
@@ -99,7 +115,7 @@
     return {from,to};
   }
   function occursOn(series,day){
-    const value=parseDate(day);return Boolean(value&&day>=series.startDate&&day<=series.endDate&&series.weekdays.includes((value.getUTCDay()+6)%7));
+    const value=parseDate(day);return Boolean(value&&day>=series.startDate&&day<=series.endDate&&series.weekdays.includes((value.getUTCDay()+6)%7)&&cadenceMatches(series,value.getTime()));
   }
 
   function enumerate(series, options = {}) {
@@ -113,10 +129,10 @@
     if((parseDate(to)-parseDate(from))/DAY>=MAX_DAYS)throw new RangeError('Vælg højst 366 kalenderdage ad gangen.');
     const first = from > series.startDate ? from : series.startDate;
     const last = to < series.endDate ? to : series.endDate;
-    const weekdays = new Set(series.weekdays), shifts = [], lastTime = parseDate(last).getTime();
+    const weekdays = new Set(series.weekdays), shifts = [], lastTime = parseDate(last).getTime(),anchor=parseDate(weekAnchor(series)).getTime(),interval=weekInterval(series);
     for (let date = parseDate(first); date.getTime() <= lastTime; date.setUTCDate(date.getUTCDate() + 1)) {
       const weekday=(date.getUTCDay()+6)%7;
-      if (!weekdays.has(weekday)) continue;
+      if (!weekdays.has(weekday)||Math.floor((date.getTime()-anchor)/(7*DAY))%interval!==0) continue;
       const day = iso(date);
       const times=series.dayTimes&&Object.hasOwn(series.dayTimes,String(weekday))?series.dayTimes[weekday]:series;
       if (shifts.length >= MAX_DAYS) throw new RangeError('En vagtserie må højst indeholde 366 vagter.');
@@ -206,7 +222,7 @@
     return {edits:nextEdits,deleted:[...nextDeleted],preservedIds,detachedIds,removedIds,remappedIds,preview};
   }
 
-  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes,shiftEndDate,shiftInterval,shiftDates,plannedMinutesInRange});
+  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,weekInterval,weekMonday,weekAnchor,countOccurrences,nextOccurrenceDate,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes,shiftEndDate,shiftInterval,shiftDates,plannedMinutesInRange});
   globalThis.CleanRoomsSeries = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })();

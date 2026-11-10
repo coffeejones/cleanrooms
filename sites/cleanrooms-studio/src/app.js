@@ -58,7 +58,7 @@
   const planningFullHolds=new Set(),planningScopeHolds=new Map();
   let planningCatalog=null;
   let seriesStatus='active', editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope='one', editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=false;
-  let editorOperation='create',editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
+  let editorOperation='create',editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorWeekAnchor=null,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
   const expandedSeriesGroups=new Set();
   let activeGroup = null, calendarDispose = null, calendarViewportBoard = null;
   let selectionMode = false, selectedIds = new Set(), selectionScope = null;
@@ -616,11 +616,11 @@
         const previous=state.demoSeed;state.demoSeed=enabled===true;const ok=await save();
         if(!ok){if(previous===undefined)delete state.demoSeed;else state.demoSeed=previous;persistence?.discardPending?.();return {ok:false,error:'Indstillingen kunne ikke gemmes.'};}
         renderIdentity();return {ok:true};
-      },onLookupSiteAddress:payload=>accountAction('siteAddressLookup',payload),onSaveSiteGps:saveSiteGps,onSaveBudget:saveWorkspaceBudget});
+      },onLookupSiteAddress:payload=>accountAction('siteAddressLookup',payload),onSaveSiteGps:saveSiteGps,onReadSiteInfo:readSiteInfo,onSaveSiteInfo:saveSiteInfo,onSaveBudget:saveWorkspaceBudget});
     }
     const departments=state.organization?.departments||[];
     const budgetVersions=Object.fromEntries([['site',sites],['department',departments]].map(([kind,items])=>[kind,Object.fromEntries(items.map(item=>[item.id,directory?.version(kind,item.id)||0]))]));
-    guideView?.render({settings:state.workspaceSettings,canEdit:canEditWorkspace(),canEditScopedBudget:canEditWorkspace()&&canManageDepartments(),budgetsReady:directory?.ready===true&&!cloudStatus.conflict,budgetVersions,departments,canManageSiteGps:canManageSiteGps(),gpsReady:directory?.ready===true&&!cloudStatus.conflict,sites,stats:{staffCount:staff.filter(person=>person.active!==false).length,siteCount:sites.length,demoEnabled:state.demoSeed!==false}});
+    guideView?.render({settings:state.workspaceSettings,canEdit:canEditWorkspace(),canEditScopedBudget:canEditWorkspace()&&canManageDepartments(),budgetsReady:directory?.ready===true&&!cloudStatus.conflict,budgetVersions,departments,canManageSiteInfo:canManageDepartments(),siteInfoReady:directory?.ready===true&&!cloudStatus.conflict,canManageSiteGps:canManageSiteGps(),gpsReady:directory?.ready===true&&!cloudStatus.conflict,sites,stats:{staffCount:staff.filter(person=>person.active!==false).length,siteCount:sites.length,demoEnabled:state.demoSeed!==false}});
   }
   async function saveWorkspaceBudget({kind,id,expectedVersion,workHoursBudget,before}) {
     if(!canEditWorkspace())return {ok:false,error:'Du har ikke adgang til at ændre timebudgetter.'};
@@ -640,6 +640,24 @@
     if(!result.ok)return {ok:false,error:result.message||'Timebudgettet kunne ikke gemmes.'};
     if(state.demoSession)state.demoSession.backup.organization=clone(state.organization);
     if(state.page==='workspace'&&state.role!=='employee')renderWorkspace();return {ok:true};
+  }
+  async function readSiteInfo({id,force=false}){
+    if(!canManageDepartments()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:'Arbejdsstedets oplysninger kan ikke hentes lige nu.'};
+    const workspace=chatWorkspaceId,viewer=sessionViewer?.userId,result=await directory.get('site',id,{force});
+    if(workspace!==chatWorkspaceId||viewer!==sessionViewer?.userId||!canManageDepartments())return {ok:false,error:'Adgangen er ændret. Åbn indstillingerne igen.'};
+    if(!result.ok)return {ok:false,status:result.status,error:result.message||'Arbejdsstedets oplysninger kunne ikke hentes.'};
+    return {ok:true,site:{...result.record.value,_directoryVersion:result.record.version}};
+  }
+  async function saveSiteInfo({id,expectedVersion,worksiteInfo}){
+    if(!canManageDepartments()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:'Arbejdsstedets oplysninger kan ikke gemmes lige nu.'};
+    if(!sites.some(site=>site.id===id)||!Number.isSafeInteger(expectedVersion)||expectedVersion<1)return {ok:false,error:'Arbejdsstedet findes ikke længere.'};
+    const workspace=chatWorkspaceId,viewer=sessionViewer?.userId,result=await directory.commit([{kind:'site',id,expectedVersion,patch:{worksiteInfo}}]);
+    if(workspace!==chatWorkspaceId||viewer!==sessionViewer?.userId||!canManageDepartments())return {ok:false,error:'Adgangen er ændret. Åbn indstillingerne igen.'};
+    if(!result.ok)return {ok:false,status:result.status,error:result.status===409?'Arbejdsstedet er ændret. Hent de gemte oplysninger, før du gemmer.':result.message||'Arbejdsstedets oplysninger kunne ikke gemmes.'};
+    const record=result.records?.find(row=>row.kind==='site'&&row.id===id);
+    if(!record?.value)return {ok:false,error:'Gemningen kunne ikke bekræftes. Hent de gemte oplysninger igen.'};
+    if(state.demoSession)state.demoSession.backup.organization=clone(state.organization);
+    return {ok:true,site:{...record.value,_directoryVersion:record.version}};
   }
   async function saveSiteGps({id,expectedVersion,gps,address}){
     if(!canManageSiteGps()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:'GPS-indstillinger kan ikke gemmes lige nu.'};
@@ -989,7 +1007,7 @@
     finally{if(reason==='action-range')releasePlanningHold(reason);}
   }
   function seriesOperationRange(series){ return Engine.requiresRange(series)?Engine.operationRange(series,{today}):{from:series.startDate,to:series.endDate}; }
-  function seriesHasOccurrences(series){return Engine.enumerate(series,{from:series.startDate,to:[addDays(series.startDate,6),series.endDate].sort()[0]}).length>0;}
+  function seriesHasOccurrences(series){return Engine.countOccurrences(series)>0;}
   function seriesProjection(source,ranges=[]){
     return PlanningScope.normalize({mode:'series',...(source?.id?{seriesId:source.id}:{}),...(source?.groupId?{groupId:source.groupId}:{}),ranges:[...(source?[seriesOperationRange(source)]:[]),...ranges],calendar:visiblePlanningRange()});
   }
@@ -1368,6 +1386,7 @@
     const absenceOpen=q('.cs-employee-absence')?.open===true;
     globalThis.CleanRoomsEmployee.render(q('#cs-employee-content'),{
       person,staff,sites,shifts:all,view,focusDate,weekStart:staffingMonday(focusDate),today:employeeToday,selectedShiftId:state.employeeShift,minDate,maxDate:planningEnd,
+      worksiteInfo:employeeDetailData?.shift?.id===state.employeeShift?employeeDetailData.site?.worksiteInfo:undefined,
       progressFor:checklistView,saveStatus:employeeDetailLoading?{state:'loading',message:'Henter instruktioner og tjekliste…'}:{...cloudStatus,retry:retryCloud},
       calendarLoading:scopedEmployee()&&employeeReader.loading,calendarError:scopedEmployee()&&(employeeReader.error||employeeDetailError),onCalendarRetry:()=>loadEmployeeRead(true),detailLoading:employeeDetailLoading,
       timekeeping:{entries:timeState.entries.filter(entry=>entry.personId===person.id&&Boolean(entry.demo)===timeDemoEmployee).map(entry=>{const copy={...entry};delete copy.payroll;delete copy.approvalHistory;delete copy.reopenedApproval;return copy;}),loading:timeState.loading,error:timeState.error,busy:timeBusy,enabled:cloudLoaded&&!employeeDetailLoading,preview:!realEmployee(),demo:timeDemoEmployee?timeState.demo:null,canDemoEdit:timeDemoEmployee&&cloudCapabilities.plan===true,serverNow:timeState.serverNow,today:employeeToday},
@@ -2612,15 +2631,20 @@
     if(!source||scope!=='future')return null;
     return editorSeriesManagement?q('#cs-repeat-start').value:occurrenceAnchor(activeEdit?.id,source.id);
   }
+  function editorCadence() {
+    const source=sourceSeries()||editorTemplate,weekInterval=Number(q('#cs-repeat-interval').value||1);
+    if(weekInterval===2)return {weekInterval,weekAnchor:editorWeekAnchor||Engine.weekMonday(q('#cs-repeat-start').value)};
+    return source?.weekInterval!==undefined||source?.weekAnchor!==undefined||editorWeekAnchor?{weekInterval:1,...(editorWeekAnchor?{weekAnchor:editorWeekAnchor}:{})}:{};
+  }
   function captureEditorDraft(scope=editorPreviousScope) {
     const original=scope==='one'?activeEdit:sourceSeries(),note=q('#cs-edit-note').value;
     const description=descriptionEditor?descriptionEditor.getData():{note:note.trim()?note:'',...(note===(original?.note||'')&&original?.noteRich?{noteRich:original.noteRich}:{})};
     return {person:q('#cs-edit-person').value,site:q('#cs-edit-site').value,start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak(),
-      startDate:q('#cs-repeat-start').value,endDate:q('#cs-repeat-end').value,openEnded:editorOpenEnded,weekdays:[...repeatDays],dayTimes:JSON.parse(JSON.stringify(editorDayTimes)),customDayTimes:q('#cs-day-times-enabled').checked,preserve:q('#cs-preserve-exceptions').checked,...description};
+      startDate:q('#cs-repeat-start').value,endDate:q('#cs-repeat-end').value,openEnded:editorOpenEnded,...editorCadence(),weekdays:[...repeatDays],dayTimes:JSON.parse(JSON.stringify(editorDayTimes)),customDayTimes:q('#cs-day-times-enabled').checked,preserve:q('#cs-preserve-exceptions').checked,...description};
   }
   function applyEditorDraft(draft) {
     q('#cs-edit-person').value=draft.person;q('#cs-edit-site').value=String(draft.site);q('#cs-edit-start').value=draft.start;q('#cs-edit-end').value=draft.end;q('#cs-edit-break').value=String(draft.plannedBreakMinutes??0);
-    q('#cs-repeat-start').value=draft.startDate;q('#cs-repeat-end').value=draft.endDate;editorOpenEnded=Engine.isOpenEnded(draft);repeatDays=new Set(draft.weekdays);syncSeriesDurationControls();
+    q('#cs-repeat-start').value=draft.startDate;q('#cs-repeat-end').value=draft.endDate;editorOpenEnded=Engine.isOpenEnded(draft);repeatDays=new Set(draft.weekdays);q('#cs-repeat-interval').value=String(draft.weekInterval??1);editorWeekAnchor=draft.weekAnchor||null;syncSeriesDurationControls();
     q('#cs-preserve-exceptions').checked=draft.preserve!==false;q('#cs-edit-note').value=draft.note||'';descriptionEditor?.setContent(draft);
     editorDayTimes=JSON.parse(JSON.stringify(draft.dayTimes||{}));q('#cs-day-times-enabled').checked=draft.customDayTimes??Object.keys(editorDayTimes).length>0;q('#cs-day-times').dataset.days='';
   }
@@ -2639,7 +2663,7 @@
     const custom=q('#cs-day-times-enabled').checked,dayTimes={};
     if(custom)[...repeatDays].forEach(day=>{dayTimes[day]={...(editorDayTimes[day]||{start:q('#cs-edit-start').value,end:q('#cs-edit-end').value}),plannedBreakMinutes:editorDayTimes[day]?.plannedBreakMinutes??readPlannedBreak()};});
     const groupId=source?.groupId||(source&&q('#cs-edit-scope').value==='future'?source.id:editorTemplate?.groupId);
-    return {id:source && q('#cs-edit-scope').value === 'all' ? source.id : editorSeriesId,person:q('#cs-edit-person').value,site:Number(q('#cs-edit-site').value),startDate:q('#cs-repeat-start').value,endDate:editorOpenEnded?Engine.OPEN_END:q('#cs-repeat-end').value,...(editorOpenEnded||source?.openEnded!==undefined||editorTemplate?.openEnded!==undefined?{openEnded:editorOpenEnded}:{}),weekdays:[...repeatDays].sort((a,b) => a-b),start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak(),...(groupId?{groupId}:{}),...(custom||source?.dayTimes!==undefined||editorTemplate?.dayTimes!==undefined?{dayTimes}:{}),...readDescriptionData()};
+    return {id:source && q('#cs-edit-scope').value === 'all' ? source.id : editorSeriesId,person:q('#cs-edit-person').value,site:Number(q('#cs-edit-site').value),startDate:q('#cs-repeat-start').value,endDate:editorOpenEnded?Engine.OPEN_END:q('#cs-repeat-end').value,...(editorOpenEnded||source?.openEnded!==undefined||editorTemplate?.openEnded!==undefined?{openEnded:editorOpenEnded}:{}),...editorCadence(),weekdays:[...repeatDays].sort((a,b) => a-b),start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak(),...(groupId?{groupId}:{}),...(custom||source?.dayTimes!==undefined||editorTemplate?.dayTimes!==undefined?{dayTimes}:{}),...readDescriptionData()};
   }
   function syncDayTimeControls(repeating) {
     const custom=repeating&&q('#cs-day-times-enabled').checked,container=q('#cs-day-times'),days=[...repeatDays].sort((a,b)=>a-b),key=days.join(',');
@@ -2677,6 +2701,7 @@
     const times=value=>JSON.stringify([...value.weekdays].sort((a,b)=>a-b).map(day=>[day,value.dayTimes?.[day]?.start||value.start,value.dayTimes?.[day]?.end||value.end,value.dayTimes?.[day]?.plannedBreakMinutes??value.plannedBreakMinutes??0]));
     return Boolean(source&&result?.valid&&!result.changedCount&&Engine.isOpenEnded(draft)===Engine.isOpenEnded(source)&&draft.endDate===source.endDate&&(scope==='future'||draft.startDate===source.startDate)
       &&['person','site','start','end','note','noteRich'].every(key=>(draft[key]??'')===(source[key]??''))&&(draft.plannedBreakMinutes??0)===(source.plannedBreakMinutes??0)
+      &&Engine.weekInterval(draft)===Engine.weekInterval(source)&&(Engine.weekInterval(draft)!==2||Engine.weekAnchor(draft)===Engine.weekAnchor(source))
       &&times(draft)===times(source)
       &&[...draft.weekdays].sort().join(',')===[...source.weekdays].sort().join(','));
   }
@@ -2686,7 +2711,7 @@
     q('#cs-series-operation-note').hidden=!repeating||!['copy','extend'].includes(editorOperation);
     q('#cs-series-operation-note').textContent=editorOperation==='extend'?'Tilføjer en ny periode efter '+shortDate(editorExtension?.endDate||today)+'. Eksisterende vagter og særændringer bevares.':'Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.';
     const panel=q('#cs-editor-layer .cs-editor');panel.classList?.toggle('cs-series-editor',repeating);
-    q('#cs-repeat-days-field').hidden=!repeating;q('#cs-series-planning-preview').hidden=!repeating;q('#cs-editor-caption').hidden=repeating;q('#cs-series-scope-block').hidden=!source;
+    q('#cs-repeat-days-field').hidden=!repeating;q('#cs-repeat-interval').disabled=!repeating;q('#cs-series-planning-preview').hidden=!repeating;q('#cs-editor-caption').hidden=repeating;q('#cs-series-scope-block').hidden=!source;
     root.querySelectorAll('[data-series-only]').forEach(element=>element.hidden=!repeating);
     q('#cs-description-summary').hidden=!repeating;
     if(editorWasSeries!==repeating)q('#cs-description-details').open=!repeating;
@@ -2714,11 +2739,11 @@
     const result=SeriesPlanner.preview({draft,source:source||null,scope:source?scope:'all',cutoff:editorCutoff(source,scope),edits:state.edits,deleted:state.deleted,preserve:q('#cs-preserve-exceptions').checked,today});
     const person=personName(draft.person),site=sites[draft.site]?.name||'det valgte arbejdssted',days=draft.weekdays.map(day=>dayNames[day].toLocaleLowerCase('da-DK'));
     const pattern=days.length>1?days.slice(0,-1).join(', ')+' og '+days.at(-1):days[0]||'de valgte dage';
-    q('#cs-series-sentence').textContent=(draft.person?person:'Medarbejderen')+' arbejder '+pattern+(Object.keys(draft.dayTimes||{}).length?' med tider pr. dag':' kl. '+clockLabel(draft))+' hos '+site+'.';
+    q('#cs-series-sentence').textContent=(draft.person?person:'Medarbejderen')+' arbejder '+pattern+(Engine.weekInterval(draft)===2?' hver anden uge':'')+(Object.keys(draft.dayTimes||{}).length?' med tider pr. dag':' kl. '+clockLabel(draft))+' hos '+site+'.';
     const previewValid=result.valid&&result.attached.length>0,summary=q('#cs-series-preview');summary.replaceChildren();summary.dataset.valid=String(previewValid);
     if(!previewValid)summary.append(node('p','cs-series-preview-error',result.errors[0]||'Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.'));
     else{
-      const total=node('div','cs-series-result-total');total.append(node('strong',null,result.openEnded?'Uden slutdato':String(result.total)),node('span',null,result.openEnded?'gentages hver uge':result.limited?'vagter i forhåndsvisningen':editorOperation==='extend'?'nye vagter i forlængelsen':'vagter efter gemning'));summary.append(total);
+      const total=node('div','cs-series-result-total');total.append(node('strong',null,result.openEnded?'Uden slutdato':String(result.total)),node('span',null,result.openEnded?(Engine.weekInterval(draft)===2?'gentages hver anden uge':'gentages hver uge'):result.limited?'vagter i forhåndsvisningen':editorOperation==='extend'?'nye vagter i forlængelsen':'vagter efter gemning'));summary.append(total);
       const effect=source?(Engine.isOpenEnded(source)&&!Engine.isOpenEnded(draft)?'Serien afsluttes '+shortDate(draft.endDate)+'.':!Engine.isOpenEnded(source)&&Engine.isOpenEnded(draft)?'Serien fortsætter uden slutdato.':result.changedCount?[result.updatedCount+' ændres',result.createdCount+' nye',result.removedCount+' udgår'].join(' · '):'Ingen vagter ændres.'):'Fra '+shortDate(draft.startDate)+(Engine.isOpenEnded(draft)?' · uden slutdato':' til '+shortDate(draft.endDate));
       summary.append(node('p','cs-series-result-effect',effect));
       if(result.limited)summary.append(node('p','cs-series-result-preserved','Forhåndsvisning: '+shortDate(result.range.from)+' – '+shortDate(result.range.to)+(result.openEnded?'. Serien fortsætter herefter.':'.')));
@@ -2957,8 +2982,8 @@
     box.textContent = view?.total ? 'Fremdrift på denne vagt · ' + view.checked + ' af ' + view.total + ' opgaver udført' : '';
   }
   function editorDraftFingerprint() {
-    const fields=['#cs-edit-person','#cs-edit-site','#cs-edit-date','#cs-edit-start','#cs-edit-end','#cs-edit-break','#cs-repeat-start','#cs-repeat-end','#cs-edit-scope'];
-    return JSON.stringify({fields:fields.map(selector=>q(selector)?.value??''),repeat:q('#cs-edit-repeat').checked,preserve:q('#cs-preserve-exceptions').checked,dayTimesEnabled:q('#cs-day-times-enabled').checked,days:[...repeatDays].sort(),dayTimes:editorDayTimes,openEnded:editorOpenEnded,description:readDescriptionData()});
+    const fields=['#cs-edit-person','#cs-edit-site','#cs-edit-date','#cs-edit-start','#cs-edit-end','#cs-edit-break','#cs-repeat-start','#cs-repeat-end','#cs-edit-scope','#cs-repeat-interval'];
+    return JSON.stringify({fields:fields.map(selector=>q(selector)?.value??''),repeat:q('#cs-edit-repeat').checked,preserve:q('#cs-preserve-exceptions').checked,dayTimesEnabled:q('#cs-day-times-enabled').checked,days:[...repeatDays].sort(),dayTimes:editorDayTimes,openEnded:editorOpenEnded,weekAnchor:editorWeekAnchor,description:readDescriptionData()});
   }
   function editorHasDirtyDraft(){return Boolean(activeEdit&&editorDirtyBaseline!==null&&editorDirtyBaseline!==editorDraftFingerprint());}
   function dismissEditorDiscard(){
@@ -3002,6 +3027,7 @@
     editorPlanCapture=PlanningReconcile?.capture(state,{shifts:shift.id?[shift]:[],seriesId:shift.seriesId||null,groupId:options.extension?.groupId||null})||null;
     editorOperation=options.operation||(shift.id?'edit':'create');editorTemplate=options.template||null;editorExtension=options.extension||null;seriesCalendarState={};seriesCalendarPreview=null;
     editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||'one';editorWasSeries=false;q('#cs-description-details').open=true;q('#cs-series-delete-confirm').hidden=true;
+    const cadenceSource=sourceSeries()||options.template;q('#cs-repeat-interval').value=String(cadenceSource?.weekInterval??1);editorWeekAnchor=cadenceSource?.weekAnchor||null;
     editorDayTimes=JSON.parse(JSON.stringify(sourceSeries()?.dayTimes||options.template?.dayTimes||{}));q('#cs-day-times-enabled').checked=Object.keys(editorDayTimes).length>0;q('#cs-day-times').dataset.days='';
     q('#cs-editor-title').textContent = options.repeat || shift.seriesId && options.scope === 'all' ? shift.seriesId ? 'Rediger vagtserie' : 'Opret vagtserie' : shift.id ? 'Rediger vagt' : 'Opret vagt';
     q('#cs-editor-caption').textContent = fullDate(shift.date);
@@ -3604,7 +3630,7 @@
   }
   function editorError(message) { q('#cs-edit-error').hidden = false; q('#cs-edit-error').textContent = message; q('#cs-edit-error').scrollIntoView({block:'nearest'}); }
   function restoredSeriesMetadata(previous,current) {
-    return (previous||[]).map(series=>{const present=(current||[]).find(item=>item.id===series.id),hasPause=present?.plannedBreakMinutes!==undefined||Object.values(present?.dayTimes||{}).some(day=>day.plannedBreakMinutes!==undefined);return {...series,...(present?.openEnded!==undefined&&series.openEnded===undefined?{openEnded:false}:{}),...(present?.dayTimes!==undefined&&series.dayTimes===undefined?{dayTimes:{}}:{}),...(present?.groupId!==undefined&&series.groupId===undefined?{groupId:series.id}:{}),...(hasPause&&series.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{})};});
+    return (previous||[]).map(series=>{const present=(current||[]).find(item=>item.id===series.id),hasPause=present?.plannedBreakMinutes!==undefined||Object.values(present?.dayTimes||{}).some(day=>day.plannedBreakMinutes!==undefined);return {...series,...(present?.openEnded!==undefined&&series.openEnded===undefined?{openEnded:false}:{}),...(present?.dayTimes!==undefined&&series.dayTimes===undefined?{dayTimes:{}}:{}),...(present?.groupId!==undefined&&series.groupId===undefined?{groupId:series.id}:{}),...(hasPause&&series.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{}),...(present?.weekInterval!==undefined&&series.weekInterval===undefined?{weekInterval:1}:{}),...(present?.weekAnchor!==undefined&&series.weekAnchor===undefined?{weekAnchor:Engine.weekMonday(series.startDate)}:{})};});
   }
   function restoredPauseEdits(previous,current){return Object.fromEntries(Object.entries(previous||{}).map(([id,shift])=>[id,{...shift,...(current?.[id]?.plannedBreakMinutes!==undefined&&shift.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{})}]));}
   function scopeDraft(data, source, scope, replacement = null) {
@@ -3753,6 +3779,7 @@
   q('#cs-edit-scope').addEventListener('change',changeEditorScope); q('#cs-edit-repeat').addEventListener('change',() => configureRepeat(true));
   q('#cs-preserve-exceptions').addEventListener('change',updatePreview);
   q('#cs-day-times-enabled').addEventListener('change',updatePreview);
+  q('#cs-repeat-interval').addEventListener('change',()=>{if(Number(q('#cs-repeat-interval').value)===2&&Engine.weekInterval(sourceSeries()||editorTemplate)!==2)editorWeekAnchor=null;updatePreview();});
   root.querySelectorAll('[data-repeat-day]').forEach(button => button.addEventListener('click',() => { const day = Number(button.dataset.repeatDay); if (repeatDays.has(day)) repeatDays.delete(day); else repeatDays.add(day); updatePreview(); }));
   ['#cs-edit-date','#cs-edit-person','#cs-edit-site','#cs-edit-start','#cs-edit-end','#cs-edit-break','#cs-repeat-start','#cs-repeat-end'].forEach(selector => { q(selector).addEventListener('input',updatePreview); q(selector).addEventListener('change',updatePreview); });
   q('#cs-repeat-unlimited').addEventListener('click',()=>chooseSeriesLength(null));

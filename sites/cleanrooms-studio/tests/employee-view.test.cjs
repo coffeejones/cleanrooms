@@ -236,3 +236,11 @@ test('overnight employee views retain next-day work and readable time labels wit
  const carry=target.querySelectorAll('.cs-employee-calendar-day').find(day=>day.dataset.date==='2026-11-01');assert.equal(carry.querySelectorAll('.cs-employee-shift').length,1);
  render(target,{shifts:[night],today:'2026-11-01',focusDate:'2026-11-01',view:'day'});assert.equal(target.querySelectorAll('.cs-employee-shift-day').length,1);assert.equal(target.querySelectorAll('.cs-employee-time-canvas')[0].children.filter(el=>el.className.includes('cs-employee-shift-day'))[0].style.height,'25%');
 });
+
+test('worksite information is a literal collapsed detail section and never expands calendar cards',()=>{
+ const target=host(),worksiteInfo={contactName:'Receptionen',contactPhone:'+45 12 34 56 78',parking:'<script>alert(1)</script>\nBrug indkørslen.',accessInstructions:'Brug receptionen efter kl. 18.'};
+ render(target,{worksiteInfo});assert.equal(target.querySelector('.cs-employee-worksite-info'),null);assert.equal(target.textContent.includes('Receptionen'),false);
+ render(target,{selectedShiftId:current.id,worksiteInfo});const details=target.querySelector('.cs-employee-worksite-info');assert.ok(details);assert.equal(details.tagName,'DETAILS');assert.equal(Boolean(details.open),false);assert.ok(details.textContent.includes(worksiteInfo.parking));assert.equal(target.querySelectorAll('script').length,0);assert.equal(target.querySelector('.cs-employee-instructions').textContent.includes('Receptionen'),false);
+ details.open=true;render(target,{selectedShiftId:current.id,worksiteInfo,saveStatus:{state:'saved',message:'Updated status'}});assert.equal(target.querySelector('.cs-employee-worksite-info').open,true);render(target,{selectedShiftId:future.id,worksiteInfo});assert.equal(target.querySelector('.cs-employee-worksite-info').open,false);
+ render(target,{selectedShiftId:current.id,worksiteInfo:{}});assert.equal(target.querySelector('.cs-employee-worksite-info'),null);
+});

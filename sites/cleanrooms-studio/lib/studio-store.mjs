@@ -349,6 +349,7 @@ export async function writeStudio(db,owner,expectedRevision,studio,guard) {
     if(['dayTimes','groupId'].some(key=>Object.hasOwn(series,key)&&!Object.hasOwn(replacement,key)))bad('Vagtseriens ugedagstider eller aftale-id mangler. Hent den seneste version, før du gemmer.');
     if(Object.hasOwn(series,'plannedBreakMinutes')&&!Object.hasOwn(replacement,'plannedBreakMinutes'))bad('Vagtseriens planlagte pause mangler. Hent den seneste version, før du gemmer.');
     if(Object.hasOwn(series,'openEnded')&&!Object.hasOwn(replacement,'openEnded'))bad('Vagtseriens valg af slutdato mangler. Hent den seneste version, før du gemmer.');
+    if(['weekInterval','weekAnchor'].some(key=>Object.hasOwn(series,key)&&!Object.hasOwn(replacement,key)))bad('Vagtseriens gentagelse eller faste startuge mangler. Hent den seneste version, før du gemmer.');
     for(const [day,times]of Object.entries(series.dayTimes||{}))if(Series.plannedBreakMinutes(times)>0&&replacement.dayTimes?.[day]?.plannedBreakMinutes===undefined&&!Object.hasOwn(replacement,'plannedBreakMinutes'))bad('Ugedagens planlagte pause mangler. Hent den seneste version, før du gemmer.');
   }
   for(const [id,shift]of Object.entries(previous.studio?.edits||{}))if(Series.plannedBreakMinutes(shift)>0&&studio.edits[id]&&!Object.hasOwn(studio.edits[id],'plannedBreakMinutes'))bad('Vagtens planlagte pause mangler. Hent den seneste version, før du gemmer.');

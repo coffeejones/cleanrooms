@@ -5,7 +5,8 @@ import {isScoped,assertPersonAccess} from './department-access.mjs';
 import {planningScopeStamp} from './department-planning-access.mjs';
 import Time from '../src/timekeeping-model.js';
 import Directory from '../src/directory-records.js';
-import {readDirectoryHeader,readDirectoryRecords} from './directory-store.mjs';
+import {mayReadWorksiteInfo} from './worksite-information.mjs';
+import {readDirectoryHeader,readDirectoryRecords,readDirectorySite} from './directory-store.mjs';
 import {ensurePlanningImported} from './planning-store.mjs';
 import {ensurePlanWindowIndex} from './planning-window-store.mjs';
 import {splitSnapshot,StudioError} from './studio-store.mjs';
@@ -39,7 +40,9 @@ async function readEmployee({db,context,payload,helpers:h}){
   const common={person,minDate:Data.minDate,maxDate:Data.maxDate,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,preview};
   if(payload.action==='employeeShift'){
     const detail=await readEmployeePublishedShift({db,workspaceId:context.workspace.id,personId,shiftId:payload.shiftId,context:scopedContext});if(!detail)fail(404,'employee_shift_missing','Vagten er ikke længere udgivet til denne medarbejder.');
-    const progress=await readChecklistProgress(db,context,{personId,shifts:[detail.shift]});await assertEmployeeReadContext({db,context,frame,helpers:h});return {...common,...detail,progress};
+    let includeWorksiteInfo=mayReadWorksiteInfo(detail.shift,{preview});
+    if(!includeWorksiteInfo){const active=await first(db,"SELECT status FROM workspace_time_entries WHERE workspace_id=? AND person_id=? AND shift_id=? AND demo=0 AND status IN ('running','paused') LIMIT 1",context.workspace.id,personId,detail.shift.id);includeWorksiteInfo=mayReadWorksiteInfo(detail.shift,{entry:active});}
+    const [progress,currentSite]=await Promise.all([readChecklistProgress(db,context,{personId,shifts:[detail.shift]}),includeWorksiteInfo?readDirectorySite({db,workspaceId:context.workspace.id,siteIndex:detail.shift.site,includeWorksiteInfo:true}):null]);await assertEmployeeReadContext({db,context,frame,helpers:h});return {...common,...detail,site:{...detail.site,...(currentSite?.worksiteInfo?{worksiteInfo:currentSite.worksiteInfo}:{})},progress};
   }
   if(payload.action!=='employeeRead')fail(400,'employee_action_invalid','Vælg en gyldig medarbejdervisning.');
   const {from,to}=payload;if(!Time.validDate(from)||!Time.validDate(to)||from>to||from<Data.minDate||to>Data.maxDate||(Date.parse(to)-Date.parse(from))/86400000>=56)fail(400,'employee_period_invalid','Vælg højst 56 kalenderdage.');

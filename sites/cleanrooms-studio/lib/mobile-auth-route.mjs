@@ -6,6 +6,7 @@ import { readPublishedEmployeePage, readEmployeePublishedShift } from './publica
 import Checklist from '../src/checklist-progress.js';
 import Description from '../src/description-model.js';
 import Time from '../src/timekeeping-model.js';
+import {mayReadWorksiteInfo} from './worksite-information.mjs';
 import { readDirectorySite } from './directory-store.mjs';
 import { readMobileTimeEntry, readMobileTimeEntries, writeMobileTimeEntry, readMobileActiveTime, readMobileRecoveryShift } from './mobile-timekeeping.mjs';
 import { readMobileHours } from './mobile-employee-data.mjs';
@@ -81,14 +82,13 @@ async function readSchedule(db, employee, { from, to, cursor }) {
 async function readShift(db, employee, shiftId) {
   const { workspaceId, personId } = employee;
   const detail = await readEmployeePublishedShift({ db, workspaceId, personId, shiftId });
-  if (!detail) return { shift: await readMobileRecoveryShift(db, employee, shiftId) };
+  if (!detail) return { shift: await readMobileRecoveryShift(db, employee, shiftId,{includeWorksiteInfo:true}) };
   const { shift } = detail;
-  const [workplace, entry] = await Promise.all([
-    readDirectorySite({ db, workspaceId, siteIndex: shift.site }),
-    readMobileTimeEntry(db, employee, shiftId),
-  ]);
+  const entry = await readMobileTimeEntry(db, employee, shiftId);
+  const workplace = await readDirectorySite({ db, workspaceId, siteIndex: shift.site, includeWorksiteInfo:mayReadWorksiteInfo(shift,{entry}) });
   return { shift: {
     ...mobileShift(shift),
+    site:{...mobileShift(shift).site,...(workplace?.worksiteInfo?{worksiteInfo:workplace.worksiteInfo}:{})},
     description: shift.noteRich ? Description.text(shift.noteRich) : shift.note ?? '',
     checklist: Checklist.tasks(shift.noteRich).map(({ key, text }) => ({ id: key, text })),
     clockInRadius: workplace?.gps?.enabled ? workplace.gps.radiusMeters : null,

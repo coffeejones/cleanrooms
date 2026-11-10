@@ -556,6 +556,8 @@ async function handleWorkspaceStudioRequestInternal(request,storage,onContext) {
       const previousSite=previousSites.get(site.id);
       // Older clients omit the field. An explicit value is required to change it.
       if(previousSite&&Object.hasOwn(previousSite,'gps')&&!Object.hasOwn(site,'gps'))site.gps=clone(previousSite.gps);
+      if(previousSite&&Object.hasOwn(previousSite,'worksiteInfo')&&!Object.hasOwn(site,'worksiteInfo'))site.worksiteInfo=clone(previousSite.worksiteInfo);
+      if(!caps.manageDepartments&&!same(site.worksiteInfo,previousSite?.worksiteInfo))fail(403,'site_info_forbidden','Du har ikke adgang til at ændre arbejdsstedets faste oplysninger.');
       if(!caps.manageSiteGps&&!same(site.gps,previousSite?.gps))fail(403,'site_gps_forbidden','Kun en administrator kan ændre GPS-indstillinger for arbejdssteder.');
     }
     let scopedBudgetsChanged=false;

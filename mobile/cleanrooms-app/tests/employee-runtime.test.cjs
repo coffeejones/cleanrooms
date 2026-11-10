@@ -141,7 +141,7 @@ function shiftScreenFunction(select, globals) {
   const filename = path.join(mobileRoot, 'src/screens/published-shift-screen.tsx'), source = fs.readFileSync(filename, 'utf8'), tree = ts.createSourceFile(filename, source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
   let chosen; function visit(node) { if(!chosen && select(node)) chosen = node; ts.forEachChild(node, visit); } visit(tree); assert.ok(chosen, 'Actual shift handler must be found');
   const moduleSource = 'globalThis.subject = ' + chosen.getText(tree) + ';';
-  const context = vm.createContext({ ...globals }); vm.runInContext(ts.transpileModule(moduleSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText, context); return context.subject;
+  const context = vm.createContext({ offline: false, ...globals }); vm.runInContext(ts.transpileModule(moduleSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText, context); return context.subject;
 }
 test('an acknowledged clock action refreshes its detail and invalidates hours exactly once', async () => {
   const calls = [], counts = { hours: 0 }, saved = [];

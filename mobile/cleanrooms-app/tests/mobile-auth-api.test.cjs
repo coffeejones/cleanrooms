@@ -37,6 +37,7 @@ function client(respond) {
     AbortController, setTimeout, clearTimeout,
     require(name) {
       if (name === '@/domain/model') return model;
+      if (name === '@/domain/worksite-information') return require(path.join(build, 'domain/worksite-information.js'));
       if (name === '@/state/attendance-runtime') return require(path.join(build, 'state/attendance-runtime.js'));
       if (name === '@/state/retry-policy') return require(path.join(build, 'state/retry-policy.js'));
       if (name === 'expo/fetch') return { fetch: async (url, options) => {
@@ -297,4 +298,28 @@ test('HTTP throttling exposes a bounded retry delay without retrying the request
   const app=client(()=>Response.json({error:'mobile_auth_rate_limited',message:'Vent lidt.'},{status:429,headers:{'retry-after':'42'}}));
   await assert.rejects(app.mobileAuthApi.employeeRequest(token,{action:'chatList',cursor:null,limit:50}),error=>error.status===429&&error.retryAfterMs===42_000);
   assert.equal(app.calls.length,1);
+});
+
+test('worksite information is parsed only on the opened shift and remains plain, complete text', async () => {
+  const information = { contactName: 'Maria', contactPhone: '+45 12 34 56 78', parking: 'Indgang B', accessInstructions: 'Adgang 👩🏽‍💻\n'.repeat(8000) };
+  const site = { ...publishedShift().site, worksiteInfo: information };
+  const app = client((_url, { body }) => JSON.parse(body).action === 'publishedShift'
+    ? Response.json({ shift: publishedShift({ site }) })
+    : Response.json({ shifts: [publishedShift({ site })], nextCursor: null }));
+  const opened = await app.mobileAuthApi.publishedShift(token, 'shift-own');
+  assert.equal(opened.site.worksiteInfo.accessInstructions, information.accessInstructions.trim());
+  assert.deepEqual(plain(opened.site.worksiteInfo), { ...information, accessInstructions: information.accessInstructions.trim() });
+  const calendar = await app.mobileAuthApi.publishedSchedule(token, '2026-11-01', '2026-11-30', null);
+  assert.equal(calendar.shifts[0].site.worksiteInfo, undefined, 'A compact calendar must not cache worksite guidance from a list payload.');
+});
+
+test('a refreshed opened shift removes withdrawn worksite guidance and rejects malformed data', async () => {
+  for (const information of [null, undefined, {}, { parking: '  ' }]) {
+    const app = client(() => Response.json({ shift: publishedShift({ site: { ...publishedShift().site, worksiteInfo: information } }) }));
+    assert.equal((await app.mobileAuthApi.publishedShift(token, 'shift-own')).site.worksiteInfo, undefined);
+  }
+  for (const information of [[], 'Instructions', { contactPhone: 123 }, { parking: 'x'.repeat(200_001) }, { accessInstructions: '\0secret' }]) {
+    const app = client(() => Response.json({ shift: publishedShift({ site: { ...publishedShift().site, worksiteInfo: information } }) }));
+    await assert.rejects(app.mobileAuthApi.publishedShift(token, 'shift-own'), error => error.code === 'mobile_response_invalid');
+  }
 });

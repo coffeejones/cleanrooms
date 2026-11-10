@@ -6,13 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { mobileAuthOrigin, MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
+import { WorksiteInformation } from '@/components/worksite-info';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
 import { ShiftOffer } from '@/components/shift-offer';
 import { ShiftTimeChange } from '@/components/shift-time-change';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { shiftTimeLabel, addDays, clockTimeLabel, instantForLocal, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
+import { copenhagenDate, shiftDates, shiftTimeLabel, addDays, clockTimeLabel, instantForLocal, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
 import { readClockInLocation } from '@/location/clock-in-location';
 import { useNow } from '@/state/app-store';
 import { invalidateEmployeeResources, usePublishedResource, usePublishedShift } from '@/state/published-schedule';
@@ -25,6 +26,7 @@ export default function PublishedShiftScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const resource = usePublishedShift(id);
   const { state: auth, sessionEpoch, readPublishedShift, writeShiftTime, employeeRequest } = useMobileAuth();
+  const offline = auth.mode === 'signedIn' && (auth.offline === true || resource.offline === true);
   const draftScope = auth.mode === 'signedIn' ? JSON.stringify([mobileAuthOrigin, auth.session.employee.workspaceId, auth.session.employee.personId, auth.session.expiresAt, 'clock-out', id]) : '';
   const checkoutDraft = useEmployeeDraft(draftScope ? JSON.stringify([draftScope, sessionEpoch]) : '', draftScope, auth.mode === 'signedIn' ? Date.parse(auth.session.expiresAt) : 0);
   const [form, setForm] = useState<ShiftConfirmationKind | null>(null);
@@ -47,6 +49,8 @@ export default function PublishedShiftScreen() {
   const now = useNow();
 
   const detail = resource.data;
+  const today = copenhagenDate(now);
+  const showWorksiteInfo = detail && (!offline || detail.shift.date >= today || shiftDates(detail.shift).includes(today));
   const timeChange = useShiftTimeChange(detail?.shift);
   const leaves = useShiftLeaves(detail?.shift.date ?? '');
   const leaveRequest = currentShiftLeave([...(leaves.data ?? []), ...(leaveReceipt && detail && leaveReceipt.date === detail.shift.date && leaveReceipt.source === leaves.data ? [leaveReceipt.request] : [])], detail?.shift.date ?? '');
@@ -83,6 +87,7 @@ export default function PublishedShiftScreen() {
     entry ? colors.success : colors.muted;
 
   async function register(operation: ShiftTimeOperation, comment: string | null = null, signal?: AbortSignal): Promise<Result> {
+    if (offline) return { ok: false, error: 'Opret forbindelse, før du stempler.' };
     if (!detail || pending.current || signal?.aborted) return { ok: false };
     pending.current = true;
     setBusy(true);
@@ -144,7 +149,7 @@ export default function PublishedShiftScreen() {
   }
 
   async function toggleTask(taskId: string) {
-    if (taskLock.current || !detail?.checklistToken) return;
+    if (offline || taskLock.current || !detail?.checklistToken) return;
     taskLock.current = true; setTaskPending(true); setTaskError(undefined);
     try {
       const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.includes(taskId), checklistToken: detail.checklistToken });
@@ -189,7 +194,8 @@ export default function PublishedShiftScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}
         refreshControl={<RefreshControl refreshing={resource.refreshing} onRefresh={refreshShift} />}
       >
-        <ScheduleFeedback loading={resource.loading && detail === undefined} error={resource.error} onRetry={refreshShift} />
+        <ScheduleFeedback loading={resource.loading && detail === undefined} error={resource.error} onRetry={refreshShift} offline={resource.offline} savedAt={resource.savedAt} />
+        {detail?.offlineSummary && <Txt size={12} color={colors.muted}>Beskrivelse og tjekliste kræver forbindelse.</Txt>}
         {detail === null && <EmptyState title="Vagten er ikke længere udgivet til dig" />}
         {detail && <>
           <Surface style={[cardStyles.listSurface, { gap: 20, padding: 18 }]}>
@@ -208,34 +214,35 @@ export default function PublishedShiftScreen() {
                 {shiftTimeLabel(detail.shift)}
               </Txt>
             </View>
-            {timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
+            {!offline && timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
             <View style={{ gap: 7 }}>
               <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
               {detail.site.address ? <Row gap={7} style={{ alignItems: 'flex-start' }}>
                 <Icon name="map-pin" color={colors.muted} size={14} />
                 <Txt size={13} color={colors.muted} style={{ flex: 1 }}>{detail.site.address}</Txt>
               </Row> : null}
+              <WorksiteInformation key={detail.site.id} information={showWorksiteInfo ? detail.site.worksiteInfo : undefined} />
               {detail.shift.breakMinutes > 0 && <Txt size={13} color={colors.muted}>
                 Planlagt pause · {minutesLabel(detail.shift.breakMinutes)}
               </Txt>}
             </View>
             <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}><Txt size={12} color={colors.muted}>{pay?.kind === 'registered' ? 'Løn før skat' : 'Forventet løn før skat'}</Txt><Txt size={16} weight="600">{pay && !pay.unavailableReason ? currency(pay.totalCents) : '—'}</Txt></Row>
             {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
-            {leaves.loading && !leaves.data && <Txt size={12} color={colors.muted}>Henter friønske…</Txt>}
-            {leaves.error && <Pressable accessibilityRole="button" onPress={leaves.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.danger}>Friønsket kunne ikke hentes. Prøv igen.</Txt></Pressable>}
+            {!offline && leaves.loading && !leaves.data && <Txt size={12} color={colors.muted}>Henter friønske…</Txt>}
+            {!offline && leaves.error && <Pressable accessibilityRole="button" onPress={leaves.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.danger}>Friønsket kunne ikke hentes. Prøv igen.</Txt></Pressable>}
             {leaveRequest && <View style={{ gap: 5 }}>
               <Txt size={13} weight="500" color={leaveRequest.status === 'rejected' ? colors.danger : colors.muted}>{leaveRequest.type === 'Friønske' ? 'Friønske' : 'Fravær'} {leaveRequest.status === 'pending' ? 'afventer godkendelse' : leaveRequest.status === 'approved' ? 'godkendt' : 'afvist'}.</Txt>
               {!!leaveRequest.decision?.reason && <Txt size={13} color={colors.muted}>{leaveRequest.decision.reason}</Txt>}
             </View>}
-            {!entry && leaves.data && !leaves.loading && !leaves.error && (!leaveRequest || leaveRequest.status === 'rejected') && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>{leaveRequest ? 'Ønsk fri igen' : 'Ønsk fri'}</Txt></Pressable>}
-            {!entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
+            {!offline && !entry && leaves.data && !leaves.loading && !leaves.error && (!leaveRequest || leaveRequest.status === 'rejected') && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>{leaveRequest ? 'Ønsk fri igen' : 'Ønsk fri'}</Txt></Pressable>}
+            {!offline && !entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
             {entry?.status === 'rejected' && <View style={{ gap: 10 }}>
               <Txt size={15} weight="600">Timer sendt retur</Txt>
               {!!entry.rejectionReason && <Txt size={14} color={colors.muted}>{entry.rejectionReason}</Txt>}
               {!!entry.comment && <Txt size={13} color={colors.muted}>Din kommentar: {entry.comment}</Txt>}
               {!entry.clockOut && <Txt size={13} color={colors.muted}>Den manglende udstempling afklares af planlæggeren.</Txt>}
-              <TextInput accessibilityLabel="Kommentar til genindsendelse" value={returnComment} onChangeText={setReturnComment} multiline placeholder="Svar til planlæggeren" placeholderTextColor={colors.muted} style={{ minHeight: 86, padding: 12, color: colors.ink, borderColor: colors.line, borderWidth: 1, borderRadius: 8, textAlignVertical: 'top' }} />
-              <Button label={busy ? 'Sender…' : entry.clockOut ? 'Send timer igen' : 'Send forklaring'} disabled={busy || !returnComment.trim()} onPress={() => { void register('submit', returnComment.trim()).then(result => { if (result.ok) setReturnComment(''); else setActionError(result.error); }); }} />
+              <TextInput editable={!offline} accessibilityLabel="Kommentar til genindsendelse" value={returnComment} onChangeText={setReturnComment} multiline placeholder="Svar til planlæggeren" placeholderTextColor={colors.muted} style={{ minHeight: 86, padding: 12, color: colors.ink, borderColor: colors.line, borderWidth: 1, borderRadius: 8, textAlignVertical: 'top' }} />
+              <Button label={busy ? 'Sender…' : entry.clockOut ? 'Send timer igen' : 'Send forklaring'} disabled={offline || busy || !returnComment.trim()} onPress={() => { void register('submit', returnComment.trim()).then(result => { if (result.ok) setReturnComment(''); else setActionError(result.error); }); }} />
               {actionError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
             </View>}
             {entry?.clockIn && <View style={[cardStyles.divider, { paddingTop: 18, gap: 12 }]}>
@@ -251,13 +258,13 @@ export default function PublishedShiftScreen() {
               </Row>
               {running && <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ disabled: busy }}
+                accessibilityState={{ disabled: offline || busy }}
                 onPress={() => void togglePause()}
-                disabled={busy}
+                disabled={offline || busy}
                 style={({ pressed }) => ({
                   alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 12, justifyContent: 'center',
                   backgroundColor: colors.white, borderWidth: 1, borderColor: cardColors.border,
-                  borderRadius: 8, borderCurve: 'continuous', opacity: busy ? 0.45 : pressed ? 0.65 : 1,
+                  borderRadius: 8, borderCurve: 'continuous', opacity: offline || busy ? 0.45 : pressed ? 0.65 : 1,
                 })}
               >
                 <Row gap={8}>
@@ -276,7 +283,7 @@ export default function PublishedShiftScreen() {
             </Row></Pressable>
             {descriptionOpen && <>
               {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
-              {detail.shift.checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.includes(task.id), disabled: taskPending || !detail.checklistToken }} disabled={taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
+              {detail.shift.checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.includes(task.id), disabled: offline || taskPending || !detail.checklistToken }} disabled={offline || taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
                 <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.includes(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.includes(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
                 <Txt size={14} color={completed.includes(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
               </Row></Pressable>)}
@@ -285,10 +292,12 @@ export default function PublishedShiftScreen() {
           </Surface>}
           <Surface style={[cardStyles.listSurface, { padding: 18, gap: 14 }]}>
             <Txt size={15} weight="600" accessibilityRole="header">Kollegaer den dag</Txt>
+            {offline ? <Txt size={13} color={colors.muted}>Kollegaer vises, når der er forbindelse.</Txt> : <>
             <ScheduleFeedback loading={coworkers.loading && !coworkerPage} error={coworkerError ?? coworkers.error} onRetry={refreshColleagues} />
             {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{shiftTimeLabel(person)}</Txt></Row>)}
             {coworkerPage?.colleagues.length === 0 && <Txt size={13} color={colors.muted}>Ingen andre på arbejdsstedet den dag.</Txt>}
             {coworkerPage?.nextCursor && <Pressable accessibilityRole="button" accessibilityState={{ disabled: loadingMore || coworkers.loading || Boolean(coworkers.error), busy: loadingMore }} disabled={loadingMore || coworkers.loading || Boolean(coworkers.error)} onPress={() => void loadMoreColleagues()} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={13} weight="600" color={colors.accent}>{loadingMore ? 'Henter…' : 'Vis flere'}</Txt></Pressable>}
+            </>}
           </Surface>
         </>}
       </ScrollView>
@@ -299,7 +308,7 @@ export default function PublishedShiftScreen() {
         paddingLeft: Math.max(16, insets.left), paddingRight: Math.max(16, insets.right),
       }}>
         {actionError && <Txt color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
-        <ShiftActionButton label={running ? 'Stempl ud' : 'Stempl ind'} onPress={() => setForm(running ? 'clock-out' : 'clock-in')} disabled={busy} />
+        <ShiftActionButton label={running ? 'Stempl ud' : 'Stempl ind'} onPress={() => setForm(running ? 'clock-out' : 'clock-in')} disabled={offline || busy} />
       </View>}
       <ShiftConfirmation
         kind={form}
@@ -311,6 +320,7 @@ export default function PublishedShiftScreen() {
       />
       <ShiftConfirmation kind={leave ? 'leave' : null} summary="Anmod om fri hele dagen. Vagten gælder, indtil ønsket er godkendt." onDismiss={() => setLeave(false)} onConfirm={async comment => {
         try {
+          if (offline) return { ok: false, error: 'Opret forbindelse, før du sender et friønske.' };
           if (!detail || auth.mode !== 'signedIn') return { ok: false, error: 'Hent vagten igen.' };
           const latest = currentShiftLeave(await leaves.read(), detail.shift.date);
           if (latest && latest.status !== 'rejected') { leaves.refresh();return { ok: false, error: latest.status === 'pending' ? 'Der er allerede et friønske, der afventer svar.' : 'Fraværet er allerede godkendt.' }; }

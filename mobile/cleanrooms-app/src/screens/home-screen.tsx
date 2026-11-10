@@ -97,7 +97,7 @@ export default function HomeScreen() {
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
     >
       {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
-      {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
+      {live && !(auth.mode === 'signedIn' && auth.offline) && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
       <View style={styles.agenda}>
         <Row gap={12} style={styles.sectionHead}>
           <View style={styles.sectionIntro}>
@@ -124,7 +124,7 @@ export default function HomeScreen() {
           </Row>
         </Row>
         <View style={[cardStyles.listSurface, styles.agendaList]}>
-          <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
+          <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} offline={schedule.offline} savedAt={schedule.savedAt} onRetry={schedule.refresh} />
           {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
             <View key={shift.id}>
               {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}

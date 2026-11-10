@@ -13,7 +13,7 @@
     return {mode:'calendar',from:projection.from,to:projection.to};
   }
   function covers(projection,from,to=from){if(projection?.catalogOnly===true)return false;const calendar=projection?.mode==='calendar'?projection:projection?.calendar;return !projection||Boolean(calendar&&validDate(from)&&validDate(to)&&from>=calendar.from&&to<=calendar.to&&to>=from);}
-  const compact=(kind,value)=>Object.fromEntries((kind==='series'?['id','groupId','person','site','startDate','endDate','openEnded','weekdays','start','end','plannedBreakMinutes','dayTimes']:['id','seriesId','person','site','date','start','end','plannedBreakMinutes']).filter(name=>Object.hasOwn(value,name)).map(name=>[name,clone(value[name])]));
+  const compact=(kind,value)=>Object.fromEntries((kind==='series'?['id','groupId','person','site','startDate','endDate','openEnded','weekdays','start','end','plannedBreakMinutes','dayTimes','weekInterval','weekAnchor']:['id','seriesId','person','site','date','start','end','plannedBreakMinutes']).filter(name=>Object.hasOwn(value,name)).map(name=>[name,clone(value[name])]));
   function summaryRows(rows,{published=false,description=false}={}){
     const result={series:[],edits:{},deleted:[],...(published?{published:[],demoSeed:false}:{})};
     for(const row of rows){

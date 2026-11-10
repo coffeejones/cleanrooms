@@ -6469,6 +6469,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page] .cs-series-date-clear{color:#78858d}
 @media(max-width:760px){#cleanrooms-studio[data-page] .cs-day-time-row{gap:8px}#cleanrooms-studio[data-page] .cs-day-time-row input{font-size:16px}#cleanrooms-studio[data-page] .cs-series-calendar-control{width:36px;height:36px;min-height:36px}#cleanrooms-studio[data-page] .cs-series-calendar-head{grid-template-columns:36px minmax(0,1fr) 36px}#cleanrooms-studio[data-page] .cs-series-calendar-grid &gt; .cs-series-calendar-date{height:36px;min-height:36px}}
 
+#cleanrooms-studio .cs-repeat-pattern-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+#cleanrooms-studio .cs-repeat-pattern-heading .cs-field-label{margin:0}
+#cleanrooms-studio .cs-repeat-interval-field{display:block;min-width:160px;margin:0}
+#cleanrooms-studio .cs-repeat-interval-field select{width:100%}
+
 /* Payroll as one white workspace, structured by type, shared edges and quiet rules. */
 #cleanrooms-studio[data-page=&quot;payroll&quot;]{
   --cs-payroll-gutter:40px;
@@ -12006,6 +12011,17 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
 }
 
+#cleanrooms-studio[data-page=&quot;workspace&quot;] .cs-settings-worksite-info{display:grid;gap:16px;padding-top:24px;border-top:1px solid var(--cs-compass-rule);min-width:0}
+#cleanrooms-studio[data-page=&quot;workspace&quot;] .cs-settings-worksite-info-title{margin:0;font-size:14px;font-weight:700;color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;workspace&quot;] .cs-settings-worksite-info&gt;p{margin:0}
+#cleanrooms-studio[data-page=&quot;workspace&quot;] .cs-settings-worksite-info textarea{min-height:100px;resize:vertical}
+.cs-employee-worksite-info{margin:0 0 20px;border-bottom:1px solid var(--cs-border,#dce2e5);padding-bottom:16px}
+.cs-employee-worksite-info&gt;summary{font-size:13px;font-weight:600;cursor:pointer;padding:6px 0;color:var(--cs-ink,#19313b)}
+.cs-employee-worksite-info-fields{display:grid;gap:16px;margin:16px 0 0}
+.cs-employee-worksite-info-fields&gt;div{display:grid;gap:4px}
+.cs-employee-worksite-info-fields dt{font-size:12px;color:var(--cs-muted,#63747c)}
+.cs-employee-worksite-info-fields dd{margin:0;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+
 #cleanrooms-studio .cs-settings-payroll-preview {margin:10px 0 0;font-variant-numeric:tabular-nums}
 #cleanrooms-studio .cs-settings-payroll-clamp {margin:5px 0 0;font-size:12px}
 #cleanrooms-studio .cs-settings-form .cs-product-field[hidden],
@@ -12709,7 +12725,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-pattern&quot;&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Ugemønster&lt;/h4&gt;
             &lt;div id=&quot;cs-repeat-days-field&quot; hidden&gt;
-            &lt;div class=&quot;cs-field-label&quot;&gt;Arbejdsdage&lt;/div&gt;
+            &lt;div class=&quot;cs-repeat-pattern-heading&quot;&gt;&lt;div class=&quot;cs-field-label&quot;&gt;Arbejdsdage&lt;/div&gt;&lt;label class=&quot;cs-repeat-interval-field&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Gentagelse&lt;/span&gt;&lt;select id=&quot;cs-repeat-interval&quot; aria-label=&quot;Gentagelse&quot;&gt;&lt;option value=&quot;1&quot;&gt;Hver uge&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Hver anden uge&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
             &lt;div class=&quot;cs-repeat-days&quot; role=&quot;group&quot; aria-label=&quot;Vælg faste ugedage&quot;&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;0&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Mandag&quot; title=&quot;Mandag&quot; class=&quot;cursor-interaction&quot;&gt;Man&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;1&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Tirsdag&quot; title=&quot;Tirsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tir&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;2&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Onsdag&quot; title=&quot;Onsdag&quot; class=&quot;cursor-interaction&quot;&gt;Ons&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;3&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Torsdag&quot; title=&quot;Torsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tor&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;4&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Fredag&quot; title=&quot;Fredag&quot; class=&quot;cursor-interaction&quot;&gt;Fre&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;5&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Lørdag&quot; title=&quot;Lørdag&quot; class=&quot;cursor-interaction&quot;&gt;Lør&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;6&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Søndag&quot; title=&quot;Søndag&quot; class=&quot;cursor-interaction&quot;&gt;Søn&lt;/button&gt;&lt;/div&gt;
             &lt;/div&gt;
             &lt;label id=&quot;cs-day-times-toggle&quot; class=&quot;cs-day-times-toggle&quot; hidden&gt;&lt;input id=&quot;cs-day-times-enabled&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Forskellige tider pr. dag&lt;/span&gt;&lt;/label&gt;
@@ -13498,7 +13514,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function compact(kind,id,value){
     if(value===null)return null;
     const compactValue=(source,names)=&gt;({...fields(source,names),...(Instructions?{_instructions:Instructions.metadata(source)}:{})});
-    if(kind===&#x27;series&#x27;)return compactValue(value,[&#x27;id&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;startDate&#x27;,&#x27;endDate&#x27;,&#x27;openEnded&#x27;,&#x27;weekdays&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;dayTimes&#x27;,&#x27;groupId&#x27;]);
+    if(kind===&#x27;series&#x27;)return compactValue(value,[&#x27;id&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;startDate&#x27;,&#x27;endDate&#x27;,&#x27;openEnded&#x27;,&#x27;weekdays&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;dayTimes&#x27;,&#x27;groupId&#x27;,&#x27;weekInterval&#x27;,&#x27;weekAnchor&#x27;]);
     if(kind===&#x27;shift&#x27;)return {edit:value?.edit?compactValue(value.edit,[&#x27;id&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;date&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;seriesId&#x27;]):null,suppressed:value?.suppressed===true};
     if(kind===&#x27;published&#x27;)return compactValue(value,[&#x27;id&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;date&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;seriesId&#x27;]);
     if(kind===&#x27;week&#x27;)return {...clone(value),...(Array.isArray(value.baseline)?{baseline:value.baseline.map(shift=&gt;compact(&#x27;published&#x27;,shift.id,shift))}:{})};
@@ -13524,7 +13540,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     return {mode:&#x27;calendar&#x27;,from:projection.from,to:projection.to};
   }
   function covers(projection,from,to=from){if(projection?.catalogOnly===true)return false;const calendar=projection?.mode===&#x27;calendar&#x27;?projection:projection?.calendar;return !projection||Boolean(calendar&amp;&amp;validDate(from)&amp;&amp;validDate(to)&amp;&amp;from&gt;=calendar.from&amp;&amp;to&lt;=calendar.to&amp;&amp;to&gt;=from);}
-  const compact=(kind,value)=&gt;Object.fromEntries((kind===&#x27;series&#x27;?[&#x27;id&#x27;,&#x27;groupId&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;startDate&#x27;,&#x27;endDate&#x27;,&#x27;openEnded&#x27;,&#x27;weekdays&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;dayTimes&#x27;]:[&#x27;id&#x27;,&#x27;seriesId&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;date&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;]).filter(name=&gt;Object.hasOwn(value,name)).map(name=&gt;[name,clone(value[name])]));
+  const compact=(kind,value)=&gt;Object.fromEntries((kind===&#x27;series&#x27;?[&#x27;id&#x27;,&#x27;groupId&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;startDate&#x27;,&#x27;endDate&#x27;,&#x27;openEnded&#x27;,&#x27;weekdays&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;dayTimes&#x27;,&#x27;weekInterval&#x27;,&#x27;weekAnchor&#x27;]:[&#x27;id&#x27;,&#x27;seriesId&#x27;,&#x27;person&#x27;,&#x27;site&#x27;,&#x27;date&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;]).filter(name=&gt;Object.hasOwn(value,name)).map(name=&gt;[name,clone(value[name])]));
   function summaryRows(rows,{published=false,description=false}={}){
     const result={series:[],edits:{},deleted:[],...(published?{published:[],demoSeed:false}:{})};
     for(const row of rows){
@@ -14305,6 +14321,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const LEGACY_SITE_IDS=Object.freeze([&#x27;site-nord&#x27;,&#x27;site-klinik&#x27;,&#x27;site-havn&#x27;]);
   const GPS_MIN_RADIUS_METERS=1,GPS_MAX_RADIUS_METERS=1000;
   const GPS_FIELDS=Object.freeze([&#x27;enabled&#x27;,&#x27;latitude&#x27;,&#x27;longitude&#x27;,&#x27;radiusMeters&#x27;]);
+  const WORKSITE_INFO_LIMITS=Object.freeze({contactName:120,contactPhone:80,parking:200000,accessInstructions:200000});
   const record=value=&gt;Boolean(value&amp;&amp;typeof value===&#x27;object&#x27;&amp;&amp;!Array.isArray(value));
   const identifier=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;value.length&gt;0&amp;&amp;value===value.trim();
   const name=value=&gt;identifier(value)&amp;&amp;value.length&lt;=120;
@@ -14313,6 +14330,17 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(value==null)return [];
     const roster=globalThis.CleanRoomsRoster||(typeof require===&#x27;function&#x27;?require(&#x27;./roster-model.js&#x27;):null);
     return roster?.validWorkHoursBudget(value)?[]:[&#x27;Timebudgettet skal have en gyldig periode og højst to decimaler.&#x27;];
+  }
+
+  function validateWorksiteInfo(value) {
+    if(value==null)return [];
+    if(!record(value)||Object.keys(value).some(key=&gt;!Object.hasOwn(WORKSITE_INFO_LIMITS,key)))return [&#x27;Arbejdsstedets faste oplysninger er ugyldige.&#x27;];
+    for(const [key,text]of Object.entries(value))if(typeof text!==&#x27;string&#x27;||text.length&gt;WORKSITE_INFO_LIMITS[key]||key.startsWith(&#x27;contact&#x27;)&amp;&amp;/[\u0000-\u001f\u007f]/.test(text))return [&#x27;Arbejdsstedets kontaktoplysninger eller vejledning er ugyldige eller for lange.&#x27;];
+    return [];
+  }
+  function normalizeWorksiteInfo(value) {
+    const errors=validateWorksiteInfo(value);if(errors.length)throw new TypeError(errors[0]);
+    const fields=Object.entries(value||{}).map(([key,text])=&gt;[key,text.trim()]).filter(([,text])=&gt;text);return fields.length?Object.fromEntries(fields):null;
   }
 
   function defaultGps() {
@@ -14368,6 +14396,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         if (typeof site.address!==&#x27;string&#x27;||site.address.length&gt;500) errors.push(&#x27;Arbejdsstedets adresse skal være tekst på højst 500 tegn.&#x27;);
         if (!COLORS.includes(site.color)) errors.push(&#x27;Vælg en af de tilladte farver til arbejdsstedet.&#x27;);
         errors.push(...validateGps(site.gps));
+        errors.push(...validateWorksiteInfo(site.worksiteInfo));
         errors.push(...validateWorkHoursBudget(site.workHoursBudget));
       });
     }
@@ -14417,14 +14446,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       next.sites.push({id:draft.newSite.id===undefined?&#x27;site-&#x27;+draft.id+&#x27;-&#x27;+siteIndex:draft.newSite.id,
         name:draft.newSite.name,address:draft.newSite.address,color:draft.newSite.color===undefined?COLORS[siteIndex%COLORS.length]:draft.newSite.color,
         ...(draft.newSite.gps!==undefined?{gps:clone(draft.newSite.gps)}:{}),
-        ...(draft.newSite.workHoursBudget!==undefined?{workHoursBudget:clone(draft.newSite.workHoursBudget)}:{})});
+        ...(draft.newSite.workHoursBudget!==undefined?{workHoursBudget:clone(draft.newSite.workHoursBudget)}:{}),
+        ...(draft.newSite.worksiteInfo!==undefined?{worksiteInfo:normalizeWorksiteInfo(draft.newSite.worksiteInfo)}:{})});
       department.siteIds.push(siteIndex);
     }
     const errors=validate(next);if(errors.length)return failure(errors[0]);
     return {ok:true,organization:next,department:clone(department),error:null};
   }
 
-  const api=Object.freeze({COLORS,LEGACY_SITE_IDS,GPS_MIN_RADIUS_METERS,GPS_MAX_RADIUS_METERS,defaultGps,validateGps,normalizeGps,validateWorkHoursBudget,defaultOrganization,validate,normalize,propose});
+  const api=Object.freeze({COLORS,LEGACY_SITE_IDS,GPS_MIN_RADIUS_METERS,GPS_MAX_RADIUS_METERS,defaultGps,validateGps,normalizeGps,WORKSITE_INFO_LIMITS,validateWorksiteInfo,normalizeWorksiteInfo,validateWorkHoursBudget,defaultOrganization,validate,normalize,propose});
   globalThis.CleanRoomsDepartments=api;
   if (typeof module!==&#x27;undefined&#x27;&amp;&amp;module.exports) module.exports=api;
 })();
@@ -15088,6 +15118,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const next=active||personal.find(shift=&gt;engine().shiftDates(shift).some(day=&gt;day&gt;=today)),selected=personal.find(shift=&gt;String(shift.id)===String(options.selectedShiftId));
     const previous=memory.get(host),hadSelected=previous?.selectedId,samePerson=previous?.person===person.id,sameShift=samePerson&amp;&amp;previous?.selectedId===selected?.id;
     const state=samePerson?previous:{person:person.id,calendarTop:0,detailTop:0,focus:null,returnFocus:null};
+    const worksiteOpen=sameShift&amp;&amp;Boolean(previous?.detail?.querySelector?.(&#x27;.cs-employee-worksite-info&#x27;)?.open);
     if (previous?.page?.isConnected) {
       state.calendarTop=previous.calendar?.scrollTop||0;
       state.detailTop=previous.detail?.scrollTop||0;
@@ -15189,6 +15220,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       head.append(node(&#x27;p&#x27;,&#x27;cs-employee-detail-date&#x27;,fullDate(selected.date)),node(&#x27;p&#x27;,&#x27;cs-employee-detail-time&#x27;,clockLabel(selected)),node(&#x27;p&#x27;,&#x27;cs-employee-detail-site&#x27;,site.name));
       if(Number.isSafeInteger(selected.plannedBreakMinutes)&amp;&amp;selected.plannedBreakMinutes&gt;0)head.append(node(&#x27;p&#x27;,&#x27;cs-employee-muted cs-employee-detail-planned-pause&#x27;,selected.plannedBreakMinutes+&#x27; min ulønnet pause · &#x27;+hours(duration(selected))+&#x27; arbejdstid&#x27;));
       if(addressFor(site))head.append(node(&#x27;p&#x27;,&#x27;cs-employee-address&#x27;,addressFor(site)));detail.append(head);detailBody=node(&#x27;div&#x27;,&#x27;cs-employee-detail-body&#x27;);
+      const worksiteInfo=options.worksiteInfo??site.worksiteInfo;
+      if(worksiteInfo&amp;&amp;typeof worksiteInfo===&#x27;object&#x27;&amp;&amp;!Array.isArray(worksiteInfo)){
+        const rows=[[&#x27;Kontaktperson&#x27;,worksiteInfo.contactName],[&#x27;Telefon&#x27;,worksiteInfo.contactPhone],[&#x27;Parkering&#x27;,worksiteInfo.parking],[&#x27;Adgangsvejledning&#x27;,worksiteInfo.accessInstructions]].filter(([,value])=&gt;typeof value===&#x27;string&#x27;&amp;&amp;value.trim());
+        if(rows.length){const information=node(&#x27;details&#x27;,&#x27;cs-employee-worksite-info&#x27;),toggle=node(&#x27;summary&#x27;,&#x27;&#x27;,&#x27;Oplysninger om arbejdsstedet&#x27;),list=node(&#x27;dl&#x27;,&#x27;cs-employee-worksite-info-fields&#x27;);for(const [label,value]of rows){const row=node(&#x27;div&#x27;);row.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value));list.append(row);}information.open=worksiteOpen;information.append(toggle,list);detailBody.append(information);}
+      }
       if(typeof options.onOfferShift===&#x27;function&#x27;&amp;&amp;selected.date&gt;=today)detailBody.append(button(&#x27;Tilbyd vagt til en kollega&#x27;,&#x27;cs-button cs-employee-offer&#x27;,()=&gt;options.onOfferShift(selected),&#x27;Tilbyd vagten til en kollega&#x27;));
       if(options.timekeeping&amp;&amp;Timekeeping)detailBody.append(Timekeeping.render(doc,{...options.timekeeping,shift:selected,entry:timeFor(selected),today,preview:options.preview===true||options.timekeeping.preview===true,onAction:options.onTimeAction}));
       const summary = node(&#x27;div&#x27;,&#x27;cs-employee-task-summary&#x27;), progressText = node(&#x27;strong&#x27;,&#x27;cs-employee-task-count&#x27;), progressBar = node(&#x27;progress&#x27;,&#x27;cs-employee-task-bar&#x27;); progressBar.setAttribute(&#x27;aria-label&#x27;,&#x27;Opgaver udført på denne vagt&#x27;); summary.append(progressText,progressBar);
@@ -15294,6 +15330,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
   function iso(date) { return date.toISOString().slice(0, 10); }
 
+  const weekInterval=series=&gt;series?.weekInterval===undefined?1:series.weekInterval;
+  function weekMonday(day){const value=parseDate(day);if(!value)return null;value.setUTCDate(value.getUTCDate()-(value.getUTCDay()+6)%7);return iso(value);}
+  const weekAnchor=series=&gt;series?.weekAnchor===undefined?weekMonday(series?.startDate):series.weekAnchor;
+  function cadenceValid(series){const anchor=parseDate(weekAnchor(series));return [1,2].includes(weekInterval(series))&amp;&amp;Boolean(anchor)&amp;&amp;(anchor.getUTCDay()+6)%7===0&amp;&amp;(weekInterval(series)!==2||series.weekAnchor!==undefined);}
+  // A fixed Monday anchor avoids ISO week-number parity changing at year 53/1.
+  function cadenceMatches(series,day){const anchor=parseDate(weekAnchor(series));return cadenceValid(series)&amp;&amp;Math.floor((day-anchor.getTime())/(7*DAY))%weekInterval(series)===0;}
+  function occurrenceDates(series,from,to){
+    const first=parseDate(from&gt;series.startDate?from:series.startDate),last=parseDate(to&lt;series.endDate?to:series.endDate),anchor=parseDate(weekAnchor(series)),period=weekInterval(series)*7*DAY;
+    if(!first||!last||first&gt;last||!cadenceValid(series))return [];
+    return [...new Set(series.weekdays)].map(day=&gt;{const base=anchor.getTime()+day*DAY;return {first:base+Math.ceil((first.getTime()-base)/period)*period,last:last.getTime(),period};}).filter(span=&gt;span.first&lt;=span.last);
+  }
+  function countOccurrences(series,from=series.startDate,to=series.endDate){return occurrenceDates(series,from,to).reduce((sum,span)=&gt;sum+Math.floor((span.last-span.first)/span.period)+1,0);}
+  function nextOccurrenceDate(series,from=series.startDate,to=series.endDate){const spans=occurrenceDates(series,from,to);return spans.length?iso(new Date(Math.min(...spans.map(span=&gt;span.first)))):null;}
+
   function addMonths(value, count) {
     const date = parseDate(value);
     if (!date) throw new TypeError(&#x27;Vælg en gyldig dato i formatet ÅÅÅÅ-MM-DD.&#x27;);
@@ -15319,6 +15369,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const startDate = parseDate(series.startDate), endDate = parseDate(series.endDate);
     if (!startDate) errors.push(&#x27;Vælg en gyldig startdato i formatet ÅÅÅÅ-MM-DD.&#x27;);
     if (!endDate) errors.push(&#x27;Vælg en gyldig slutdato i formatet ÅÅÅÅ-MM-DD.&#x27;);
+    if(![1,2].includes(weekInterval(series)))errors.push(&#x27;Vagtserien skal gentages hver uge eller hver anden uge.&#x27;);
+    if(series.weekAnchor!==undefined&amp;&amp;(!parseDate(series.weekAnchor)||weekMonday(series.weekAnchor)!==series.weekAnchor)||weekInterval(series)===2&amp;&amp;series.weekAnchor===undefined)errors.push(&#x27;Vælg en gyldig mandag som vagtseriens faste startuge.&#x27;);
     if (startDate &amp;&amp; endDate) {
       const days = (endDate - startDate) / DAY + 1;
       if (days &lt; 1) errors.push(&#x27;Slutdatoen skal være på eller efter startdatoen.&#x27;);
@@ -15363,7 +15415,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     return {from,to};
   }
   function occursOn(series,day){
-    const value=parseDate(day);return Boolean(value&amp;&amp;day&gt;=series.startDate&amp;&amp;day&lt;=series.endDate&amp;&amp;series.weekdays.includes((value.getUTCDay()+6)%7));
+    const value=parseDate(day);return Boolean(value&amp;&amp;day&gt;=series.startDate&amp;&amp;day&lt;=series.endDate&amp;&amp;series.weekdays.includes((value.getUTCDay()+6)%7)&amp;&amp;cadenceMatches(series,value.getTime()));
   }
 
   function enumerate(series, options = {}) {
@@ -15377,10 +15429,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if((parseDate(to)-parseDate(from))/DAY&gt;=MAX_DAYS)throw new RangeError(&#x27;Vælg højst 366 kalenderdage ad gangen.&#x27;);
     const first = from &gt; series.startDate ? from : series.startDate;
     const last = to &lt; series.endDate ? to : series.endDate;
-    const weekdays = new Set(series.weekdays), shifts = [], lastTime = parseDate(last).getTime();
+    const weekdays = new Set(series.weekdays), shifts = [], lastTime = parseDate(last).getTime(),anchor=parseDate(weekAnchor(series)).getTime(),interval=weekInterval(series);
     for (let date = parseDate(first); date.getTime() &lt;= lastTime; date.setUTCDate(date.getUTCDate() + 1)) {
       const weekday=(date.getUTCDay()+6)%7;
-      if (!weekdays.has(weekday)) continue;
+      if (!weekdays.has(weekday)||Math.floor((date.getTime()-anchor)/(7*DAY))%interval!==0) continue;
       const day = iso(date);
       const times=series.dayTimes&amp;&amp;Object.hasOwn(series.dayTimes,String(weekday))?series.dayTimes[weekday]:series;
       if (shifts.length &gt;= MAX_DAYS) throw new RangeError(&#x27;En vagtserie må højst indeholde 366 vagter.&#x27;);
@@ -15470,7 +15522,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     return {edits:nextEdits,deleted:[...nextDeleted],preservedIds,detachedIds,removedIds,remappedIds,preview};
   }
 
-  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes,shiftEndDate,shiftInterval,shiftDates,plannedMinutesInRange});
+  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,weekInterval,weekMonday,weekAnchor,countOccurrences,nextOccurrenceDate,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes,shiftEndDate,shiftInterval,shiftDates,plannedMinutesInRange});
   globalThis.CleanRoomsSeries = api;
   if (typeof module !== &#x27;undefined&#x27; &amp;&amp; module.exports) module.exports = api;
 })();
@@ -15517,9 +15569,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const preferred=Engine.occurrenceAnchor(preferredId,series.id);if(preferred){const result=candidate(preferred);if(result)return result;}
     // At most the finite exception set can suppress recurring dates. Never
     // materialize the agreement simply to locate its next editable occurrence.
-    for(let day=today&gt;series.startDate?today:series.startDate;day&lt;=series.endDate;){
+    for(let day=Engine.nextOccurrenceDate(series,today);day;){
       const result=candidate(day);if(result)return result;
-      if(day===series.endDate)break;const next=new Date(day+&#x27;T12:00:00Z&#x27;);next.setUTCDate(next.getUTCDate()+1);day=next.toISOString().slice(0,10);
+      if(day===series.endDate)break;const next=new Date(day+&#x27;T12:00:00Z&#x27;);next.setUTCDate(next.getUTCDate()+1);day=Engine.nextOccurrenceDate(series,next.toISOString().slice(0,10));
     }
     return null;
   }
@@ -15619,7 +15671,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const errors=validate(phases);if(errors.length)throw new TypeError(errors.join(&#x27; &#x27;));
     if(!phases.length)return [];
     if(!record(edits)||!Array.isArray(deleted)||deleted.some(id=&gt;typeof id!==&#x27;string&#x27;))throw new TypeError(&#x27;Seriens manuelle ændringer er ugyldige.&#x27;);
-    const dayMs=86400000,stamp=day=&gt;Date.parse(day+&#x27;T12:00:00Z&#x27;),iso=value=&gt;new Date(value).toISOString().slice(0,10),todayStamp=stamp(today);
+    const dayMs=86400000,stamp=day=&gt;Date.parse(day+&#x27;T12:00:00Z&#x27;),todayStamp=stamp(today);
     const byId=new Map(phases.map(phase=&gt;[phase.id,{phase,edits:[],deleted:new Set()}])),groups=new Map();
     const parent=id=&gt;{const key=id.slice(0,-11),own=byId.get(key);return own&amp;&amp;Engine.occurrenceAnchor(id,key)?own:null;};
     for(const [id,shift]of Object.entries(edits)){const own=parent(id);if(own)own.edits.push([id,shift]);}
@@ -15635,11 +15687,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const exceptions={count:0,edited:0,deleted:0,ids:[]},exceptionIds=new Set();let total=0,upcomingCount=0,next=null;
       const choose=candidate=&gt;{if(!next||shiftOrder(candidate,next)&lt;0)next=candidate;};
       for(const phase of ordered){
-        const own=byId.get(phase.id),start=stamp(phase.startDate),end=stamp(phase.endDate),weekdays=[...new Set(phase.weekdays)],selected=new Set(weekdays),startWeekday=(new Date(start).getUTCDay()+6)%7;
-        const weekday=value=&gt;(startWeekday+Math.round((value-start)/dayMs))%7;
-        const count=from=&gt;{const lower=Math.max(start,from);if(lower&gt;end)return 0;const length=Math.round((end-lower)/dayMs)+1,whole=Math.floor(length/7),remainder=length%7,begin=weekday(lower);let result=whole*weekdays.length;for(let offset=0;offset&lt;remainder;offset++)if(selected.has((begin+offset)%7))result++;return result;};
-        const belongs=anchor=&gt;anchor&gt;=phase.startDate&amp;&amp;anchor&lt;=phase.endDate&amp;&amp;selected.has(weekday(stamp(anchor)));
-        const blocked=new Set();total+=count(start);upcomingCount+=count(todayStamp);
+        const own=byId.get(phase.id);
+        const belongs=anchor=&gt;Engine.occursOn(phase,anchor);
+        const blocked=new Set();total+=Engine.countOccurrences(phase);upcomingCount+=Engine.countOccurrences(phase,today);
         exceptions.edited+=own.edits.length;exceptions.deleted+=own.deleted.size;
         for(const [key]of own.edits)exceptionIds.add(key);for(const key of own.deleted)exceptionIds.add(key);
         for(const key of own.deleted){const anchor=key.slice(-10);if(!belongs(anchor))continue;blocked.add(key);total--;if(anchor&gt;=today)upcomingCount--;}
@@ -15648,12 +15698,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           if(shift.seriesId&amp;&amp;shift.seriesId!==phase.id||own.deleted.has(key))continue;
           blocked.add(key);if(anchor&gt;=today)upcomingCount--;if(shift.date&gt;=today){upcomingCount++;choose({id:shift.id,date:shift.date,start:shift.start,shift});}
         }
-        let candidate=Math.max(start,todayStamp);
-        while(candidate&lt;=end){
-          const begin=weekday(candidate),offset=Math.min(...weekdays.map(day=&gt;(day-begin+7)%7));candidate+=offset*dayMs;if(candidate&gt;end)break;
-          const day=iso(candidate),key=phase.id+&#x27;@&#x27;+day;
-          if(!blocked.has(key)){const times=phase.dayTimes&amp;&amp;Object.hasOwn(phase.dayTimes,String(weekday(candidate)))?phase.dayTimes[weekday(candidate)]:phase;choose({id:key,date:day,start:times.start,phase});break;}
-          candidate+=dayMs;
+        for(let day=Engine.nextOccurrenceDate(phase,today);day;){
+          const key=phase.id+&#x27;@&#x27;+day,weekday=(new Date(day+&#x27;T12:00:00Z&#x27;).getUTCDay()+6)%7;
+          if(!blocked.has(key)){const times=phase.dayTimes&amp;&amp;Object.hasOwn(phase.dayTimes,String(weekday))?phase.dayTimes[weekday]:phase;choose({id:key,date:day,start:times.start,phase});break;}
+          day=day===phase.endDate?null:Engine.nextOccurrenceDate(phase,addDay(day));
         }
       }
       exceptions.ids=[...exceptionIds].sort();exceptions.count=exceptions.ids.length;
@@ -15664,7 +15712,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   const fail=errors=&gt;({ok:false,draft:null,errors,error:errors[0]||&#x27;Vagtserien kunne ikke oprettes.&#x27;});
   function template(source){
-    const draft={};for(const field of [&#x27;person&#x27;,&#x27;site&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;note&#x27;,&#x27;noteRich&#x27;,&#x27;weekdays&#x27;,&#x27;dayTimes&#x27;])if(source[field]!==undefined)draft[field]=clone(source[field]);
+    const draft={};for(const field of [&#x27;person&#x27;,&#x27;site&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;,&#x27;note&#x27;,&#x27;noteRich&#x27;,&#x27;weekdays&#x27;,&#x27;dayTimes&#x27;,&#x27;weekInterval&#x27;,&#x27;weekAnchor&#x27;])if(source[field]!==undefined)draft[field]=clone(source[field]);
     return draft;
   }
   function copyDraft(source,{id,startDate,endDate,person,site,openEnded}={}){
@@ -15785,6 +15833,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const phaseOrder = (a,b) =&gt; str(a.startDate).localeCompare(str(b.startDate)) || str(a.endDate).localeCompare(str(b.endDate)) || str(a.id).localeCompare(str(b.id));
   const patternTimes = phase =&gt; [...new Set(Array.isArray(phase.weekdays) ? phase.weekdays : [])].filter(day =&gt; Number.isInteger(day) &amp;&amp; day &gt;= 0 &amp;&amp; day &lt; 7).sort((a,b) =&gt; a-b).map(day =&gt; ({day,start:phase.dayTimes?.[day]?.start || phase.start,end:phase.dayTimes?.[day]?.end || phase.end,plannedBreakMinutes:phase.dayTimes?.[day]?.plannedBreakMinutes??phase.plannedBreakMinutes??0}));
   const pauseLabel=phase=&gt;{const pauses=[...new Set(patternTimes(phase).map(item=&gt;item.plannedBreakMinutes))].sort((a,b)=&gt;a-b);return pauses.some(value=&gt;value&gt;0)?(pauses.length===1?pauses[0]+&#x27; min ulønnet pause&#x27;:pauses[0]+&#x27;–&#x27;+pauses.at(-1)+&#x27; min pause · varierer pr. dag&#x27;):&#x27;&#x27;;};
+  const patternNote=phase=&gt;[phase.weekInterval===2?&#x27;Hver anden uge&#x27;:&#x27;&#x27;,pauseLabel(phase)].filter(Boolean).join(&#x27; · &#x27;);
   const patternLabel = phase =&gt; { const times = patternTimes(phase), unique = [...new Set(times.map(time =&gt; clockLabel(time)))]; return unique.length &gt; 1 ? &#x27;Varierende tider&#x27; : unique[0] || clockLabel(phase); };
 
   function fallbackGroups(phases,options,today) {
@@ -15881,7 +15930,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const selected = new Set(Array.isArray(series.weekdays) ? series.weekdays : []), week = node(&#x27;div&#x27;,&#x27;cs-series-week-pattern&#x27;); week.setAttribute(&#x27;role&#x27;,&#x27;img&#x27;); week.setAttribute(&#x27;aria-label&#x27;,&#x27;Gentages: &#x27;+days.filter((_,index) =&gt; selected.has(index)).join(&#x27;, &#x27;));
       weekdayLetters.forEach((day,index) =&gt; { const item = node(&#x27;span&#x27;,&#x27;cs-series-weekday&#x27;,day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+&#x27; &#x27;+clockLabel(time); } week.append(item); }); pattern.append(week);
       if (patternLabel(series) === &#x27;Varierende tider&#x27;) { const times=node(&#x27;span&#x27;,&#x27;cs-series-pattern-times&#x27;,patternTimes(series).map(time =&gt; shortDays[time.day]+&#x27; &#x27;+clockLabel(time)).join(&#x27; · &#x27;));times.title=times.textContent;pattern.append(times); }
-      if(pauseLabel(series))pattern.append(node(&#x27;span&#x27;,&#x27;cs-series-planned-break&#x27;,pauseLabel(series)));
+      if(patternNote(series))pattern.append(node(&#x27;span&#x27;,&#x27;cs-series-planned-break&#x27;,patternNote(series)));
       row.append(pattern);
       const period = field(&#x27;Samlet periode&#x27;,&#x27;cs-series-row-period&#x27;),range=node(&#x27;span&#x27;,&#x27;cs-series-row-value&#x27;);
       range.append(node(&#x27;span&#x27;,&#x27;cs-series-period-start&#x27;,formatDate(entry.startDate)),node(&#x27;span&#x27;,&#x27;cs-series-period-end&#x27;,entry.openEnded?&#x27;Uden slutdato&#x27;:&#x27;– &#x27;+formatDate(entry.endDate)));period.append(range);
@@ -15924,7 +15973,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const range = node(&#x27;div&#x27;,&#x27;cs-series-period-range&#x27;); range.append(node(&#x27;strong&#x27;,null,formatDate(phase.startDate)+&#x27; – &#x27;+endLabel(phase)),node(&#x27;span&#x27;,&#x27;cs-series-period-state&#x27;,phase.startDate &gt; options.today ? &#x27;Kommende periode&#x27; : !isOpenEnded(phase) &amp;&amp; phase.endDate &lt; options.today ? &#x27;Afsluttet periode&#x27; : &#x27;Gældende periode&#x27;));
         const person = node(&#x27;div&#x27;,&#x27;cs-series-period-person&#x27;); person.append(node(&#x27;strong&#x27;,null,options.personName?.(phase.person) || &#x27;Ledig vagt&#x27;),node(&#x27;span&#x27;,null,siteName(phase.site)));
         const rhythm = node(&#x27;div&#x27;,&#x27;cs-series-period-rhythm&#x27;); rhythm.append(node(&#x27;strong&#x27;,null,patternLabel(phase)),node(&#x27;span&#x27;,null,patternTimes(phase).map(time =&gt; shortDays[time.day]+(patternLabel(phase) === &#x27;Varierende tider&#x27; ? &#x27; &#x27;+clockLabel(time) : &#x27;&#x27;)).join(&#x27; · &#x27;)));
-        if(pauseLabel(phase))rhythm.append(node(&#x27;span&#x27;,&#x27;cs-series-planned-break&#x27;,pauseLabel(phase)));
+        if(patternNote(phase))rhythm.append(node(&#x27;span&#x27;,&#x27;cs-series-planned-break&#x27;,patternNote(phase)));
         item.append(range,person,rhythm);
         if (typeof options.onEdit === &#x27;function&#x27;) { const edit = button(&#x27;Rediger periode&#x27;,trigger =&gt; options.onEdit(phase,trigger),&#x27;cs-button cs-quiet&#x27;); edit.dataset.productFocus = &#x27;series:&#x27;+str(phase.id)+&#x27;:edit-period&#x27;; edit.setAttribute(&#x27;aria-label&#x27;,&#x27;Rediger perioden &#x27;+(isOpenEnded(phase)?&#x27;fra &#x27;+formatDate(phase.startDate)+&#x27; uden slutdato&#x27;:formatDate(phase.startDate)+&#x27; til &#x27;+formatDate(phase.endDate))+&#x27; for &#x27;+(options.personName?.(phase.person) || &#x27;Ledig vagt&#x27;)); item.append(edit); }
         periods.append(item);
@@ -16784,15 +16833,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   &#x27;use strict&#x27;;
   const Data=globalThis.CleanRoomsData||(typeof require===&#x27;function&#x27;?require(&#x27;./studio-data.js&#x27;):null),Departments=globalThis.CleanRoomsDepartments||(typeof require===&#x27;function&#x27;?require(&#x27;./department-model.js&#x27;):null);
   const record=value=&gt;Boolean(value&amp;&amp;typeof value===&#x27;object&#x27;&amp;&amp;!Array.isArray(value)),clone=value=&gt;value===undefined?undefined:JSON.parse(JSON.stringify(value));
-  const KINDS=Object.freeze([&#x27;employee&#x27;,&#x27;site&#x27;,&#x27;department&#x27;]),FIELDS=Object.freeze({employee:Object.freeze([&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;target&#x27;,&#x27;site&#x27;,&#x27;role&#x27;,&#x27;active&#x27;]),site:Object.freeze([&#x27;name&#x27;,&#x27;address&#x27;,&#x27;color&#x27;,&#x27;gps&#x27;,&#x27;workHoursBudget&#x27;]),department:Object.freeze([&#x27;name&#x27;,&#x27;kind&#x27;,&#x27;siteIds&#x27;,&#x27;workHoursBudget&#x27;])});
+  const KINDS=Object.freeze([&#x27;employee&#x27;,&#x27;site&#x27;,&#x27;department&#x27;]),FIELDS=Object.freeze({employee:Object.freeze([&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;target&#x27;,&#x27;site&#x27;,&#x27;role&#x27;,&#x27;active&#x27;]),site:Object.freeze([&#x27;name&#x27;,&#x27;address&#x27;,&#x27;color&#x27;,&#x27;gps&#x27;,&#x27;workHoursBudget&#x27;,&#x27;worksiteInfo&#x27;]),department:Object.freeze([&#x27;name&#x27;,&#x27;kind&#x27;,&#x27;siteIds&#x27;,&#x27;workHoursBudget&#x27;])});
   const canonical=value=&gt;JSON.stringify(Array.isArray(value)?value.map(item=&gt;JSON.parse(canonical(item))):record(value)?Object.fromEntries(Object.keys(value).sort().map(key=&gt;[key,JSON.parse(canonical(value[key]))])):value===undefined?null:value);
   const key=(kind,id)=&gt;JSON.stringify([kind,id]);
   const validId=(kind,id)=&gt;typeof id===&#x27;string&#x27;&amp;&amp;id.length&gt;0&amp;&amp;id.length&lt;=512&amp;&amp;id===id.trim()&amp;&amp;![&#x27;__proto__&#x27;,&#x27;constructor&#x27;,&#x27;prototype&#x27;].includes(id)&amp;&amp;!/[\u0000-\u001f\u007f]/.test(id)&amp;&amp;(kind!==&#x27;employee&#x27;||id.length&lt;=120&amp;&amp;/^(?:p\d+|person-[A-Za-z0-9][A-Za-z0-9_-]*)$/.test(id));
   function safe(value,depth=0){if(depth&gt;128)return false;if(value===null||typeof value===&#x27;string&#x27;||typeof value===&#x27;boolean&#x27;)return true;if(typeof value===&#x27;number&#x27;)return Number.isFinite(value);if(Array.isArray(value))return value.every(item=&gt;safe(item,depth+1));return record(value)&amp;&amp;Object.keys(value).every(name=&gt;![&#x27;__proto__&#x27;,&#x27;constructor&#x27;,&#x27;prototype&#x27;].includes(name)&amp;&amp;safe(value[name],depth+1));}
-  function catalog(kind,value){if(value===null)return null;return Object.fromEntries([&#x27;id&#x27;,...FIELDS[kind]].filter(name=&gt;Object.hasOwn(value,name)).map(name=&gt;[name,clone(value[name])]));}
+  function catalog(kind,value){if(value===null)return null;return Object.fromEntries([&#x27;id&#x27;,...FIELDS[kind]].filter(name=&gt;name!==&#x27;worksiteInfo&#x27;&amp;&amp;Object.hasOwn(value,name)).map(name=&gt;[name,clone(value[name])]));}
   function flatten(studio={}){const organization=studio.organization===undefined?Departments.defaultOrganization():studio.organization,staff=studio.roster===undefined?Data.staff:studio.roster;return [...staff.map((value,position)=&gt;({kind:&#x27;employee&#x27;,id:value.id,value:clone(value),position})),...organization.sites.map((value,siteIndex)=&gt;({kind:&#x27;site&#x27;,id:value.id,value:clone(value),position:siteIndex,siteIndex})),...organization.departments.map((value,position)=&gt;({kind:&#x27;department&#x27;,id:value.id,value:clone(value),position}))];}
-  function validateChanges(changes){if(!Array.isArray(changes)||changes.length&gt;5000)return [&#x27;Send højst 5000 ændringer ad gangen.&#x27;];const seen=new Set();for(const item of changes){if(!record(item)||Object.keys(item).some(name=&gt;![&#x27;kind&#x27;,&#x27;id&#x27;,&#x27;expectedVersion&#x27;,&#x27;patch&#x27;,&#x27;siteIndex&#x27;].includes(name))||!KINDS.includes(item.kind)||!validId(item.kind,item.id)||!Number.isSafeInteger(item.expectedVersion)||item.expectedVersion&lt;0||item.expectedVersion&gt;=Number.MAX_SAFE_INTEGER||!record(item.patch)||Object.keys(item.patch).some(name=&gt;!FIELDS[item.kind].includes(name))||!safe(item.patch)||item.siteIndex!==undefined&amp;&amp;(item.kind!==&#x27;site&#x27;||!Number.isInteger(item.siteIndex)||item.siteIndex&lt;0||item.siteIndex&gt;=2000))return [&#x27;En ændring i medarbejdere eller afdelinger er ugyldig.&#x27;];const gpsErrors=Departments.validateGps(item.patch.gps);if(gpsErrors.length)return gpsErrors;const budgetErrors=Departments.validateWorkHoursBudget(item.patch.workHoursBudget);if(budgetErrors.length)return budgetErrors;const id=key(item.kind,item.id);if(seen.has(id))return [&#x27;En post må kun ændres én gang pr. handling.&#x27;];seen.add(id);}return [];}
-  function commands(before,after,versions={}){const left=new Map(flatten(before).map(row=&gt;[key(row.kind,row.id),row])),changes=[];for(const row of flatten(after)){const previous=left.get(key(row.kind,row.id)),patch={};for(const name of FIELDS[row.kind])if((![&#x27;gps&#x27;,&#x27;workHoursBudget&#x27;].includes(name)||Object.hasOwn(row.value,name))&amp;&amp;(!previous||canonical(previous.value[name])!==canonical(row.value[name])))patch[name]=clone(row.value[name]);if(Object.keys(patch).length)changes.push({kind:row.kind,id:row.id,expectedVersion:versions[key(row.kind,row.id)]||0,patch,...(row.kind===&#x27;site&#x27;&amp;&amp;!previous?{siteIndex:row.siteIndex}:{})});}return changes;}
+  function validateChanges(changes){if(!Array.isArray(changes)||changes.length&gt;5000)return [&#x27;Send højst 5000 ændringer ad gangen.&#x27;];const seen=new Set();for(const item of changes){if(!record(item)||Object.keys(item).some(name=&gt;![&#x27;kind&#x27;,&#x27;id&#x27;,&#x27;expectedVersion&#x27;,&#x27;patch&#x27;,&#x27;siteIndex&#x27;].includes(name))||!KINDS.includes(item.kind)||!validId(item.kind,item.id)||!Number.isSafeInteger(item.expectedVersion)||item.expectedVersion&lt;0||item.expectedVersion&gt;=Number.MAX_SAFE_INTEGER||!record(item.patch)||Object.keys(item.patch).some(name=&gt;!FIELDS[item.kind].includes(name))||!safe(item.patch)||item.siteIndex!==undefined&amp;&amp;(item.kind!==&#x27;site&#x27;||!Number.isInteger(item.siteIndex)||item.siteIndex&lt;0||item.siteIndex&gt;=2000))return [&#x27;En ændring i medarbejdere eller afdelinger er ugyldig.&#x27;];const infoErrors=Departments.validateWorksiteInfo(item.patch.worksiteInfo);if(infoErrors.length)return infoErrors;const gpsErrors=Departments.validateGps(item.patch.gps);if(gpsErrors.length)return gpsErrors;const budgetErrors=Departments.validateWorkHoursBudget(item.patch.workHoursBudget);if(budgetErrors.length)return budgetErrors;const id=key(item.kind,item.id);if(seen.has(id))return [&#x27;En post må kun ændres én gang pr. handling.&#x27;];seen.add(id);}return [];}
+  function commands(before,after,versions={}){const left=new Map(flatten(before).map(row=&gt;[key(row.kind,row.id),row])),changes=[];for(const row of flatten(after)){const previous=left.get(key(row.kind,row.id)),patch={};for(const name of FIELDS[row.kind])if((![&#x27;gps&#x27;,&#x27;workHoursBudget&#x27;,&#x27;worksiteInfo&#x27;].includes(name)||Object.hasOwn(row.value,name))&amp;&amp;(!previous||canonical(previous.value[name])!==canonical(row.value[name])))patch[name]=clone(row.value[name]);if(Object.keys(patch).length)changes.push({kind:row.kind,id:row.id,expectedVersion:versions[key(row.kind,row.id)]||0,patch,...(row.kind===&#x27;site&#x27;&amp;&amp;!previous?{siteIndex:row.siteIndex}:{})});}return changes;}
   function assemble(records,meta={}){const active=records.filter(row=&gt;row.value!==null),order=(a,b)=&gt;(a.position??0)-(b.position??0)||a.id.localeCompare(b.id),roster=active.filter(row=&gt;row.kind===&#x27;employee&#x27;).sort(order).map(row=&gt;clone(row.value)),sites=active.filter(row=&gt;row.kind===&#x27;site&#x27;).sort((a,b)=&gt;a.siteIndex-b.siteIndex).map(row=&gt;clone(row.value)),departments=active.filter(row=&gt;row.kind===&#x27;department&#x27;).sort(order).map(row=&gt;clone(row.value));return {roster,organization:{...(clone(meta.organization)||{}),version:1,sites,departments}};}
   const api=Object.freeze({KINDS,FIELDS,key,canonical,validId,catalog,flatten,validateChanges,commands,assemble,safe});globalThis.CleanRoomsDirectoryRecords=api;if(typeof module!==&#x27;undefined&#x27;&amp;&amp;module.exports)module.exports=api;
 })();
@@ -18345,7 +18394,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     return &#x27;Denne periode: &#x27;+label(period.from)+&#x27; – &#x27;+label(period.to);
   }
   let sequence=0;
-  function mount({element,onSave,onNavigate,onDemoChange,onSaveSiteGps,onLookupSiteAddress,onSaveBudget}={}){
+  function mount({element,onSave,onNavigate,onDemoChange,onSaveSiteGps,onLookupSiteAddress,onSaveBudget,onReadSiteInfo,onSaveSiteInfo}={}){
     if(!element?.ownerDocument)throw new TypeError(&#x27;Indstillinger kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,suffix=++sequence===1?&#x27;&#x27;:&#x27;-&#x27;+sequence,keys=[&#x27;companyName&#x27;,&#x27;productName&#x27;,&#x27;contactName&#x27;,&#x27;contactEmail&#x27;,&#x27;contactPhone&#x27;,&#x27;brandNote&#x27;];
     let settings={},stats={},canEdit=false,pending=false,demoPending=false,disposed=false,dirty=false,loaded=false,epoch=0,demoEpoch=0,snapshot=&#x27;&#x27;;
@@ -18385,8 +18434,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const actions=node(&#x27;div&#x27;,&#x27;cs-product-form-actions cs-settings-save-row&#x27;),save=button(&#x27;Gem oplysninger&#x27;,()=&gt;saveSettings(),&#x27;cs-button cs-primary&#x27;);save.id=&#x27;cs-workspace-settings-save&#x27;+suffix;actions.append(permissionNote,incomingNote,error,saveStatus,save);form.append(identity.section,payrollPeriod.section,contact.section,actions);setup.append(form);
     const budgetSection=node(&#x27;div&#x27;,&#x27;cs-settings-budget-panel&#x27;);
     const budgetView=globalThis.CleanRoomsWorkspaceBudgets?.mount({element:budgetSection,onSave:onSaveBudget});
-    const gpsModel=globalThis.CleanRoomsDepartments;
-    const gpsSection=section(&#x27;Arbejdssteder&#x27;,&#x27;Vælg, hvor tæt medarbejderne skal være på arbejdsstedet, når de stempler ind.&#x27;);
+    const gpsModel=globalThis.CleanRoomsDepartments||(typeof require===&#x27;function&#x27;?require(&#x27;./department-model.js&#x27;):null);
+    const gpsSection=section(&#x27;Arbejdssteder&#x27;,&#x27;Adresse, indstempling og praktiske oplysninger til medarbejderne.&#x27;);
     gpsSection.section.classList.add(&#x27;cs-settings-gps&#x27;);
     const gpsForm=node(&#x27;form&#x27;,&#x27;cs-settings-gps-form&#x27;);gpsForm.noValidate=true;
     const gpsSite=node(&#x27;select&#x27;,&#x27;cs-product-input&#x27;);
@@ -18417,10 +18466,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const gpsError=node(&#x27;p&#x27;,&#x27;cs-product-error&#x27;),gpsStatus=node(&#x27;p&#x27;,&#x27;cs-product-save-status&#x27;),gpsEmpty=node(&#x27;p&#x27;,&#x27;cs-product-help&#x27;,&#x27;Der er endnu ingen arbejdssteder at indstille.&#x27;);
     gpsError.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);gpsStatus.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);
     gpsActions.append(gpsReload,gpsSave);
-    gpsForm.append(gpsField(&#x27;Arbejdssted&#x27;,gpsSite),gpsAddressControl,gpsToggleLabel,gpsRadiusField,gpsError,gpsStatus,gpsActions);
-    gpsSection.content.append(gpsForm,gpsEmpty);setup.append(gpsSection.section);
+    const siteSelector=gpsField(&#x27;Arbejdssted&#x27;,gpsSite);
+    gpsForm.append(gpsAddressControl,gpsToggleLabel,gpsRadiusField,gpsError,gpsStatus,gpsActions);
+    gpsSection.content.append(siteSelector,gpsForm,gpsEmpty);setup.append(gpsSection.section);
     const gpsInputs=[gpsToggle,gpsRadius];
-    let gpsSites=new Map(),gpsSiteSnapshot=&#x27;&#x27;,gpsVisible=false,gpsReady=false,gpsDirty=false,gpsPending=false,gpsVersion=0,gpsEpoch=0;
+    let gpsSites=new Map(),gpsSiteSnapshot=&#x27;&#x27;,gpsVisible=false,gpsCanEdit=false,gpsReady=false,gpsDirty=false,gpsPending=false,gpsVersion=0,gpsEpoch=0;
+    let infoVisible=false,infoReady=false,infoLoading=false,infoPending=false,infoDirty=false,infoLoaded=false,infoId=&#x27;&#x27;,infoVersion=0,infoEpoch=0;
+    const infoFields={};
+    const compactSite=site=&gt;{const value={...site};delete value.worksiteInfo;return value;};
+    const infoForm=node(&#x27;form&#x27;,&#x27;cs-settings-worksite-info&#x27;);infoForm.noValidate=true;
+    const infoHeading=node(&#x27;h4&#x27;,&#x27;cs-settings-worksite-info-title&#x27;,&#x27;Faste oplysninger&#x27;),infoHelp=node(&#x27;p&#x27;,&#x27;cs-product-help&#x27;,&#x27;Vises på vagten i appen og i Mine vagter.&#x27;);
+    const infoField=(key,label,type=&#x27;text&#x27;)=&gt;{const input=node(type===&#x27;textarea&#x27;?&#x27;textarea&#x27;:&#x27;input&#x27;,&#x27;cs-product-input&#x27;);input.id=&#x27;cs-worksite-info-&#x27;+key+suffix;if(type===&#x27;textarea&#x27;)input.rows=4;else input.type=type;input.maxLength=gpsModel?.WORKSITE_INFO_LIMITS?.[key]??200000;infoFields[key]=input;input.addEventListener(&#x27;input&#x27;,()=&gt;{infoDirty=true;infoStatus.hidden=true;infoError.hidden=true;updateInfoControls();});return gpsField(label,input);};
+    const infoContact=node(&#x27;div&#x27;,&#x27;cs-product-field-pair&#x27;);infoContact.append(infoField(&#x27;contactName&#x27;,&#x27;Kontaktperson&#x27;),infoField(&#x27;contactPhone&#x27;,&#x27;Telefon&#x27;,&#x27;tel&#x27;));
+    const infoError=node(&#x27;p&#x27;,&#x27;cs-product-error&#x27;),infoStatus=node(&#x27;p&#x27;,&#x27;cs-product-save-status&#x27;);infoError.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);infoStatus.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);infoError.hidden=infoStatus.hidden=true;
+    const infoActions=node(&#x27;div&#x27;,&#x27;cs-settings-gps-actions&#x27;),infoReload=button(&#x27;Hent gemte værdier&#x27;,()=&gt;requestSiteInfo(true)),infoSave=button(&#x27;Gem faste oplysninger&#x27;,()=&gt;saveSiteInfo(),&#x27;cs-button cs-primary&#x27;);infoActions.append(infoReload,infoSave);
+    infoForm.append(infoHeading,infoHelp,infoContact,infoField(&#x27;parking&#x27;,&#x27;Parkering&#x27;,&#x27;textarea&#x27;),infoField(&#x27;accessInstructions&#x27;,&#x27;Adgangsvejledning&#x27;,&#x27;textarea&#x27;),infoError,infoStatus,infoActions);gpsSection.content.append(infoForm);
+    infoForm.addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();saveSiteInfo();});
     let addressEdited=false,addressSelection=null,addressResolving=false,addressEpoch=0,addressTimer,addressOptions=[],activeAddress=-1;
     function showAddressStatus(message=&#x27;&#x27;){
       gpsAddressStatus.textContent=message;gpsAddressStatus.hidden=!message;
@@ -18453,8 +18514,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function updateGpsControls(){
       const hasSite=gpsSites.has(gpsSite.value),stale=hasSite&amp;&amp;(gpsDirty||addressEdited)&amp;&amp;gpsSites.get(gpsSite.value)._directoryVersion!==gpsVersion;
-      gpsSection.section.hidden=!gpsVisible;gpsForm.hidden=!hasSite;gpsEmpty.hidden=hasSite;
-      for(const input of [gpsSite,...gpsInputs])input.disabled=!gpsReady||gpsPending;
+      gpsSection.section.hidden=!gpsVisible;gpsForm.hidden=!hasSite||!gpsCanEdit;gpsEmpty.hidden=hasSite;siteSelector.hidden=!hasSite;
+      gpsSite.disabled=(!gpsReady&amp;&amp;!infoReady)||gpsPending||infoPending;
+      for(const input of gpsInputs)input.disabled=!gpsReady||gpsPending;
       gpsAddress.disabled=!gpsReady||gpsPending||typeof onLookupSiteAddress!==&#x27;function&#x27;;
       gpsAddressUndo.hidden=!addressEdited;gpsAddressUndo.disabled=gpsAddress.disabled;
       gpsSave.disabled=!gpsReady||gpsPending||addressEdited||!gpsDirty||stale;
@@ -18471,9 +18533,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       updateGpsControls();
     }
     function renderGps(options){
-      const visible=options.canManageSiteGps===true&amp;&amp;Boolean(gpsModel);
-      if(!visible&amp;&amp;gpsVisible){gpsEpoch++;gpsPending=false;gpsDirty=false;restoreAddress(null);}
-      gpsVisible=visible;gpsReady=visible&amp;&amp;options.gpsReady===true&amp;&amp;typeof onSaveSiteGps===&#x27;function&#x27;;
+      infoVisible=options.canManageSiteInfo===true&amp;&amp;Boolean(gpsModel);infoReady=infoVisible&amp;&amp;options.siteInfoReady===true&amp;&amp;typeof onReadSiteInfo===&#x27;function&#x27;&amp;&amp;typeof onSaveSiteInfo===&#x27;function&#x27;;
+      gpsCanEdit=options.canManageSiteGps===true&amp;&amp;Boolean(gpsModel);
+      const visible=gpsCanEdit||infoVisible;
+      if(!visible&amp;&amp;gpsVisible){gpsEpoch++;gpsPending=false;gpsDirty=false;restoreAddress(null);infoEpoch++;infoLoading=infoPending=infoLoaded=infoDirty=false;infoId=&#x27;&#x27;;infoVersion=0;for(const field of Object.values(infoFields))field.value=&#x27;&#x27;;}
+      gpsVisible=visible;gpsReady=gpsCanEdit&amp;&amp;options.gpsReady===true&amp;&amp;typeof onSaveSiteGps===&#x27;function&#x27;;
       gpsSites=new Map(visible?(options.sites||[]).map(site=&gt;[site.id,site]):[]);
       const previous=gpsSite.value,nextSnapshot=JSON.stringify([...gpsSites.values()].map(site=&gt;[site.id,site.name,site.address]));
       if(nextSnapshot!==gpsSiteSnapshot){
@@ -18484,6 +18548,33 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const site=gpsSites.get(gpsSite.value);
       if(visible&amp;&amp;(previous!==gpsSite.value||!gpsDirty&amp;&amp;!addressEdited&amp;&amp;!gpsPending&amp;&amp;(site?._directoryVersion||0)!==gpsVersion))fillGps(site);
       else updateGpsControls();
+      if(infoVisible&amp;&amp;infoReady&amp;&amp;(infoId!==gpsSite.value||!infoLoaded&amp;&amp;!infoLoading))void requestSiteInfo();else updateInfoControls();
+    }
+    function updateInfoControls(){
+      const stale=infoLoaded&amp;&amp;gpsSites.get(gpsSite.value)?._directoryVersion!==infoVersion;
+      infoForm.hidden=!infoVisible||!gpsSites.has(gpsSite.value);infoForm.setAttribute(&#x27;aria-busy&#x27;,String(infoLoading||infoPending));
+      for(const field of Object.values(infoFields))field.disabled=!infoReady||infoLoading||infoPending||!infoLoaded;
+      infoSave.disabled=!infoReady||infoLoading||infoPending||!infoLoaded||!infoDirty||stale;infoSave.textContent=infoPending?&#x27;Gemmer…&#x27;:&#x27;Gem faste oplysninger&#x27;;
+      infoReload.hidden=!stale&amp;&amp;!infoDirty&amp;&amp;infoLoaded;infoReload.disabled=!infoReady||infoLoading||infoPending;
+      if(stale&amp;&amp;!infoLoading&amp;&amp;!infoPending){infoError.textContent=&#x27;Arbejdsstedet er ændret. Hent de gemte værdier, før du gemmer.&#x27;;infoError.hidden=false;}
+    }
+    function fillSiteInfo(site){
+      const value=gpsModel.normalizeWorksiteInfo(site?.worksiteInfo)||{};for(const [key,field]of Object.entries(infoFields))field.value=value[key]||&#x27;&#x27;;
+      infoId=site.id;infoVersion=site._directoryVersion;infoLoaded=true;infoDirty=false;infoError.hidden=true;
+    }
+    async function requestSiteInfo(force=false){
+      if(disposed||!infoReady||infoPending||infoLoading&amp;&amp;!force)return;const id=gpsSite.value;if(!gpsSites.has(id))return;
+      const token=++infoEpoch;infoId=id;infoLoading=true;infoLoaded=false;infoDirty=false;infoError.hidden=true;infoStatus.textContent=&#x27;Indlæser oplysninger…&#x27;;infoStatus.hidden=false;updateInfoControls();
+      try{const result=await onReadSiteInfo({id,force});if(disposed||token!==infoEpoch||id!==gpsSite.value)return;if(!result?.ok||result.site?.id!==id||!Number.isSafeInteger(result.site?._directoryVersion)||result.site._directoryVersion&lt;1){infoError.textContent=result?.error||result?.message||&#x27;Arbejdsstedets oplysninger kunne ikke hentes.&#x27;;infoError.hidden=false;return;}gpsSites.set(id,compactSite(result.site));fillSiteInfo(result.site);}
+      catch{if(!disposed&amp;&amp;token===infoEpoch){infoError.textContent=&#x27;Oplysningerne kunne ikke hentes. Prøv igen.&#x27;;infoError.hidden=false;}}
+      finally{if(!disposed&amp;&amp;token===infoEpoch){infoLoading=false;infoStatus.hidden=true;updateInfoControls();updateGpsControls();}}
+    }
+    async function saveSiteInfo(){
+      if(disposed||infoSave.disabled)return;const draft=Object.fromEntries(Object.entries(infoFields).map(([key,field])=&gt;[key,field.value])),errors=gpsModel.validateWorksiteInfo(draft);if(errors.length){infoError.textContent=errors[0];infoError.hidden=false;return;}const id=infoId,expectedVersion=infoVersion,token=++infoEpoch,worksiteInfo=gpsModel.normalizeWorksiteInfo(draft);
+      infoPending=true;infoError.hidden=true;infoStatus.hidden=true;updateInfoControls();updateGpsControls();
+      try{const result=await onSaveSiteInfo({id,expectedVersion,worksiteInfo});if(disposed||token!==infoEpoch||id!==gpsSite.value)return;if(result?.site?.id===id)gpsSites.set(id,compactSite(result.site));if(!result?.ok){infoError.textContent=result?.error||result?.message||&#x27;Oplysningerne kunne ikke gemmes.&#x27;;infoError.hidden=false;return;}if(!result.site||!Number.isSafeInteger(result.site._directoryVersion)){infoError.textContent=&#x27;Gemningen mangler arbejdsstedets nye version. Hent de gemte værdier.&#x27;;infoError.hidden=false;return;}fillSiteInfo(result.site);infoStatus.textContent=&#x27;De faste oplysninger er gemt.&#x27;;infoStatus.hidden=false;}
+      catch{if(!disposed&amp;&amp;token===infoEpoch){infoError.textContent=&#x27;Oplysningerne kunne ikke gemmes. Prøv igen.&#x27;;infoError.hidden=false;}}
+      finally{if(!disposed&amp;&amp;token===infoEpoch){infoPending=false;updateInfoControls();updateGpsControls();}}
     }
     async function searchAddresses(query,token){
       showAddressStatus(&#x27;Søger efter adresser…&#x27;);
@@ -18549,7 +18640,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       try{
         const result=await onSaveSiteGps({id,expectedVersion,gps,address:siteAddress});
         if(disposed||token!==gpsEpoch)return;
-        if(result?.site)gpsSites.set(id,result.site);
+        if(result?.site)gpsSites.set(id,compactSite(result.site));
         if(!result?.ok){gpsError.textContent=result?.error||&#x27;GPS-indstillingerne kunne ikke gemmes.&#x27;;gpsError.hidden=false;return;}
         fillGps(gpsSites.get(id));gpsStatus.textContent=&#x27;GPS-indstillingerne er gemt.&#x27;;gpsStatus.hidden=false;
       }catch{
@@ -18558,7 +18649,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         if(!disposed&amp;&amp;token===gpsEpoch){gpsPending=false;updateGpsControls();}
       }
     }
-    gpsSite.addEventListener(&#x27;change&#x27;,()=&gt;fillGps(gpsSites.get(gpsSite.value)));
+    gpsSite.addEventListener(&#x27;change&#x27;,()=&gt;{if(infoDirty&amp;&amp;infoId&amp;&amp;gpsSites.has(infoId)){gpsSite.value=infoId;infoError.textContent=&#x27;Gem oplysningerne, eller hent de gemte værdier, før du skifter arbejdssted.&#x27;;infoError.hidden=false;return;}infoEpoch++;infoLoading=false;infoLoaded=false;fillGps(gpsSites.get(gpsSite.value));if(infoVisible&amp;&amp;infoReady)void requestSiteInfo();else updateInfoControls();});
     for(const input of gpsInputs)input.addEventListener(&#x27;input&#x27;,()=&gt;{gpsDirty=true;gpsError.hidden=true;gpsStatus.hidden=true;updateGpsControls();});
     function queueAddressSearch(){
       cancelAddressLookup();addressEdited=true;addressSelection=null;
@@ -18661,7 +18752,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function close(){}
     function showPresentation(){}
-    function destroy(){disposed=true;epoch++;demoEpoch++;gpsEpoch++;cancelAddressLookup();budgetView?.destroy();element.replaceChildren();}
+    function destroy(){disposed=true;epoch++;demoEpoch++;gpsEpoch++;infoEpoch++;cancelAddressLookup();budgetView?.destroy();element.replaceChildren();}
     return Object.freeze({render,close,destroy,showPresentation});
   }
   const api=Object.freeze({mount,payrollPeriodPreview});globalThis.CleanRoomsWorkspaceGuide=api;if(typeof module!==&#x27;undefined&#x27;&amp;&amp;module.exports)module.exports=api;
@@ -19642,6 +19733,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             if(Object.hasOwn(change.after,&#x27;groupId&#x27;)&amp;&amp;!Object.hasOwn(restored,&#x27;groupId&#x27;))restored.groupId=restored.id;
             if((Object.hasOwn(change.after,&#x27;plannedBreakMinutes&#x27;)||Object.values(change.after.dayTimes||{}).some(times=&gt;Series.plannedBreakMinutes(times)&gt;0))&amp;&amp;!Object.hasOwn(restored,&#x27;plannedBreakMinutes&#x27;))restored.plannedBreakMinutes=0;
             if(Object.hasOwn(change.after,&#x27;openEnded&#x27;)&amp;&amp;!Object.hasOwn(restored,&#x27;openEnded&#x27;))restored.openEnded=false;
+            if(Object.hasOwn(change.after,&#x27;weekInterval&#x27;)&amp;&amp;!Object.hasOwn(restored,&#x27;weekInterval&#x27;))restored.weekInterval=1;
+            if(Object.hasOwn(change.after,&#x27;weekAnchor&#x27;)&amp;&amp;!Object.hasOwn(restored,&#x27;weekAnchor&#x27;))restored.weekAnchor=Series.weekMonday(restored.startDate);
           }
           next[field].push(restored);
         }
@@ -23003,7 +23096,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const planningFullHolds=new Set(),planningScopeHolds=new Map();
   let planningCatalog=null;
   let seriesStatus=&#x27;active&#x27;, editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope=&#x27;one&#x27;, editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=false;
-  let editorOperation=&#x27;create&#x27;,editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
+  let editorOperation=&#x27;create&#x27;,editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorWeekAnchor=null,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
   const expandedSeriesGroups=new Set();
   let activeGroup = null, calendarDispose = null, calendarViewportBoard = null;
   let selectionMode = false, selectedIds = new Set(), selectionScope = null;
@@ -23561,11 +23654,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const previous=state.demoSeed;state.demoSeed=enabled===true;const ok=await save();
         if(!ok){if(previous===undefined)delete state.demoSeed;else state.demoSeed=previous;persistence?.discardPending?.();return {ok:false,error:&#x27;Indstillingen kunne ikke gemmes.&#x27;};}
         renderIdentity();return {ok:true};
-      },onLookupSiteAddress:payload=&gt;accountAction(&#x27;siteAddressLookup&#x27;,payload),onSaveSiteGps:saveSiteGps,onSaveBudget:saveWorkspaceBudget});
+      },onLookupSiteAddress:payload=&gt;accountAction(&#x27;siteAddressLookup&#x27;,payload),onSaveSiteGps:saveSiteGps,onReadSiteInfo:readSiteInfo,onSaveSiteInfo:saveSiteInfo,onSaveBudget:saveWorkspaceBudget});
     }
     const departments=state.organization?.departments||[];
     const budgetVersions=Object.fromEntries([[&#x27;site&#x27;,sites],[&#x27;department&#x27;,departments]].map(([kind,items])=&gt;[kind,Object.fromEntries(items.map(item=&gt;[item.id,directory?.version(kind,item.id)||0]))]));
-    guideView?.render({settings:state.workspaceSettings,canEdit:canEditWorkspace(),canEditScopedBudget:canEditWorkspace()&amp;&amp;canManageDepartments(),budgetsReady:directory?.ready===true&amp;&amp;!cloudStatus.conflict,budgetVersions,departments,canManageSiteGps:canManageSiteGps(),gpsReady:directory?.ready===true&amp;&amp;!cloudStatus.conflict,sites,stats:{staffCount:staff.filter(person=&gt;person.active!==false).length,siteCount:sites.length,demoEnabled:state.demoSeed!==false}});
+    guideView?.render({settings:state.workspaceSettings,canEdit:canEditWorkspace(),canEditScopedBudget:canEditWorkspace()&amp;&amp;canManageDepartments(),budgetsReady:directory?.ready===true&amp;&amp;!cloudStatus.conflict,budgetVersions,departments,canManageSiteInfo:canManageDepartments(),siteInfoReady:directory?.ready===true&amp;&amp;!cloudStatus.conflict,canManageSiteGps:canManageSiteGps(),gpsReady:directory?.ready===true&amp;&amp;!cloudStatus.conflict,sites,stats:{staffCount:staff.filter(person=&gt;person.active!==false).length,siteCount:sites.length,demoEnabled:state.demoSeed!==false}});
   }
   async function saveWorkspaceBudget({kind,id,expectedVersion,workHoursBudget,before}) {
     if(!canEditWorkspace())return {ok:false,error:&#x27;Du har ikke adgang til at ændre timebudgetter.&#x27;};
@@ -23585,6 +23678,24 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!result.ok)return {ok:false,error:result.message||&#x27;Timebudgettet kunne ikke gemmes.&#x27;};
     if(state.demoSession)state.demoSession.backup.organization=clone(state.organization);
     if(state.page===&#x27;workspace&#x27;&amp;&amp;state.role!==&#x27;employee&#x27;)renderWorkspace();return {ok:true};
+  }
+  async function readSiteInfo({id,force=false}){
+    if(!canManageDepartments()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:&#x27;Arbejdsstedets oplysninger kan ikke hentes lige nu.&#x27;};
+    const workspace=chatWorkspaceId,viewer=sessionViewer?.userId,result=await directory.get(&#x27;site&#x27;,id,{force});
+    if(workspace!==chatWorkspaceId||viewer!==sessionViewer?.userId||!canManageDepartments())return {ok:false,error:&#x27;Adgangen er ændret. Åbn indstillingerne igen.&#x27;};
+    if(!result.ok)return {ok:false,status:result.status,error:result.message||&#x27;Arbejdsstedets oplysninger kunne ikke hentes.&#x27;};
+    return {ok:true,site:{...result.record.value,_directoryVersion:result.record.version}};
+  }
+  async function saveSiteInfo({id,expectedVersion,worksiteInfo}){
+    if(!canManageDepartments()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:&#x27;Arbejdsstedets oplysninger kan ikke gemmes lige nu.&#x27;};
+    if(!sites.some(site=&gt;site.id===id)||!Number.isSafeInteger(expectedVersion)||expectedVersion&lt;1)return {ok:false,error:&#x27;Arbejdsstedet findes ikke længere.&#x27;};
+    const workspace=chatWorkspaceId,viewer=sessionViewer?.userId,result=await directory.commit([{kind:&#x27;site&#x27;,id,expectedVersion,patch:{worksiteInfo}}]);
+    if(workspace!==chatWorkspaceId||viewer!==sessionViewer?.userId||!canManageDepartments())return {ok:false,error:&#x27;Adgangen er ændret. Åbn indstillingerne igen.&#x27;};
+    if(!result.ok)return {ok:false,status:result.status,error:result.status===409?&#x27;Arbejdsstedet er ændret. Hent de gemte oplysninger, før du gemmer.&#x27;:result.message||&#x27;Arbejdsstedets oplysninger kunne ikke gemmes.&#x27;};
+    const record=result.records?.find(row=&gt;row.kind===&#x27;site&#x27;&amp;&amp;row.id===id);
+    if(!record?.value)return {ok:false,error:&#x27;Gemningen kunne ikke bekræftes. Hent de gemte oplysninger igen.&#x27;};
+    if(state.demoSession)state.demoSession.backup.organization=clone(state.organization);
+    return {ok:true,site:{...record.value,_directoryVersion:record.version}};
   }
   async function saveSiteGps({id,expectedVersion,gps,address}){
     if(!canManageSiteGps()||cloudStatus.conflict||!directory?.ready)return {ok:false,error:&#x27;GPS-indstillinger kan ikke gemmes lige nu.&#x27;};
@@ -23934,7 +24045,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     finally{if(reason===&#x27;action-range&#x27;)releasePlanningHold(reason);}
   }
   function seriesOperationRange(series){ return Engine.requiresRange(series)?Engine.operationRange(series,{today}):{from:series.startDate,to:series.endDate}; }
-  function seriesHasOccurrences(series){return Engine.enumerate(series,{from:series.startDate,to:[addDays(series.startDate,6),series.endDate].sort()[0]}).length&gt;0;}
+  function seriesHasOccurrences(series){return Engine.countOccurrences(series)&gt;0;}
   function seriesProjection(source,ranges=[]){
     return PlanningScope.normalize({mode:&#x27;series&#x27;,...(source?.id?{seriesId:source.id}:{}),...(source?.groupId?{groupId:source.groupId}:{}),ranges:[...(source?[seriesOperationRange(source)]:[]),...ranges],calendar:visiblePlanningRange()});
   }
@@ -24313,6 +24424,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const absenceOpen=q(&#x27;.cs-employee-absence&#x27;)?.open===true;
     globalThis.CleanRoomsEmployee.render(q(&#x27;#cs-employee-content&#x27;),{
       person,staff,sites,shifts:all,view,focusDate,weekStart:staffingMonday(focusDate),today:employeeToday,selectedShiftId:state.employeeShift,minDate,maxDate:planningEnd,
+      worksiteInfo:employeeDetailData?.shift?.id===state.employeeShift?employeeDetailData.site?.worksiteInfo:undefined,
       progressFor:checklistView,saveStatus:employeeDetailLoading?{state:&#x27;loading&#x27;,message:&#x27;Henter instruktioner og tjekliste…&#x27;}:{...cloudStatus,retry:retryCloud},
       calendarLoading:scopedEmployee()&amp;&amp;employeeReader.loading,calendarError:scopedEmployee()&amp;&amp;(employeeReader.error||employeeDetailError),onCalendarRetry:()=&gt;loadEmployeeRead(true),detailLoading:employeeDetailLoading,
       timekeeping:{entries:timeState.entries.filter(entry=&gt;entry.personId===person.id&amp;&amp;Boolean(entry.demo)===timeDemoEmployee).map(entry=&gt;{const copy={...entry};delete copy.payroll;delete copy.approvalHistory;delete copy.reopenedApproval;return copy;}),loading:timeState.loading,error:timeState.error,busy:timeBusy,enabled:cloudLoaded&amp;&amp;!employeeDetailLoading,preview:!realEmployee(),demo:timeDemoEmployee?timeState.demo:null,canDemoEdit:timeDemoEmployee&amp;&amp;cloudCapabilities.plan===true,serverNow:timeState.serverNow,today:employeeToday},
@@ -25557,15 +25669,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!source||scope!==&#x27;future&#x27;)return null;
     return editorSeriesManagement?q(&#x27;#cs-repeat-start&#x27;).value:occurrenceAnchor(activeEdit?.id,source.id);
   }
+  function editorCadence() {
+    const source=sourceSeries()||editorTemplate,weekInterval=Number(q(&#x27;#cs-repeat-interval&#x27;).value||1);
+    if(weekInterval===2)return {weekInterval,weekAnchor:editorWeekAnchor||Engine.weekMonday(q(&#x27;#cs-repeat-start&#x27;).value)};
+    return source?.weekInterval!==undefined||source?.weekAnchor!==undefined||editorWeekAnchor?{weekInterval:1,...(editorWeekAnchor?{weekAnchor:editorWeekAnchor}:{})}:{};
+  }
   function captureEditorDraft(scope=editorPreviousScope) {
     const original=scope===&#x27;one&#x27;?activeEdit:sourceSeries(),note=q(&#x27;#cs-edit-note&#x27;).value;
     const description=descriptionEditor?descriptionEditor.getData():{note:note.trim()?note:&#x27;&#x27;,...(note===(original?.note||&#x27;&#x27;)&amp;&amp;original?.noteRich?{noteRich:original.noteRich}:{})};
     return {person:q(&#x27;#cs-edit-person&#x27;).value,site:q(&#x27;#cs-edit-site&#x27;).value,start:q(&#x27;#cs-edit-start&#x27;).value,end:q(&#x27;#cs-edit-end&#x27;).value,plannedBreakMinutes:readPlannedBreak(),
-      startDate:q(&#x27;#cs-repeat-start&#x27;).value,endDate:q(&#x27;#cs-repeat-end&#x27;).value,openEnded:editorOpenEnded,weekdays:[...repeatDays],dayTimes:JSON.parse(JSON.stringify(editorDayTimes)),customDayTimes:q(&#x27;#cs-day-times-enabled&#x27;).checked,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,...description};
+      startDate:q(&#x27;#cs-repeat-start&#x27;).value,endDate:q(&#x27;#cs-repeat-end&#x27;).value,openEnded:editorOpenEnded,...editorCadence(),weekdays:[...repeatDays],dayTimes:JSON.parse(JSON.stringify(editorDayTimes)),customDayTimes:q(&#x27;#cs-day-times-enabled&#x27;).checked,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,...description};
   }
   function applyEditorDraft(draft) {
     q(&#x27;#cs-edit-person&#x27;).value=draft.person;q(&#x27;#cs-edit-site&#x27;).value=String(draft.site);q(&#x27;#cs-edit-start&#x27;).value=draft.start;q(&#x27;#cs-edit-end&#x27;).value=draft.end;q(&#x27;#cs-edit-break&#x27;).value=String(draft.plannedBreakMinutes??0);
-    q(&#x27;#cs-repeat-start&#x27;).value=draft.startDate;q(&#x27;#cs-repeat-end&#x27;).value=draft.endDate;editorOpenEnded=Engine.isOpenEnded(draft);repeatDays=new Set(draft.weekdays);syncSeriesDurationControls();
+    q(&#x27;#cs-repeat-start&#x27;).value=draft.startDate;q(&#x27;#cs-repeat-end&#x27;).value=draft.endDate;editorOpenEnded=Engine.isOpenEnded(draft);repeatDays=new Set(draft.weekdays);q(&#x27;#cs-repeat-interval&#x27;).value=String(draft.weekInterval??1);editorWeekAnchor=draft.weekAnchor||null;syncSeriesDurationControls();
     q(&#x27;#cs-preserve-exceptions&#x27;).checked=draft.preserve!==false;q(&#x27;#cs-edit-note&#x27;).value=draft.note||&#x27;&#x27;;descriptionEditor?.setContent(draft);
     editorDayTimes=JSON.parse(JSON.stringify(draft.dayTimes||{}));q(&#x27;#cs-day-times-enabled&#x27;).checked=draft.customDayTimes??Object.keys(editorDayTimes).length&gt;0;q(&#x27;#cs-day-times&#x27;).dataset.days=&#x27;&#x27;;
   }
@@ -25584,7 +25701,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const custom=q(&#x27;#cs-day-times-enabled&#x27;).checked,dayTimes={};
     if(custom)[...repeatDays].forEach(day=&gt;{dayTimes[day]={...(editorDayTimes[day]||{start:q(&#x27;#cs-edit-start&#x27;).value,end:q(&#x27;#cs-edit-end&#x27;).value}),plannedBreakMinutes:editorDayTimes[day]?.plannedBreakMinutes??readPlannedBreak()};});
     const groupId=source?.groupId||(source&amp;&amp;q(&#x27;#cs-edit-scope&#x27;).value===&#x27;future&#x27;?source.id:editorTemplate?.groupId);
-    return {id:source &amp;&amp; q(&#x27;#cs-edit-scope&#x27;).value === &#x27;all&#x27; ? source.id : editorSeriesId,person:q(&#x27;#cs-edit-person&#x27;).value,site:Number(q(&#x27;#cs-edit-site&#x27;).value),startDate:q(&#x27;#cs-repeat-start&#x27;).value,endDate:editorOpenEnded?Engine.OPEN_END:q(&#x27;#cs-repeat-end&#x27;).value,...(editorOpenEnded||source?.openEnded!==undefined||editorTemplate?.openEnded!==undefined?{openEnded:editorOpenEnded}:{}),weekdays:[...repeatDays].sort((a,b) =&gt; a-b),start:q(&#x27;#cs-edit-start&#x27;).value,end:q(&#x27;#cs-edit-end&#x27;).value,plannedBreakMinutes:readPlannedBreak(),...(groupId?{groupId}:{}),...(custom||source?.dayTimes!==undefined||editorTemplate?.dayTimes!==undefined?{dayTimes}:{}),...readDescriptionData()};
+    return {id:source &amp;&amp; q(&#x27;#cs-edit-scope&#x27;).value === &#x27;all&#x27; ? source.id : editorSeriesId,person:q(&#x27;#cs-edit-person&#x27;).value,site:Number(q(&#x27;#cs-edit-site&#x27;).value),startDate:q(&#x27;#cs-repeat-start&#x27;).value,endDate:editorOpenEnded?Engine.OPEN_END:q(&#x27;#cs-repeat-end&#x27;).value,...(editorOpenEnded||source?.openEnded!==undefined||editorTemplate?.openEnded!==undefined?{openEnded:editorOpenEnded}:{}),...editorCadence(),weekdays:[...repeatDays].sort((a,b) =&gt; a-b),start:q(&#x27;#cs-edit-start&#x27;).value,end:q(&#x27;#cs-edit-end&#x27;).value,plannedBreakMinutes:readPlannedBreak(),...(groupId?{groupId}:{}),...(custom||source?.dayTimes!==undefined||editorTemplate?.dayTimes!==undefined?{dayTimes}:{}),...readDescriptionData()};
   }
   function syncDayTimeControls(repeating) {
     const custom=repeating&amp;&amp;q(&#x27;#cs-day-times-enabled&#x27;).checked,container=q(&#x27;#cs-day-times&#x27;),days=[...repeatDays].sort((a,b)=&gt;a-b),key=days.join(&#x27;,&#x27;);
@@ -25622,6 +25739,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const times=value=&gt;JSON.stringify([...value.weekdays].sort((a,b)=&gt;a-b).map(day=&gt;[day,value.dayTimes?.[day]?.start||value.start,value.dayTimes?.[day]?.end||value.end,value.dayTimes?.[day]?.plannedBreakMinutes??value.plannedBreakMinutes??0]));
     return Boolean(source&amp;&amp;result?.valid&amp;&amp;!result.changedCount&amp;&amp;Engine.isOpenEnded(draft)===Engine.isOpenEnded(source)&amp;&amp;draft.endDate===source.endDate&amp;&amp;(scope===&#x27;future&#x27;||draft.startDate===source.startDate)
       &amp;&amp;[&#x27;person&#x27;,&#x27;site&#x27;,&#x27;start&#x27;,&#x27;end&#x27;,&#x27;note&#x27;,&#x27;noteRich&#x27;].every(key=&gt;(draft[key]??&#x27;&#x27;)===(source[key]??&#x27;&#x27;))&amp;&amp;(draft.plannedBreakMinutes??0)===(source.plannedBreakMinutes??0)
+      &amp;&amp;Engine.weekInterval(draft)===Engine.weekInterval(source)&amp;&amp;(Engine.weekInterval(draft)!==2||Engine.weekAnchor(draft)===Engine.weekAnchor(source))
       &amp;&amp;times(draft)===times(source)
       &amp;&amp;[...draft.weekdays].sort().join(&#x27;,&#x27;)===[...source.weekdays].sort().join(&#x27;,&#x27;));
   }
@@ -25631,7 +25749,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-series-operation-note&#x27;).hidden=!repeating||![&#x27;copy&#x27;,&#x27;extend&#x27;].includes(editorOperation);
     q(&#x27;#cs-series-operation-note&#x27;).textContent=editorOperation===&#x27;extend&#x27;?&#x27;Tilføjer en ny periode efter &#x27;+shortDate(editorExtension?.endDate||today)+&#x27;. Eksisterende vagter og særændringer bevares.&#x27;:&#x27;Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.&#x27;;
     const panel=q(&#x27;#cs-editor-layer .cs-editor&#x27;);panel.classList?.toggle(&#x27;cs-series-editor&#x27;,repeating);
-    q(&#x27;#cs-repeat-days-field&#x27;).hidden=!repeating;q(&#x27;#cs-series-planning-preview&#x27;).hidden=!repeating;q(&#x27;#cs-editor-caption&#x27;).hidden=repeating;q(&#x27;#cs-series-scope-block&#x27;).hidden=!source;
+    q(&#x27;#cs-repeat-days-field&#x27;).hidden=!repeating;q(&#x27;#cs-repeat-interval&#x27;).disabled=!repeating;q(&#x27;#cs-series-planning-preview&#x27;).hidden=!repeating;q(&#x27;#cs-editor-caption&#x27;).hidden=repeating;q(&#x27;#cs-series-scope-block&#x27;).hidden=!source;
     root.querySelectorAll(&#x27;[data-series-only]&#x27;).forEach(element=&gt;element.hidden=!repeating);
     q(&#x27;#cs-description-summary&#x27;).hidden=!repeating;
     if(editorWasSeries!==repeating)q(&#x27;#cs-description-details&#x27;).open=!repeating;
@@ -25659,11 +25777,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const result=SeriesPlanner.preview({draft,source:source||null,scope:source?scope:&#x27;all&#x27;,cutoff:editorCutoff(source,scope),edits:state.edits,deleted:state.deleted,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,today});
     const person=personName(draft.person),site=sites[draft.site]?.name||&#x27;det valgte arbejdssted&#x27;,days=draft.weekdays.map(day=&gt;dayNames[day].toLocaleLowerCase(&#x27;da-DK&#x27;));
     const pattern=days.length&gt;1?days.slice(0,-1).join(&#x27;, &#x27;)+&#x27; og &#x27;+days.at(-1):days[0]||&#x27;de valgte dage&#x27;;
-    q(&#x27;#cs-series-sentence&#x27;).textContent=(draft.person?person:&#x27;Medarbejderen&#x27;)+&#x27; arbejder &#x27;+pattern+(Object.keys(draft.dayTimes||{}).length?&#x27; med tider pr. dag&#x27;:&#x27; kl. &#x27;+clockLabel(draft))+&#x27; hos &#x27;+site+&#x27;.&#x27;;
+    q(&#x27;#cs-series-sentence&#x27;).textContent=(draft.person?person:&#x27;Medarbejderen&#x27;)+&#x27; arbejder &#x27;+pattern+(Engine.weekInterval(draft)===2?&#x27; hver anden uge&#x27;:&#x27;&#x27;)+(Object.keys(draft.dayTimes||{}).length?&#x27; med tider pr. dag&#x27;:&#x27; kl. &#x27;+clockLabel(draft))+&#x27; hos &#x27;+site+&#x27;.&#x27;;
     const previewValid=result.valid&amp;&amp;result.attached.length&gt;0,summary=q(&#x27;#cs-series-preview&#x27;);summary.replaceChildren();summary.dataset.valid=String(previewValid);
     if(!previewValid)summary.append(node(&#x27;p&#x27;,&#x27;cs-series-preview-error&#x27;,result.errors[0]||&#x27;Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.&#x27;));
     else{
-      const total=node(&#x27;div&#x27;,&#x27;cs-series-result-total&#x27;);total.append(node(&#x27;strong&#x27;,null,result.openEnded?&#x27;Uden slutdato&#x27;:String(result.total)),node(&#x27;span&#x27;,null,result.openEnded?&#x27;gentages hver uge&#x27;:result.limited?&#x27;vagter i forhåndsvisningen&#x27;:editorOperation===&#x27;extend&#x27;?&#x27;nye vagter i forlængelsen&#x27;:&#x27;vagter efter gemning&#x27;));summary.append(total);
+      const total=node(&#x27;div&#x27;,&#x27;cs-series-result-total&#x27;);total.append(node(&#x27;strong&#x27;,null,result.openEnded?&#x27;Uden slutdato&#x27;:String(result.total)),node(&#x27;span&#x27;,null,result.openEnded?(Engine.weekInterval(draft)===2?&#x27;gentages hver anden uge&#x27;:&#x27;gentages hver uge&#x27;):result.limited?&#x27;vagter i forhåndsvisningen&#x27;:editorOperation===&#x27;extend&#x27;?&#x27;nye vagter i forlængelsen&#x27;:&#x27;vagter efter gemning&#x27;));summary.append(total);
       const effect=source?(Engine.isOpenEnded(source)&amp;&amp;!Engine.isOpenEnded(draft)?&#x27;Serien afsluttes &#x27;+shortDate(draft.endDate)+&#x27;.&#x27;:!Engine.isOpenEnded(source)&amp;&amp;Engine.isOpenEnded(draft)?&#x27;Serien fortsætter uden slutdato.&#x27;:result.changedCount?[result.updatedCount+&#x27; ændres&#x27;,result.createdCount+&#x27; nye&#x27;,result.removedCount+&#x27; udgår&#x27;].join(&#x27; · &#x27;):&#x27;Ingen vagter ændres.&#x27;):&#x27;Fra &#x27;+shortDate(draft.startDate)+(Engine.isOpenEnded(draft)?&#x27; · uden slutdato&#x27;:&#x27; til &#x27;+shortDate(draft.endDate));
       summary.append(node(&#x27;p&#x27;,&#x27;cs-series-result-effect&#x27;,effect));
       if(result.limited)summary.append(node(&#x27;p&#x27;,&#x27;cs-series-result-preserved&#x27;,&#x27;Forhåndsvisning: &#x27;+shortDate(result.range.from)+&#x27; – &#x27;+shortDate(result.range.to)+(result.openEnded?&#x27;. Serien fortsætter herefter.&#x27;:&#x27;.&#x27;)));
@@ -25902,8 +26020,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     box.textContent = view?.total ? &#x27;Fremdrift på denne vagt · &#x27; + view.checked + &#x27; af &#x27; + view.total + &#x27; opgaver udført&#x27; : &#x27;&#x27;;
   }
   function editorDraftFingerprint() {
-    const fields=[&#x27;#cs-edit-person&#x27;,&#x27;#cs-edit-site&#x27;,&#x27;#cs-edit-date&#x27;,&#x27;#cs-edit-start&#x27;,&#x27;#cs-edit-end&#x27;,&#x27;#cs-edit-break&#x27;,&#x27;#cs-repeat-start&#x27;,&#x27;#cs-repeat-end&#x27;,&#x27;#cs-edit-scope&#x27;];
-    return JSON.stringify({fields:fields.map(selector=&gt;q(selector)?.value??&#x27;&#x27;),repeat:q(&#x27;#cs-edit-repeat&#x27;).checked,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,dayTimesEnabled:q(&#x27;#cs-day-times-enabled&#x27;).checked,days:[...repeatDays].sort(),dayTimes:editorDayTimes,openEnded:editorOpenEnded,description:readDescriptionData()});
+    const fields=[&#x27;#cs-edit-person&#x27;,&#x27;#cs-edit-site&#x27;,&#x27;#cs-edit-date&#x27;,&#x27;#cs-edit-start&#x27;,&#x27;#cs-edit-end&#x27;,&#x27;#cs-edit-break&#x27;,&#x27;#cs-repeat-start&#x27;,&#x27;#cs-repeat-end&#x27;,&#x27;#cs-edit-scope&#x27;,&#x27;#cs-repeat-interval&#x27;];
+    return JSON.stringify({fields:fields.map(selector=&gt;q(selector)?.value??&#x27;&#x27;),repeat:q(&#x27;#cs-edit-repeat&#x27;).checked,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,dayTimesEnabled:q(&#x27;#cs-day-times-enabled&#x27;).checked,days:[...repeatDays].sort(),dayTimes:editorDayTimes,openEnded:editorOpenEnded,weekAnchor:editorWeekAnchor,description:readDescriptionData()});
   }
   function editorHasDirtyDraft(){return Boolean(activeEdit&amp;&amp;editorDirtyBaseline!==null&amp;&amp;editorDirtyBaseline!==editorDraftFingerprint());}
   function dismissEditorDiscard(){
@@ -25947,6 +26065,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     editorPlanCapture=PlanningReconcile?.capture(state,{shifts:shift.id?[shift]:[],seriesId:shift.seriesId||null,groupId:options.extension?.groupId||null})||null;
     editorOperation=options.operation||(shift.id?&#x27;edit&#x27;:&#x27;create&#x27;);editorTemplate=options.template||null;editorExtension=options.extension||null;seriesCalendarState={};seriesCalendarPreview=null;
     editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||&#x27;one&#x27;;editorWasSeries=false;q(&#x27;#cs-description-details&#x27;).open=true;q(&#x27;#cs-series-delete-confirm&#x27;).hidden=true;
+    const cadenceSource=sourceSeries()||options.template;q(&#x27;#cs-repeat-interval&#x27;).value=String(cadenceSource?.weekInterval??1);editorWeekAnchor=cadenceSource?.weekAnchor||null;
     editorDayTimes=JSON.parse(JSON.stringify(sourceSeries()?.dayTimes||options.template?.dayTimes||{}));q(&#x27;#cs-day-times-enabled&#x27;).checked=Object.keys(editorDayTimes).length&gt;0;q(&#x27;#cs-day-times&#x27;).dataset.days=&#x27;&#x27;;
     q(&#x27;#cs-editor-title&#x27;).textContent = options.repeat || shift.seriesId &amp;&amp; options.scope === &#x27;all&#x27; ? shift.seriesId ? &#x27;Rediger vagtserie&#x27; : &#x27;Opret vagtserie&#x27; : shift.id ? &#x27;Rediger vagt&#x27; : &#x27;Opret vagt&#x27;;
     q(&#x27;#cs-editor-caption&#x27;).textContent = fullDate(shift.date);
@@ -26549,7 +26668,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   function editorError(message) { q(&#x27;#cs-edit-error&#x27;).hidden = false; q(&#x27;#cs-edit-error&#x27;).textContent = message; q(&#x27;#cs-edit-error&#x27;).scrollIntoView({block:&#x27;nearest&#x27;}); }
   function restoredSeriesMetadata(previous,current) {
-    return (previous||[]).map(series=&gt;{const present=(current||[]).find(item=&gt;item.id===series.id),hasPause=present?.plannedBreakMinutes!==undefined||Object.values(present?.dayTimes||{}).some(day=&gt;day.plannedBreakMinutes!==undefined);return {...series,...(present?.openEnded!==undefined&amp;&amp;series.openEnded===undefined?{openEnded:false}:{}),...(present?.dayTimes!==undefined&amp;&amp;series.dayTimes===undefined?{dayTimes:{}}:{}),...(present?.groupId!==undefined&amp;&amp;series.groupId===undefined?{groupId:series.id}:{}),...(hasPause&amp;&amp;series.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{})};});
+    return (previous||[]).map(series=&gt;{const present=(current||[]).find(item=&gt;item.id===series.id),hasPause=present?.plannedBreakMinutes!==undefined||Object.values(present?.dayTimes||{}).some(day=&gt;day.plannedBreakMinutes!==undefined);return {...series,...(present?.openEnded!==undefined&amp;&amp;series.openEnded===undefined?{openEnded:false}:{}),...(present?.dayTimes!==undefined&amp;&amp;series.dayTimes===undefined?{dayTimes:{}}:{}),...(present?.groupId!==undefined&amp;&amp;series.groupId===undefined?{groupId:series.id}:{}),...(hasPause&amp;&amp;series.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{}),...(present?.weekInterval!==undefined&amp;&amp;series.weekInterval===undefined?{weekInterval:1}:{}),...(present?.weekAnchor!==undefined&amp;&amp;series.weekAnchor===undefined?{weekAnchor:Engine.weekMonday(series.startDate)}:{})};});
   }
   function restoredPauseEdits(previous,current){return Object.fromEntries(Object.entries(previous||{}).map(([id,shift])=&gt;[id,{...shift,...(current?.[id]?.plannedBreakMinutes!==undefined&amp;&amp;shift.plannedBreakMinutes===undefined?{plannedBreakMinutes:0}:{})}]));}
   function scopeDraft(data, source, scope, replacement = null) {
@@ -26698,6 +26817,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   q(&#x27;#cs-edit-scope&#x27;).addEventListener(&#x27;change&#x27;,changeEditorScope); q(&#x27;#cs-edit-repeat&#x27;).addEventListener(&#x27;change&#x27;,() =&gt; configureRepeat(true));
   q(&#x27;#cs-preserve-exceptions&#x27;).addEventListener(&#x27;change&#x27;,updatePreview);
   q(&#x27;#cs-day-times-enabled&#x27;).addEventListener(&#x27;change&#x27;,updatePreview);
+  q(&#x27;#cs-repeat-interval&#x27;).addEventListener(&#x27;change&#x27;,()=&gt;{if(Number(q(&#x27;#cs-repeat-interval&#x27;).value)===2&amp;&amp;Engine.weekInterval(sourceSeries()||editorTemplate)!==2)editorWeekAnchor=null;updatePreview();});
   root.querySelectorAll(&#x27;[data-repeat-day]&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;,() =&gt; { const day = Number(button.dataset.repeatDay); if (repeatDays.has(day)) repeatDays.delete(day); else repeatDays.add(day); updatePreview(); }));
   [&#x27;#cs-edit-date&#x27;,&#x27;#cs-edit-person&#x27;,&#x27;#cs-edit-site&#x27;,&#x27;#cs-edit-start&#x27;,&#x27;#cs-edit-end&#x27;,&#x27;#cs-edit-break&#x27;,&#x27;#cs-repeat-start&#x27;,&#x27;#cs-repeat-end&#x27;].forEach(selector =&gt; { q(selector).addEventListener(&#x27;input&#x27;,updatePreview); q(selector).addEventListener(&#x27;change&#x27;,updatePreview); });
   q(&#x27;#cs-repeat-unlimited&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;chooseSeriesLength(null));
@@ -26826,6 +26946,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

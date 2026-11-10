@@ -1,7 +1,8 @@
 /** Employee-facing, provider-independent contracts. Demo calculation rules are not a payroll engine. */
 export type Person = { id: string; name: string; initials: string; role: string };
 export type Geofence = { latitude: number; longitude: number; radiusMeters: number };
-export type Site = { id: string; name: string; address: string; geofence?: Geofence };
+export type WorksiteInfo = { contactName?: string; contactPhone?: string; parking?: string; accessInstructions?: string };
+export type Site = { id: string; name: string; address: string; geofence?: Geofence; worksiteInfo?: WorksiteInfo };
 export type ClockInLocation = {
   latitude: number; longitude: number; accuracyMeters: number | null; timestamp: number; mocked?: boolean;
 };

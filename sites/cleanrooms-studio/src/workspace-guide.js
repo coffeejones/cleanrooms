@@ -9,7 +9,7 @@
     return 'Denne periode: '+label(period.from)+' – '+label(period.to);
   }
   let sequence=0;
-  function mount({element,onSave,onNavigate,onDemoChange,onSaveSiteGps,onLookupSiteAddress,onSaveBudget}={}){
+  function mount({element,onSave,onNavigate,onDemoChange,onSaveSiteGps,onLookupSiteAddress,onSaveBudget,onReadSiteInfo,onSaveSiteInfo}={}){
     if(!element?.ownerDocument)throw new TypeError('Indstillinger kræver et indholdsfelt.');
     const doc=element.ownerDocument,suffix=++sequence===1?'':'-'+sequence,keys=['companyName','productName','contactName','contactEmail','contactPhone','brandNote'];
     let settings={},stats={},canEdit=false,pending=false,demoPending=false,disposed=false,dirty=false,loaded=false,epoch=0,demoEpoch=0,snapshot='';
@@ -49,8 +49,8 @@
     const actions=node('div','cs-product-form-actions cs-settings-save-row'),save=button('Gem oplysninger',()=>saveSettings(),'cs-button cs-primary');save.id='cs-workspace-settings-save'+suffix;actions.append(permissionNote,incomingNote,error,saveStatus,save);form.append(identity.section,payrollPeriod.section,contact.section,actions);setup.append(form);
     const budgetSection=node('div','cs-settings-budget-panel');
     const budgetView=globalThis.CleanRoomsWorkspaceBudgets?.mount({element:budgetSection,onSave:onSaveBudget});
-    const gpsModel=globalThis.CleanRoomsDepartments;
-    const gpsSection=section('Arbejdssteder','Vælg, hvor tæt medarbejderne skal være på arbejdsstedet, når de stempler ind.');
+    const gpsModel=globalThis.CleanRoomsDepartments||(typeof require==='function'?require('./department-model.js'):null);
+    const gpsSection=section('Arbejdssteder','Adresse, indstempling og praktiske oplysninger til medarbejderne.');
     gpsSection.section.classList.add('cs-settings-gps');
     const gpsForm=node('form','cs-settings-gps-form');gpsForm.noValidate=true;
     const gpsSite=node('select','cs-product-input');
@@ -81,10 +81,22 @@
     const gpsError=node('p','cs-product-error'),gpsStatus=node('p','cs-product-save-status'),gpsEmpty=node('p','cs-product-help','Der er endnu ingen arbejdssteder at indstille.');
     gpsError.setAttribute('role','alert');gpsStatus.setAttribute('role','status');
     gpsActions.append(gpsReload,gpsSave);
-    gpsForm.append(gpsField('Arbejdssted',gpsSite),gpsAddressControl,gpsToggleLabel,gpsRadiusField,gpsError,gpsStatus,gpsActions);
-    gpsSection.content.append(gpsForm,gpsEmpty);setup.append(gpsSection.section);
+    const siteSelector=gpsField('Arbejdssted',gpsSite);
+    gpsForm.append(gpsAddressControl,gpsToggleLabel,gpsRadiusField,gpsError,gpsStatus,gpsActions);
+    gpsSection.content.append(siteSelector,gpsForm,gpsEmpty);setup.append(gpsSection.section);
     const gpsInputs=[gpsToggle,gpsRadius];
-    let gpsSites=new Map(),gpsSiteSnapshot='',gpsVisible=false,gpsReady=false,gpsDirty=false,gpsPending=false,gpsVersion=0,gpsEpoch=0;
+    let gpsSites=new Map(),gpsSiteSnapshot='',gpsVisible=false,gpsCanEdit=false,gpsReady=false,gpsDirty=false,gpsPending=false,gpsVersion=0,gpsEpoch=0;
+    let infoVisible=false,infoReady=false,infoLoading=false,infoPending=false,infoDirty=false,infoLoaded=false,infoId='',infoVersion=0,infoEpoch=0;
+    const infoFields={};
+    const compactSite=site=>{const value={...site};delete value.worksiteInfo;return value;};
+    const infoForm=node('form','cs-settings-worksite-info');infoForm.noValidate=true;
+    const infoHeading=node('h4','cs-settings-worksite-info-title','Faste oplysninger'),infoHelp=node('p','cs-product-help','Vises på vagten i appen og i Mine vagter.');
+    const infoField=(key,label,type='text')=>{const input=node(type==='textarea'?'textarea':'input','cs-product-input');input.id='cs-worksite-info-'+key+suffix;if(type==='textarea')input.rows=4;else input.type=type;input.maxLength=gpsModel?.WORKSITE_INFO_LIMITS?.[key]??200000;infoFields[key]=input;input.addEventListener('input',()=>{infoDirty=true;infoStatus.hidden=true;infoError.hidden=true;updateInfoControls();});return gpsField(label,input);};
+    const infoContact=node('div','cs-product-field-pair');infoContact.append(infoField('contactName','Kontaktperson'),infoField('contactPhone','Telefon','tel'));
+    const infoError=node('p','cs-product-error'),infoStatus=node('p','cs-product-save-status');infoError.setAttribute('role','alert');infoStatus.setAttribute('role','status');infoError.hidden=infoStatus.hidden=true;
+    const infoActions=node('div','cs-settings-gps-actions'),infoReload=button('Hent gemte værdier',()=>requestSiteInfo(true)),infoSave=button('Gem faste oplysninger',()=>saveSiteInfo(),'cs-button cs-primary');infoActions.append(infoReload,infoSave);
+    infoForm.append(infoHeading,infoHelp,infoContact,infoField('parking','Parkering','textarea'),infoField('accessInstructions','Adgangsvejledning','textarea'),infoError,infoStatus,infoActions);gpsSection.content.append(infoForm);
+    infoForm.addEventListener('submit',event=>{event.preventDefault();saveSiteInfo();});
     let addressEdited=false,addressSelection=null,addressResolving=false,addressEpoch=0,addressTimer,addressOptions=[],activeAddress=-1;
     function showAddressStatus(message=''){
       gpsAddressStatus.textContent=message;gpsAddressStatus.hidden=!message;
@@ -117,8 +129,9 @@
     }
     function updateGpsControls(){
       const hasSite=gpsSites.has(gpsSite.value),stale=hasSite&&(gpsDirty||addressEdited)&&gpsSites.get(gpsSite.value)._directoryVersion!==gpsVersion;
-      gpsSection.section.hidden=!gpsVisible;gpsForm.hidden=!hasSite;gpsEmpty.hidden=hasSite;
-      for(const input of [gpsSite,...gpsInputs])input.disabled=!gpsReady||gpsPending;
+      gpsSection.section.hidden=!gpsVisible;gpsForm.hidden=!hasSite||!gpsCanEdit;gpsEmpty.hidden=hasSite;siteSelector.hidden=!hasSite;
+      gpsSite.disabled=(!gpsReady&&!infoReady)||gpsPending||infoPending;
+      for(const input of gpsInputs)input.disabled=!gpsReady||gpsPending;
       gpsAddress.disabled=!gpsReady||gpsPending||typeof onLookupSiteAddress!=='function';
       gpsAddressUndo.hidden=!addressEdited;gpsAddressUndo.disabled=gpsAddress.disabled;
       gpsSave.disabled=!gpsReady||gpsPending||addressEdited||!gpsDirty||stale;
@@ -135,9 +148,11 @@
       updateGpsControls();
     }
     function renderGps(options){
-      const visible=options.canManageSiteGps===true&&Boolean(gpsModel);
-      if(!visible&&gpsVisible){gpsEpoch++;gpsPending=false;gpsDirty=false;restoreAddress(null);}
-      gpsVisible=visible;gpsReady=visible&&options.gpsReady===true&&typeof onSaveSiteGps==='function';
+      infoVisible=options.canManageSiteInfo===true&&Boolean(gpsModel);infoReady=infoVisible&&options.siteInfoReady===true&&typeof onReadSiteInfo==='function'&&typeof onSaveSiteInfo==='function';
+      gpsCanEdit=options.canManageSiteGps===true&&Boolean(gpsModel);
+      const visible=gpsCanEdit||infoVisible;
+      if(!visible&&gpsVisible){gpsEpoch++;gpsPending=false;gpsDirty=false;restoreAddress(null);infoEpoch++;infoLoading=infoPending=infoLoaded=infoDirty=false;infoId='';infoVersion=0;for(const field of Object.values(infoFields))field.value='';}
+      gpsVisible=visible;gpsReady=gpsCanEdit&&options.gpsReady===true&&typeof onSaveSiteGps==='function';
       gpsSites=new Map(visible?(options.sites||[]).map(site=>[site.id,site]):[]);
       const previous=gpsSite.value,nextSnapshot=JSON.stringify([...gpsSites.values()].map(site=>[site.id,site.name,site.address]));
       if(nextSnapshot!==gpsSiteSnapshot){
@@ -148,6 +163,33 @@
       const site=gpsSites.get(gpsSite.value);
       if(visible&&(previous!==gpsSite.value||!gpsDirty&&!addressEdited&&!gpsPending&&(site?._directoryVersion||0)!==gpsVersion))fillGps(site);
       else updateGpsControls();
+      if(infoVisible&&infoReady&&(infoId!==gpsSite.value||!infoLoaded&&!infoLoading))void requestSiteInfo();else updateInfoControls();
+    }
+    function updateInfoControls(){
+      const stale=infoLoaded&&gpsSites.get(gpsSite.value)?._directoryVersion!==infoVersion;
+      infoForm.hidden=!infoVisible||!gpsSites.has(gpsSite.value);infoForm.setAttribute('aria-busy',String(infoLoading||infoPending));
+      for(const field of Object.values(infoFields))field.disabled=!infoReady||infoLoading||infoPending||!infoLoaded;
+      infoSave.disabled=!infoReady||infoLoading||infoPending||!infoLoaded||!infoDirty||stale;infoSave.textContent=infoPending?'Gemmer…':'Gem faste oplysninger';
+      infoReload.hidden=!stale&&!infoDirty&&infoLoaded;infoReload.disabled=!infoReady||infoLoading||infoPending;
+      if(stale&&!infoLoading&&!infoPending){infoError.textContent='Arbejdsstedet er ændret. Hent de gemte værdier, før du gemmer.';infoError.hidden=false;}
+    }
+    function fillSiteInfo(site){
+      const value=gpsModel.normalizeWorksiteInfo(site?.worksiteInfo)||{};for(const [key,field]of Object.entries(infoFields))field.value=value[key]||'';
+      infoId=site.id;infoVersion=site._directoryVersion;infoLoaded=true;infoDirty=false;infoError.hidden=true;
+    }
+    async function requestSiteInfo(force=false){
+      if(disposed||!infoReady||infoPending||infoLoading&&!force)return;const id=gpsSite.value;if(!gpsSites.has(id))return;
+      const token=++infoEpoch;infoId=id;infoLoading=true;infoLoaded=false;infoDirty=false;infoError.hidden=true;infoStatus.textContent='Indlæser oplysninger…';infoStatus.hidden=false;updateInfoControls();
+      try{const result=await onReadSiteInfo({id,force});if(disposed||token!==infoEpoch||id!==gpsSite.value)return;if(!result?.ok||result.site?.id!==id||!Number.isSafeInteger(result.site?._directoryVersion)||result.site._directoryVersion<1){infoError.textContent=result?.error||result?.message||'Arbejdsstedets oplysninger kunne ikke hentes.';infoError.hidden=false;return;}gpsSites.set(id,compactSite(result.site));fillSiteInfo(result.site);}
+      catch{if(!disposed&&token===infoEpoch){infoError.textContent='Oplysningerne kunne ikke hentes. Prøv igen.';infoError.hidden=false;}}
+      finally{if(!disposed&&token===infoEpoch){infoLoading=false;infoStatus.hidden=true;updateInfoControls();updateGpsControls();}}
+    }
+    async function saveSiteInfo(){
+      if(disposed||infoSave.disabled)return;const draft=Object.fromEntries(Object.entries(infoFields).map(([key,field])=>[key,field.value])),errors=gpsModel.validateWorksiteInfo(draft);if(errors.length){infoError.textContent=errors[0];infoError.hidden=false;return;}const id=infoId,expectedVersion=infoVersion,token=++infoEpoch,worksiteInfo=gpsModel.normalizeWorksiteInfo(draft);
+      infoPending=true;infoError.hidden=true;infoStatus.hidden=true;updateInfoControls();updateGpsControls();
+      try{const result=await onSaveSiteInfo({id,expectedVersion,worksiteInfo});if(disposed||token!==infoEpoch||id!==gpsSite.value)return;if(result?.site?.id===id)gpsSites.set(id,compactSite(result.site));if(!result?.ok){infoError.textContent=result?.error||result?.message||'Oplysningerne kunne ikke gemmes.';infoError.hidden=false;return;}if(!result.site||!Number.isSafeInteger(result.site._directoryVersion)){infoError.textContent='Gemningen mangler arbejdsstedets nye version. Hent de gemte værdier.';infoError.hidden=false;return;}fillSiteInfo(result.site);infoStatus.textContent='De faste oplysninger er gemt.';infoStatus.hidden=false;}
+      catch{if(!disposed&&token===infoEpoch){infoError.textContent='Oplysningerne kunne ikke gemmes. Prøv igen.';infoError.hidden=false;}}
+      finally{if(!disposed&&token===infoEpoch){infoPending=false;updateInfoControls();updateGpsControls();}}
     }
     async function searchAddresses(query,token){
       showAddressStatus('Søger efter adresser…');
@@ -213,7 +255,7 @@
       try{
         const result=await onSaveSiteGps({id,expectedVersion,gps,address:siteAddress});
         if(disposed||token!==gpsEpoch)return;
-        if(result?.site)gpsSites.set(id,result.site);
+        if(result?.site)gpsSites.set(id,compactSite(result.site));
         if(!result?.ok){gpsError.textContent=result?.error||'GPS-indstillingerne kunne ikke gemmes.';gpsError.hidden=false;return;}
         fillGps(gpsSites.get(id));gpsStatus.textContent='GPS-indstillingerne er gemt.';gpsStatus.hidden=false;
       }catch{
@@ -222,7 +264,7 @@
         if(!disposed&&token===gpsEpoch){gpsPending=false;updateGpsControls();}
       }
     }
-    gpsSite.addEventListener('change',()=>fillGps(gpsSites.get(gpsSite.value)));
+    gpsSite.addEventListener('change',()=>{if(infoDirty&&infoId&&gpsSites.has(infoId)){gpsSite.value=infoId;infoError.textContent='Gem oplysningerne, eller hent de gemte værdier, før du skifter arbejdssted.';infoError.hidden=false;return;}infoEpoch++;infoLoading=false;infoLoaded=false;fillGps(gpsSites.get(gpsSite.value));if(infoVisible&&infoReady)void requestSiteInfo();else updateInfoControls();});
     for(const input of gpsInputs)input.addEventListener('input',()=>{gpsDirty=true;gpsError.hidden=true;gpsStatus.hidden=true;updateGpsControls();});
     function queueAddressSearch(){
       cancelAddressLookup();addressEdited=true;addressSelection=null;
@@ -325,7 +367,7 @@
     }
     function close(){}
     function showPresentation(){}
-    function destroy(){disposed=true;epoch++;demoEpoch++;gpsEpoch++;cancelAddressLookup();budgetView?.destroy();element.replaceChildren();}
+    function destroy(){disposed=true;epoch++;demoEpoch++;gpsEpoch++;infoEpoch++;cancelAddressLookup();budgetView?.destroy();element.replaceChildren();}
     return Object.freeze({render,close,destroy,showPresentation});
   }
   const api=Object.freeze({mount,payrollPeriodPreview});globalThis.CleanRoomsWorkspaceGuide=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;

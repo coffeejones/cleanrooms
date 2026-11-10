@@ -47,6 +47,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
 
   const site = publishedSite ?? state.sites.find(place => place.id === shift.siteId);
   const entry = publishedSite ? publishedEntry : state.entries.find(record => record.shiftId === shift.id);
+  const completedHomeRow = homeTile && Boolean(entry?.clockOut);
   const active = entry && (entry.status === 'running' || entry.status === 'paused');
   const paused = entry?.status === 'paused';
   const activeColor = paused ? colors.warning : colors.success;
@@ -93,7 +94,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
               {tileWeekday}
             </Txt>
             <View style={{ alignItems: 'flex-start' }}>
-              <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 24, letterSpacing: -.5 }}>
+              <Txt size={21} weight={completedHomeRow ? '500' : '600'} color={colors.ink} style={{ lineHeight: 24, letterSpacing: -.5 }}>
                 {dateNumber}
               </Txt>
               <Txt size={11} color={colors.muted} style={{ lineHeight: 13 }}>
@@ -112,7 +113,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
         <View style={{ flex: 1, minWidth: dateTile ? 0 : undefined, gap: dateTile ? 3 : 2 }}>
           {dateTile ? (
             <>
-              <Txt size={17} weight="600" style={{ lineHeight: 23, letterSpacing: -.25 }}>{shift.start}–{shift.end}</Txt>
+              <Txt size={17} weight={completedHomeRow ? '500' : '600'} style={{ lineHeight: 23, letterSpacing: -.25 }}>{shift.start}–{shift.end}</Txt>
               <Txt size={13} color={colors.muted} numberOfLines={2} style={{ lineHeight: 18 }}>{siteLabel}</Txt>
             </>
           ) : (

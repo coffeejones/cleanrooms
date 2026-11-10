@@ -82,6 +82,7 @@ export default function HomeScreen() {
   const nextStart = activeShift ? shiftInterval(activeShift).start : upcomingShift?.start;
   const site = live ? activeLiveRecord?.site ?? upcomingShift?.site : state.sites.find(place => place.id === next?.siteId);
   const agenda = weekShifts.filter(record => record.shift.id !== next?.id);
+  const weekShiftCount = live && !schedule.data ? null : weekShifts.length;
 
   function moveWeek(direction: -1 | 1) {
     setSelectedWeek(previous => {
@@ -122,7 +123,12 @@ export default function HomeScreen() {
       <View style={styles.agenda}>
         <Row gap={12} style={styles.sectionHead}>
           <View style={styles.sectionIntro}>
-            <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
+            <Row gap={8} style={styles.weekHeading}>
+              <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
+              {weekShiftCount !== null && (
+                <Txt size={12} color={muted}>{weekShiftCount} {weekShiftCount === 1 ? 'vagt' : 'vagter'}</Txt>
+              )}
+            </Row>
             <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
           </View>
           <Row gap={6}>
@@ -187,7 +193,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
   content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
-  dock: { paddingHorizontal: 16, paddingTop: 6, paddingBottom: 8 },
+  dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
   brandName: { letterSpacing: -.4, lineHeight: 22 },
   brandText: { flexShrink: 1 },
@@ -196,6 +202,7 @@ const styles = StyleSheet.create({
   agendaDivider: { marginHorizontal: 16 },
   sectionHead: { justifyContent: 'space-between', paddingTop: 4 },
   sectionIntro: { flex: 1, minWidth: 0, gap: 3 },
+  weekHeading: { alignItems: 'baseline', flexWrap: 'wrap', rowGap: 0 },
   sectionTitle: { letterSpacing: -.55, lineHeight: 28 },
   weekDates: { lineHeight: 17 },
   todayButton: { minHeight: 44, justifyContent: 'center', borderRadius: 8, paddingHorizontal: 8 },

@@ -1,4 +1,5 @@
 /* Request rows have independent versions; only an approved transfer commits a new plan. */
+import {isScoped,assertSiteAccess,assertPersonAccess,accessGuard} from './department-access.mjs';
 import Workflow from '../src/shift-workflow-model.js';
 import Publication from '../src/publication-model.js';
 import Data from '../src/studio-data.js';
@@ -7,7 +8,7 @@ import Checklist from '../src/checklist-progress.js';
 import {writeStudio,StudioError} from './studio-store.mjs';
 import {ensureTimeEntries} from './time-entry-store.mjs';
 import {absenceGuard} from './absence-store.mjs';
-import {ensureEngagement,readWorkflow,workflowRequest,workflowRequestsForShift,requestStatement,requestVersionGuard,messageStatements,engagementPlanGuard,prepareEngagementPlan} from './engagement-store.mjs';
+import {ensureEngagement,readWorkflow,workflowDepartmentScope,workflowRequest,workflowRequestsForShift,requestStatement,requestVersionGuard,messageStatements,engagementPlanGuard,prepareEngagementPlan} from './engagement-store.mjs';
 import {employeeReferenceGuard} from './directory-references.mjs';
 import {handleWorkflowDemoAction} from './shift-workflow-demo-store.mjs';
 import {createWorkflowContext} from './workflow-context.mjs';
@@ -25,22 +26,27 @@ const overlap=(one,two)=>one.person===two.person&&one.date===two.date&&one.id!==
 
 export async function handleShiftWorkflowAction(args){try{return await workflowAction(args);}catch(error){if(!(error instanceof StudioError)&&Number.isInteger(error?.status)&&error.status>=400&&error.status<=599&&typeof error.code==='string')throw new StudioError(error.status,error.code,error.message);throw error;}}
 async function workflowAction({db,context,payload,principal,helpers:h}){
+  if(payload.action==='workflowDemo'&&isScoped(context))h.fail(403,'department_scope_forbidden','Eksempler kræver adgang til hele virksomheden.');
   if(payload.action==='workflowDemo')return handleWorkflowDemoAction({db,context,payload,principal,helpers:h});
   const manager=h.capabilities(context).plan,actor={userId:principal.userId,name:principal.name},stamp=new Date().toISOString(),local=localNow(stamp),workspaceId=context.workspace.id;
   const selectedPerson=payload.personId||context.member.personId||null,preview=Boolean(manager&&payload.personId);
   if(payload.personId&&!manager&&payload.personId!==context.member.personId)h.fail(403,'workflow_person_forbidden','Du kan kun se dine egne beskeder og vagtanmodninger.');
   if(!manager&&!context.member.personId)h.fail(403,'workflow_person_required','Kontoen skal være knyttet til en medarbejder.');
+  const departmentWorkflow=manager?workflowDepartmentScope(context):workflowDepartmentScope(null);
+  async function assertRequestAccess(request){if(!manager||!isScoped(context)||!request)return;assertSiteAccess(context,request.shift?.site);for(const personId of new Set([request.fromPersonId,request.toPersonId].filter(Boolean)))await assertPersonAccess({db,context,personId});}
+  if(manager&&payload.personId)await assertPersonAccess({db,context,personId:payload.personId});
   await ensureEngagement(db,context,h);
   if(payload.summary===true){
     if(selectedPerson&&!await h.first(db,"SELECT id FROM workspace_directory_records WHERE workspace_id=? AND kind='employee' AND id=? AND deleted=0",workspaceId,selectedPerson))h.fail(404,'workflow_person_missing','Medarbejderen findes ikke.');
-    const own=selectedPerson?await h.first(db,"SELECT COUNT(*) n FROM workspace_shift_messages message LEFT JOIN workspace_message_receipts receipt ON receipt.workspace_id=message.workspace_id AND receipt.message_id=message.id AND receipt.person_id=message.person_id WHERE message.workspace_id=? AND message.person_id=? AND receipt.read_at IS NULL AND json_extract(message.config,'$.readAt') IS NULL",workspaceId,selectedPerson):null,pending=manager&&!preview?await h.first(db,"SELECT COUNT(*) n FROM workspace_shift_requests WHERE workspace_id=? AND status='pending'",workspaceId):null;
+    const messageAccess=workflowDepartmentScope(manager?context:undefined,{messageAlias:'message'}).messages;
+    const own=selectedPerson?await h.first(db,`SELECT COUNT(*) n FROM workspace_shift_messages message LEFT JOIN workspace_message_receipts receipt ON receipt.workspace_id=message.workspace_id AND receipt.message_id=message.id AND receipt.person_id=message.person_id WHERE message.workspace_id=? AND message.person_id=? AND receipt.read_at IS NULL AND json_extract(message.config,'$.readAt') IS NULL AND (${messageAccess.sql})`,workspaceId,selectedPerson,...messageAccess.values):null,pending=manager&&!preview?await h.first(db,`SELECT COUNT(*) n FROM workspace_shift_requests WHERE workspace_id=? AND status='pending' AND (${departmentWorkflow.requests.sql})`,workspaceId,...departmentWorkflow.requests.values):null;
     await h.assertContext(db,context);return {summary:true,unreadCount:own?.n||0,pendingCount:pending?.n||0,personId:selectedPerson,canManage:manager&&!preview,preview,revision:context.saved.revision,serverNow:stamp};
   }
   const scoped=await createWorkflowContext({db,context,payload,helpers:h,local});
   let saved=context.saved,studio=saved.studio||{};
   // A mutation is authorized from its exact request, not a page of unrelated history.
   const workflow={version:1,sequence:0,notifications:[],requests:[]},baseline=new Map();
-  if(payload.requestId&&!baseline.has(payload.requestId)){const target=await workflowRequest(db,workspaceId,payload.requestId);if(target&&(manager&&!preview||[target.fromPersonId,target.toPersonId].includes(context.member.personId))){workflow.requests.push(target);baseline.set(target.id,clone(target));}}
+  if(payload.requestId&&!baseline.has(payload.requestId)){const target=await workflowRequest(db,workspaceId,payload.requestId);if(target&&(manager&&!preview||[target.fromPersonId,target.toPersonId].includes(context.member.personId))){await assertRequestAccess(target);workflow.requests.push(target);baseline.set(target.id,clone(target));}}
   await scoped.prepareRequests(workflow.requests,[payload.shiftId].filter(Boolean));await scoped.loadPeople([selectedPerson,payload.toPersonId].filter(Boolean));
   const staff=()=>[...scoped.people.values()],nameFor=id=>staff().find(person=>person.id===id)?.name||'Medarbejder';
   if(selectedPerson&&!staff().some(person=>person.id===selectedPerson))h.fail(404,'workflow_person_missing','Medarbejderen findes ikke.');
@@ -57,6 +63,7 @@ async function workflowAction({db,context,payload,principal,helpers:h}){
     return shift;
   }
   async function checkAssignment(shift,target){
+    if(manager){assertSiteAccess(context,shift.site);await assertPersonAccess({db,context,personId:target});}
     if(!eligible(target))h.fail(409,'workflow_colleague_unavailable','Medarbejderen er arkiveret eller mangler en aktiv medarbejderkonto.');
     const [availability]=await readEmployeeAvailability({db,workspaceId,personIds:[target]});
     assignmentAvailability.set(target,availability);
@@ -75,16 +82,16 @@ async function workflowAction({db,context,payload,principal,helpers:h}){
   }
   async function bundle(extra={}){
     const managerMode=manager&&!preview,personId=selectedPerson;
-    const page=await readWorkflow(db,workspaceId,{manager:managerMode,personId,limit:payload.limit??500,messageCursor:payload.messageCursor,requestCursor:payload.requestCursor,...scoped.period});
+    const page=await readWorkflow(db,workspaceId,{manager:managerMode,context:manager?context:undefined,personId,limit:payload.limit??500,messageCursor:payload.messageCursor,requestCursor:payload.requestCursor,...scoped.period});
     // A targeted mutation remains visible even when the request is outside the current page.
     if(payload.requestId&&!page.requests.some(request=>request.id===payload.requestId)){
-      const target=await workflowRequest(db,workspaceId,payload.requestId);if(target&&(managerMode||[target.fromPersonId,target.toPersonId].includes(personId)))page.requests.push(target);
+      const target=await workflowRequest(db,workspaceId,payload.requestId);if(target&&(managerMode||[target.fromPersonId,target.toPersonId].includes(personId))){await assertRequestAccess(target);page.requests.push(target);}
     }
     await scoped.prepareRequests(page.requests);await scoped.loadPeople(page.notifications.map(message=>message.personId));
     const recipients=[...new Set(page.requests.filter(request=>activeStatuses.has(request.status)).map(request=>request.toPersonId).filter(Boolean))];
     for(let index=0;index<recipients.length;index+=500)for(const availability of await readEmployeeAvailability({db,workspaceId,personIds:recipients.slice(index,index+500)}))requestAvailability.set(availability.personId,availability);
     const own=personId?await scoped.shiftPage(personId,payload.ownCursor):{shifts:[],nextCursor:null},open=!managerMode?await scoped.shiftPage('',payload.openCursor):{shifts:[],nextCursor:null},colleagues=await scoped.colleaguePage(personId);
-    const personalMessages=personId?page.notifications.filter(message=>message.personId===personId):[],pending=managerMode?await h.first(db,"SELECT COUNT(*) n FROM workspace_shift_requests WHERE workspace_id=? AND status='pending'",workspaceId):null;
+    const personalMessages=personId?page.notifications.filter(message=>message.personId===personId):[],pending=managerMode?await h.first(db,`SELECT COUNT(*) n FROM workspace_shift_requests WHERE workspace_id=? AND status='pending' AND (${departmentWorkflow.requests.sql})`,workspaceId,...departmentWorkflow.requests.values):null;
     const result={notifications:personalMessages,unreadCount:managerMode?personalMessages.filter(message=>!message.readAt).length:page.unreadCount,pendingCount:pending?.n||0,requests:page.requests.map(describeRequest),openShifts:open.shifts.map(summary),ownShifts:own.shifts.map(summary),colleagues:colleagues.people,deliveries:managerMode?page.notifications.filter(message=>message.kind!=='request').map(message=>({...message,personName:nameFor(message.personId)})):[],pagination:{...page.pagination,ownShifts:own.nextCursor,openShifts:open.nextCursor,colleagues:colleagues.nextCursor},personId,canManage:managerMode,preview,revision:saved.revision,directoryRevision:scoped.frame.directoryRevision,serverNow:stamp,...extra};
     await scoped.assert();return result;
   }
@@ -119,7 +126,8 @@ async function workflowAction({db,context,payload,principal,helpers:h}){
       // A new claim arriving after our read must force a retry, so its final status and message join this transaction.
       const exactSet={sql:`NOT EXISTS (SELECT 1 FROM workspace_shift_requests arriving WHERE arriving.workspace_id=? AND arriving.shift_id=? AND arriving.status IN ('awaiting_colleague','pending')
         AND NOT EXISTS (SELECT 1 FROM json_each(?) expected_id WHERE expected_id.value=arriving.id))`,values:[workspaceId,transferred.shift.id,JSON.stringify(activeIds)]};
-      const guard={...h.guard(context,manager?['plan']:[]),extraCondition:{sql:[versions,absence,exactSet,references,activeReferences,directory,availability].map(value=>'('+value.sql+')').join(' AND '),values:[...versions.values,...absence.values,...exactSet.values,...references.values,...activeReferences.values,...directory.values,...availability.values]}};
+      const scopeAccess=accessGuard(context);
+      const guard={...h.guard(context,manager?['plan']:[]),extraCondition:{sql:[versions,absence,exactSet,references,activeReferences,directory,availability,scopeAccess].map(value=>'('+value.sql+')').join(' AND '),values:[...versions.values,...absence.values,...exactSet.values,...references.values,...activeReferences.values,...directory.values,...availability.values,...scopeAccess.values]}};
       guard.workflowMembers=[...new Set(participants)].map(personId=>{const member=members.get(personId);return {personId,userId:member.user_id,version:member.version,roleId:member.role_id,roleVersion:member.role_version,...(member.kind==='mobile'?{kind:'mobile'}:{})};});
       if(ledgerVersion!==undefined)guard.workflowLedgerVersion=ledgerVersion;
       next.shiftWorkflow=workflow;h.appendActivity(next,studio,actor,saved.revision+1,stamp,publication);

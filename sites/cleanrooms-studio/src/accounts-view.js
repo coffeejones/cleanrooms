@@ -7,7 +7,7 @@
     if(!element?.ownerDocument)throw new TypeError('Brugersiden kræver et indholdsfelt.');
     const doc=element.ownerDocument,win=doc.defaultView,suffix=++sequence===1?'':'-'+sequence;
     let viewer=null,capabilities={},authorized=false,canUsers=false,canRoles=false,identity='',mounted=false,disposed=false,pending=false,epoch=0,loaded=false,tab='users';
-    let staffCandidates=Array.isArray(staff)?staff.slice():[],inviteSites=[];
+    let staffCandidates=Array.isArray(staff)?staff.slice():[],inviteSites=[],accessDepartments=[];
     let members=[],invites=[],roles=[],catalog=[],editingId=null,editVersion=null,inviteUrl='',inviteResultId=null,createdPersonId=null,roleEditingId=null,roleEditVersion=null,roleDraft=new Set();
     let canAppLogins=false,appLogins=[];
     const node=(tag,className,text)=>{const item=doc.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item;};
@@ -115,6 +115,32 @@
       if(!inviteSites.length)return 'Opret et arbejdssted, før du opretter en medarbejder.';
       return 'Medarbejderprofil og app-login oprettes sammen. Startkoden findes på profilen.';
     }
+    function scopeLabel(value){
+      if(value?.mode!=='departments')return 'Alle afdelinger';
+      const names=(value.departmentIds||[]).map(id=>accessDepartments.find(item=>item.id===id)?.name||'Utilgængelig afdeling');return names.slice(0,2).join(' · ')+(names.length>2?' · +'+(names.length-2):'');
+    }
+    function makeScopeField(prefix){
+      const group=node('fieldset','cs-accounts-scope-field'),legend=node('legend','cs-accounts-label','Adgangsområde'),mode=id(node('select','cs-accounts-input'),prefix+'-scope-mode');mode.setAttribute('aria-label','Adgangsområde');
+      for(const [value,label]of [['all','Alle afdelinger'],['departments','Udvalgte afdelinger']]){const option=node('option','',label);option.value=value;mode.append(option);}mode.value='all';
+      const details=node('div','cs-accounts-scope-details'),search=id(node('input','cs-accounts-input'),prefix+'-scope-search');search.type='search';search.placeholder='Find afdeling…';search.setAttribute('aria-label','Find afdeling til adgang');
+      const list=node('div','cs-accounts-scope-options'),summary=node('p','cs-accounts-caption');list.setAttribute('aria-label','Afdelinger med adgang');details.append(search,list,summary);group.append(legend,mode,node('p','cs-accounts-caption','Rollen bestemmer rettighederne. Området bestemmer, hvor de gælder.'),details);
+      let selected=new Set(),enabled=true;
+      const current=()=>({mode:mode.value,departmentIds:mode.value==='departments'?[...selected].sort():[]});
+      function update(){
+        const restricted=capabilities.scopeRestricted===true;mode.children[0].disabled=restricted;
+        if(restricted&&mode.value==='all'){mode.value='departments';selected=new Set(viewer?.accessScope?.departmentIds||capabilities.allowedDepartmentIds||[]);}
+        mode.disabled=pending||!canUsers||!enabled;details.hidden=mode.value!=='departments';search.disabled=pending||!enabled;
+        for(const input of list.querySelectorAll('input'))input.disabled=pending||!canUsers||!enabled;
+        summary.textContent=selected.size+' '+(selected.size===1?'afdeling valgt':'afdelinger valgt');
+      }
+      function paint(){
+        const query=search.value.trim().toLocaleLowerCase('da-DK');list.replaceChildren();
+        for(const department of accessDepartments.filter(item=>!query||item.name.toLocaleLowerCase('da-DK').includes(query))){const label=node('label','cs-accounts-scope-option'),check=node('input');check.type='checkbox';check.value=department.id;check.checked=selected.has(department.id);check.dataset.departmentScope=department.id;check.addEventListener('change',()=>{if(pending||!enabled)return;if(check.checked)selected.add(department.id);else selected.delete(department.id);update();});label.append(check,node('span','',department.name));list.append(label);}
+        if(!list.children.length)list.append(node('p','cs-accounts-caption',accessDepartments.length?'Ingen afdelinger matcher.':'Der er ingen afdelinger at vælge.'));update();
+      }
+      mode.addEventListener('change',update);search.addEventListener('input',paint);
+      return {element:group,mode,current,update,paint,set(value){mode.value=value?.mode==='departments'?'departments':'all';selected=new Set(value?.departmentIds||[]);search.value='';paint();},show(value){enabled=value;group.hidden=!value;update();},valid(){return mode.value==='all'?capabilities.scopeRestricted!==true:selected.size>0&&[...selected].every(id=>accessDepartments.some(item=>item.id===id));}};
+    }
     function makeUserForm(prefix,includeEmail){
       const form=id(node('form','cs-accounts-form'),prefix+'-form');form.noValidate=true;
       const input=(type,name)=>{const item=id(node('input','cs-accounts-input'),prefix+'-'+name);item.type=type;return item;};
@@ -122,7 +148,7 @@
       const top=node('div','cs-accounts-field-pair');top.append(field('Navn',name));if(includeEmail)top.append(field('E-mail',email));form.append(top);
       const role=id(node('select','cs-accounts-input'),prefix+'-role');
       const row=node('div','cs-accounts-field-pair');row.append(field('Rolle',role));form.append(row);
-      const help=id(node('p','cs-accounts-role-help'),prefix+'-help');role.setAttribute('aria-describedby',help.id);form.append(help);
+      const help=id(node('p','cs-accounts-role-help'),prefix+'-help');role.setAttribute('aria-describedby',help.id);form.append(help);const scope=makeScopeField(prefix);form.append(scope.element);
       if(includeEmail){
         const site=id(node('select','cs-accounts-input'),prefix+'-worksite'),siteField=field('Arbejdssted',site);
         row.append(siteField);
@@ -131,13 +157,14 @@
           help.textContent=chosen?'Rettigheder: '+permissionSummary(chosen):'Vælg en rolle.';
           if(chosen&&!canAssign(chosen))help.textContent+=' Du kan ikke tildele denne rolle.';
           else if(loaded&&required)help.textContent=employeeCreationNote();
+          scope.show(!required);
           role.disabled=pending||!canUsers||!roles.length;
           siteField.hidden=!required||!canCreate;site.required=required&&canCreate;site.disabled=pending||!site.required;
           inviteSend.disabled=pending||!canUsers||!canAssign(chosen)||required&&!canCreate;
           inviteSend.textContent=pending?'Vent venligst…':required?'Opret medarbejder':'Opret invitationslink';
         }
         role.addEventListener('change',updateInvitation);bindForm(form,submitNewUser);
-        return {form,name,email,role,site,update:updateInvitation};
+        return {form,name,email,role,site,scope,update:updateInvitation};
       }
       const statusSelect=id(node('select','cs-accounts-input'),prefix+'-status');
       for(const [value,label] of [['active','Aktiv'],['disabled','Deaktiveret']]){const option=node('option','',label);option.value=value;statusSelect.append(option);}
@@ -147,7 +174,7 @@
       const binding={assignedId:''},bindingHelp=id(node('p','cs-accounts-binding-help'),prefix+'-binding-help');
       person.setAttribute('aria-describedby',bindingHelp.id);form.append(personField,bindingHelp);
       function update(){
-        const chosen=roleFor(role.value),required=needsEmployee(chosen);
+        const chosen=roleFor(role.value),required=needsEmployee(chosen);scope.show(!required);
         help.textContent=chosen?'Rettigheder: '+permissionSummary(chosen):'Vælg en rolle.';
         if(chosen&&!canAssign(chosen))help.textContent+=' Du kan ikke tildele denne rolle, da den indeholder rettigheder, du ikke selv har.';
         personLabel.textContent='Tilknyttet medarbejder'+(required?'':' · valgfrit');
@@ -159,7 +186,7 @@
         person.disabled=pending||!canUsers;role.disabled=pending||!canUsers||!roles.length;
       }
       role.addEventListener('change',update);person.addEventListener('change',update);bindForm(form,saveMember,()=>closeMember(true));
-      return {form,name,role,status:statusSelect,person,empty,binding,update};
+      return {form,name,role,status:statusSelect,person,empty,binding,scope,update};
     }
     function populateRoles(form){const selected=form.role.value;form.role.replaceChildren();roles.forEach(role=>{const option=node('option','',role.name);option.value=role.id;option.disabled=!canAssign(role);form.role.append(option);});form.role.value=roles.some(role=>String(role.id)===String(selected))?selected:defaultRole()?.id||'';form.update();}
     function populatePeople(form,assignedId='',preferred=form.person.value){
@@ -180,12 +207,13 @@
     }
     function resetInvite(){
       inviteForm.name.value='';inviteForm.email.value='';inviteForm.role.value=defaultRole()?.id||'';
-      populateInviteSites('');inviteForm.update();
+      populateInviteSites('');inviteForm.scope.set(capabilities.scopeRestricted?viewer?.accessScope:undefined);inviteForm.update();
     }
     function showError(target,text){target.textContent=text;target.hidden=false;target.scrollIntoView?.({block:'nearest'});}
     function validateUser(form,target){
       if(!form.name.value.trim()){showError(target,'Skriv brugerens navn.');form.name.focus();return false;}
       const chosen=roleFor(form.role.value);if(!chosen||!canAssign(chosen)){showError(target,'Vælg en rolle, som du har adgang til at tildele.');form.role.focus();return false;}
+      if(!needsEmployee(chosen)&&!form.scope.valid()){showError(target,'Vælg mindst én afdeling inden for din adgang.');form.scope.mode.focus();return false;}
       if(form.site){
         if(!needsEmployee(chosen))return true;
         if(!canCreateEmployee()){showError(target,employeeCreationNote());form.role.focus();return false;}
@@ -224,6 +252,7 @@
     function applyList(result){roles=Array.isArray(result.roles)?result.roles:[];const normalizedCatalog=new Map();for(const item of Array.isArray(result.permissionCatalog)?result.permissionCatalog:[]){const key=item?.key??item?.id;if(permissionKeys.has(key))normalizedCatalog.set(key,{...item,key,requires:Array.isArray(item.requires)?item.requires.filter(required=>permissionKeys.has(required)):[]});}catalog=[...normalizedCatalog.values()];staffCandidates=(canUsers||canAppLogins)&&Array.isArray(result.staff)?result.staff.filter(member=>member&&typeof member.id==='string').map(member=>({...member})):[];members=canUsers&&Array.isArray(result.members)?result.members:[];invites=canUsers&&Array.isArray(result.invites)?result.invites:[];
       appLogins=canAppLogins&&Array.isArray(result.appLogins)?result.appLogins.map(readAppLogin).filter(Boolean):[];
       inviteSites=canUsers&&capabilities.plan===true&&Array.isArray(result.sites)?result.sites.filter(site=>Number.isSafeInteger(site?.index)&&site.index>=0&&typeof site.name==='string'):[];
+      accessDepartments=Array.isArray(result.departments)?result.departments.filter(item=>typeof item?.id==='string'&&typeof item.name==='string'):[];inviteForm.scope.paint();editForm.scope.paint();
       loaded=true;populateRoles(inviteForm);populateRoles(editForm);populateInviteSites();
       populatePeople(editForm,members.find(member=>member.userId===editingId)?.personId||'');renderLists();renderRoleChoices();
     }
@@ -276,7 +305,7 @@
             const login=loginByIdentity.get(accountIdentity(member));
             const appAccess=login?login.status==='active'?' · App-login':' · App-login lukket':'';
             const role=node('td','cs-accounts-role-cell');
-            role.append(node('span','cs-accounts-member-role',nameFor(member)),node('span','cs-accounts-member-permissions',memberPermissions(member)+appAccess));
+            role.append(node('span','cs-accounts-member-role',nameFor(member)),node('span','cs-accounts-member-permissions',memberPermissions(member)+appAccess),node('span','cs-accounts-member-permissions cs-accounts-scope-summary',scopeLabel(member.accessScope)));
             const action=node('td','cs-accounts-action-cell');
             const profile=profileButton(people.get(member.personId));
             const controls=profile?node('div','cs-accounts-user-actions'):action;
@@ -302,7 +331,7 @@
           users.append(table);
         }
         const waiting=invites.filter(item=>item.status==='pending');if(!waiting.length)pendingList.append(node('p','cs-accounts-empty','Ingen ventende invitationer.'));
-        waiting.forEach(invite=>{const row=node('div','cs-accounts-invite-row');row.dataset.inviteId=invite.id;const copy=node('div','cs-accounts-invite-copy');copy.append(node('strong','cs-accounts-member-name',invite.name||invite.email),node('span','cs-accounts-member-email',invite.email),node('span','cs-accounts-member-permissions',nameFor(invite)+(invite.personId?' · '+personName(invite.personId):'')));if(invite.expiresAt){const expires=new Date(invite.expiresAt);if(Number.isFinite(expires.getTime()))copy.append(node('span','cs-accounts-invite-expiry','Udløber '+expires.toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'})));}const revoke=button('Tilbagekald',()=>revokeInvite(invite.id));revoke.setAttribute('aria-label','Tilbagekald invitation til '+invite.email);row.append(copy,revoke);pendingList.append(row);});
+        waiting.forEach(invite=>{const row=node('div','cs-accounts-invite-row');row.dataset.inviteId=invite.id;const copy=node('div','cs-accounts-invite-copy');copy.append(node('strong','cs-accounts-member-name',invite.name||invite.email),node('span','cs-accounts-member-email',invite.email),node('span','cs-accounts-member-permissions',nameFor(invite)+(invite.personId?' · '+personName(invite.personId):'')),node('span','cs-accounts-member-permissions cs-accounts-scope-summary',scopeLabel(invite.accessScope)));if(invite.expiresAt){const expires=new Date(invite.expiresAt);if(Number.isFinite(expires.getTime()))copy.append(node('span','cs-accounts-invite-expiry','Udløber '+expires.toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'})));}const revoke=button('Tilbagekald',()=>revokeInvite(invite.id));revoke.setAttribute('aria-label','Tilbagekald invitation til '+invite.email);row.append(copy,revoke);pendingList.append(row);});
       }
       if(editingId&&!members.some(member=>member.userId===editingId&&!member.isOwner))closeMember();
       renderRoleList();updateTabs();for(const control of users.querySelectorAll('button'))control.disabled=pending||!canUsers;for(const control of pendingList.querySelectorAll('button'))control.disabled=pending||!canUsers;
@@ -330,7 +359,7 @@
       if(!canUsers||pending)return;
       const member=members.find(item=>item.userId===userId);if(!member||member.isOwner)return;
       editingId=member.userId;editVersion=member.version;editForm.name.value=member.name||'';editForm.role.value=member.roleId||'';
-      editForm.status.value=member.status==='disabled'?'disabled':'active';
+      editForm.status.value=member.status==='disabled'?'disabled':'active';editForm.scope.set(member.accessScope);
       populatePeople(editForm,member.personId||'',member.personId||'');editForm.update();editCaption.textContent=member.email||'';
       editError.hidden=true;editPanel.hidden=false;inviteSection.hidden=true;usersWorkspace.dataset.editor='true';
       usersSide.setAttribute('aria-labelledby',editHeading.id);
@@ -359,7 +388,7 @@
       if(restoreFocus)focusRow(roleList,'roleId',previous,createRoleButton);
     }
     async function saveMember(){
-      if(!editingId||pending||!canUsers||!validateUser(editForm,editError))return;const payload={name:editForm.name.value.trim(),roleId:editForm.role.value,personId:editForm.person.value||null,userId:editingId,version:editVersion,status:editForm.status.value==='disabled'?'disabled':'active'};
+      if(!editingId||pending||!canUsers||!validateUser(editForm,editError))return;const payload={name:editForm.name.value.trim(),roleId:editForm.role.value,personId:editForm.person.value||null,userId:editingId,version:editVersion,status:editForm.status.value==='disabled'?'disabled':'active',...(!needsEmployee(roleFor(editForm.role.value))?{accessScope:editForm.scope.current()}:{})};
       await perform('updateMember',payload,editError,async(result,token)=>{closeMember();status.textContent='Brugerens adgang er opdateret.';status.hidden=false;await refreshAfterMutation(token);},()=>focusRow(users,'userId',payload.userId,usersTab));
     }
     async function submitNewUser(){
@@ -383,7 +412,7 @@
         },()=>{if(!employeeResult.hidden&&typeof onOpenEmployee==='function')employeeProfileLink.focus({preventScroll:false});});
         return;
       }
-      await perform('invite',{name,email,roleId,newUser:true},inviteError,async(result,token)=>{
+      await perform('invite',{name,email,roleId,newUser:true,accessScope:inviteForm.scope.current()},inviteError,async(result,token)=>{
         clearCreationResult();
         inviteResultId=result.invite?.id??null;inviteUrl=typeof result.inviteUrl==='string'?result.inviteUrl:'';
         link.value=inviteUrl;invitationResult.hidden=!inviteUrl;copyStatus.textContent='';
@@ -406,9 +435,9 @@
     async function copyLink(){if(!inviteUrl||pending||!canUsers)return;try{if(win?.navigator?.clipboard?.writeText){await win.navigator.clipboard.writeText(inviteUrl);copyStatus.textContent='Linket er kopieret.';return;}}catch{}link.focus();link.select();try{if(doc.execCommand?.('copy')){copyStatus.textContent='Linket er kopieret.';return;}}catch{}copyStatus.textContent='Linket er markeret. Kopiér det med Ctrl+C eller ⌘C.';}
     function close(){closeHelp(false);closeMember();closeRole();}
     function render(next={}){
-      if(disposed)return;viewer=next.viewer||null;capabilities=next.capabilities||{};canUsers=capabilities.manageUsers===true;canRoles=capabilities.manageRoles===true;canAppLogins=capabilities.manageAppLogins===true;const allowed=canUsers||canRoles,key=String(viewer?.userId??viewer?.id??viewer?.email??'')+'|'+JSON.stringify([canUsers,canRoles,canAppLogins,capabilities.plan===true,[...grantSet()].sort()]);
-      if(!allowed){authorized=false;epoch++;pending=false;loaded=false;mounted=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];appLogins=[];close();resetInvite();clearCreationResult();element.replaceChildren();return;}
-      const changed=!authorized||identity!==key;authorized=true;identity=key;if(changed){epoch++;pending=false;loaded=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];appLogins=[];close();tab=canUsers?'users':'roles';clearCreationResult();inviteForm.role.replaceChildren();editForm.role.replaceChildren();resetInvite();inviteError.hidden=true;copyStatus.textContent='';globalError.hidden=true;status.hidden=true;renderLists();}
+      if(disposed)return;viewer=next.viewer||null;capabilities=next.capabilities||{};canUsers=capabilities.manageUsers===true;canRoles=capabilities.manageRoles===true;canAppLogins=capabilities.manageAppLogins===true;const allowed=canUsers||canRoles,key=String(viewer?.userId??viewer?.id??viewer?.email??'')+'|'+JSON.stringify([canUsers,canRoles,canAppLogins,capabilities.plan===true,viewer?.accessScope,capabilities.allowedDepartmentIds,[...grantSet()].sort()]);
+      if(!allowed){authorized=false;epoch++;pending=false;loaded=false;mounted=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];accessDepartments=[];appLogins=[];close();resetInvite();clearCreationResult();element.replaceChildren();return;}
+      const changed=!authorized||identity!==key;authorized=true;identity=key;if(changed){epoch++;pending=false;loaded=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];accessDepartments=[];appLogins=[];close();tab=canUsers?'users':'roles';clearCreationResult();inviteForm.role.replaceChildren();editForm.role.replaceChildren();resetInvite();inviteError.hidden=true;copyStatus.textContent='';globalError.hidden=true;status.hidden=true;renderLists();}
       if(!mounted||!element.contains(body)){element.replaceChildren(body);mounted=true;}setBusy(pending);if(!loaded&&!pending)load();
     }
     function open(){if(authorized&&!pending)return load();}

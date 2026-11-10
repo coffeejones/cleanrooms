@@ -1,4 +1,5 @@
 /* Append-only workspace audit. Recovery snapshots stay bounded; this ledger does not. */
+import {isScoped,personPredicate,sitePredicate,jsonSitePredicate,assertPersonAccess} from './department-access.mjs';
 import Data from '../src/studio-data.js';
 import Time from '../src/timekeeping-model.js';
 const clone=value=>JSON.parse(JSON.stringify(value));
@@ -90,6 +91,22 @@ function dayStart(value){
   for(let i=0;i<3;i++)instant=wall-Time.copenhagenOffset(instant)*60000;
   return new Date(instant).toISOString();
 }
+function scopedActivityAccess(context){
+  const person=personPredicate(context,'person.value'),site=sitePredicate(context,'node.value'),timePerson=personPredicate(context,'attendance.person_id'),timeSite=jsonSitePredicate(context,'attendance.config'),publishedSite=sitePredicate(context,'selected_site.value');
+  // Mixed-company events are not partially exposed: summary, reasons and before/
+  // after snapshots can contain information about every target in the event.
+  return {sql:`NOT EXISTS(SELECT 1 FROM json_each(workspace_activity.person_ids) person WHERE NOT (${person.sql})) AND (
+    (kind='time' AND EXISTS(SELECT 1 FROM workspace_time_entries attendance WHERE attendance.workspace_id=workspace_activity.workspace_id AND attendance.id=json_extract(workspace_activity.entry,'$.timeEntryId') AND (${timePerson.sql}) AND (${timeSite.sql})))
+    OR (kind='leave' AND json_array_length(workspace_activity.person_ids)>0)
+    OR (kind='planning' AND json_array_length(workspace_activity.person_ids)>0
+      AND NOT EXISTS(SELECT 1 FROM json_each(workspace_activity.entry,'$.changes') change WHERE json_extract(change.value,'$.field') NOT IN ('series','edits'))
+      AND EXISTS(SELECT 1 FROM json_tree(workspace_activity.entry) node WHERE node.key='site' AND node.type='integer')
+      AND NOT EXISTS(SELECT 1 FROM json_tree(workspace_activity.entry) node WHERE node.key='site' AND (node.type<>'integer' OR NOT (${site.sql}))))
+    OR (kind='publication' AND json_array_length(workspace_activity.entry,'$.scopes')>0
+      AND NOT EXISTS(SELECT 1 FROM json_each(workspace_activity.entry,'$.scopes') selected_scope WHERE json_type(selected_scope.value,'$.siteIds') IS NOT 'array' OR json_array_length(selected_scope.value,'$.siteIds')<1)
+      AND NOT EXISTS(SELECT 1 FROM json_each(workspace_activity.entry,'$.scopes') selected_scope JOIN json_each(selected_scope.value,'$.siteIds') selected_site WHERE NOT (${publishedSite.sql})))
+  )`,values:[...person.values,...timePerson.values,...timeSite.values,...site.values,...publishedSite.values]};
+}
 export async function readActivity({db,context,payload,helpers:h}){
   if(!h.capabilities(context).plan)h.fail(403,'activity_forbidden','Kun planlæggere kan se arbejdsområdets historik.');
   const filters=payload.filters??{};if(!record(filters))h.fail(400,'activity_filter_invalid','Historikkens filtre er ugyldige.');
@@ -101,11 +118,14 @@ export async function readActivity({db,context,payload,helpers:h}){
   if(filters.from&&filters.to&&filters.to<filters.from)h.fail(400,'activity_date_invalid','Slutdato skal ligge efter startdato.');
   for(const key of ['actorId','personId','area','kind','q'])if(filters[key]!==undefined&&!boundedText(filters[key],key==='q'?300:512))h.fail(400,'activity_filter_invalid','Et historikfilter er ugyldigt.');
   let cursor=null;if(payload.cursor){try{cursor=JSON.parse(atob(payload.cursor));if(!Array.isArray(cursor)||cursor.length!==2||typeof cursor[0]!=='string'||!Number.isFinite(Date.parse(cursor[0]))||!boundedText(cursor[1],1024))throw Error('invalid');}catch{h.fail(400,'activity_cursor_invalid','Historikkens sidehenvisning er ugyldig.');}}
+  if(filters.personId&&filters.personId!=='all')await assertPersonAccess({db,context,personId:filters.personId});
   await h.assertContext(db,context);await backfill(db,context,h);
   const clauses=['workspace_id = ?'],values=[context.workspace.id],add=(sql,value)=>{clauses.push(sql);values.push(value);};
   const caps=h.capabilities(context),canReadAccess=caps.manageUsers||caps.manageRoles;
   if(!canReadAccess)clauses.push("kind <> 'access'");
   if(!caps.viewPayroll)clauses.push("kind <> 'payroll'");
+  if(isScoped(context)){const access=scopedActivityAccess(context);clauses.push(access.sql);values.push(...access.values);}
+  const actorClauses=clauses.slice(),actorValues=values.slice();
   if(filters.from)add('at >= ?',dayStart(filters.from));
   if(filters.to)add('at < ?',dayStart(Time.addDays(filters.to,1)));
   if(filters.actorId&&filters.actorId!=='all')add('actor_id = ?',filters.actorId);
@@ -118,7 +138,7 @@ export async function readActivity({db,context,payload,helpers:h}){
   }
   if(cursor){clauses.push('(at < ? OR (at = ? AND id < ?))');values.push(cursor[0],cursor[0],cursor[1]);}
   const result=await h.rows(db,`SELECT id,at,entry FROM workspace_activity WHERE ${clauses.join(' AND ')} ORDER BY at DESC,id DESC LIMIT ?`,...values,limit+1);
-  const actors=await h.rows(db,"SELECT actor_id AS userId,MAX(actor_name) AS name FROM workspace_activity WHERE workspace_id = ?"+(canReadAccess?'':" AND kind <> 'access'")+(caps.viewPayroll?'':" AND kind <> 'payroll'")+" GROUP BY actor_id ORDER BY name,actor_id",context.workspace.id);
+  const actors=await h.rows(db,`SELECT actor_id AS userId,MAX(actor_name) AS name FROM workspace_activity WHERE ${actorClauses.join(' AND ')} GROUP BY actor_id ORDER BY name,actor_id`,...actorValues);
   await h.assertContext(db,context);
   const hasMore=result.length>limit,selected=result.slice(0,limit),last=selected.at(-1);
   return {entries:selected.map(item=>JSON.parse(item.entry)),hasMore,nextCursor:hasMore&&last?btoa(JSON.stringify([last.at,last.id])):null,actors,legacyNotice:'Ældre historik omfatter de poster, der stadig var bevaret ved opdateringen. Nye handlinger gemmes løbende i det samlede historikarkiv.'};

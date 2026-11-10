@@ -17,7 +17,7 @@
   function generation(value,{strict=true}={}){
     const planning=value?.planning,directory=value?.directory,absence=planning?.absenceVersion;
     if(!Number.isSafeInteger(value?.revision)||value.revision<0||planning?.schema!==1||typeof planning.metadataHash!=='string'||!planning.metadataHash||directory?.schema!==1||!Number.isSafeInteger(directory.revision)||directory.revision<0||strict&&(!Number.isSafeInteger(absence)||absence<0))fail('Kalenderens versionsgrundlag mangler. Hent perioden igen.');
-    return Planning.canonical({workspace:value.workspace?.id??null,viewer:value.viewer?.userId??null,role:value.viewer?.roleId??value.viewer?.role??null,capabilities:value.capabilities||{},revision:value.revision,directory:directory.revision,absence:absence??null,metadata:planning.metadataHash});
+    return Planning.canonical({workspace:value.workspace?.id??null,viewer:value.viewer?.userId??null,role:value.viewer?.roleId??value.viewer?.role??null,memberVersion:value.viewer?.memberVersion??value.viewer?.version??null,roleVersion:value.viewer?.roleVersion??null,accessScope:value.viewer?.accessScope??null,capabilities:value.capabilities||{},revision:value.revision,directory:directory.revision,absence:absence??null,metadata:planning.metadataHash});
   }
   function recordRows(value){
     const actual=new Map(Planning.flatten(value.studio).map(row=>[Planning.key(row.kind,row.id),row])),result=[];

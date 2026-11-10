@@ -7628,6 +7628,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue{transition:none}}
 
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;padding:12px 0;border-bottom:1px solid #e2e8e7}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus-context{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0;font-size:12px;line-height:20px;color:#3d535c}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus-context&gt;strong{font-weight:600;color:#213c46}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus-context&gt;.cs-time-caption{margin:0;font-size:12px;white-space:nowrap}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus-hint{color:#64777d}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus&gt;.cs-button{flex-shrink:0;min-height:32px;font-size:12px}
+@media(max-width:760px){#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus{align-items:flex-start;gap:10px}#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-period-focus-hint{flex-basis:100%}}
+
 /* Personal registration is a working section inside the existing shift drawer. */
 #cleanrooms-studio .cs-time-employee{min-width:0;margin:0 0 24px;padding:0 0 24px;border-bottom:1px solid #e4e8ea;color:#39474f}
 #cleanrooms-studio .cs-time-employee-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;min-width:0;margin-bottom:18px}
@@ -9430,6 +9438,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;accounts&quot;] .cs-accounts-input:focus-visible{
   outline:2px solid var(--cs-access-blue);outline-offset:0;box-shadow:none;
 }
+
+#cleanrooms-studio .cs-accounts-scope-field{display:grid;gap:8px;min-width:0;margin:0;padding:0;border:0}
+#cleanrooms-studio .cs-accounts-scope-field legend{margin-bottom:8px;padding:0}
+#cleanrooms-studio .cs-accounts-scope-field .cs-accounts-caption{margin:0;font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-accounts-scope-details{display:grid;gap:10px;min-width:0}
+#cleanrooms-studio .cs-accounts-scope-options{display:grid;gap:2px;max-height:176px;overflow:auto;scrollbar-gutter:stable;padding-right:8px}
+#cleanrooms-studio .cs-accounts-scope-option{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px;line-height:20px}
+#cleanrooms-studio .cs-accounts-scope-option input{width:15px;height:15px;min-height:0;margin:0;accent-color:#00684a}
+#cleanrooms-studio .cs-accounts-scope-summary{margin-top:4px;color:#5c6c75}
 
 #cleanrooms-studio[data-page=&quot;payroll&quot;] {
   --cs-payroll-gutter:var(--cs-compass-gutter);
@@ -12526,6 +12543,16 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-payroll-period-registration .cs-payroll-period-field{width:100%;min-width:0}
 #cleanrooms-studio .cs-payroll-period-field input{width:100%;min-width:0;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid #89979b;border-radius:6px;background:#fff;color:#243943;font:inherit}
 
+#cleanrooms-studio .cs-payroll-period-blockers li{display:block}
+#cleanrooms-studio .cs-payroll-period-problem-copy,#cleanrooms-studio .cs-payroll-period-problem{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;text-align:left;font:inherit;color:inherit}
+#cleanrooms-studio .cs-payroll-period-problem{position:relative;padding:6px 18px 6px 0;border:0;background:transparent;cursor:pointer;border-radius:3px}
+#cleanrooms-studio .cs-payroll-period-problem::after{content:&#x27;›&#x27;;position:absolute;right:0;font-size:19px;color:#785625}
+#cleanrooms-studio .cs-payroll-period-problem:hover{color:#243943;text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio .cs-payroll-period-problem-people{display:grid;gap:12px;margin:8px 0 2px;padding-top:10px;border-top:1px solid #eadfcc}
+#cleanrooms-studio .cs-payroll-period-problem-people&gt;div{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+#cleanrooms-studio .cs-payroll-period-problem-people&gt;div&gt;div{display:grid;gap:4px;flex:1;min-width:140px;color:#243943}
+#cleanrooms-studio .cs-payroll-period-problem-link{padding:0;border:0;border-radius:2px;background:transparent;color:#00684a;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
 #cleanrooms-studio .cs-export-profile-layer{position:absolute;inset:0;z-index:60;display:flex;justify-content:flex-end;isolation:isolate}
 #cleanrooms-studio .cs-export-profile-backdrop{position:absolute;inset:0;z-index:-1;background:#001e2b38;border:0}
 #cleanrooms-studio .cs-export-profile-dialog{width:min(840px,100%);height:100%;display:flex;flex-direction:column;min-height:0;background:#fff;border-left:1px solid #c1c7c6;color:#001e2b;box-shadow:-16px 0 48px #001e2b20;font-size:13px;text-align:left}
@@ -13529,7 +13556,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(page.directory!==undefined&amp;&amp;(!record(page.directory)||page.directory.schema!==1||!Number.isSafeInteger(page.directory.revision)||page.directory.revision&lt;0))bad();
       bytes+=new TextEncoder().encode(JSON.stringify(page)).byteLength;if(bytes&gt;maxBytes)throw new RangeError(&#x27;Kalenderperioden indeholder for mange data. Vælg en kortere periode.&#x27;);
       if(first===null){if(!record(page.studio)||scope.mode!==&#x27;calendar&#x27;&amp;&amp;!record(page.selection))bad();first=clone(page);revision=page.revision;metadataHash=page.planning.metadataHash;}
-      else if(page.revision!==revision||page.planning.metadataHash!==metadataHash||page.planning.absenceVersion!==first.planning.absenceVersion||page.directory!==undefined&amp;&amp;(!record(page.directory)||page.directory.schema!==1||page.directory.revision!==first.directory?.revision)||page.studio!==undefined&amp;&amp;Planning.canonical(page.studio)!==Planning.canonical(first.studio)||page.selection!==undefined&amp;&amp;Planning.canonical(page.selection)!==Planning.canonical(first.selection)||page.workspace?.id&amp;&amp;page.workspace.id!==first.workspace?.id||page.viewer?.userId&amp;&amp;page.viewer.userId!==first.viewer?.userId)bad();
+      else if(page.accessIdentity!==first.accessIdentity||page.revision!==revision||page.planning.metadataHash!==metadataHash||page.planning.absenceVersion!==first.planning.absenceVersion||page.directory!==undefined&amp;&amp;(!record(page.directory)||page.directory.schema!==1||page.directory.revision!==first.directory?.revision)||page.studio!==undefined&amp;&amp;Planning.canonical(page.studio)!==Planning.canonical(first.studio)||page.selection!==undefined&amp;&amp;Planning.canonical(page.selection)!==Planning.canonical(first.selection)||page.workspace?.id&amp;&amp;page.workspace.id!==first.workspace?.id||page.viewer?.userId&amp;&amp;page.viewer.userId!==first.viewer?.userId)bad();
       for(const [key,value]of Object.entries(page.planning.versions)){if(!Number.isSafeInteger(value)||value&lt;1||Object.hasOwn(versions,key)&amp;&amp;versions[key]!==value)bad();Object.defineProperty(versions,key,{value,enumerable:true,writable:true,configurable:true});}
       if(page.planning.recordWindows!==undefined){
         const value=page.planning.recordWindows;if(!record(value)||Object.keys(value).length!==Object.keys(page.planning.versions).length)bad();windowsProvided=true;
@@ -13592,7 +13619,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function generation(value,{strict=true}={}){
     const planning=value?.planning,directory=value?.directory,absence=planning?.absenceVersion;
     if(!Number.isSafeInteger(value?.revision)||value.revision&lt;0||planning?.schema!==1||typeof planning.metadataHash!==&#x27;string&#x27;||!planning.metadataHash||directory?.schema!==1||!Number.isSafeInteger(directory.revision)||directory.revision&lt;0||strict&amp;&amp;(!Number.isSafeInteger(absence)||absence&lt;0))fail(&#x27;Kalenderens versionsgrundlag mangler. Hent perioden igen.&#x27;);
-    return Planning.canonical({workspace:value.workspace?.id??null,viewer:value.viewer?.userId??null,role:value.viewer?.roleId??value.viewer?.role??null,capabilities:value.capabilities||{},revision:value.revision,directory:directory.revision,absence:absence??null,metadata:planning.metadataHash});
+    return Planning.canonical({workspace:value.workspace?.id??null,viewer:value.viewer?.userId??null,role:value.viewer?.roleId??value.viewer?.role??null,memberVersion:value.viewer?.memberVersion??value.viewer?.version??null,roleVersion:value.viewer?.roleVersion??null,accessScope:value.viewer?.accessScope??null,capabilities:value.capabilities||{},revision:value.revision,directory:directory.revision,absence:absence??null,metadata:planning.metadataHash});
   }
   function recordRows(value){
     const actual=new Map(Planning.flatten(value.studio).map(row=&gt;[Planning.key(row.kind,row.id),row])),result=[];
@@ -13688,7 +13715,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 /* Serial, revision-checked cloud saves through a source-bound MessageChannel. */
 (() =&gt; {
-  function create({onStatus = () =&gt; {},onSaved = () =&gt; {},onReconciled = () =&gt; {}} = {}) {
+  function create({onStatus = () =&gt; {},onSaved = () =&gt; {},onReconciled = () =&gt; {},onAccessChanged = () =&gt; {}} = {}) {
     let port = null, connection = null, nextId = 0, revision = 0, ready = false;
     let pending = null, running = false, ticket = 0, timer = null, failed = false;
     const requests = new Map(), waiters = [], idle = [];
@@ -13701,6 +13728,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const WARM_RETENTION_WEEKS=12;
     let warmEpoch=0,warmJob=null;
     const freshViewportCache=()=&gt;Viewport.create({maxWeeks:viewportCache?.inspect?.maxWeeks||4});
+    let accessEpoch=0;
     let acknowledged=null,planning=null,activeItem=null,reconciliationGeneration=0,projection=null,lastLoaded=null,coverageValid=true;
     let detailCoverage=new Set();
     const copy = value =&gt; JSON.parse(JSON.stringify(value));
@@ -13887,13 +13915,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       });
       return connection;
     }
+    function invalidateAccess(){
+      accessEpoch++;loadGeneration++;reconciliationGeneration++;ready=false;failed=true;coverageValid=false;pending=null;acknowledged=null;planning=null;lastLoaded=null;projection=null;cancelPreferences();cancelWarmViewport();viewportCache?.clear();detailCache.clear();detailCacheBytes=0;detailCacheGeneration=null;detailCoverage.clear();detailFreshness.clear();activeItem=null;clearTimeout(timer);waiters.splice(0).forEach(waiter=&gt;waiter.resolve(false));onAccessChanged();
+    }
     async function request(action,data = {}) {
-      await connect(); const id = ++nextId;
-      return new Promise((resolve,reject) =&gt; {
+      await connect();const id=++nextId,accessAtStart=accessEpoch,superseded=()=&gt;({ok:false,status:403,error:&#x27;access_changed&#x27;,superseded:true,message:&#x27;Din adgang er ændret. Visningen genindlæses.&#x27;});
+      let result;try{result=await new Promise((resolve,reject)=&gt;{
         const clockIn=action===&#x27;account&#x27;&amp;&amp;data.operation===&#x27;timeWrite&#x27;&amp;&amp;data.payload?.operation===&#x27;start&#x27;;
-        const deadline = setTimeout(() =&gt; { requests.delete(id); reject(new Error(&#x27;Gemningen tog for lang tid. Prøv igen.&#x27;)); },clockIn?45000:action===&#x27;account&#x27;&amp;&amp;data.operation===&#x27;payrollPeriodDownload&#x27;?180000:30000);
-        requests.set(id,{resolve,deadline}); port.postMessage({id,action,...data});
-      });
+        const deadline=setTimeout(()=&gt;{requests.delete(id);reject(new Error(&#x27;Gemningen tog for lang tid. Prøv igen.&#x27;));},clockIn?45000:action===&#x27;account&#x27;&amp;&amp;data.operation===&#x27;payrollPeriodDownload&#x27;?180000:30000);
+        requests.set(id,{resolve,deadline});port.postMessage({id,action,...data});
+      });}catch(error){if(accessAtStart!==accessEpoch)return superseded();throw error;}
+      if(accessAtStart!==accessEpoch)return superseded();
+      const identityChanged=typeof lastLoaded?.accessIdentity===&#x27;string&#x27;&amp;&amp;typeof result.accessIdentity===&#x27;string&#x27;&amp;&amp;result.accessIdentity!==lastLoaded.accessIdentity;
+      const revoked=lastLoaded!==null&amp;&amp;(result.status===401||result.status===403&amp;&amp;[&#x27;membership_changed&#x27;,&#x27;membership_disabled&#x27;,&#x27;membership_required&#x27;,&#x27;membership_invalid&#x27;,&#x27;role_invalid&#x27;,&#x27;department_scope_invalid&#x27;,&#x27;department_scope_unavailable&#x27;,&#x27;department_scope_changed&#x27;,&#x27;department_person_forbidden&#x27;,&#x27;department_site_forbidden&#x27;,&#x27;department_forbidden&#x27;,&#x27;department_scope_forbidden&#x27;,&#x27;department_directory_forbidden&#x27;].includes(result.error));
+      if(identityChanged||revoked){invalidateAccess();return superseded();}
+      return result;
     }
     async function readProjection(selected,generation,{isCurrent=()=&gt;true}={}){
       if(selected&amp;&amp;!Window)throw new Error(&#x27;Kalenderens periodeindlæsning er ikke klar. Genindlæs siden.&#x27;);
@@ -13915,8 +13951,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       return {ok:false,status:409,message:&#x27;Kalenderen ændrer sig. Prøv at hente perioden igen.&#x27;};
     }
     function loadedResult(result){
-      const capabilities={manageDepartments:result.capabilities?.manageDepartments===true,manageSiteGps:result.capabilities?.manageSiteGps===true,manageAppLogins:result.capabilities?.manageAppLogins===true,manageUsers:result.capabilities?.manageUsers===true,manageRoles:result.capabilities?.manageRoles===true,viewPayroll:result.capabilities?.viewPayroll===true,managePayroll:result.capabilities?.managePayroll===true,managePayrollGroups:result.capabilities?.managePayrollGroups===true,chat:result.capabilities?.chat===true,manageChat:result.capabilities?.manageChat===true,plan:result.capabilities?.plan===true,previewEmployees:result.capabilities?.previewEmployees===true};
-      return {ok:true,studio:result.studio,employee:result.employee||null,viewer:result.viewer||null,workspace:result.workspace||null,capabilities,...Object.fromEntries([&#x27;workflowSummary&#x27;,&#x27;planningSummary&#x27;,&#x27;selection&#x27;,&#x27;availability&#x27;,&#x27;catalog&#x27;,&#x27;directory&#x27;].filter(field=&gt;result[field]!==undefined).map(field=&gt;[field,copy(result[field])]))};
+      const capabilities={manageDepartments:result.capabilities?.manageDepartments===true,manageSiteGps:result.capabilities?.manageSiteGps===true,manageAppLogins:result.capabilities?.manageAppLogins===true,manageUsers:result.capabilities?.manageUsers===true,manageRoles:result.capabilities?.manageRoles===true,viewPayroll:result.capabilities?.viewPayroll===true,managePayroll:result.capabilities?.managePayroll===true,managePayrollGroups:result.capabilities?.managePayrollGroups===true,chat:result.capabilities?.chat===true,manageChat:result.capabilities?.manageChat===true,plan:result.capabilities?.plan===true,previewEmployees:result.capabilities?.previewEmployees===true,...(typeof result.capabilities?.scopeRestricted===&#x27;boolean&#x27;?{scopeRestricted:result.capabilities.scopeRestricted,allowedDepartmentIds:Array.isArray(result.capabilities.allowedDepartmentIds)?result.capabilities.allowedDepartmentIds.filter(id=&gt;typeof id===&#x27;string&#x27;).slice(0,1000):[],allowedSiteIds:Array.isArray(result.capabilities.allowedSiteIds)?result.capabilities.allowedSiteIds.filter(id=&gt;Number.isInteger(id)&amp;&amp;id&gt;=0&amp;&amp;id&lt;2000):[]}:{}),...(typeof result.capabilities?.companyPayroll===&#x27;boolean&#x27;?{companyPayroll:result.capabilities.companyPayroll}:{})};
+      return {ok:true,studio:result.studio,employee:result.employee||null,viewer:result.viewer||null,...(typeof result.accessIdentity===&#x27;string&#x27;?{accessIdentity:result.accessIdentity}:{}),workspace:result.workspace||null,capabilities,...Object.fromEntries([&#x27;workflowSummary&#x27;,&#x27;planningSummary&#x27;,&#x27;selection&#x27;,&#x27;availability&#x27;,&#x27;catalog&#x27;,&#x27;directory&#x27;].filter(field=&gt;result[field]!==undefined).map(field=&gt;[field,copy(result[field])]))};
     }
     // A small, private point cache is independent of the compact week cache.
     // Progress is a snapshot valid for at most 30 seconds, per occurrence/person.
@@ -14175,7 +14211,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const item = pending; pending = null; activeItem=item;
         try {
           const payload=writePayload(item);const result = await sendDraft(item,payload);
-          if (!result.ok) { if (!pending) pending = item; errorStatus(new Error(result.message || &#x27;Ændringen er ikke gemt. Prøv igen.&#x27;),result.status === 409); break; }
+          if (!result.ok) { if(result.superseded){activeItem=null;break;}if (!pending) pending = item; errorStatus(new Error(result.message || &#x27;Ændringen er ikke gemt. Prøv igen.&#x27;),result.status === 409); break; }
           acknowledge(result,item,payload);acknowledgeQueuedPreferences(item);
           activeItem=null;onSaved(result);
           for (let i = waiters.length - 1;i &gt;= 0;i--) if (waiters[i].ticket &lt;= item.ticket) waiters.splice(i,1)[0].resolve(true);
@@ -14240,7 +14276,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       let published=false;running=true;onStatus({state:&#x27;saving&#x27;,message:&#x27;Udgiver den gennemgåede plan…&#x27;});
       try {
         const item=capture(studio);activeItem=item;const payload=writePayload(item,publication);const result=await request(&#x27;write&#x27;,payload);
-        if(!result.ok){errorStatus(new Error(result.message||&#x27;Planen kunne ikke udgives.&#x27;),result.status===409);return result;}
+        if(!result.ok){if(result.superseded)return result;errorStatus(new Error(result.message||&#x27;Planen kunne ikke udgives.&#x27;),result.status===409);return result;}
         acknowledge(result,item,payload);activeItem=null;onSaved(result);published=true;return result;
       } catch(error){errorStatus(error);return {ok:false,message:error.message};}
       finally{activeItem=null;running=false;resumeQueued();savedStatus(published?&#x27;Planen er udgivet og gemt&#x27;:&#x27;Alle ændringer er gemt&#x27;);}
@@ -14398,7 +14434,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function mount({element,portal,onSelect,onSave}={}) {
     if(!element?.ownerDocument||!portal?.append)throw new TypeError(&#x27;Afdelingsvælgeren kræver et felt og et panelfelt.&#x27;);
     const doc=element.ownerDocument,win=doc.defaultView,uid=++instance,suffix=uid===1?&#x27;&#x27;:&#x27;-&#x27;+uid;
-    let organization={version:1,sites:[],departments:[]},selectedId=null,canManage=false,busy=false,pending=false,menuOpen=false,managerOpen=false,editingId=null,editingVersion=null,query=&#x27;&#x27;,returnFocus=null,saveGeneration=0,disposed=false;
+    let organization={version:1,sites:[],departments:[]},selectedId=null,canManage=false,scopeRestricted=false,busy=false,pending=false,menuOpen=false,managerOpen=false,editingId=null,editingVersion=null,query=&#x27;&#x27;,returnFocus=null,saveGeneration=0,disposed=false;
     const inertBefore=new Map();
     const node=(tag,className,text)=&gt;{const item=doc.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item;};
     const id=(item,name)=&gt;{item.id=&#x27;cs-department-&#x27;+name+suffix;return item;};
@@ -14409,6 +14445,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const departments=()=&gt;Array.isArray(organization.departments)?organization.departments:[];
     const siteIdsFor=department=&gt;[...new Set((Array.isArray(department?.siteIds)?department.siteIds:[]).filter(index=&gt;Number.isInteger(index)&amp;&amp;index&gt;=0&amp;&amp;index&lt;sites().length))];
     const metaFor=department=&gt;{const count=siteIdsFor(department).length;return kindLabel(department.kind)+&#x27; · &#x27;+count+(count===1?&#x27; arbejdssted&#x27;:&#x27; arbejdssteder&#x27;);};
+    const allLabel=()=&gt;scopeRestricted?&#x27;Dine afdelinger&#x27;:&#x27;Alle afdelinger&#x27;;
     const disabled=()=&gt;busy||pending;
     const setDisabled=()=&gt;{
       trigger.disabled=busy;
@@ -14462,8 +14499,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const needle=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;);options.replaceChildren();
       const appendOption=(department)=&gt;{
         const active=department?String(department.id)===String(selectedId):selectedId===null;
-        const option=button(department?department.name+&#x27;, &#x27;+metaFor(department):&#x27;Alle afdelinger&#x27;,&#x27;cs-department-option&#x27;,()=&gt;{closeMenu(true);onSelect?.(department?.id??null);},null);option.dataset.departmentId=department?.id??&#x27;&#x27;;option.setAttribute(&#x27;aria-pressed&#x27;,String(active));
-        const copy=node(&#x27;span&#x27;,&#x27;cs-department-option-copy&#x27;);copy.append(node(&#x27;span&#x27;,&#x27;cs-department-option-name&#x27;,department?.name||&#x27;Alle afdelinger&#x27;),node(&#x27;span&#x27;,&#x27;cs-department-option-meta&#x27;,department?metaFor(department):&#x27;Vis alle arbejdssteder&#x27;));option.append(copy,node(&#x27;span&#x27;,&#x27;cs-department-option-check&#x27;,active?&#x27;✓&#x27;:&#x27;&#x27;));options.append(option);
+        const option=button(department?department.name+&#x27;, &#x27;+metaFor(department):allLabel(),&#x27;cs-department-option&#x27;,()=&gt;{closeMenu(true);onSelect?.(department?.id??null);},null);option.dataset.departmentId=department?.id??&#x27;&#x27;;option.setAttribute(&#x27;aria-pressed&#x27;,String(active));
+        const copy=node(&#x27;span&#x27;,&#x27;cs-department-option-copy&#x27;);copy.append(node(&#x27;span&#x27;,&#x27;cs-department-option-name&#x27;,department?.name||allLabel()),node(&#x27;span&#x27;,&#x27;cs-department-option-meta&#x27;,department?metaFor(department):scopeRestricted?&#x27;Vis dine arbejdssteder&#x27;:&#x27;Vis alle arbejdssteder&#x27;));option.append(copy,node(&#x27;span&#x27;,&#x27;cs-department-option-check&#x27;,active?&#x27;✓&#x27;:&#x27;&#x27;));options.append(option);
       };
       if(!needle||&#x27;alle afdelinger&#x27;.includes(needle))appendOption(null);
       for(const department of departments()){
@@ -14497,7 +14534,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function renderWorksites(selected){
       const chosen=new Set(selected);worksiteOptions.replaceChildren();
-      sites().forEach((site,index)=&gt;{const label=node(&#x27;label&#x27;,&#x27;cs-department-site-option&#x27;),checkbox=node(&#x27;input&#x27;,&#x27;&#x27;),copy=node(&#x27;span&#x27;,&#x27;cs-department-site-copy&#x27;);checkbox.type=&#x27;checkbox&#x27;;checkbox.checked=chosen.has(index);checkbox.dataset.departmentSite=String(index);copy.append(node(&#x27;span&#x27;,&#x27;cs-department-site-name&#x27;,site.name));if(site.address)copy.append(node(&#x27;span&#x27;,&#x27;cs-department-site-address&#x27;,site.address));label.append(checkbox,copy);worksiteOptions.append(label);});
+      sites().forEach((site,index)=&gt;{if(site.restricted)return;const label=node(&#x27;label&#x27;,&#x27;cs-department-site-option&#x27;),checkbox=node(&#x27;input&#x27;,&#x27;&#x27;),copy=node(&#x27;span&#x27;,&#x27;cs-department-site-copy&#x27;);checkbox.type=&#x27;checkbox&#x27;;checkbox.checked=chosen.has(index);checkbox.dataset.departmentSite=String(index);copy.append(node(&#x27;span&#x27;,&#x27;cs-department-site-name&#x27;,site.name));if(site.address)copy.append(node(&#x27;span&#x27;,&#x27;cs-department-site-address&#x27;,site.address));label.append(checkbox,copy);worksiteOptions.append(label);});
       if(!sites().length)worksiteOptions.append(node(&#x27;p&#x27;,&#x27;cs-department-help&#x27;,&#x27;Der er endnu ingen arbejdssteder. Opret et nedenfor, eller gem en tom afdeling.&#x27;));
     }
     function setDraft(departmentId){
@@ -14512,6 +14549,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function openManager(departmentId){
       if(disposed||!canManage||disabled())return;
+      if(scopeRestricted&amp;&amp;departmentId==null)departmentId=departments()[0]?.id;
       returnFocus=menuOpen?trigger:doc.activeElement;closeMenu(false);managerOpen=true;layer.hidden=false;applyInert();setDraft(departmentId);body.scrollTop=0;doc.addEventListener(&#x27;keydown&#x27;,trap,true);closeButton.focus({preventScroll:true});
     }
     function closeManager(restore){
@@ -14546,11 +14584,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(event.target.tagName===&#x27;TEXTAREA&#x27;&amp;&amp;!event.ctrlKey&amp;&amp;!event.metaKey)return;
       event.preventDefault();submitDraft(event);
     });
-    function updateTrigger(){const selected=departments().find(item=&gt;String(item.id)===String(selectedId));triggerName.textContent=selected?.name||&#x27;Alle afdelinger&#x27;;trigger.title=selected?selected.name+&#x27;, &#x27;+metaFor(selected):&#x27;Alle afdelinger&#x27;;trigger.setAttribute(&#x27;aria-label&#x27;,&#x27;Vælg afdeling: &#x27;+triggerName.textContent);}
+    function updateTrigger(){const selected=departments().find(item=&gt;String(item.id)===String(selectedId));triggerName.textContent=selected?.name||allLabel();trigger.title=selected?selected.name+&#x27;, &#x27;+metaFor(selected):allLabel();trigger.setAttribute(&#x27;aria-label&#x27;,&#x27;Vælg afdeling: &#x27;+triggerName.textContent);}
     function render(next={}){
       if(disposed)return;
       if(next.organization&amp;&amp;Array.isArray(next.organization.sites)&amp;&amp;Array.isArray(next.organization.departments))organization=next.organization;
-      selectedId=next.selectedId??null;canManage=Boolean(next.canManage);busy=Boolean(next.busy);updateTrigger();renderMenu();
+      selectedId=next.selectedId??null;canManage=Boolean(next.canManage);scopeRestricted=Boolean(next.scopeRestricted);create.hidden=scopeRestricted;addSiteLabel.hidden=scopeRestricted;busy=Boolean(next.busy);updateTrigger();renderMenu();
       if(managerOpen){if(!canManage)closeManager(true);else{const chosen=[...worksiteOptions.querySelectorAll(&#x27;input[data-department-site]&#x27;)].filter(item=&gt;item.checked).map(item=&gt;Number(item.dataset.departmentSite));renderList();renderWorksites(chosen);applyInert();}}
       setDisabled();if(menuOpen)positionMenu();
     }
@@ -16717,20 +16755,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 /* Independent directory records never become planning metadata or plan revisions. */
 (() =&gt; {
   &#x27;use strict&#x27;;
-  const Model=globalThis.CleanRoomsDirectoryRecords||(typeof require===&#x27;function&#x27;?require(&#x27;./directory-records.js&#x27;):null);
+  const Model=globalThis.CleanRoomsDirectoryRecords||(typeof require===&#x27;function&#x27;?require(&#x27;./directory-records.js&#x27;):null),Departments=globalThis.CleanRoomsDepartments||(typeof require===&#x27;function&#x27;?require(&#x27;./department-model.js&#x27;):null);
   const clone=value=&gt;value===undefined?undefined:JSON.parse(JSON.stringify(value));
   const object=value=&gt;Boolean(value&amp;&amp;typeof value===&#x27;object&#x27;&amp;&amp;!Array.isArray(value));
   const bytes=value=&gt;new TextEncoder().encode(JSON.stringify(value)).byteLength;
   const failure=(message,status=503)=&gt;({ok:false,status,message});
   function create({transport,onReconciled=()=&gt;{},maxCatalogRecords=20000,maxCatalogBytes=64*1024*1024,maxProfiles=32,maxProfileBytes=32*1024*1024,now=()=&gt;Date.now(),cacheTtlMs=30000}={}){
     if(!Model||typeof transport?.directoryRead!==&#x27;function&#x27;||typeof transport?.directoryWrite!==&#x27;function&#x27;)throw new TypeError(&#x27;Medarbejderregisterets forbindelse mangler.&#x27;);
-    let records=new Map(),profiles=new Map(),header=null,catalogRevision=null,ready=false,epoch=0,loadGeneration=0,loading=null,workspaceId=null,writeQueue=Promise.resolve(),session=0,writing=0;
+    let records=new Map(),profiles=new Map(),header=null,catalogRevision=null,ready=false,epoch=0,loadGeneration=0,loading=null,workspaceId=null,writeQueue=Promise.resolve(),session=0,writing=0,restricted=false,allowedSites=null;
     const pointGenerations=new Map(),profileReadAt=new Map(),profileRequests=new Map();let catalogReadAt=0;
     function receipt(value){if(!object(value)||value.schema!==1||!Number.isSafeInteger(value.revision)||value.revision&lt;0||value.nextSiteIndex!==undefined&amp;&amp;(!Number.isInteger(value.nextSiteIndex)||value.nextSiteIndex&lt;0||value.nextSiteIndex&gt;2000))throw new TypeError(&#x27;Medarbejderregisterets version kunne ikke bekræftes.&#x27;);return clone(value);}
     function row(value){if(!object(value)||!Model.KINDS.includes(value.kind)||!Model.validId(value.kind,value.id)||!Number.isSafeInteger(value.version)||value.version&lt;1||!object(value.value)||value.value.id!==value.id||!Model.safe(value.value)||value.siteIndex!==undefined&amp;&amp;(value.kind!==&#x27;site&#x27;||!Number.isInteger(value.siteIndex)||value.siteIndex&lt;0||value.siteIndex&gt;=2000)||value.kind===&#x27;site&#x27;&amp;&amp;!Number.isInteger(value.siteIndex)||value.position!==undefined&amp;&amp;(!Number.isSafeInteger(value.position)||value.position&lt;0))throw new TypeError(&#x27;En post i medarbejderregisteret er ugyldig.&#x27;);return clone(value);}
-    function bindWorkspace(value){const id=value?.workspace?.id;if(id!==undefined){if(typeof id!==&#x27;string&#x27;||!id||workspaceId&amp;&amp;workspaceId!==id)throw new TypeError(&#x27;Medarbejderregisterets arbejdsområde er ændret. Genindlæs siden.&#x27;);workspaceId=id;}}
+    function bindWorkspace(value){if(typeof value?.capabilities?.scopeRestricted===&#x27;boolean&#x27;){const caps=value.capabilities;restricted=caps.scopeRestricted;allowedSites=restricted?[...new Set((caps.allowedSiteIds||[]).filter(index=&gt;Number.isInteger(index)&amp;&amp;index&gt;=0&amp;&amp;index&lt;2000))].sort((a,b)=&gt;a-b):null;}const id=value?.workspace?.id;if(id!==undefined){if(typeof id!==&#x27;string&#x27;||!id||workspaceId&amp;&amp;workspaceId!==id)throw new TypeError(&#x27;Medarbejderregisterets arbejdsområde er ændret. Genindlæs siden.&#x27;);workspaceId=id;}}
     function latest(value){const next=receipt(value);if(!header||next.revision&gt;=header.revision)header=next;}
-    function snapshot(extra={}){const rows=[...records.values()].map(clone),assembled=Model.assemble(rows);return {ok:true,directory:clone(header),records:rows,catalog:assembled,staff:assembled.roster,organization:assembled.organization,ready,coverageValid:ready&amp;&amp;header?.revision===catalogRevision,catalogRevision,...extra};}
+    function placeholder(index){return {id:Departments?.LEGACY_SITE_IDS[index]||&#x27;restricted-site-&#x27;+index,name:&#x27;Begrænset arbejdssted&#x27;,address:&#x27;&#x27;,color:Departments?.COLORS[0]||&#x27;var(--cs-blue)&#x27;,restricted:true};}
+    function assemble(){const result=Model.assemble([...records.values()]);if(restricted){result.organization.sites=Array.from({length:header?.nextSiteIndex||0},(_,index)=&gt;placeholder(index));for(const row of records.values())if(row.kind===&#x27;site&#x27;)result.organization.sites[row.siteIndex]=clone(row.value);}return result;}
+    function snapshot(extra={}){const rows=[...records.values()].map(clone),assembled=assemble();return {ok:true,directory:clone(header),records:rows,catalog:assembled,staff:assembled.roster,organization:assembled.organization,ready,coverageValid:ready&amp;&amp;header?.revision===catalogRevision,catalogRevision,...extra};}
     function announce(extra={}){const value=snapshot(extra);onReconciled(clone(value));return value;}
     function compact(value){return {...value,value:Model.catalog(value.kind,value.value)};}
     function keepProfile(value){const key=Model.key(value.kind,value.id);profiles.delete(key);profiles.set(key,clone(value));profileReadAt.set(key,now());let total=[...profiles.values()].reduce((sum,item)=&gt;sum+bytes(item),0);while(profiles.size&gt;1&amp;&amp;(profiles.size&gt;maxProfiles||total&gt;maxProfileBytes)){const oldest=profiles.keys().next().value;total-=bytes(profiles.get(oldest));profiles.delete(oldest);profileReadAt.delete(oldest);}}
@@ -16743,11 +16783,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       records=staged;for(const value of accepted){const key=Model.key(value.kind,value.id);if(details)keepProfile(value);else if(profiles.get(key)?.version!==value.version){profiles.delete(key);profileReadAt.delete(key);}}
     }
     function replace(value,rows){const next=new Map();for(const input of rows){const item=compact(row(input)),key=Model.key(item.kind,item.id);if(next.has(key)&amp;&amp;Model.canonical(next.get(key))!==Model.canonical(item))throw new TypeError(&#x27;Medarbejderregisteret indeholder gentagne poster.&#x27;);next.set(key,item);}
-      const sites=[...next.values()].filter(item=&gt;item.kind===&#x27;site&#x27;).sort((a,b)=&gt;a.siteIndex-b.siteIndex);if(sites.some((item,index)=&gt;item.siteIndex!==index)||value.nextSiteIndex!==undefined&amp;&amp;sites.length!==value.nextSiteIndex)throw new TypeError(&#x27;Arbejdsstedernes faste rækkefølge kunne ikke bekræftes.&#x27;);
+      const sites=[...next.values()].filter(item=&gt;item.kind===&#x27;site&#x27;).sort((a,b)=&gt;a.siteIndex-b.siteIndex);if(restricted?sites.some(item=&gt;!allowedSites?.includes(item.siteIndex)||item.siteIndex&gt;=value.nextSiteIndex)||allowedSites.some(index=&gt;!sites.some(item=&gt;item.siteIndex===index)):sites.some((item,index)=&gt;item.siteIndex!==index)||value.nextSiteIndex!==undefined&amp;&amp;sites.length!==value.nextSiteIndex)throw new TypeError(&#x27;Arbejdsstedernes faste rækkefølge kunne ikke bekræftes.&#x27;);
       records=next;for(const [key,profile]of profiles)if(records.get(key)?.version!==profile.version){profiles.delete(key);profileReadAt.delete(key);}header=receipt(value);catalogRevision=header.revision;catalogReadAt=now();ready=true;
     }
-    function bootstrap(result){const directory=receipt(result.directory);if(directory.complete!==true)return false;let rows=result.records;
-      if(!rows&amp;&amp;result.studio){if(!Array.isArray(result.studio.roster)||!object(result.studio.organization)||!Array.isArray(result.studio.organization.sites)||!Array.isArray(result.studio.organization.departments)||!object(directory.versions))throw new TypeError(&#x27;Medarbejderregisterets postversioner mangler.&#x27;);rows=Model.flatten({roster:result.studio.roster,organization:result.studio.organization}).map(value=&gt;({...value,version:directory.versions[Model.key(value.kind,value.id)]}));if(Object.keys(directory.versions).length!==rows.length)throw new TypeError(&#x27;Medarbejderregisterets katalog er ufuldstændigt.&#x27;);}
+    function bootstrap(result){bindWorkspace(result);const directory=receipt(result.directory);if(directory.complete!==true)return false;let rows=result.records;
+      if(!rows&amp;&amp;result.studio){if(!Array.isArray(result.studio.roster)||!object(result.studio.organization)||!Array.isArray(result.studio.organization.sites)||!Array.isArray(result.studio.organization.departments)||!object(directory.versions))throw new TypeError(&#x27;Medarbejderregisterets postversioner mangler.&#x27;);rows=Model.flatten({roster:result.studio.roster,organization:result.studio.organization}).filter(value=&gt;!restricted||value.kind!==&#x27;site&#x27;||value.value.restricted!==true).map(value=&gt;({...value,version:directory.versions[Model.key(value.kind,value.id)]}));if(Object.keys(directory.versions).length!==rows.length)throw new TypeError(&#x27;Medarbejderregisterets katalog er ufuldstændigt.&#x27;);}
       if(!Array.isArray(rows))throw new TypeError(&#x27;Medarbejderregisterets katalog mangler.&#x27;);bindWorkspace(result);if(header&amp;&amp;directory.revision&lt;header.revision)return false;replace(directory,rows);return true;
     }
     function reconcile(result){try{if(!object(result)||!result.directory)return failure(&#x27;Medarbejderregisterets kvittering mangler.&#x27;,400);bindWorkspace(result);if(bootstrap(result))return announce({complete:true});const directory=receipt(result.directory);if(Array.isArray(result.records))apply(result.records,{details:true});latest(directory);return announce({complete:false});}catch(error){return failure(error.message,409);}}
@@ -16769,7 +16809,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     async function get(kind,id,{force=false}={}){
       if(writing)await writeQueue;
-      if(!Model.KINDS.includes(kind)||!Model.validId(kind,id))return failure(&#x27;Vælg en gyldig post.&#x27;,400);const key=Model.key(kind,id);if(!force&amp;&amp;profiles.has(key)&amp;&amp;now()-(profileReadAt.get(key)??0)&lt;cacheTtlMs){const value=profiles.get(key);profiles.delete(key);profiles.set(key,value);return {ok:true,directory:clone(header),record:clone(value),records:[clone(value)],cached:true};}
+      if(!Model.KINDS.includes(kind)||!Model.validId(kind,id))return failure(&#x27;Vælg en gyldig post.&#x27;,400);const key=Model.key(kind,id);if(restricted&amp;&amp;ready&amp;&amp;kind===&#x27;site&#x27;&amp;&amp;!records.has(key))return failure(&#x27;Arbejdsstedet ligger uden for dine afdelinger.&#x27;,403);if(!force&amp;&amp;profiles.has(key)&amp;&amp;now()-(profileReadAt.get(key)??0)&lt;cacheTtlMs){const value=profiles.get(key);profiles.delete(key);profiles.set(key,value);return {ok:true,directory:clone(header),record:clone(value),records:[clone(value)],cached:true};}
       if(!force&amp;&amp;profileRequests.has(key))return profileRequests.get(key);
       const work=readProfile();profileRequests.set(key,work);try{return await work;}finally{if(profileRequests.get(key)===work)profileRequests.delete(key);}
       async function readProfile(){
@@ -16777,12 +16817,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       try{const result=await transport.directoryRead({kind,ids:[id]});if(generation!==pointGenerations.get(key)||started!==epoch)return {ok:false,superseded:true};if(!result.ok)return result;bindWorkspace(result);const directory=receipt(result.directory);if(!Array.isArray(result.records)||result.records.length&gt;1)throw new TypeError(&#x27;Postens oplysninger kunne ikke bekræftes.&#x27;);if(!result.records.length)return failure(&#x27;Posten findes ikke længere.&#x27;,404);const value=row(result.records[0]);if(value.kind!==kind||value.id!==id)throw new TypeError(&#x27;Postens identitet stemmer ikke overens.&#x27;);apply([value],{details:true});latest(directory);announce({complete:false});return {ok:true,directory,record:clone(value),records:[clone(value)]};}catch(error){return failure(error.message);}
       }
     }
-    function commit(changes){const errors=Model.validateChanges(changes);if(errors.length)return Promise.resolve(failure(errors[0],400));if(!changes.length)return Promise.resolve(snapshot({records:[]}));const captured=clone(changes),started=session;epoch++;loadGeneration++;writing++;const work=writeQueue.then(async()=&gt;{
+    function commit(changes){const errors=Model.validateChanges(changes);if(errors.length)return Promise.resolve(failure(errors[0],400));if(restricted&amp;&amp;changes.some(change=&gt;change.kind===&#x27;site&#x27;&amp;&amp;!records.has(Model.key(change.kind,change.id))||change.kind===&#x27;employee&#x27;&amp;&amp;Object.hasOwn(change.patch,&#x27;site&#x27;)&amp;&amp;!allowedSites.includes(change.patch.site)))return Promise.resolve(failure(&#x27;Arbejdsstedet ligger uden for dine afdelinger.&#x27;,403));if(!changes.length)return Promise.resolve(snapshot({records:[]}));const captured=clone(changes),started=session;epoch++;loadGeneration++;writing++;const work=writeQueue.then(async()=&gt;{
         if(started!==session)return {ok:false,superseded:true};try{const result=await transport.directoryWrite({changes:captured});if(started!==session)return {ok:false,superseded:true};if(!result.ok)return result;bindWorkspace(result);const directory=receipt(result.directory),requested=new Map(captured.map(value=&gt;[Model.key(value.kind,value.id),value])),seen=new Set();if(!Array.isArray(result.records)||result.records.length!==requested.size)throw new TypeError(&#x27;Gemningen mangler en kvittering for berørte poster.&#x27;);for(const input of result.records){const value=row(input),key=Model.key(value.kind,value.id),change=requested.get(key);if(!change||seen.has(key)||![change.expectedVersion,change.expectedVersion+1].includes(value.version)||change.expectedVersion===0&amp;&amp;value.version!==1)throw new TypeError(&#x27;Gemningens postversioner stemmer ikke overens.&#x27;);seen.add(key);}apply(result.records,{details:true});latest(directory);announce({complete:false});return {...clone(result),ok:true};}catch(error){return failure(error.message);}
       }).finally(()=&gt;{writing--;});writeQueue=work.then(()=&gt;undefined,()=&gt;undefined);return work;
     }
-    function reset(){session++;epoch++;loadGeneration++;pointGenerations.clear();profileReadAt.clear();profileRequests.clear();catalogReadAt=0;records=new Map();profiles=new Map();header=null;catalogRevision=null;ready=false;workspaceId=null;loading=null;}
-    return {loadCatalog,get,commit,reconcile,reset,version:(kind,id)=&gt;records.get(Model.key(kind,id))?.version??0,get records(){return [...records.values()].map(clone);},get versions(){return Object.fromEntries([...records].map(([key,value])=&gt;[key,value.version]));},get catalog(){return Model.assemble([...records.values()]);},get staff(){return Model.assemble([...records.values()]).roster;},get organization(){return Model.assemble([...records.values()]).organization;},get revision(){return header?.revision??null;},get catalogRevision(){return catalogRevision;},get coverageValid(){return ready&amp;&amp;header?.revision===catalogRevision;},get ready(){return ready;},get directory(){return clone(header);}};
+    function reset(){session++;epoch++;loadGeneration++;pointGenerations.clear();profileReadAt.clear();profileRequests.clear();catalogReadAt=0;records=new Map();profiles=new Map();header=null;catalogRevision=null;ready=false;workspaceId=null;loading=null;restricted=false;allowedSites=null;}
+    return {loadCatalog,get,commit,reconcile,reset,version:(kind,id)=&gt;records.get(Model.key(kind,id))?.version??0,get records(){return [...records.values()].map(clone);},get versions(){return Object.fromEntries([...records].map(([key,value])=&gt;[key,value.version]));},get catalog(){return assemble();},get staff(){return assemble().roster;},get organization(){return assemble().organization;},get revision(){return header?.revision??null;},get catalogRevision(){return catalogRevision;},get coverageValid(){return ready&amp;&amp;header?.revision===catalogRevision;},get ready(){return ready;},get directory(){return clone(header);}};
   }
   const api=Object.freeze({create});globalThis.CleanRoomsDirectory=api;if(typeof module!==&#x27;undefined&#x27;&amp;&amp;module.exports)module.exports=api;
 })();
@@ -16947,7 +16987,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     side.append(profile,editor);workspace.append(directory,side);page.append(toolbar,status,error,importer,workspace);element.replaceChildren(page);
     function showError(target,message){target.textContent=message;target.hidden=false;target.scrollIntoView?.({block:&#x27;nearest&#x27;});}
     function setBusy(value){pending=value;page.setAttribute(&#x27;aria-busy&#x27;,String(value));page.querySelectorAll(&#x27;button,input,select,textarea&#x27;).forEach(control=&gt;{control.disabled=value;});page.querySelectorAll(&#x27;.cs-roster-name-button&#x27;).forEach(control=&gt;{control.disabled=value||!editor.hidden;});createButton.disabled=value||!canEdit;importButton.disabled=value||!canEdit;}
-    function fillSites(selected){site.replaceChildren();sites.forEach((value,index)=&gt;{const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);option.value=String(index);site.append(option);});site.value=String(selected);}
+    function fillSites(selected){site.replaceChildren();sites.forEach((value,index)=&gt;{if(value.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);option.value=String(index);site.append(option);});site.value=String(selected);}
     const hours=value=&gt;new Intl.NumberFormat(&#x27;da-DK&#x27;,{maximumFractionDigits:2}).format(value/60);
     const dateLabel=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;/^\d{4}-\d{2}-\d{2}$/.test(value)?new Date(value+&#x27;T12:00:00Z&#x27;).toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,timeZone:&#x27;UTC&#x27;}):&#x27;Dato mangler&#x27;;
     const narrowLayout=()=&gt;Boolean((doc.defaultView||globalThis).matchMedia?.(&#x27;(max-width:1279px)&#x27;).matches);
@@ -16978,7 +17018,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function renderDirectory(){
       const activeCount=staff.filter(person=&gt;person.active!==false).length,archivedCount=staff.length-activeCount;count.textContent=staff.length+(staff.length===1?&#x27; medarbejder&#x27;:&#x27; medarbejdere&#x27;)+&#x27; · &#x27;+activeCount+(activeCount===1?&#x27; aktiv&#x27;:&#x27; aktive&#x27;)+&#x27; · &#x27;+archivedCount+(archivedCount===1?&#x27; arkiveret&#x27;:&#x27; arkiverede&#x27;);
       statusTabs.forEach(tab=&gt;{tab.setAttribute(&#x27;aria-pressed&#x27;,String(tab.dataset.status===filter.value));tab.disabled=pending;});if(planning)weeklyHead.replaceChildren(node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Denne uge&#x27;),node(&#x27;small&#x27;,&#x27;cs-roster-week-legend&#x27;,&#x27;Planlagt / aftalt&#x27;));else weeklyHead.textContent=&#x27;Aftalt pr. uge&#x27;;context.hidden=!planning;context.textContent=planning?&#x27;Vagtplan · &#x27;+dateLabel(planning.weekStart)+&#x27; – &#x27;+dateLabel(planning.weekEnd)+&#x27; · næste vagter frem til &#x27;+dateLabel(planning.horizonEnd):&#x27;&#x27;;
-      const selectedSite=siteFilter.value||&#x27;all&#x27;;siteFilter.replaceChildren();const all=node(&#x27;option&#x27;,&#x27;&#x27;,&#x27;Alle arbejdssteder&#x27;);all.value=&#x27;all&#x27;;siteFilter.append(all);sites.forEach((value,index)=&gt;{const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);option.value=String(index);siteFilter.append(option);});siteFilter.value=selectedSite===&#x27;all&#x27;||sites[Number(selectedSite)]?selectedSite:&#x27;all&#x27;;
+      const selectedSite=siteFilter.value||&#x27;all&#x27;;siteFilter.replaceChildren();const all=node(&#x27;option&#x27;,&#x27;&#x27;,&#x27;Alle arbejdssteder&#x27;);all.value=&#x27;all&#x27;;siteFilter.append(all);sites.forEach((value,index)=&gt;{if(value.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);option.value=String(index);siteFilter.append(option);});siteFilter.value=selectedSite===&#x27;all&#x27;||sites[Number(selectedSite)]?selectedSite:&#x27;all&#x27;;
       const query=search.value.trim().toLocaleLowerCase(&#x27;da-DK&#x27;),people=staff.filter(person=&gt;(filter.value===&#x27;all&#x27;||(filter.value===&#x27;archived&#x27;?person.active===false:person.active!==false))&amp;&amp;(siteFilter.value===&#x27;all&#x27;||person.site===Number(siteFilter.value))&amp;&amp;(!query||[person.name,person.role,sites[person.site]?.name].some(value=&gt;String(value||&#x27;&#x27;).toLocaleLowerCase(&#x27;da-DK&#x27;).includes(query))));
       pageIndex=Math.min(Math.max(0,pageIndex),Math.max(0,Math.ceil(people.length/PAGE_SIZE)-1));const start=pageIndex*PAGE_SIZE;pagination.hidden=people.length&lt;=PAGE_SIZE;pageRange.textContent=start+1+&#x27;–&#x27;+Math.min(start+PAGE_SIZE,people.length)+&#x27; af &#x27;+people.length;previousPage.disabled=pending||pageIndex===0;nextPage.disabled=pending||start+PAGE_SIZE&gt;=people.length;
       const archivedEmpty=filter.value===&#x27;archived&#x27;&amp;&amp;!query&amp;&amp;siteFilter.value===&#x27;all&#x27;;shown.textContent=people.length+&#x27; vist&#x27;;tbody.replaceChildren();table.hidden=!people.length;empty.hidden=Boolean(people.length);empty.replaceChildren(node(&#x27;h4&#x27;,&#x27;cs-roster-empty-title&#x27;,archivedEmpty?&#x27;Ingen arkiverede medarbejdere&#x27;:staff.length?&#x27;Ingen medarbejdere matcher&#x27;:&#x27;Opret jeres første medarbejder&#x27;),node(&#x27;p&#x27;,&#x27;cs-roster-copy&#x27;,archivedEmpty?&#x27;Arkiverede medarbejdere vises her. Tidligere vagter bevares.&#x27;:staff.length?&#x27;Tilpas søgningen eller arbejdsstedet, eller vælg Alle.&#x27;:&#x27;Tilføj medarbejdere enkeltvis, eller importér listen fra en CSV-fil.&#x27;));
@@ -17266,7 +17306,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       appendAppLoginFeedback(group);
       return group;
     }
-    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab=&#x27;information&#x27;;saveMessage=&#x27;&#x27;;error.hidden=true;for(const key of [&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;role&#x27;,&#x27;target&#x27;])controls[key].value=String(person[key]??&#x27;&#x27;);controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=&gt;{const option=node(&#x27;option&#x27;,&#x27;&#x27;,site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint(&#x27;field:name&#x27;);}
+    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab=&#x27;information&#x27;;saveMessage=&#x27;&#x27;;error.hidden=true;for(const key of [&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;role&#x27;,&#x27;target&#x27;])controls[key].value=String(person[key]??&#x27;&#x27;);controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=&gt;{if(site.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint(&#x27;field:name&#x27;);}
     async function savePerson(){
       if(!editing||pending||!options.canEdit||disposed||!before)return;
       const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===&#x27;&#x27;?NaN:Number(controls.target.value),site:Number(controls.site.value),active:controls.active.checked};
@@ -18589,7 +18629,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!element?.ownerDocument)throw new TypeError(&#x27;Brugersiden kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,win=doc.defaultView,suffix=++sequence===1?&#x27;&#x27;:&#x27;-&#x27;+sequence;
     let viewer=null,capabilities={},authorized=false,canUsers=false,canRoles=false,identity=&#x27;&#x27;,mounted=false,disposed=false,pending=false,epoch=0,loaded=false,tab=&#x27;users&#x27;;
-    let staffCandidates=Array.isArray(staff)?staff.slice():[],inviteSites=[];
+    let staffCandidates=Array.isArray(staff)?staff.slice():[],inviteSites=[],accessDepartments=[];
     let members=[],invites=[],roles=[],catalog=[],editingId=null,editVersion=null,inviteUrl=&#x27;&#x27;,inviteResultId=null,createdPersonId=null,roleEditingId=null,roleEditVersion=null,roleDraft=new Set();
     let canAppLogins=false,appLogins=[];
     const node=(tag,className,text)=&gt;{const item=doc.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item;};
@@ -18697,6 +18737,32 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(!inviteSites.length)return &#x27;Opret et arbejdssted, før du opretter en medarbejder.&#x27;;
       return &#x27;Medarbejderprofil og app-login oprettes sammen. Startkoden findes på profilen.&#x27;;
     }
+    function scopeLabel(value){
+      if(value?.mode!==&#x27;departments&#x27;)return &#x27;Alle afdelinger&#x27;;
+      const names=(value.departmentIds||[]).map(id=&gt;accessDepartments.find(item=&gt;item.id===id)?.name||&#x27;Utilgængelig afdeling&#x27;);return names.slice(0,2).join(&#x27; · &#x27;)+(names.length&gt;2?&#x27; · +&#x27;+(names.length-2):&#x27;&#x27;);
+    }
+    function makeScopeField(prefix){
+      const group=node(&#x27;fieldset&#x27;,&#x27;cs-accounts-scope-field&#x27;),legend=node(&#x27;legend&#x27;,&#x27;cs-accounts-label&#x27;,&#x27;Adgangsområde&#x27;),mode=id(node(&#x27;select&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-scope-mode&#x27;);mode.setAttribute(&#x27;aria-label&#x27;,&#x27;Adgangsområde&#x27;);
+      for(const [value,label]of [[&#x27;all&#x27;,&#x27;Alle afdelinger&#x27;],[&#x27;departments&#x27;,&#x27;Udvalgte afdelinger&#x27;]]){const option=node(&#x27;option&#x27;,&#x27;&#x27;,label);option.value=value;mode.append(option);}mode.value=&#x27;all&#x27;;
+      const details=node(&#x27;div&#x27;,&#x27;cs-accounts-scope-details&#x27;),search=id(node(&#x27;input&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-scope-search&#x27;);search.type=&#x27;search&#x27;;search.placeholder=&#x27;Find afdeling…&#x27;;search.setAttribute(&#x27;aria-label&#x27;,&#x27;Find afdeling til adgang&#x27;);
+      const list=node(&#x27;div&#x27;,&#x27;cs-accounts-scope-options&#x27;),summary=node(&#x27;p&#x27;,&#x27;cs-accounts-caption&#x27;);list.setAttribute(&#x27;aria-label&#x27;,&#x27;Afdelinger med adgang&#x27;);details.append(search,list,summary);group.append(legend,mode,node(&#x27;p&#x27;,&#x27;cs-accounts-caption&#x27;,&#x27;Rollen bestemmer rettighederne. Området bestemmer, hvor de gælder.&#x27;),details);
+      let selected=new Set(),enabled=true;
+      const current=()=&gt;({mode:mode.value,departmentIds:mode.value===&#x27;departments&#x27;?[...selected].sort():[]});
+      function update(){
+        const restricted=capabilities.scopeRestricted===true;mode.children[0].disabled=restricted;
+        if(restricted&amp;&amp;mode.value===&#x27;all&#x27;){mode.value=&#x27;departments&#x27;;selected=new Set(viewer?.accessScope?.departmentIds||capabilities.allowedDepartmentIds||[]);}
+        mode.disabled=pending||!canUsers||!enabled;details.hidden=mode.value!==&#x27;departments&#x27;;search.disabled=pending||!enabled;
+        for(const input of list.querySelectorAll(&#x27;input&#x27;))input.disabled=pending||!canUsers||!enabled;
+        summary.textContent=selected.size+&#x27; &#x27;+(selected.size===1?&#x27;afdeling valgt&#x27;:&#x27;afdelinger valgt&#x27;);
+      }
+      function paint(){
+        const query=search.value.trim().toLocaleLowerCase(&#x27;da-DK&#x27;);list.replaceChildren();
+        for(const department of accessDepartments.filter(item=&gt;!query||item.name.toLocaleLowerCase(&#x27;da-DK&#x27;).includes(query))){const label=node(&#x27;label&#x27;,&#x27;cs-accounts-scope-option&#x27;),check=node(&#x27;input&#x27;);check.type=&#x27;checkbox&#x27;;check.value=department.id;check.checked=selected.has(department.id);check.dataset.departmentScope=department.id;check.addEventListener(&#x27;change&#x27;,()=&gt;{if(pending||!enabled)return;if(check.checked)selected.add(department.id);else selected.delete(department.id);update();});label.append(check,node(&#x27;span&#x27;,&#x27;&#x27;,department.name));list.append(label);}
+        if(!list.children.length)list.append(node(&#x27;p&#x27;,&#x27;cs-accounts-caption&#x27;,accessDepartments.length?&#x27;Ingen afdelinger matcher.&#x27;:&#x27;Der er ingen afdelinger at vælge.&#x27;));update();
+      }
+      mode.addEventListener(&#x27;change&#x27;,update);search.addEventListener(&#x27;input&#x27;,paint);
+      return {element:group,mode,current,update,paint,set(value){mode.value=value?.mode===&#x27;departments&#x27;?&#x27;departments&#x27;:&#x27;all&#x27;;selected=new Set(value?.departmentIds||[]);search.value=&#x27;&#x27;;paint();},show(value){enabled=value;group.hidden=!value;update();},valid(){return mode.value===&#x27;all&#x27;?capabilities.scopeRestricted!==true:selected.size&gt;0&amp;&amp;[...selected].every(id=&gt;accessDepartments.some(item=&gt;item.id===id));}};
+    }
     function makeUserForm(prefix,includeEmail){
       const form=id(node(&#x27;form&#x27;,&#x27;cs-accounts-form&#x27;),prefix+&#x27;-form&#x27;);form.noValidate=true;
       const input=(type,name)=&gt;{const item=id(node(&#x27;input&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-&#x27;+name);item.type=type;return item;};
@@ -18704,7 +18770,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const top=node(&#x27;div&#x27;,&#x27;cs-accounts-field-pair&#x27;);top.append(field(&#x27;Navn&#x27;,name));if(includeEmail)top.append(field(&#x27;E-mail&#x27;,email));form.append(top);
       const role=id(node(&#x27;select&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-role&#x27;);
       const row=node(&#x27;div&#x27;,&#x27;cs-accounts-field-pair&#x27;);row.append(field(&#x27;Rolle&#x27;,role));form.append(row);
-      const help=id(node(&#x27;p&#x27;,&#x27;cs-accounts-role-help&#x27;),prefix+&#x27;-help&#x27;);role.setAttribute(&#x27;aria-describedby&#x27;,help.id);form.append(help);
+      const help=id(node(&#x27;p&#x27;,&#x27;cs-accounts-role-help&#x27;),prefix+&#x27;-help&#x27;);role.setAttribute(&#x27;aria-describedby&#x27;,help.id);form.append(help);const scope=makeScopeField(prefix);form.append(scope.element);
       if(includeEmail){
         const site=id(node(&#x27;select&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-worksite&#x27;),siteField=field(&#x27;Arbejdssted&#x27;,site);
         row.append(siteField);
@@ -18713,13 +18779,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           help.textContent=chosen?&#x27;Rettigheder: &#x27;+permissionSummary(chosen):&#x27;Vælg en rolle.&#x27;;
           if(chosen&amp;&amp;!canAssign(chosen))help.textContent+=&#x27; Du kan ikke tildele denne rolle.&#x27;;
           else if(loaded&amp;&amp;required)help.textContent=employeeCreationNote();
+          scope.show(!required);
           role.disabled=pending||!canUsers||!roles.length;
           siteField.hidden=!required||!canCreate;site.required=required&amp;&amp;canCreate;site.disabled=pending||!site.required;
           inviteSend.disabled=pending||!canUsers||!canAssign(chosen)||required&amp;&amp;!canCreate;
           inviteSend.textContent=pending?&#x27;Vent venligst…&#x27;:required?&#x27;Opret medarbejder&#x27;:&#x27;Opret invitationslink&#x27;;
         }
         role.addEventListener(&#x27;change&#x27;,updateInvitation);bindForm(form,submitNewUser);
-        return {form,name,email,role,site,update:updateInvitation};
+        return {form,name,email,role,site,scope,update:updateInvitation};
       }
       const statusSelect=id(node(&#x27;select&#x27;,&#x27;cs-accounts-input&#x27;),prefix+&#x27;-status&#x27;);
       for(const [value,label] of [[&#x27;active&#x27;,&#x27;Aktiv&#x27;],[&#x27;disabled&#x27;,&#x27;Deaktiveret&#x27;]]){const option=node(&#x27;option&#x27;,&#x27;&#x27;,label);option.value=value;statusSelect.append(option);}
@@ -18729,7 +18796,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const binding={assignedId:&#x27;&#x27;},bindingHelp=id(node(&#x27;p&#x27;,&#x27;cs-accounts-binding-help&#x27;),prefix+&#x27;-binding-help&#x27;);
       person.setAttribute(&#x27;aria-describedby&#x27;,bindingHelp.id);form.append(personField,bindingHelp);
       function update(){
-        const chosen=roleFor(role.value),required=needsEmployee(chosen);
+        const chosen=roleFor(role.value),required=needsEmployee(chosen);scope.show(!required);
         help.textContent=chosen?&#x27;Rettigheder: &#x27;+permissionSummary(chosen):&#x27;Vælg en rolle.&#x27;;
         if(chosen&amp;&amp;!canAssign(chosen))help.textContent+=&#x27; Du kan ikke tildele denne rolle, da den indeholder rettigheder, du ikke selv har.&#x27;;
         personLabel.textContent=&#x27;Tilknyttet medarbejder&#x27;+(required?&#x27;&#x27;:&#x27; · valgfrit&#x27;);
@@ -18741,7 +18808,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         person.disabled=pending||!canUsers;role.disabled=pending||!canUsers||!roles.length;
       }
       role.addEventListener(&#x27;change&#x27;,update);person.addEventListener(&#x27;change&#x27;,update);bindForm(form,saveMember,()=&gt;closeMember(true));
-      return {form,name,role,status:statusSelect,person,empty,binding,update};
+      return {form,name,role,status:statusSelect,person,empty,binding,scope,update};
     }
     function populateRoles(form){const selected=form.role.value;form.role.replaceChildren();roles.forEach(role=&gt;{const option=node(&#x27;option&#x27;,&#x27;&#x27;,role.name);option.value=role.id;option.disabled=!canAssign(role);form.role.append(option);});form.role.value=roles.some(role=&gt;String(role.id)===String(selected))?selected:defaultRole()?.id||&#x27;&#x27;;form.update();}
     function populatePeople(form,assignedId=&#x27;&#x27;,preferred=form.person.value){
@@ -18762,12 +18829,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function resetInvite(){
       inviteForm.name.value=&#x27;&#x27;;inviteForm.email.value=&#x27;&#x27;;inviteForm.role.value=defaultRole()?.id||&#x27;&#x27;;
-      populateInviteSites(&#x27;&#x27;);inviteForm.update();
+      populateInviteSites(&#x27;&#x27;);inviteForm.scope.set(capabilities.scopeRestricted?viewer?.accessScope:undefined);inviteForm.update();
     }
     function showError(target,text){target.textContent=text;target.hidden=false;target.scrollIntoView?.({block:&#x27;nearest&#x27;});}
     function validateUser(form,target){
       if(!form.name.value.trim()){showError(target,&#x27;Skriv brugerens navn.&#x27;);form.name.focus();return false;}
       const chosen=roleFor(form.role.value);if(!chosen||!canAssign(chosen)){showError(target,&#x27;Vælg en rolle, som du har adgang til at tildele.&#x27;);form.role.focus();return false;}
+      if(!needsEmployee(chosen)&amp;&amp;!form.scope.valid()){showError(target,&#x27;Vælg mindst én afdeling inden for din adgang.&#x27;);form.scope.mode.focus();return false;}
       if(form.site){
         if(!needsEmployee(chosen))return true;
         if(!canCreateEmployee()){showError(target,employeeCreationNote());form.role.focus();return false;}
@@ -18806,6 +18874,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function applyList(result){roles=Array.isArray(result.roles)?result.roles:[];const normalizedCatalog=new Map();for(const item of Array.isArray(result.permissionCatalog)?result.permissionCatalog:[]){const key=item?.key??item?.id;if(permissionKeys.has(key))normalizedCatalog.set(key,{...item,key,requires:Array.isArray(item.requires)?item.requires.filter(required=&gt;permissionKeys.has(required)):[]});}catalog=[...normalizedCatalog.values()];staffCandidates=(canUsers||canAppLogins)&amp;&amp;Array.isArray(result.staff)?result.staff.filter(member=&gt;member&amp;&amp;typeof member.id===&#x27;string&#x27;).map(member=&gt;({...member})):[];members=canUsers&amp;&amp;Array.isArray(result.members)?result.members:[];invites=canUsers&amp;&amp;Array.isArray(result.invites)?result.invites:[];
       appLogins=canAppLogins&amp;&amp;Array.isArray(result.appLogins)?result.appLogins.map(readAppLogin).filter(Boolean):[];
       inviteSites=canUsers&amp;&amp;capabilities.plan===true&amp;&amp;Array.isArray(result.sites)?result.sites.filter(site=&gt;Number.isSafeInteger(site?.index)&amp;&amp;site.index&gt;=0&amp;&amp;typeof site.name===&#x27;string&#x27;):[];
+      accessDepartments=Array.isArray(result.departments)?result.departments.filter(item=&gt;typeof item?.id===&#x27;string&#x27;&amp;&amp;typeof item.name===&#x27;string&#x27;):[];inviteForm.scope.paint();editForm.scope.paint();
       loaded=true;populateRoles(inviteForm);populateRoles(editForm);populateInviteSites();
       populatePeople(editForm,members.find(member=&gt;member.userId===editingId)?.personId||&#x27;&#x27;);renderLists();renderRoleChoices();
     }
@@ -18858,7 +18927,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             const login=loginByIdentity.get(accountIdentity(member));
             const appAccess=login?login.status===&#x27;active&#x27;?&#x27; · App-login&#x27;:&#x27; · App-login lukket&#x27;:&#x27;&#x27;;
             const role=node(&#x27;td&#x27;,&#x27;cs-accounts-role-cell&#x27;);
-            role.append(node(&#x27;span&#x27;,&#x27;cs-accounts-member-role&#x27;,nameFor(member)),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions&#x27;,memberPermissions(member)+appAccess));
+            role.append(node(&#x27;span&#x27;,&#x27;cs-accounts-member-role&#x27;,nameFor(member)),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions&#x27;,memberPermissions(member)+appAccess),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions cs-accounts-scope-summary&#x27;,scopeLabel(member.accessScope)));
             const action=node(&#x27;td&#x27;,&#x27;cs-accounts-action-cell&#x27;);
             const profile=profileButton(people.get(member.personId));
             const controls=profile?node(&#x27;div&#x27;,&#x27;cs-accounts-user-actions&#x27;):action;
@@ -18884,7 +18953,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           users.append(table);
         }
         const waiting=invites.filter(item=&gt;item.status===&#x27;pending&#x27;);if(!waiting.length)pendingList.append(node(&#x27;p&#x27;,&#x27;cs-accounts-empty&#x27;,&#x27;Ingen ventende invitationer.&#x27;));
-        waiting.forEach(invite=&gt;{const row=node(&#x27;div&#x27;,&#x27;cs-accounts-invite-row&#x27;);row.dataset.inviteId=invite.id;const copy=node(&#x27;div&#x27;,&#x27;cs-accounts-invite-copy&#x27;);copy.append(node(&#x27;strong&#x27;,&#x27;cs-accounts-member-name&#x27;,invite.name||invite.email),node(&#x27;span&#x27;,&#x27;cs-accounts-member-email&#x27;,invite.email),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions&#x27;,nameFor(invite)+(invite.personId?&#x27; · &#x27;+personName(invite.personId):&#x27;&#x27;)));if(invite.expiresAt){const expires=new Date(invite.expiresAt);if(Number.isFinite(expires.getTime()))copy.append(node(&#x27;span&#x27;,&#x27;cs-accounts-invite-expiry&#x27;,&#x27;Udløber &#x27;+expires.toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;})));}const revoke=button(&#x27;Tilbagekald&#x27;,()=&gt;revokeInvite(invite.id));revoke.setAttribute(&#x27;aria-label&#x27;,&#x27;Tilbagekald invitation til &#x27;+invite.email);row.append(copy,revoke);pendingList.append(row);});
+        waiting.forEach(invite=&gt;{const row=node(&#x27;div&#x27;,&#x27;cs-accounts-invite-row&#x27;);row.dataset.inviteId=invite.id;const copy=node(&#x27;div&#x27;,&#x27;cs-accounts-invite-copy&#x27;);copy.append(node(&#x27;strong&#x27;,&#x27;cs-accounts-member-name&#x27;,invite.name||invite.email),node(&#x27;span&#x27;,&#x27;cs-accounts-member-email&#x27;,invite.email),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions&#x27;,nameFor(invite)+(invite.personId?&#x27; · &#x27;+personName(invite.personId):&#x27;&#x27;)),node(&#x27;span&#x27;,&#x27;cs-accounts-member-permissions cs-accounts-scope-summary&#x27;,scopeLabel(invite.accessScope)));if(invite.expiresAt){const expires=new Date(invite.expiresAt);if(Number.isFinite(expires.getTime()))copy.append(node(&#x27;span&#x27;,&#x27;cs-accounts-invite-expiry&#x27;,&#x27;Udløber &#x27;+expires.toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;})));}const revoke=button(&#x27;Tilbagekald&#x27;,()=&gt;revokeInvite(invite.id));revoke.setAttribute(&#x27;aria-label&#x27;,&#x27;Tilbagekald invitation til &#x27;+invite.email);row.append(copy,revoke);pendingList.append(row);});
       }
       if(editingId&amp;&amp;!members.some(member=&gt;member.userId===editingId&amp;&amp;!member.isOwner))closeMember();
       renderRoleList();updateTabs();for(const control of users.querySelectorAll(&#x27;button&#x27;))control.disabled=pending||!canUsers;for(const control of pendingList.querySelectorAll(&#x27;button&#x27;))control.disabled=pending||!canUsers;
@@ -18912,7 +18981,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(!canUsers||pending)return;
       const member=members.find(item=&gt;item.userId===userId);if(!member||member.isOwner)return;
       editingId=member.userId;editVersion=member.version;editForm.name.value=member.name||&#x27;&#x27;;editForm.role.value=member.roleId||&#x27;&#x27;;
-      editForm.status.value=member.status===&#x27;disabled&#x27;?&#x27;disabled&#x27;:&#x27;active&#x27;;
+      editForm.status.value=member.status===&#x27;disabled&#x27;?&#x27;disabled&#x27;:&#x27;active&#x27;;editForm.scope.set(member.accessScope);
       populatePeople(editForm,member.personId||&#x27;&#x27;,member.personId||&#x27;&#x27;);editForm.update();editCaption.textContent=member.email||&#x27;&#x27;;
       editError.hidden=true;editPanel.hidden=false;inviteSection.hidden=true;usersWorkspace.dataset.editor=&#x27;true&#x27;;
       usersSide.setAttribute(&#x27;aria-labelledby&#x27;,editHeading.id);
@@ -18941,7 +19010,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(restoreFocus)focusRow(roleList,&#x27;roleId&#x27;,previous,createRoleButton);
     }
     async function saveMember(){
-      if(!editingId||pending||!canUsers||!validateUser(editForm,editError))return;const payload={name:editForm.name.value.trim(),roleId:editForm.role.value,personId:editForm.person.value||null,userId:editingId,version:editVersion,status:editForm.status.value===&#x27;disabled&#x27;?&#x27;disabled&#x27;:&#x27;active&#x27;};
+      if(!editingId||pending||!canUsers||!validateUser(editForm,editError))return;const payload={name:editForm.name.value.trim(),roleId:editForm.role.value,personId:editForm.person.value||null,userId:editingId,version:editVersion,status:editForm.status.value===&#x27;disabled&#x27;?&#x27;disabled&#x27;:&#x27;active&#x27;,...(!needsEmployee(roleFor(editForm.role.value))?{accessScope:editForm.scope.current()}:{})};
       await perform(&#x27;updateMember&#x27;,payload,editError,async(result,token)=&gt;{closeMember();status.textContent=&#x27;Brugerens adgang er opdateret.&#x27;;status.hidden=false;await refreshAfterMutation(token);},()=&gt;focusRow(users,&#x27;userId&#x27;,payload.userId,usersTab));
     }
     async function submitNewUser(){
@@ -18965,7 +19034,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         },()=&gt;{if(!employeeResult.hidden&amp;&amp;typeof onOpenEmployee===&#x27;function&#x27;)employeeProfileLink.focus({preventScroll:false});});
         return;
       }
-      await perform(&#x27;invite&#x27;,{name,email,roleId,newUser:true},inviteError,async(result,token)=&gt;{
+      await perform(&#x27;invite&#x27;,{name,email,roleId,newUser:true,accessScope:inviteForm.scope.current()},inviteError,async(result,token)=&gt;{
         clearCreationResult();
         inviteResultId=result.invite?.id??null;inviteUrl=typeof result.inviteUrl===&#x27;string&#x27;?result.inviteUrl:&#x27;&#x27;;
         link.value=inviteUrl;invitationResult.hidden=!inviteUrl;copyStatus.textContent=&#x27;&#x27;;
@@ -18988,9 +19057,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     async function copyLink(){if(!inviteUrl||pending||!canUsers)return;try{if(win?.navigator?.clipboard?.writeText){await win.navigator.clipboard.writeText(inviteUrl);copyStatus.textContent=&#x27;Linket er kopieret.&#x27;;return;}}catch{}link.focus();link.select();try{if(doc.execCommand?.(&#x27;copy&#x27;)){copyStatus.textContent=&#x27;Linket er kopieret.&#x27;;return;}}catch{}copyStatus.textContent=&#x27;Linket er markeret. Kopiér det med Ctrl+C eller ⌘C.&#x27;;}
     function close(){closeHelp(false);closeMember();closeRole();}
     function render(next={}){
-      if(disposed)return;viewer=next.viewer||null;capabilities=next.capabilities||{};canUsers=capabilities.manageUsers===true;canRoles=capabilities.manageRoles===true;canAppLogins=capabilities.manageAppLogins===true;const allowed=canUsers||canRoles,key=String(viewer?.userId??viewer?.id??viewer?.email??&#x27;&#x27;)+&#x27;|&#x27;+JSON.stringify([canUsers,canRoles,canAppLogins,capabilities.plan===true,[...grantSet()].sort()]);
-      if(!allowed){authorized=false;epoch++;pending=false;loaded=false;mounted=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];appLogins=[];close();resetInvite();clearCreationResult();element.replaceChildren();return;}
-      const changed=!authorized||identity!==key;authorized=true;identity=key;if(changed){epoch++;pending=false;loaded=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];appLogins=[];close();tab=canUsers?&#x27;users&#x27;:&#x27;roles&#x27;;clearCreationResult();inviteForm.role.replaceChildren();editForm.role.replaceChildren();resetInvite();inviteError.hidden=true;copyStatus.textContent=&#x27;&#x27;;globalError.hidden=true;status.hidden=true;renderLists();}
+      if(disposed)return;viewer=next.viewer||null;capabilities=next.capabilities||{};canUsers=capabilities.manageUsers===true;canRoles=capabilities.manageRoles===true;canAppLogins=capabilities.manageAppLogins===true;const allowed=canUsers||canRoles,key=String(viewer?.userId??viewer?.id??viewer?.email??&#x27;&#x27;)+&#x27;|&#x27;+JSON.stringify([canUsers,canRoles,canAppLogins,capabilities.plan===true,viewer?.accessScope,capabilities.allowedDepartmentIds,[...grantSet()].sort()]);
+      if(!allowed){authorized=false;epoch++;pending=false;loaded=false;mounted=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];accessDepartments=[];appLogins=[];close();resetInvite();clearCreationResult();element.replaceChildren();return;}
+      const changed=!authorized||identity!==key;authorized=true;identity=key;if(changed){epoch++;pending=false;loaded=false;members=[];invites=[];roles=[];catalog=[];staffCandidates=[];inviteSites=[];accessDepartments=[];appLogins=[];close();tab=canUsers?&#x27;users&#x27;:&#x27;roles&#x27;;clearCreationResult();inviteForm.role.replaceChildren();editForm.role.replaceChildren();resetInvite();inviteError.hidden=true;copyStatus.textContent=&#x27;&#x27;;globalError.hidden=true;status.hidden=true;renderLists();}
       if(!mounted||!element.contains(body)){element.replaceChildren(body);mounted=true;}setBusy(pending);if(!loaded&amp;&amp;!pending)load();
     }
     function open(){if(authorized&amp;&amp;!pending)return load();}
@@ -20716,7 +20785,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const money=value=&gt;Number.isSafeInteger(value)?new Intl.NumberFormat(&#x27;da-DK&#x27;,{style:&#x27;currency&#x27;,currency:&#x27;DKK&#x27;}).format(value/100):&#x27;—&#x27;;
   const minutes=value=&gt;Number.isSafeInteger(value)?Math.floor(value/60)+&#x27; t&#x27;+(value%60?&#x27; &#x27;+value%60+&#x27; min&#x27;:&#x27;&#x27;):&#x27;—&#x27;;
   const stamp=value=&gt;{const date=new Date(value);return Number.isFinite(date.getTime())?date.toLocaleString(&#x27;da-DK&#x27;,{dateStyle:&#x27;medium&#x27;,timeStyle:&#x27;short&#x27;,timeZone:&#x27;Europe/Copenhagen&#x27;}):&#x27;&#x27;;};
-  function open({element,date,onAction,onChanged,onClose}={}) {
+  function open({element,date,onAction,onChanged,onClose,onNavigate}={}) {
     if(!element?.ownerDocument||typeof onAction!==&#x27;function&#x27;)throw new TypeError(&#x27;Lønperioden kræver adgang til kontoen.&#x27;);
     const doc=element.ownerDocument,previous=doc.activeElement,id=&#x27;cs-payroll-period-&#x27;+ ++sequence;
     let profilePanel=null,profileGeneration=0,profiles=[],profileId=&#x27;standard-v1&#x27;,profileError=&#x27;&#x27;;
@@ -20784,6 +20853,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const holder=node(&#x27;label&#x27;,&#x27;cs-payroll-period-field&#x27;),input=node(&#x27;textarea&#x27;);input.rows=3;input.maxLength=4000;input.value=manual.reason;input.disabled=busy;input.dataset.payrollPeriodFocus=&#x27;manual:reason&#x27;;input.addEventListener(&#x27;input&#x27;,()=&gt;{manual.reason=input.value;save.disabled=busy||!validManual();});holder.append(node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Begrundelse&#x27;),input);
       const save=button(&#x27;Gem registrering&#x27;,()=&gt;saveRegistration(),&#x27;cs-button&#x27;,&#x27;manual:save&#x27;);save.disabled=busy||!validManual();section.append(grid,holder,node(&#x27;p&#x27;,&#x27;cs-payroll-period-caption&#x27;,&#x27;Gemte timer skal godkendes, før perioden kan afsluttes.&#x27;),save,button(&#x27;Annuller&#x27;,()=&gt;{manual=null;paint();},&#x27;cs-button cs-quiet&#x27;));return section;
     }
+    async function navigateProblem(code,target){
+      if(disposed||busy||!data||typeof onNavigate!==&#x27;function&#x27;||![&#x27;unapproved&#x27;,&#x27;invalid_time&#x27;,&#x27;missing_payroll&#x27;].includes(code)||!target||![&#x27;hours&#x27;,&#x27;payroll-person&#x27;].includes(target.kind)||target.from!==data.from||target.to!==data.to)return;
+      const token=++epoch,period={from:data.from,to:data.to};busy=true;error=&#x27;&#x27;;message=&#x27;&#x27;;paint();
+      try{
+        const result=await onAction(&#x27;payrollPeriodRead&#x27;,period);if(disposed||token!==epoch)return;if(!result?.ok){if([401,403].includes(result?.status)){data=null;manual=null;created=null;}throw Error(result?.message||&#x27;Adgangen til lønperioden kunne ikke bekræftes.&#x27;);}accept(result);
+        if(data.status!==&#x27;open&#x27;||data.from!==period.from||data.to!==period.to)throw Error(&#x27;Lønperioden er ændret. Gennemgå den seneste version.&#x27;);
+        const blocker=data.blockers.find(item=&gt;item.code===code&amp;&amp;item.count&gt;0);let destination;
+        if(target.entryId){const row=data.problemEntries?.[code]?.find(item=&gt;item.entryId===target.entryId&amp;&amp;item.personId===target.personId);destination=row?.actions?.find(action=&gt;action.kind===target.kind);}
+        else if(target.kind===&#x27;hours&#x27;)destination=blocker?.action;
+        if(!blocker||!destination||destination.from!==period.from||destination.to!==period.to||target.kind===&#x27;hours&#x27;&amp;&amp;destination.problem!==code)throw Error(&#x27;Problemet er ændret eller allerede afklaret. Listen er opdateret.&#x27;);
+        if(await onNavigate({...destination})===false){if(!disposed)throw Error(&#x27;Siden kunne ikke åbnes. Kontrollér adgangen, og prøv igen.&#x27;);return;}
+        if(!disposed&amp;&amp;token===epoch)close(true);
+      }catch(cause){if(!disposed&amp;&amp;token===epoch)error=cause?.message||&#x27;Problemet kunne ikke åbnes. Hent lønperioden igen.&#x27;;}
+      finally{if(!disposed&amp;&amp;token===epoch){busy=false;paint();}}
+    }
     async function write(action,payload,success){
       if(disposed||busy||!data)return;const token=++epoch;busy=true;error=&#x27;&#x27;;message=&#x27;&#x27;;paint();
       try{const result=await onAction(action,payload);if(disposed||token!==epoch)return;
@@ -20821,7 +20905,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(data.status===&#x27;closed&#x27;){
         const closure=data.closure;body.append(node(&#x27;p&#x27;,&#x27;cs-payroll-period-caption&#x27;,&#x27;Afsluttet &#x27;+stamp(closure?.closedAt)+(closure?.closedBy?.name?&#x27; af &#x27;+closure.closedBy.name:&#x27;&#x27;)+&#x27;. Version &#x27;+closure?.revision+&#x27;.&#x27;));
       }else if(data.blockers.length){
-        const blockers=node(&#x27;section&#x27;,&#x27;cs-payroll-period-blockers&#x27;);blockers.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Afklar før afslutning&#x27;));const list=node(&#x27;ul&#x27;);for(const item of data.blockers){const line=node(&#x27;li&#x27;);line.append(node(&#x27;span&#x27;,&#x27;&#x27;,item.message),node(&#x27;strong&#x27;,&#x27;&#x27;,String(item.count)));list.append(line);}blockers.append(list);body.append(blockers);
+        const blockers=node(&#x27;section&#x27;,&#x27;cs-payroll-period-blockers&#x27;);blockers.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Afklar før afslutning&#x27;));const list=node(&#x27;ul&#x27;);for(const item of data.blockers){
+          const line=node(&#x27;li&#x27;),actionable=typeof onNavigate===&#x27;function&#x27;&amp;&amp;item.action?.kind===&#x27;hours&#x27;&amp;&amp;[&#x27;unapproved&#x27;,&#x27;invalid_time&#x27;,&#x27;missing_payroll&#x27;].includes(item.code),copy=actionable?button(&#x27;&#x27;,()=&gt;navigateProblem(item.code,item.action),&#x27;cs-payroll-period-problem&#x27;,&#x27;problem:&#x27;+item.code):node(&#x27;div&#x27;,&#x27;cs-payroll-period-problem-copy&#x27;);copy.append(node(&#x27;span&#x27;,&#x27;&#x27;,item.message),node(&#x27;strong&#x27;,&#x27;&#x27;,String(item.count)));if(actionable)copy.setAttribute(&#x27;aria-label&#x27;,item.message+&#x27; &#x27;+item.count+&#x27; · Åbn timer&#x27;);line.append(copy);
+          if(typeof onNavigate===&#x27;function&#x27;&amp;&amp;item.code===&#x27;missing_payroll&#x27;&amp;&amp;Array.isArray(data.problemEntries?.missing_payroll)){
+            const samples=node(&#x27;div&#x27;,&#x27;cs-payroll-period-problem-people&#x27;);for(const entry of data.problemEntries.missing_payroll){const row=node(&#x27;div&#x27;),identity=node(&#x27;div&#x27;);identity.append(node(&#x27;strong&#x27;,&#x27;&#x27;,entry.personName||&#x27;Medarbejder&#x27;),node(&#x27;span&#x27;,&#x27;cs-payroll-period-caption&#x27;,day(entry.date)));row.append(identity);for(const target of entry.actions||[]){if(![&#x27;payroll-person&#x27;,&#x27;hours&#x27;].includes(target.kind))continue;row.append(button(target.kind===&#x27;payroll-person&#x27;?&#x27;Se lønaftale&#x27;:&#x27;Åbn registrering&#x27;,()=&gt;navigateProblem(item.code,target),&#x27;cs-payroll-period-problem-link&#x27;,&#x27;problem:&#x27;+item.code+&#x27;:&#x27;+target.kind+&#x27;:&#x27;+entry.entryId));}samples.append(row);}if(item.count&gt;data.problemEntries.missing_payroll.length)samples.append(node(&#x27;p&#x27;,&#x27;cs-payroll-period-caption&#x27;,&#x27;De første &#x27;+data.problemEntries.missing_payroll.length+&#x27; vises her. Åbn timer for at se alle.&#x27;));line.append(samples);
+          }list.append(line);
+        }blockers.append(list);body.append(blockers);
       }else body.append(node(&#x27;p&#x27;,&#x27;cs-payroll-period-caption&#x27;,data.canClose?&#x27;Perioden er klar. Afslutning låser registreringerne og gemmer løngrundlaget.&#x27;:&#x27;Perioden kan ikke afsluttes endnu.&#x27;));
       if(data.status===&#x27;open&#x27;&amp;&amp;data.canManage){
         if(manual||created)body.append(registrationContent());
@@ -20885,14 +20974,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const model=()=&gt;globalThis.CleanRoomsTimekeeping;
   const approvable=entry=&gt;entry?.status===&#x27;submitted&#x27;&amp;&amp;time(entry.start)&amp;&amp;time(entry.end)&amp;&amp;!entry.flags?.some(flag=&gt;[&#x27;overlap&#x27;,&#x27;dst_transition&#x27;].includes(flag))&amp;&amp;Number.isFinite(entry.workedMinutes)&amp;&amp;entry.workedMinutes&gt;0&amp;&amp;typeof model()?.validate===&#x27;function&#x27;&amp;&amp;model().validate(entry).length===0;
   const QUEUES={attention:{label:&#x27;Kræver opmærksomhed&#x27;,detail:&#x27;Afvigelser til gennemgang&#x27;,help:&#x27;Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.&#x27;},ready:{label:&#x27;Følger planen&#x27;,detail:&#x27;Klar til samlet godkendelse&#x27;,help:&#x27;Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.&#x27;},progress:{label:&#x27;I gang&#x27;,detail:&#x27;Afventer afslutning&#x27;,help:&#x27;Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.&#x27;},approved:{label:&#x27;Godkendte&#x27;,detail:&#x27;Låst efter godkendelse&#x27;,help:&#x27;Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.&#x27;}};
+  const PERIOD_PROBLEMS={unapproved:&#x27;Afventer godkendelse&#x27;,invalid_time:&#x27;Registreringer til rettelse&#x27;,missing_payroll:&#x27;Mangler løngrundlag&#x27;};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged}={}) {
+  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
     if(!element?.ownerDocument)throw new TypeError(&#x27;Timeregistrering kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,page=doc.createElement(&#x27;div&#x27;);page.className=&#x27;cs-timekeeping-page&#x27;;element.replaceChildren(page);
     let periodPanel=null;
     let options={},tab=&#x27;entries&#x27;,status=null,search=&#x27;&#x27;,selectedId=null,selected=new Map(),draft=null,mode=null,pending=false,pagePending=false,disposed=false,message=&#x27;&#x27;,error=&#x27;&#x27;,conflict=false,viewScope=&#x27;real&#x27;,demoWasActive=false,bulkConfirm=null,rangeKey=&#x27;&#x27;,reviewOptions=null,reviewScope=null,reviewCache=new WeakMap(),shiftIndex=new Map(),reviewToday,listScroll=0,detailSections=new Set();
     const PAGE_SIZE=50,pages={entries:0,week:0,payroll:0};
-    let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey=&#x27;&#x27;,queueBeforePayroll=&#x27;all&#x27;;
+    let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey=&#x27;&#x27;,queueBeforePayroll=&#x27;all&#x27;,periodFocusKey=&#x27;&#x27;,openedFocusKey=&#x27;&#x27;;
     const node=(tag,cls,text)=&gt;{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=String(text);return el;};
     const differenceNode=(value,{unavailable=&#x27;Kan ikke sammenlignes&#x27;,reasons=[]}={})=&gt;{
       const el=node(&#x27;span&#x27;,&#x27;cs-time-delta&#x27;),known=Number.isFinite(value),amount=known?Math.round(Math.abs(value)):null,direction=!known?&#x27;unknown&#x27;:!amount?&#x27;equal&#x27;:value&gt;0?&#x27;more&#x27;:&#x27;less&#x27;;
@@ -20945,7 +21035,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function currentEntry(){return entries().find(item=&gt;String(item.id)===String(selectedId));}
     function clearDraft(){draft=null;mode=null;conflict=false;}
     function openEntry(entry){listScroll=page.querySelector(&#x27;.cs-timekeeping-body&#x27;)?.scrollTop||0;selectedId=entry.id;detailSections.clear();clearDraft();error=&#x27;&#x27;;paint(&#x27;detail:close&#x27;);const body=page.querySelector(&#x27;.cs-timekeeping-body&#x27;);if(body)body.scrollTop=0;}
-    function closeEntry(entry){selectedId=null;detailSections.clear();clearDraft();paint(&#x27;entry:&#x27;+entry.id);const body=page.querySelector(&#x27;.cs-timekeeping-body&#x27;);if(body)body.scrollTop=listScroll;}
+    function closeEntry(entry){const focused=periodFocus();selectedId=null;detailSections.clear();clearDraft();paint(&#x27;entry:&#x27;+entry.id);const body=page.querySelector(&#x27;.cs-timekeeping-body&#x27;);if(body)body.scrollTop=listScroll;if(focused&amp;&amp;String(options.requestedEntryId)===String(entry.id)&amp;&amp;typeof onCloseFocusedEntry===&#x27;function&#x27;)return onCloseFocusedEntry(entry.id);}
+    function periodFocus(){
+      const focus=options.periodFocus;
+      if(!focus||!options.canViewPayroll||viewScope!==&#x27;real&#x27;||focus.problem!=null&amp;&amp;!Object.hasOwn(PERIOD_PROBLEMS,focus.problem)||!/^\d{4}-\d{2}-\d{2}$/.test(focus.from||&#x27;&#x27;)||!/^\d{4}-\d{2}-\d{2}$/.test(focus.to||&#x27;&#x27;)||focus.to&lt;focus.from||focus.from!==options.from||focus.to!==options.to)return null;
+      return focus;
+    }
+    function paintPeriodFocus(){
+      const focus=periodFocus();if(!focus)return;
+      const strip=node(&#x27;div&#x27;,&#x27;cs-time-period-focus&#x27;),context=node(&#x27;div&#x27;,&#x27;cs-time-period-focus-context&#x27;);strip.setAttribute(&#x27;role&#x27;,&#x27;region&#x27;);strip.setAttribute(&#x27;aria-label&#x27;,&#x27;Fra lønperioden&#x27;);
+      const range=new Date(focus.from+&#x27;T12:00:00Z&#x27;).toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;})+&#x27; – &#x27;+new Date(focus.to+&#x27;T12:00:00Z&#x27;).toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
+      context.append(node(&#x27;strong&#x27;,&#x27;&#x27;,PERIOD_PROBLEMS[focus.problem]||&#x27;Lønperiode&#x27;),node(&#x27;span&#x27;,&#x27;cs-time-caption&#x27;,range));
+      if(focus.problem===&#x27;missing_payroll&#x27;)context.append(node(&#x27;span&#x27;,&#x27;cs-time-period-focus-hint&#x27;,&#x27;Ret lønaftalen, og genåbn og godkend registreringen igen.&#x27;));
+      strip.append(context);if(typeof onClearPeriodFocus===&#x27;function&#x27;)strip.append(button(&#x27;Vis alle timer&#x27;,()=&gt;onClearPeriodFocus(),&#x27;cs-button cs-quiet&#x27;,&#x27;period:clear&#x27;));page.append(strip);
+    }
     async function refresh(){if(blocked()||typeof onRefresh!==&#x27;function&#x27;)return;pending=true;error=&#x27;&#x27;;paint();try{await onRefresh();}catch(problem){error=problem?.message||&#x27;Registreringerne kunne ikke hentes.&#x27;;}finally{pending=false;paint();}}
     async function invoke(action,payload,success){
       if(blocked()||typeof onAction!==&#x27;function&#x27;)return false;pending=true;error=&#x27;&#x27;;message=&#x27;&#x27;;paint();
@@ -21018,6 +21121,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const control=button(label,()=&gt;{const previous=tab;tab=value;selectedId=null;bulkConfirm=null;selected.clear();clearDraft();const body=page.querySelector(&#x27;.cs-timekeeping-body&#x27;);if(body)body.scrollTop=0;if(serverPaged()&amp;&amp;value===&#x27;payroll&#x27;&amp;&amp;previous!==&#x27;payroll&#x27;){queueBeforePayroll=status||&#x27;all&#x27;;status=&#x27;approved&#x27;;paint(&#x27;tab:&#x27;+value);filterChanged();}else if(serverPaged()&amp;&amp;previous===&#x27;payroll&#x27;&amp;&amp;value!==&#x27;payroll&#x27;){status=queueBeforePayroll;paint(&#x27;tab:&#x27;+value);filterChanged();}else paint(&#x27;tab:&#x27;+value);},&#x27;cs-time-tab&#x27;,&#x27;tab:&#x27;+value);control.setAttribute(&#x27;role&#x27;,&#x27;tab&#x27;);control.setAttribute(&#x27;aria-selected&#x27;,String(tab===value));tabs.append(control);
       }
       const navigation=node(&#x27;div&#x27;,&#x27;cs-time-navigation&#x27;);navigation.append(tabs);if(demoBar)navigation.append(demoBar);page.append(navigation);
+      paintPeriodFocus();
       if(message){const statusBox=node(&#x27;p&#x27;,&#x27;cs-time-message&#x27;,message);statusBox.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);page.append(statusBox);}
       if(error||options.error||options.pagination?.error){const errorBox=node(&#x27;div&#x27;,&#x27;cs-time-error&#x27;);errorBox.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);errorBox.append(node(&#x27;p&#x27;,&#x27;&#x27;,error||options.error||options.pagination.error));if(!blocked())errorBox.append(button(&#x27;Hent registreringer igen&#x27;,refresh,&#x27;cs-button&#x27;,&#x27;reload:error&#x27;));page.append(errorBox);}
       const body=node(&#x27;div&#x27;,&#x27;cs-timekeeping-body&#x27;);body.dataset.timeTab=tab;body.setAttribute(&#x27;role&#x27;,&#x27;tabpanel&#x27;);body.setAttribute(&#x27;aria-label&#x27;,tab===&#x27;week&#x27;?&#x27;Ugens overblik&#x27;:tab===&#x27;payroll&#x27;?&#x27;Løngrundlag&#x27;:&#x27;Registreringer&#x27;);
@@ -21138,8 +21242,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       body.append(metricStrip([[&#x27;Godkendte timer&#x27;,minutes(approvedMinutes)],[&#x27;Timebaseret løngrundlag&#x27;,count&gt;missing?money(cents):count?&#x27;—&#x27;:money(0),&#x27;inkl. tidsbestemte tillæg&#x27;],[&#x27;Mangler lønaftale&#x27;,String(missing),&#x27;godkendte registreringer&#x27;]]));
       if(serverPaged()&amp;&amp;!aggregate)body.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Løngrundlaget vises for de indlæste registreringer.&#x27;));
       const payrollHead=node(&#x27;div&#x27;,&#x27;cs-time-payroll-heading&#x27;);payrollHead.append(node(&#x27;h3&#x27;,&#x27;cs-time-heading&#x27;,&#x27;Godkendt løngrundlag&#x27;));
-      if(viewScope===&#x27;real&#x27;&amp;&amp;typeof onPayrollPeriodAction===&#x27;function&#x27;&amp;&amp;globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button(&#x27;Lønperiode og eksport&#x27;,()=&gt;{
-        periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.(&#x27;#cleanrooms-studio&#x27;)||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onClose:()=&gt;{periodPanel=null;}});
+      if(viewScope===&#x27;real&#x27;&amp;&amp;options.companyPayroll!==false&amp;&amp;typeof onPayrollPeriodAction===&#x27;function&#x27;&amp;&amp;globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button(&#x27;Lønperiode og eksport&#x27;,()=&gt;{
+        periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.(&#x27;#cleanrooms-studio&#x27;)||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onNavigate:onPayrollPeriodNavigate,onClose:()=&gt;{periodPanel=null;}});
       },&#x27;cs-button cs-quiet&#x27;,&#x27;payroll:period&#x27;));
       body.append(payrollHead,node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.&#x27;));
       if(!approved.length){body.append(node(&#x27;p&#x27;,&#x27;cs-time-empty&#x27;,serverPaged()&amp;&amp;count?&#x27;Ingen godkendte registreringer på denne side.&#x27;:&#x27;Godkend registreringer, før de indgår i løngrundlaget.&#x27;));const pager=pagination(0,&#x27;payroll&#x27;);if(pager)body.append(pager);return;}
@@ -21222,12 +21326,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(nextScope!==viewScope||rangeKey!==nextRange){status=null;pages.entries=pages.week=pages.payroll=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();}
       viewScope=nextScope;rangeKey=nextRange;demoWasActive=!!options.demo?.active;
       if(serverPaged()){
-        const filter=options.serverFilter||{},key=[options.pagination.page||0,filter.queue||&#x27;all&#x27;,filter.search||&#x27;&#x27;,filter.scope||viewScope,nextRange].join(&#x27;|&#x27;);
+        const filter=options.serverFilter||{},key=JSON.stringify([options.pagination.page||0,filter.queue||&#x27;all&#x27;,filter.search||&#x27;&#x27;,filter.scope||viewScope,filter.problem||&#x27;&#x27;,filter.entryId||&#x27;&#x27;,nextRange]);
         if(key!==serverViewKey){selected.clear();bulkConfirm=null;selectedId=null;clearDraft();status=filter.queue||&#x27;all&#x27;;if(typeof filter.search===&#x27;string&#x27;)search=filter.search;if(filter.scope===&#x27;real&#x27;||filter.scope===&#x27;demo&#x27;)viewScope=filter.scope;serverViewKey=key;}
       }else serverViewKey=&#x27;&#x27;;
       const current=new Map(scopedEntries().filter(approvable).map(item=&gt;[item.id,item.version]));selected=new Map([...selected].filter(([id,version])=&gt;current.get(id)===version));
-      if(selectedId&amp;&amp;!currentEntry()){selectedId=null;clearDraft();}
+      if(selectedId&amp;&amp;!currentEntry()&amp;&amp;!options.loading&amp;&amp;options.pagination?.loading!==true){selectedId=null;clearDraft();}
       if(options.canManage!==true){selected.clear();bulkConfirm=null;clearDraft();}
+      if(!options.canViewPayroll||options.companyPayroll===false){periodPanel?.destroy?.();periodPanel=null;}
+      const focused=periodFocus(),focusKey=focused?JSON.stringify([focused.from,focused.to,focused.problem,focused.personId||&#x27;&#x27;,focused.entryId||&#x27;&#x27;,options.requestedEntryId||&#x27;&#x27;]):&#x27;&#x27;;
+      if(focusKey!==periodFocusKey){if(periodFocusKey){selectedId=null;clearDraft();}periodFocusKey=focusKey;openedFocusKey=&#x27;&#x27;;if(focused?.problem||focused&amp;&amp;options.requestedEntryId)tab=&#x27;entries&#x27;;}
+      if(focused&amp;&amp;options.requestedEntryId&amp;&amp;(!focused.entryId||focused.entryId===options.requestedEntryId)&amp;&amp;openedFocusKey!==focusKey&amp;&amp;!options.loading&amp;&amp;options.pagination?.loading!==true){
+        const filter=options.serverFilter||{},matchesFilter=!serverPaged()||filter.scope!==&#x27;demo&#x27;&amp;&amp;filter.problem===focused.problem&amp;&amp;filter.entryId===options.requestedEntryId;
+        const requested=matchesFilter&amp;&amp;scopedEntries().find(item=&gt;item.id===options.requestedEntryId&amp;&amp;item.date&gt;=focused.from&amp;&amp;item.date&lt;=focused.to&amp;&amp;(!focused.personId||item.personId===focused.personId));
+        if(requested){tab=&#x27;entries&#x27;;selectedId=requested.id;detailSections.clear();clearDraft();error=&#x27;&#x27;;listScroll=0;openedFocusKey=focusKey;}
+      }
       chooseDefaultQueue();paint();
     }
     function destroy(){disposed=true;periodPanel?.destroy?.();periodPanel=null;options={};selected.clear();draft=null;element.replaceChildren();}
@@ -22847,6 +22959,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   let directory = null, directoryBusy = false, directoryProfileEpoch = 0, employeeDirectoryRecord = null;
   let persistence = null, cloudStatus = {state:&#x27;saved&#x27;,message:&#x27;Alle ændringer er gemt&#x27;}, cloudLoaded = !globalThis.CleanRoomsPersistence;
   let departmentView = null, cloudCapabilities = {manageDepartments:false};
+  let accessReloadPending=false;
   let sessionViewer = null, employeeData = null, accountsView = null, accountsElement = null;
   let chatView=null,chatElement=null,chatContextKey=&#x27;&#x27;,chatWorkspaceId=&#x27;&#x27;,chatBadgeEpoch=0,chatBadgeTimer=null,chatBadgeBusy=false,chatBadgeAt=0;
   let employeeReader=null,employeeDetailEpoch=0,employeeDetailLoading=false,employeeDetailError=&#x27;&#x27;,employeeDetailData=null;
@@ -22858,9 +22971,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   let payrollView=null,payrollElement=null,payrollEpoch=0,payrollMonth=today.slice(0,7);
   const payrollState={personId:null,payroll:null,version:0,policy:null,policyVersion:0,loaded:false,loading:false,error:&#x27;&#x27;,updatedAt:null};
   let payrollPolicyView=null,payrollPolicyElement=null,payrollPolicyEpoch=0;
-  let payrollProfileReturn=null,payrollPolicyPendingOpen=null;
+  let payrollProfileReturn=null,payrollPolicyPendingOpen=null,payrollProblemReturn=null;
   let payrollPersonGroupView=null,payrollPersonGroupElement=null;
   const payrollPolicyState={policy:null,version:0,people:[],history:[],loaded:false,loading:false,error:&#x27;&#x27;};
+  let timeFocus=null;
   let timeView=null,timeElement=null,timeEpoch=0,timeLoadedKey=&#x27;&#x27;,timeLoadingKey=&#x27;&#x27;,timeRequest=null,timeBusy=false,timeDemoEmployee=false,timeContext=&#x27;&#x27;,timeLastRead=0;
   const timePaging={context:&#x27;&#x27;,page:0,cursors:[null],offsets:[0],nextCursor:null,generation:null,filter:{queue:&#x27;all&#x27;,search:&#x27;&#x27;,scope:&#x27;real&#x27;}};
   const timePageCache=new Map();let timeFilterTimer=null,timeFilterWaiters=[];
@@ -22917,9 +23031,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const configured=site?site.workHoursBudget:department?department.workHoursBudget:state.workspaceSettings?.workHoursBudget;
     return {scope,budget:Roster.validWorkHoursBudget(configured)?configured:null,label:[...new Set([department?.name,site?.name].filter(Boolean))].join(&#x27; · &#x27;)||&#x27;Hele virksomheden&#x27;};
   }
-  function inDepartment(site) { return state.page !== &#x27;schedule&#x27; || !selectedDepartment() || selectedDepartment().siteIds.includes(site); }
+  function allowedSite(index){return Boolean(sites[index]&amp;&amp;!sites[index].restricted&amp;&amp;(cloudCapabilities.scopeRestricted!==true||cloudCapabilities.allowedSiteIds?.includes(index)));}
+  function allowedSiteIndices(){return sites.map((_,index)=&gt;index).filter(allowedSite);}
+  function inDepartment(site) { return allowedSite(site)&amp;&amp;(state.page !== &#x27;schedule&#x27; || !selectedDepartment() || selectedDepartment().siteIds.includes(site)); }
   function visibleSite(site) { return inDepartment(site) &amp;&amp; (state.site === &#x27;all&#x27; || site === Number(state.site)); }
-  function defaultShiftSite() { return state.site !== &#x27;all&#x27; ? Number(state.site) : state.page === &#x27;schedule&#x27; &amp;&amp; selectedDepartment() ? selectedDepartment().siteIds[0] : 0; }
+  function defaultShiftSite() { return state.site !== &#x27;all&#x27; ? Number(state.site) : state.page === &#x27;schedule&#x27; &amp;&amp; selectedDepartment() ? selectedDepartment().siteIds.find(allowedSite) : allowedSiteIndices()[0]??0; }
   function canManageDepartments() { return cloudLoaded &amp;&amp; state.role === &#x27;admin&#x27; &amp;&amp; cloudCapabilities.manageDepartments === true; }
   function realEmployee() { return Boolean(sessionViewer &amp;&amp; !cloudCapabilities.plan); }
   function scopedEmployee(){return Boolean(employeeReader&amp;&amp;sessionViewer&amp;&amp;state.role===&#x27;employee&#x27;&amp;&amp;!timeDemoEmployee&amp;&amp;!state.demoSession);}
@@ -22962,6 +23078,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!persistence?.action)return {ok:false,message:&#x27;Kontoen er ikke indlæst.&#x27;};
     const viewerAtStart=sessionViewer;
     const result=await persistence.action(action,payload);
+    if(result.superseded)return result;
     if(result.ok&amp;&amp;[&#x27;payrollSave&#x27;,&#x27;payrollPolicySave&#x27;,&#x27;payrollPersonPolicySave&#x27;].includes(action)){planningCostEpoch++;planningCostCache.clear();planningCostError=null;}
     if(result.status===403){clearPayroll();clearPayrollPolicy();clearTimekeeping();payrollProfileReturn=null;payrollPolicyPendingOpen=null;}
     if(result.status===403||result.ok&amp;&amp;action===&#x27;updateRole&#x27;||result.ok&amp;&amp;action===&#x27;updateMember&#x27;&amp;&amp;payload.userId===sessionViewer?.userId)await initializeCloud();
@@ -23013,7 +23130,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const settingsNav=q(&#x27;#cs-settings-nav&#x27;),settingsParent=isCompact()?q(&#x27;.cs-nav&#x27;):q(&#x27;.cs-workspace&#x27;);
     if(settingsNav.parentElement!==settingsParent)settingsParent.append(settingsNav);
     root.dataset.accountRole=sessionViewer?.role||&#x27;admin&#x27;;
-    root.querySelectorAll(&#x27;.cs-nav-button[data-page]&#x27;).forEach(button=&gt;{button.hidden=state.role===&#x27;employee&#x27;&amp;&amp;button.dataset.page!==&#x27;accounts&#x27;?true:button.dataset.page===&#x27;accounts&#x27;?!hasAccountAccess():button.dataset.page===&#x27;payroll&#x27;?!canViewPayroll():!canPlan;});
+    root.querySelectorAll(&#x27;.cs-nav-button[data-page]&#x27;).forEach(button=&gt;{button.hidden=state.role===&#x27;employee&#x27;&amp;&amp;button.dataset.page!==&#x27;accounts&#x27;?true:button.dataset.page===&#x27;accounts&#x27;?!hasAccountAccess():button.dataset.page===&#x27;payroll&#x27;?(!canViewPayroll()||cloudCapabilities.companyPayroll===false):[&#x27;workspace&#x27;,&#x27;demo&#x27;].includes(button.dataset.page)&amp;&amp;cloudCapabilities.scopeRestricted===true?true:!canPlan;});
     root.querySelectorAll(&#x27;[data-employee-workspace]&#x27;).forEach(button=&gt;{button.hidden=state.role!==&#x27;employee&#x27;;});
     q(&#x27;#cs-chat-nav&#x27;).hidden=!chatAvailable();
     q(&#x27;#cs-chat-nav&#x27;).setAttribute(&#x27;aria-current&#x27;,chatActive()?&#x27;page&#x27;:&#x27;false&#x27;);
@@ -23049,6 +23166,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function syncRoster(){
     staff.splice(0,staff.length,...(realEmployee()?(employeeData?.person?[employeeData.person]:[]):PlanData.staffFor(state)).map(person=&gt;({...person})));
     staffById=new Map(staff.map(person=&gt;[person.id,person]));
+    if(!staffById.has(state.employeePerson))state.employeePerson=staff.find(person=&gt;person.active!==false)?.id||staff[0]?.id||&#x27;&#x27;;
     const optionSignature=JSON.stringify(staff.map(person=&gt;[person.id,person.name,person.active===false])),optionIds=new Set(staff.map(person=&gt;String(person.id)));
     for(const selector of [&#x27;#cs-edit-person&#x27;,&#x27;#cs-employee-person&#x27;]){
       const select=q(selector),previous=select.value,hasEmpty=selector===&#x27;#cs-edit-person&#x27;;
@@ -23079,7 +23197,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   function ingestDirectory(result){
     if(!directory||!result?.directory)return;
-    const accepted=directory.reconcile({directory:result.directory,studio:result.studio,workspace:result.workspace});
+    const accepted=directory.reconcile({directory:result.directory,studio:result.studio,workspace:result.workspace,capabilities:result.capabilities||cloudCapabilities});
     if(!accepted.ok)throw new Error(accepted.message);
   }
   async function saveRoster(next,metadata){
@@ -23160,13 +23278,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(realEmployee()||!staff.some(person=&gt;person.id===personId))return false;
     if(directory?.ready){const epoch=++directoryProfileEpoch,result=await directory.get(&#x27;employee&#x27;,personId,{force:true});if(epoch!==directoryProfileEpoch)return false;if(!result.ok){notify(result.message||&#x27;Medarbejderen kunne ikke indlæses.&#x27;);return false;}employeeDirectoryRecord=result.record;const index=state.roster.findIndex(person=&gt;person.id===personId);if(index&lt;0)return false;state.roster[index]={...result.record.value,_directoryVersion:result.record.version};syncRoster();}
     clearPayroll();clearPayrollPolicy();clearProfileAppLogin();employeeProfileView?.reset?.();
-    payrollProfileReturn=returnToPayroll&amp;&amp;canViewPayroll()?clone(returnToPayroll):null;payrollPolicyPendingOpen=null;
+    payrollProblemReturn=null;payrollProfileReturn=returnToPayroll&amp;&amp;canViewPayroll()?clone(returnToPayroll):null;payrollPolicyPendingOpen=null;
     employeeProfileId=personId;profileInformationPending=information?personId:null;employeeProfileMonth=payrollProfileReturn?.date?.slice(0,7)||today.slice(0,7);state.page=&#x27;people&#x27;;render();
     const profilePage=employeeProfileElement?.querySelector(&#x27;.cs-employee-profile-page&#x27;);if(profilePage)profilePage.scrollTop=0;
     employeeProfileElement?.querySelector(&#x27;h2&#x27;)?.focus({preventScroll:true});return true;
   }
   function closeEmployeeProfile(){
-    directoryProfileEpoch++;employeeDirectoryRecord=null;const previous=employeeProfileId,returnToPayroll=canViewPayroll()?payrollProfileReturn:null;clearPayroll();clearProfileAppLogin();employeeProfileId=null;profileInformationPending=null;payrollProfileReturn=null;
+    directoryProfileEpoch++;employeeDirectoryRecord=null;const previous=employeeProfileId,returnToProblem=canViewPayroll()?payrollProblemReturn:null,returnToPayroll=canViewPayroll()?payrollProfileReturn:null;clearPayroll();clearProfileAppLogin();employeeProfileId=null;profileInformationPending=null;payrollProfileReturn=null;payrollProblemReturn=null;
+    if(returnToProblem){void navigatePayrollProblem({...returnToProblem,kind:&#x27;hours&#x27;,problem:&#x27;missing_payroll&#x27;});return;}
     if(returnToPayroll){payrollPolicyPendingOpen=returnToPayroll;state.page=&#x27;payroll&#x27;;render();save();return;}
     render();
     [...(rosterElement?.querySelectorAll(&#x27;.cs-roster-name-button&#x27;)||[])].find(button=&gt;button.dataset.personId===previous)?.focus({preventScroll:true});
@@ -23206,7 +23325,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     catch{error=&#x27;Månedens vagter kunne ikke indlæses. Medarbejderens oplysninger er stadig tilgængelige.&#x27;;}
     const payElement=payrollPane(person);
     const appLogin=canManageProfileAppLogin(person.id)?profileAppLogin||{status:&#x27;loading&#x27;}:null;
-    employeeProfileView?.render({person,sites,canEdit:canEditWorkspace(),canViewPayroll:canViewPayroll(),payrollElement:payElement,backLabel:canViewPayroll()&amp;&amp;payrollProfileReturn?&#x27;Tilbage til løngruppen&#x27;:null,backAriaLabel:canViewPayroll()&amp;&amp;payrollProfileReturn?&#x27;Tilbage til &#x27;+payrollProfileReturn.name:null,planning,month:employeeProfileMonth,calendar,error:error||planningError,today,appLogin});
+    employeeProfileView?.render({person,sites,canEdit:canEditWorkspace(),canViewPayroll:canViewPayroll(),payrollElement:payElement,backLabel:canViewPayroll()&amp;&amp;payrollProblemReturn?&#x27;Tilbage til registreringen&#x27;:canViewPayroll()&amp;&amp;payrollProfileReturn?&#x27;Tilbage til løngruppen&#x27;:null,backAriaLabel:canViewPayroll()&amp;&amp;payrollProblemReturn?&#x27;Tilbage til registreringen i lønperioden&#x27;:canViewPayroll()&amp;&amp;payrollProfileReturn?&#x27;Tilbage til &#x27;+payrollProfileReturn.name:null,planning,month:employeeProfileMonth,calendar,error:error||planningError,today,appLogin});
     if(profileInformationPending===person.id){profileInformationPending=null;employeeProfileView?.showInformation?.();}
     renderPayroll();
   }
@@ -23223,7 +23342,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!payrollView){
       const personId=person.id;payrollElement=node(&#x27;div&#x27;);payrollElement.id=&#x27;cs-payroll-pane&#x27;;
       payrollPersonGroupElement=node(&#x27;div&#x27;);
-      payrollPersonGroupView=globalThis.CleanRoomsPayrollPersonGroupView?.mount({element:payrollPersonGroupElement,onSave:savePayrollPersonPolicy,onReload:reloadPayroll,onEditingChange:active=&gt;payrollView?.setInheritanceEditing?.(active),onChangeGroup:personId=&gt;{if(!canManagePayrollGroups())return;payrollPolicyPendingOpen={assignment:true,personId};payrollProfileReturn=null;employeeProfileId=null;state.page=&#x27;payroll&#x27;;render();save();},onOpenGroups:(_personId,context={})=&gt;{const selectedDate=Actions.validDate(context.date)?context.date:payrollMonth+&#x27;-01&#x27;&gt;today?payrollMonth+&#x27;-01&#x27;:today,groupId=PayrollGroups.linkFor(payrollState.policy,personId,selectedDate)?.groupId;payrollPolicyPendingOpen=groupId?{groupId,date:selectedDate,detail:&#x27;members&#x27;}:null;payrollProfileReturn=null;employeeProfileId=null;state.page=&#x27;payroll&#x27;;render();save();}});
+      payrollPersonGroupView=globalThis.CleanRoomsPayrollPersonGroupView?.mount({element:payrollPersonGroupElement,onSave:savePayrollPersonPolicy,onReload:reloadPayroll,onEditingChange:active=&gt;payrollView?.setInheritanceEditing?.(active),onChangeGroup:personId=&gt;{if(!canManagePayrollGroups())return;payrollPolicyPendingOpen={assignment:true,personId};payrollProfileReturn=null;employeeProfileId=null;state.page=&#x27;payroll&#x27;;render();save();},onOpenGroups:cloudCapabilities.companyPayroll===false?undefined:(_personId,context={})=&gt;{if(cloudCapabilities.companyPayroll===false)return;const selectedDate=Actions.validDate(context.date)?context.date:payrollMonth+&#x27;-01&#x27;&gt;today?payrollMonth+&#x27;-01&#x27;:today,groupId=PayrollGroups.linkFor(payrollState.policy,personId,selectedDate)?.groupId;payrollPolicyPendingOpen=groupId?{groupId,date:selectedDate,detail:&#x27;members&#x27;}:null;payrollProfileReturn=null;employeeProfileId=null;state.page=&#x27;payroll&#x27;;render();save();}});
       payrollView=globalThis.CleanRoomsPayrollView?.mount({element:payrollElement,
         onSave:(config,version,policyVersion)=&gt;savePayroll(config,version,personId,policyVersion),
         onReload:reloadPayroll,
@@ -23247,7 +23366,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }catch{error=&#x27;Den planlagte løn kunne ikke beregnes. Lønaftalen er stadig gemt.&#x27;;}
     }
     const linked=allowed&amp;&amp;payrollState.loaded&amp;&amp;payrollState.policy?.links.some(link=&gt;link.personId===person.id);
-    payrollPersonGroupView?.render({person,policy:allowed&amp;&amp;payrollState.loaded?payrollState.policy:null,policyVersion:allowed?payrollState.policyVersion:0,payroll:allowed&amp;&amp;payrollState.loaded?payrollState.payroll:null,version:allowed?payrollState.version:0,canManage:allowed&amp;&amp;canManagePayroll()&amp;&amp;payrollState.loaded,canManageGroups:allowed&amp;&amp;canManagePayrollGroups()&amp;&amp;payrollState.loaded,today,contextDate:payrollProfileReturn?.date?.slice(0,7)===payrollMonth?payrollProfileReturn.date:payrollMonth+&#x27;-01&#x27;&gt;today?payrollMonth+&#x27;-01&#x27;:today});
+    payrollPersonGroupView?.render({person,policy:allowed&amp;&amp;payrollState.loaded?payrollState.policy:null,policyVersion:allowed?payrollState.policyVersion:0,payroll:allowed&amp;&amp;payrollState.loaded?payrollState.payroll:null,version:allowed?payrollState.version:0,canManage:allowed&amp;&amp;canManagePayroll()&amp;&amp;payrollState.loaded,canManageGroups:allowed&amp;&amp;canManagePayrollGroups()&amp;&amp;payrollState.loaded,today,contextDate:payrollProblemReturn?.date?.slice(0,7)===payrollMonth?payrollProblemReturn.date:payrollProfileReturn?.date?.slice(0,7)===payrollMonth?payrollProfileReturn.date:payrollMonth+&#x27;-01&#x27;&gt;today?payrollMonth+&#x27;-01&#x27;:today});
     payrollView.render({person,month:payrollMonth,payroll:allowed&amp;&amp;payrollState.loaded?payrollState.payroll:null,version:allowed?payrollState.version:0,policyVersion:allowed?payrollState.policyVersion:0,loading:allowed&amp;&amp;payrollState.loading,error,canView:allowed,canManage:allowed&amp;&amp;canManagePayroll()&amp;&amp;payrollState.loaded,estimate,linked:!!linked,inheritanceElement:allowed&amp;&amp;payrollState.loaded?payrollPersonGroupElement:null,updatedAt:allowed?payrollState.updatedAt:null});
   }
   function personalPayrollRecord(result,personId){
@@ -23456,7 +23575,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   function renderDepartments() {
     const slot = q(&#x27;#cs-department-switcher&#x27;); slot.hidden = state.page !== &#x27;schedule&#x27;;
-    departmentView?.render({organization:state.organization,selectedId:state.departmentId === &#x27;all&#x27; ? null : state.departmentId,canManage:canManageDepartments()});
+    departmentView?.render({organization:state.organization,selectedId:state.departmentId === &#x27;all&#x27; ? null : state.departmentId,canManage:canManageDepartments(),scopeRestricted:cloudCapabilities.scopeRestricted===true});
     const available = sites.map((site,index) =&gt; ({site,index})).filter(({index}) =&gt; inDepartment(index));
     if (state.site !== &#x27;all&#x27; &amp;&amp; !available.some(({index}) =&gt; String(index) === state.site)) state.site = &#x27;all&#x27;;
     const filter = q(&#x27;#cs-site-filter&#x27;); filter.replaceChildren();
@@ -23464,7 +23583,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     available.forEach(({site,index}) =&gt; { const option = node(&#x27;option&#x27;,null,site.name); option.value = String(index); filter.append(option); }); filter.value = state.site;
     for (const selector of [&#x27;#cs-edit-site&#x27;,&#x27;#cs-need-site&#x27;]) {
       const select = q(selector), old = select.value; select.replaceChildren();
-      sites.forEach((site,index) =&gt; { const option = node(&#x27;option&#x27;,null,site.name); option.value = String(index); select.append(option); });
+      sites.forEach((site,index) =&gt; { if(!allowedSite(index))return;const option = node(&#x27;option&#x27;,null,site.name); option.value = String(index); select.append(option); });
       select.value = /^\d+$/.test(old) &amp;&amp; sites[Number(old)] ? old : String(defaultShiftSite() ?? 0);
     }
     const legend = q(&#x27;#cs-legend&#x27;); legend.replaceChildren();
@@ -23503,7 +23622,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     return Changes.diff(baseline,shiftsInRange(first,addDays(first,6)));
   }
   function publicationScope(review=false){
-    const siteIds=publicationAllSites?sites.map((_,index)=&gt;index):state.site!==&#x27;all&#x27;?[Number(state.site)]:selectedDepartment()?.siteIds||sites.map((_,index)=&gt;index);
+    const siteIds=publicationAllSites?allowedSiteIndices():state.site!==&#x27;all&#x27;?[Number(state.site)]:selectedDepartment()?.siteIds||allowedSiteIndices();
     return {from:review&amp;&amp;publicationRange?publicationRange.from:dates()[0],to:review&amp;&amp;publicationRange?publicationRange.to:dates()[6],siteIds,includeDependencies:includeRelatedPublication};
   }
   function publicationStatus(review=false){return Publication.scopeStatus(state,publicationScope(review));}
@@ -23580,7 +23699,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     state.calendarAnchor=anchor;
     if(planningReadBusy||planningReadBlocked)return Promise.resolve(false);
     if(realEmployee()&amp;&amp;persistence)return cloudLoaded?accountAction(&#x27;preferences&#x27;,{preferences:accountPreferences()}).then(result=&gt;result.ok):Promise.resolve(false);
-    if (persistence) return cloudLoaded ? persistence.save({...state,storageVersion:1}) : Promise.resolve(false);
+    if(persistence){if(!cloudLoaded)return Promise.resolve(false);const next={...state,storageVersion:1};if(!staff.some(person=&gt;person.id===next.employeePerson))delete next.employeePerson;if(cloudCapabilities.scopeRestricted){if(!allowedSite(next.worksiteSite))delete next.worksiteSite;if(next.site!==&#x27;all&#x27;&amp;&amp;!allowedSite(Number(next.site)))next.site=&#x27;all&#x27;;if(next.departmentId!==&#x27;all&#x27;&amp;&amp;!state.organization?.departments.some(department=&gt;department.id===next.departmentId))next.departmentId=&#x27;all&#x27;;}return persistence.save(next);}
     if (window.openai?.setWidgetState) return window.openai.setWidgetState({
       modelContent:{concept:&#x27;CleanRooms&#x27;,page:state.page,view:effectiveView(),day:selectedDate(),week:state.week},
       privateContent:{studio:{...state}}
@@ -23869,6 +23988,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     syncPlanningCosts();
     if(!q(&#x27;#cs-changes-layer&#x27;).hidden)updatePublicationButton();
   }
+  function resetChangedAccess(){
+    if(accessReloadPending)return;accessReloadPending=true;cloudLoaded=false;
+    closeEditor({force:true});closeOperationsSheets();closeDemoSheets();accountsView?.destroy?.();accountsView=null;accountsElement=null;departmentView?.close();
+    clearChat();clearWorkflow();clearPayroll();clearPayrollPolicy();clearTimekeeping();clearProfileAppLogin();directory?.reset();employeeReader?.reset();cancelPlannerDetails();planningAvailability?.reset();lastUndo=null;
+    state.series=[];state.edits={};state.deleted=[];state.weekPlans={};state.publications={version:1,sequence:0,slots:{},records:[]};state.checklistProgress={};state.activity=[];state.roster=[];state.organization=null;state.coverageRules=[];state.requests={};state.leaveDecisions={};state.demoSession=null;state.demoSeed=false;state.departmentId=&#x27;all&#x27;;state.site=&#x27;all&#x27;;
+    staff.splice(0,staff.length);sites.splice(0,sites.length);staffById=new Map();employeeProfileId=null;employeeProfileView?.reset?.();employeeData=null;payrollProblemReturn=null;payrollProfileReturn=null;payrollPolicyPendingOpen=null;
+    q(&#x27;#cs-page-content&#x27;).replaceChildren();renderCloudStatus();
+    Promise.resolve().then(()=&gt;initializeCloud()).finally(()=&gt;{accessReloadPending=false;});
+  }
   async function initializeCloud() {
     if (!persistence) return;
     planningAvailability?.reset();
@@ -23895,7 +24023,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     else if (result.studio) { closeDemoSheets(); restore({privateContent:{studio:result.studio}});if(directory){ingestDirectory(result);if(!directory.ready){const catalog=await directory.loadCatalog();if(!catalog.ok){cloudStatus={state:&#x27;error&#x27;,message:catalog.message};renderCloudStatus();return;}}applyDirectory({ok:true});} if(!cloudCapabilities.previewEmployees)state.role=&#x27;admin&#x27;;if(state.page===&#x27;accounts&#x27;&amp;&amp;!hasAccountAccess())state.page=&#x27;schedule&#x27;; }
     else ensureEmployeeExamples();
-    if(!cloudCapabilities.viewPayroll||realEmployee()){payrollProfileReturn=null;payrollPolicyPendingOpen=null;}
+    if(!cloudCapabilities.viewPayroll||realEmployee()){payrollProfileReturn=null;payrollPolicyPendingOpen=null;payrollProblemReturn=null;}
+    if(cloudCapabilities.scopeRestricted&amp;&amp;[&#x27;payroll&#x27;,&#x27;workspace&#x27;,&#x27;demo&#x27;].includes(state.page))state.page=&#x27;schedule&#x27;;
     if(persistence.isPartial)updatePlanningSummary(result);
     if(realEmployee()&amp;&amp;employeeData&amp;&amp;employeeReader?.seed(employeeData))employeeData={...employeeData,shifts:employeeReader.data.shifts};
     cloudLoaded = true;syncRoster();renderIdentity(); renderCloudStatus(); render();
@@ -24030,7 +24159,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       else if(state.page===&#x27;workflow&#x27;)await loadWorkflow(true);
       else if(usesViewportCalendar())await loadPlannerViewport(viewportRange(),{force:true});
       else if(state.page===&#x27;leave&#x27;){leaveRefresh++;renderLeave();}
-      else if(state.page===&#x27;people&#x27;&amp;&amp;!employeeProfileId)await directory?.loadCatalog({force:true});
+      else if(state.page===&#x27;people&#x27;){if(employeeProfileId){const personId=employeeProfileId,result=await directory?.get(&#x27;employee&#x27;,personId,{force:true});if(result?.ok&amp;&amp;employeeProfileId===personId){employeeDirectoryRecord=result.record;const index=state.roster.findIndex(person=&gt;person.id===personId);if(index&gt;=0)state.roster[index]={...result.record.value,_directoryVersion:result.record.version};syncRoster();renderEmployeeProfile();}}else await directory?.loadCatalog({force:true});}
       return true;
     })().catch(()=&gt;false).finally(()=&gt;{freshnessRequest=null;});
     return freshnessRequest;
@@ -24623,7 +24752,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     adminSurface(result.wrap,title,caption,total);
   }
   function clearTimekeeping(){
-    timeEpoch++;timeLoadedKey=&#x27;&#x27;;timeLoadingKey=&#x27;&#x27;;timeRequest=null;timeBusy=false;timeDemoEmployee=false;timeLastRead=0;timePageCache.clear();if(timeFilterTimer)clearTimeout(timeFilterTimer);timeFilterTimer=null;timeFilterWaiters.splice(0).forEach(resolve=&gt;resolve(false));timePaging.context=&#x27;&#x27;;timePaging.filter={queue:&#x27;all&#x27;,search:&#x27;&#x27;,scope:&#x27;real&#x27;};resetTimePaging();delete timeState.summary;delete timeState.serverFilter;delete timeState.pagination;delete timeState.filterKey;
+    timeEpoch++;timeLoadedKey=&#x27;&#x27;;timeLoadingKey=&#x27;&#x27;;timeRequest=null;timeBusy=false;timeDemoEmployee=false;timeFocus=null;timeLastRead=0;timePageCache.clear();if(timeFilterTimer)clearTimeout(timeFilterTimer);timeFilterTimer=null;timeFilterWaiters.splice(0).forEach(resolve=&gt;resolve(false));timePaging.context=&#x27;&#x27;;timePaging.filter={queue:&#x27;all&#x27;,search:&#x27;&#x27;,scope:&#x27;real&#x27;};resetTimePaging();delete timeState.summary;delete timeState.serverFilter;delete timeState.pagination;delete timeState.filterKey;
     timeView?.destroy?.();timeView=null;timeElement=null;
     Object.assign(timeState,{entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:&#x27;&#x27;,canManage:false,canViewPayroll:false});
   }
@@ -24632,16 +24761,17 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(timeDemoEmployee&amp;&amp;Actions.validDate(timeState.demo.from)&amp;&amp;Actions.validDate(timeState.demo.to))return {from:timeState.demo.from,to:timeState.demo.to};
       const range=EmployeeCalendar.range(state.employeeView||&#x27;month&#x27;,state.employeeDate||currentEmployeeDate());return {from:range.from,to:range.to};
     }
+    if(timeFocus)return {from:timeFocus.from,to:timeFocus.to};
     return {from:dates()[0],to:dates()[6]};
   }
-  function timeContextKey(range=timeRange()){return JSON.stringify([chatWorkspaceId,range.from,range.to,state.role===&#x27;employee&#x27;?state.employeePerson:&#x27;all&#x27;,timeDemoEmployee,sessionViewer?.userId,Boolean(cloudCapabilities.viewPayroll)]);}
+  function timeContextKey(range=timeRange()){return JSON.stringify([chatWorkspaceId,range.from,range.to,state.role===&#x27;employee&#x27;?state.employeePerson:&#x27;all&#x27;,timeDemoEmployee,sessionViewer?.userId,sessionViewer?.version,sessionViewer?.memberVersion,sessionViewer?.roleVersion,sessionViewer?.accessScope,timeFocus,Boolean(cloudCapabilities.viewPayroll)]);}
   function timeKey(range=timeRange(),page=timePaging.page){return JSON.stringify([timeContextKey(range),...(state.role===&#x27;employee&#x27;?[]:[timePaging.filter,page])]);}
   function resetTimePaging(){timePaging.page=0;timePaging.cursors=[null];timePaging.offsets=[0];timePaging.nextCursor=null;timePaging.generation=null;}
   function changeTimeFilter(filter){
     if(timeBusy)return Promise.resolve(false);
     const next={queue:[&#x27;all&#x27;,&#x27;attention&#x27;,&#x27;ready&#x27;,&#x27;progress&#x27;,&#x27;approved&#x27;].includes(filter?.queue)?filter.queue:&#x27;all&#x27;,search:typeof filter?.search===&#x27;string&#x27;?filter.search.slice(0,120):&#x27;&#x27;,scope:filter?.scope===&#x27;demo&#x27;?&#x27;demo&#x27;:&#x27;real&#x27;};
     const searchOnly=next.queue===timePaging.filter.queue&amp;&amp;next.scope===timePaging.filter.scope&amp;&amp;next.search!==timePaging.filter.search;
-    timePaging.filter=next;resetTimePaging();timeLoadedKey=&#x27;&#x27;;clearTimeout(timeFilterTimer);
+    if(next.scope===&#x27;demo&#x27;)timeFocus=null;else if(next.queue===&#x27;approved&#x27;&amp;&amp;timeFocus){timeFocus={from:timeFocus.from,to:timeFocus.to};}timePaging.filter=next;resetTimePaging();timeLoadedKey=&#x27;&#x27;;clearTimeout(timeFilterTimer);
     // Supersede old filter reads immediately; the latest search is sent once.
     timeEpoch++;timeLoadingKey=&#x27;&#x27;;timeRequest=null;timeState.loading=false;
     const run=async()=&gt;{timeFilterTimer=null;const waiters=timeFilterWaiters.splice(0),result=await loadTimekeeping();waiters.forEach(resolve=&gt;resolve(result));return result;};
@@ -24662,12 +24792,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const range=timeRange(),context=timeContextKey(range),server=state.role!==&#x27;employee&#x27;,filterKey=JSON.stringify(timePaging.filter);
     if(timePaging.context!==context){timePaging.context=context;resetTimePaging();}
     let targetPage=server?(requestedPage??timePaging.page):0,key=timeKey(range,targetPage);
-    const query={...range,...(!server?{personId:state.employeePerson}:{...timePaging.filter,pageSize:50,...(timePaging.cursors[targetPage]?{cursor:timePaging.cursors[targetPage]}:{})})};
+    const query={...range,...(!server?{personId:state.employeePerson}:{...timePaging.filter,...(timeFocus?.problem?{problem:timeFocus.problem}:{}),...(timeFocus?.entryId?{entryId:timeFocus.entryId}:{}),...(timeFocus?.personId?{personId:timeFocus.personId}:{}),pageSize:50,...(timePaging.cursors[targetPage]?{cursor:timePaging.cursors[targetPage]}:{})})};
     if(timeLoadingKey===key&amp;&amp;timeRequest)return timeRequest;
     if(!force&amp;&amp;timeLoadedKey===key&amp;&amp;Date.now()-timeLastRead&lt;(timeState.error?5000:30000))return true;
     const cached=!force&amp;&amp;server?timePageCache.get(key):null;
     const epoch=++timeEpoch;timeLoadingKey=key;timeState.loading=true;timeState.error=&#x27;&#x27;;
-    if(server){timeState.serverFilter={...timePaging.filter};timeState.pagination={server:true,page:timePaging.page,offset:timePaging.offsets[timePaging.page]||0,hasNext:Boolean(timePaging.nextCursor),hasPrevious:timePaging.page&gt;0,loading:true};}
+    if(server){timeState.serverFilter={...timePaging.filter,...(timeFocus?.problem?{problem:timeFocus.problem}:{}),...(timeFocus?.entryId?{entryId:timeFocus.entryId}:{}),...(timeFocus?.personId?{personId:timeFocus.personId}:{})};timeState.pagination={server:true,page:timePaging.page,offset:timePaging.offsets[timePaging.page]||0,hasNext:Boolean(timePaging.nextCursor),hasPrevious:timePaging.page&gt;0,loading:true};}
     const request=(async()=&gt;{
       let result,usedCache=false;
       if(cached&amp;&amp;Date.now()-cached.at&lt;30000&amp;&amp;cached.generation===timePaging.generation){result=clone(cached.result);usedCache=true;}
@@ -24726,16 +24856,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(state.role===&#x27;employee&#x27;&amp;&amp;payload.operation===&#x27;correct&#x27;)return {ok:false,message:&#x27;Tider kan kun rettes af en planlægger. Tilføj en kommentar til vagten.&#x27;};
     if(timeBusy||!cloudLoaded)return {ok:false,message:&#x27;Vent, til den igangværende handling er færdig.&#x27;};
     if(state.role===&#x27;employee&#x27;&amp;&amp;!realEmployee()&amp;&amp;!(timeDemoEmployee&amp;&amp;payload.demo===true))return {ok:false,message:&#x27;Forhåndsvisningen er skrivebeskyttet. Brug eksempelugen til at prøve tidsregistrering.&#x27;};
-    timeBusy=true;
+    const commandViewer=sessionViewer,focusAtStart=timeFocus,commandContext=timeContextKey();timeBusy=true;
     try{
       const result=await accountAction(action,payload);
+      if(commandViewer!==sessionViewer||!cloudLoaded)return {ok:false,status:403,superseded:true,message:&#x27;Adgangen er ændret. Åbn registreringen igen.&#x27;};
       if(result.ok&amp;&amp;action===&#x27;timeDemo&#x27;){
         const demo=result.demo;
         if(demo?.active&amp;&amp;Actions.validDate(demo.from))state.week=Math.floor((date(demo.from)-date(anchor))/604800000);
       }
       if(result.ok){
         timePageCache.clear();if(timeState.summary)timeState.summary={...timeState.summary,stale:true};if(timeState.pagination)delete timeState.pagination.totalCount;
-        if(result.entry&amp;&amp;typeof result.entry.id===&#x27;string&#x27;){
+        if(result.entry&amp;&amp;typeof result.entry.id===&#x27;string&#x27;&amp;&amp;timeContextKey()===commandContext){
+          if(timeFocus&amp;&amp;timeFocus===focusAtStart&amp;&amp;action===&#x27;timeWrite&#x27;&amp;&amp;result.entry.date&gt;=timeFocus.from&amp;&amp;result.entry.date&lt;=timeFocus.to){
+            timeFocus={...timeFocus};
+            if(result.entry.status!==&#x27;approved&#x27;)Object.assign(timeFocus,{problem:&#x27;unapproved&#x27;,entryId:result.entry.id,personId:result.entry.personId});
+            else {delete timeFocus.entryId;delete timeFocus.personId;}
+            timeLoadedKey=&#x27;&#x27;;resetTimePaging();
+          }
           const entry=clone(result.entry);if(!canViewPayroll()||realEmployee()){delete entry.payroll;delete entry.approvalHistory;}
           const index=timeState.entries.findIndex(item=&gt;item.id===entry.id);
           timeState.entries=index&lt;0?[...timeState.entries,entry]:timeState.entries.map(item=&gt;item.id===entry.id?entry:item);
@@ -24754,21 +24891,44 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     state.employeeWeek=staffingMonday(state.employeeDate);state.employeeView=&#x27;week&#x27;;state.employeeShift=null;state.role=&#x27;employee&#x27;;render();save();
   }
   async function payrollPeriodAction(action,payload={}){
-    if(!canViewPayroll())return {ok:false,status:403,message:&#x27;Din rolle har ikke adgang til løngrundlaget.&#x27;};
+    if(!canViewPayroll()||cloudCapabilities.companyPayroll===false)return {ok:false,status:403,message:&#x27;Din rolle har ikke adgang til virksomhedens lønperioder.&#x27;};
     const viewer=sessionViewer;
     const result=action===&#x27;timeWrite&#x27;?await timeCommand(action,payload):await accountAction(action,payload);
     if(viewer!==sessionViewer||!canViewPayroll())return {ok:false,status:403,message:&#x27;Kontoens adgang er ændret. Åbn lønperioden igen.&#x27;};
     return result;
   }
+  function clearTimeFocus({entryOnly=false}={}){
+    if(!timeFocus)return Promise.resolve(false);
+    if(entryOnly){timeFocus={...timeFocus};delete timeFocus.entryId;delete timeFocus.personId;}else timeFocus=null;
+    timeEpoch++;timeLoadedKey=&#x27;&#x27;;timeLoadingKey=&#x27;&#x27;;timeRequest=null;timePageCache.clear();resetTimePaging();
+    if(state.page===&#x27;hours&#x27;)render();return loadTimekeeping(true);
+  }
+  async function navigatePayrollProblem(target){
+    const problems=[&#x27;unapproved&#x27;,&#x27;invalid_time&#x27;,&#x27;missing_payroll&#x27;];
+    if(!canViewPayroll()||!target||![&#x27;hours&#x27;,&#x27;payroll-person&#x27;].includes(target.kind)||!Actions.validDate(target.from)||!Actions.validDate(target.to)||target.to&lt;target.from||(date(target.to)-date(target.from))/86400000&gt;366)return false;
+    if(target.problem!==undefined&amp;&amp;!problems.includes(target.problem)||target.entryId!==undefined&amp;&amp;(typeof target.entryId!==&#x27;string&#x27;||!target.entryId||target.entryId.length&gt;512)||target.personId!==undefined&amp;&amp;(typeof target.personId!==&#x27;string&#x27;||!target.personId||target.personId.length&gt;200))return false;
+    const viewer=sessionViewer,focus={from:target.from,to:target.to,...(target.problem?{problem:target.problem}:{}),...(target.entryId?{entryId:target.entryId}:{}),...(target.personId?{personId:target.personId}:{})};
+    if(target.kind===&#x27;payroll-person&#x27;){
+      if(!target.personId||!Actions.validDate(target.date)||target.date&lt;target.from||target.date&gt;target.to)return false;
+      if(!await openEmployeeProfile(target.personId)||viewer!==sessionViewer||!canViewPayroll())return false;
+      payrollProblemReturn={...focus,date:target.date};employeeProfileMonth=target.date.slice(0,7);payrollMonth=employeeProfileMonth;
+      renderEmployeeProfile();employeeProfileView?.showPayroll?.();await loadPayroll(true);
+      return viewer===sessionViewer&amp;&amp;employeeProfileId===target.personId&amp;&amp;payrollState.loaded&amp;&amp;!payrollState.error;
+    }
+    directoryProfileEpoch++;employeeDirectoryRecord=null;employeeProfileId=null;payrollProblemReturn=null;payrollProfileReturn=null;clearPayroll();clearProfileAppLogin();
+    timeEpoch++;timeRequest=null;timeLoadingKey=&#x27;&#x27;;timeLoadedKey=&#x27;&#x27;;timePageCache.clear();timeFocus=focus;timePaging.filter={queue:&#x27;all&#x27;,search:&#x27;&#x27;,scope:&#x27;real&#x27;};resetTimePaging();state.role=&#x27;admin&#x27;;state.page=&#x27;hours&#x27;;render();
+    const ok=await loadTimekeeping(true);
+    return Boolean(ok&amp;&amp;viewer===sessionViewer&amp;&amp;canViewPayroll()&amp;&amp;state.page===&#x27;hours&#x27;&amp;&amp;JSON.stringify(timeFocus)===JSON.stringify(focus)&amp;&amp;(!focus.entryId||timeState.entries.some(entry=&gt;entry.id===focus.entryId)));
+  }
   function renderHours(){
     if(!timeElement?.isConnected){
       timeView?.destroy?.();timeElement=node(&#x27;div&#x27;,&#x27;cs-timekeeping-host&#x27;);timeElement.id=&#x27;cs-timekeeping-page&#x27;;q(&#x27;#cs-page-content&#x27;).replaceChildren(timeElement);
-      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=&gt;loadTimekeeping(true),onRefresh:()=&gt;loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=&gt;openEmployeeProfile(personId),onOpenShift:shift=&gt;{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
+      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=&gt;loadTimekeeping(true),onPayrollPeriodNavigate:navigatePayrollProblem,onClearPeriodFocus:()=&gt;clearTimeFocus(),onCloseFocusedEntry:()=&gt;clearTimeFocus({entryOnly:true}),onRefresh:()=&gt;loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=&gt;openEmployeeProfile(personId),onOpenShift:shift=&gt;{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
     }
     loadTimekeeping();
     const current=timeLoadedKey===timeKey(),plannedByPerson=new Map((current?timeState.plannedRows:[]).map(row=&gt;[row.personId,row.plannedMinutes]));
     const plannedRows=staff.filter(person=&gt;person.active!==false).map(person=&gt;({personId:person.id,name:person.name,initials:person.initials,role:person.role,target:person.target,plannedMinutes:plannedByPerson.get(person.id)||0}));
-    timeView?.render({...timeState,entries:current?timeState.entries:[],shifts:current?timeState.shifts:[],people:staff,sites,from:dates()[0],to:dates()[6],plannedRows,canManage:cloudCapabilities.plan===true&amp;&amp;timeState.canManage===true,canViewPayroll:canViewPayroll()&amp;&amp;timeState.canViewPayroll===true});
+    timeView?.render({...timeState,entries:current?timeState.entries:[],shifts:current?timeState.shifts:[],people:staff,sites,...timeRange(),periodFocus:timeFocus?{...timeFocus}:null,requestedEntryId:timeFocus?.entryId||null,companyPayroll:cloudCapabilities.companyPayroll!==false,plannedRows,canManage:cloudCapabilities.plan===true&amp;&amp;timeState.canManage===true,canViewPayroll:canViewPayroll()&amp;&amp;timeState.canViewPayroll===true});
   }
   function renderLegacyHours() {
     const people = filteredStaff(), visible = pageOf(people);
@@ -25253,7 +25413,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       q(&#x27;#cs-title&#x27;).textContent=&#x27;Timer&#x27;;q(&#x27;#cs-crumb&#x27;).textContent=&#x27;Timer&#x27;;q(&#x27;#cs-description&#x27;).textContent=&#x27;Tidsregistrering, godkendelse og løngrundlag&#x27;;
       for(const selector of [&#x27;#cs-department-switcher&#x27;,&#x27;.cs-filters&#x27;,&#x27;.cs-footer&#x27;,&#x27;#cs-day-strip&#x27;,&#x27;#cs-selection-bar&#x27;,&#x27;#cs-demo-session-bar&#x27;,&#x27;#cs-view-switch&#x27;,&#x27;#cs-zoom-controls&#x27;])q(selector).hidden=true;
       const periodLabel=q(&#x27;#cs-week-title&#x27;),periodTrigger=q(&#x27;#cs-date-jump&#x27;);if(periodLabel.parentElement!==periodTrigger)periodTrigger.append(periodLabel);
-      q(&#x27;#cs-week-toolbar&#x27;).hidden=false;q(&#x27;#cs-week-title&#x27;).textContent=shortDate(dates()[0])+&#x27; – &#x27;+shortDate(dates()[6])+&#x27; &#x27;+date(dates()[6]).getUTCFullYear();
+      const range=timeRange();q(&#x27;#cs-week-toolbar&#x27;).hidden=false;q(&#x27;#cs-week-title&#x27;).textContent=shortDate(range.from)+&#x27; – &#x27;+shortDate(range.to)+&#x27; &#x27;+date(range.to).getUTCFullYear();
       q(&#x27;#cs-prev-week&#x27;).disabled=state.week&lt;=-52;q(&#x27;#cs-next-week&#x27;).disabled=state.week&gt;=52;q(&#x27;#cs-prev-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Forrige uge&#x27;);q(&#x27;#cs-next-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Næste uge&#x27;);
       renderHours();icons();animateNavigation();return;
     }
@@ -25271,7 +25431,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const titles = {schedule:&#x27;Vagtplan&#x27;,people:&#x27;Medarbejdere&#x27;,leave:&#x27;Fravær&#x27;,hours:&#x27;Timer&#x27;,series:&#x27;Vagtserier&#x27;,demo:&#x27;Eksempler&#x27;,accounts:&#x27;Brugere og roller&#x27;};
     q(&#x27;#cs-title&#x27;).textContent = titles[state.page]; q(&#x27;#cs-crumb&#x27;).textContent = titles[state.page];
     const department = isSchedule ? selectedDepartment() : null;
-    const scopeSites = department ? department.siteIds.length : sites.length;
+    const scopeSites = department ? department.siteIds.length : allowedSiteIndices().length;
     q(&#x27;#cs-description&#x27;).textContent = state.page === &#x27;accounts&#x27; ? &#x27;Konti, invitationer og tilladelser&#x27; : state.page === &#x27;demo&#x27; ? &#x27;Afprøv funktionerne med realistiske eksempeldata&#x27; : state.page === &#x27;series&#x27; ? &#x27;Faste ugedage · én samlet redigering&#x27; : isSchedule ? (department ? (department.kind === &#x27;customer&#x27; ? &#x27;Kunde&#x27; : &#x27;Filial&#x27;) : &#x27;Alle afdelinger&#x27;) + &#x27; · &#x27; + scopeSites + (scopeSites === 1 ? &#x27; arbejdssted&#x27; : &#x27; arbejdssteder&#x27;) : state.page === &#x27;people&#x27; ? &#x27;Team og arbejdssteder&#x27; : state.page === &#x27;leave&#x27; ? &#x27;Friønsker og godkendt fravær&#x27; : &#x27;Planlagte timer · ugentligt overblik&#x27;;
     q(&#x27;.cs-filters&#x27;).hidden = [&#x27;demo&#x27;,&#x27;accounts&#x27;].includes(state.page); q(&#x27;.cs-footer&#x27;).hidden = [&#x27;demo&#x27;,&#x27;accounts&#x27;].includes(state.page); renderDemoSession();
     root.querySelectorAll(&#x27;[data-group]&#x27;).forEach(button =&gt; button.setAttribute(&#x27;aria-pressed&#x27;, String(button.dataset.group === state.group)));
@@ -26546,10 +26706,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if (state.onlyOpen &amp;&amp; effectiveView() === &#x27;day&#x27;) { const open = filteredShifts(); if (open.length &amp;&amp; !open.some(shift =&gt; shift.date === selectedDate())) state.day = dates().indexOf(open[0].date); }
     render(); save();
   });
-  q(&#x27;#cs-prev-week&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { state.week = Math.max(-52, state.week - 1); state.pageIndex = 0; q(&#x27;#cs-toast&#x27;).hidden = !lastUndo; render(); save(); });
-  q(&#x27;#cs-next-week&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { state.week = Math.min(52, state.week + 1); state.pageIndex = 0; q(&#x27;#cs-toast&#x27;).hidden = !lastUndo; render(); save(); });
+  q(&#x27;#cs-prev-week&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { timeFocus=null;state.week = Math.max(-52, state.week - 1); state.pageIndex = 0; q(&#x27;#cs-toast&#x27;).hidden = !lastUndo; render(); save(); });
+  q(&#x27;#cs-next-week&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; { timeFocus=null;state.week = Math.min(52, state.week + 1); state.pageIndex = 0; q(&#x27;#cs-toast&#x27;).hidden = !lastUndo; render(); save(); });
   q(&#x27;#cs-today&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
-    plannerViewport.restore=false;state.week = 0; state.day = (date(today).getUTCDay()+6)%7; state.pageIndex = 0; render();
+    timeFocus=null;plannerViewport.restore=false;state.week = 0; state.day = (date(today).getUTCDay()+6)%7; state.pageIndex = 0; render();
     const wrap = scrollContainer(); if (wrap) wrap.scrollTop = 0;
     if (effectiveView() === &#x27;week&#x27;) scrollCalendarTo(today); save();
   });
@@ -26582,7 +26742,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   q(&#x27;#cs-jump-go&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; { if (q(&#x27;#cs-jump-date&#x27;).value &amp;&amp; q(&#x27;#cs-jump-date&#x27;).reportValidity()) navigateTo(q(&#x27;#cs-jump-date&#x27;).value); });
   q(&#x27;#cs-jump-date&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; { if (event.key === &#x27;Enter&#x27;) { event.preventDefault(); q(&#x27;#cs-jump-go&#x27;).click(); } if (event.key === &#x27;Escape&#x27;) { q(&#x27;#cs-date-jump-panel&#x27;).hidden = true; q(&#x27;#cs-date-jump&#x27;).setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;); q(&#x27;#cs-date-jump&#x27;).focus(); } });
   restore(window.openai?.widgetState);
-  if (globalThis.CleanRoomsPersistence) persistence = globalThis.CleanRoomsPersistence.create({onReconciled:reconcilePlanning,onSaved:result=&gt;{if(result.preferencesOnly!==true)employeeReader?.invalidate();if(result.publications)state.publications=clone(result.publications);if(result.activity)state.activity=clone(result.activity);if(result.leaveDecisions&amp;&amp;!state.demoSession)state.leaveDecisions=clone(result.leaveDecisions);if(result.checklistProgress)state.checklistProgress=clone(result.checklistProgress);if(result.reconciledStudio){render();paintEditorPlanningConflict();}if(!q(&#x27;#cs-changes-layer&#x27;).hidden&amp;&amp;!publicationBusy)renderChanges();},onStatus:status =&gt; { cloudStatus = status; renderCloudStatus(); if (cloudLoaded &amp;&amp; state.role === &#x27;employee&#x27;) renderEmployee(); }});
+  if (globalThis.CleanRoomsPersistence) persistence = globalThis.CleanRoomsPersistence.create({onAccessChanged:resetChangedAccess,onReconciled:reconcilePlanning,onSaved:result=&gt;{if(result.preferencesOnly!==true)employeeReader?.invalidate();if(result.publications)state.publications=clone(result.publications);if(result.activity)state.activity=clone(result.activity);if(result.leaveDecisions&amp;&amp;!state.demoSession)state.leaveDecisions=clone(result.leaveDecisions);if(result.checklistProgress)state.checklistProgress=clone(result.checklistProgress);if(result.reconciledStudio){render();paintEditorPlanningConflict();}if(!q(&#x27;#cs-changes-layer&#x27;).hidden&amp;&amp;!publicationBusy)renderChanges();},onStatus:status =&gt; { cloudStatus = status; renderCloudStatus(); if (cloudLoaded &amp;&amp; state.role === &#x27;employee&#x27;) renderEmployee(); }});
   if(persistence?.directoryRead&amp;&amp;globalThis.CleanRoomsDirectory)directory=globalThis.CleanRoomsDirectory.create({transport:persistence,onReconciled:applyDirectory});
   if(persistence?.action&amp;&amp;globalThis.CleanRoomsEmployeePersistence)employeeReader=globalThis.CleanRoomsEmployeePersistence.create({transport:{action:accountAction},onChange:adoptEmployeeRead});
   q(&#x27;#cs-page-help&#x27;).addEventListener(&#x27;click&#x27;,event=&gt;openPageHelp(event.currentTarget));
@@ -26605,6 +26765,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

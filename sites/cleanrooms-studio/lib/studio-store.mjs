@@ -155,10 +155,10 @@ async function initializeDirectory(db,owner,raw){
   return alreadyTrimmed?raw:readRawStudio(db,owner);
 }
 
-async function directoryRead(db,raw,catalog){
+async function directoryRead(db,raw,catalog,context){
   if(!raw.source.workspaceId||!raw.studio)return {raw,header:null,directory:null};
   const header=await readDirectoryHeader({db,workspaceId:raw.source.workspaceId});if(!header)throw new StudioError(500,'directory_import_incomplete','Medarbejderne eller afdelingerne mangler deres lagringsgrundlag.');
-  const studio=await hydrateDirectory({db,workspaceId:raw.source.workspaceId,studio:raw.studio,catalog}),directory={...studio.directory,complete:true};delete studio.directorySchema;const result={...raw,studio};
+  const studio=await hydrateDirectory({db,workspaceId:raw.source.workspaceId,studio:raw.studio,catalog,context}),directory={...studio.directory,complete:true};delete studio.directorySchema;const result={...raw,studio};
   Object.defineProperty(result,'source',{value:raw.source,enumerable:false});Object.defineProperty(result,'directory',{value:directory,enumerable:false});return {raw:result,header,directory};
 }
 
@@ -206,7 +206,7 @@ export async function readStudio(db,owner) {
   throw new StudioError(409,'planning_read_conflict','Planen ændrer sig i et andet vindue. Hent den seneste version igen.');
 }
 
-export async function readStudioWindow(db,owner,{from,to,cursor=null,instructions}={}){
+export async function readStudioWindow(db,owner,{from,to,cursor=null,instructions,context}={}){
   ownerId(owner);let projection,continuation;
   try{if(instructions!==undefined&&instructions!=='deferred')throw new TypeError('Vælg en gyldig instruktionsvisning.');projection=PlanningWindow.normalize({mode:'calendar',from,to});if(from<Data.minDate||to>Data.maxDate)throw new TypeError('Vælg en gyldig kalenderperiode.');continuation=decodeWindowCursor(cursor);}catch(error){throw new StudioError(error.status||400,error.code||'invalid_calendar_window',error.message);}
   for(let attempt=0;attempt<3;attempt++){
@@ -220,8 +220,8 @@ export async function readStudioWindow(db,owner,{from,to,cursor=null,instruction
         if(!await ensurePlanWindowIndex({db,workspaceId,owner,raw,splitSnapshot,outcome:indexOutcome}))continue;
         if(indexOutcome.sourceChanged)raw=await readRawStudio(db,owner);
       }
-      const loadedDirectory=await directoryRead(db,raw,true);raw=loadedDirectory.raw;
-      return await directoryPage(db,workspaceId,loadedDirectory,continuation,()=>readWindowPage({db,workspaceId,owner,raw,projection,cursor:continuation,instructions}));
+      const loadedDirectory=await directoryRead(db,raw,true,context);raw=loadedDirectory.raw;
+      return await directoryPage(db,workspaceId,loadedDirectory,continuation,()=>readWindowPage({db,workspaceId,owner,raw,projection,cursor:continuation,instructions,context}));
     }catch(error){
       if(Number.isInteger(error?.status)&&typeof error?.code==='string'){
         const current=(await db.batch([prepared(db,'SELECT revision,write_token FROM studio_states WHERE owner_id = ?',owner)]))[0]?.results?.[0];
@@ -235,9 +235,9 @@ export async function readStudioWindow(db,owner,{from,to,cursor=null,instruction
 }
 
 export async function readStudioSelection(db,owner,requested={}){
-  ownerId(owner);const {cursor=null,instructions,...scope}=requested;let projection,continuation;
+  ownerId(owner);const {cursor=null,instructions,context,...scope}=requested;let projection,continuation;
   try{projection=PlanningScope.normalize(scope);continuation=decodeSelectionCursor(cursor);}catch(error){throw new StudioError(error.status||400,error.code||'invalid_planning_selection',error.message);}
-  if(projection.mode==='calendar')return readStudioWindow(db,owner,{...projection,cursor,instructions});
+  if(projection.mode==='calendar')return readStudioWindow(db,owner,{...projection,cursor,instructions,context});
   for(let attempt=0;attempt<3;attempt++){
     let raw=await readRawStudio(db,owner);const workspaceId=raw.source.workspaceId;if(!workspaceId||!raw.studio)throw new StudioError(409,'planning_selection_unavailable','Indlæs arbejdsområdet, før planvisningen åbnes.');
     try{
@@ -247,11 +247,11 @@ export async function readStudioSelection(db,owner,requested={}){
         if(!await ensurePlanWindowIndex({db,workspaceId,owner,raw,splitSnapshot,outcome:indexOutcome}))continue;
         // Catalog-only pages repair selected summaries within their page budget.
         // Other selections retain their existing complete summary initialization.
-        if(!(projection.mode==='series-list'&&projection.catalogOnly===true))await ensurePlanningSchedules({db,workspaceId});
+        if(!(projection.mode==='series-list'&&projection.catalogOnly===true))await ensurePlanningSchedules({db,workspaceId,context});
         if(indexOutcome.sourceChanged)raw=await readRawStudio(db,owner);
       }
-      const loadedDirectory=await directoryRead(db,raw,true);raw=loadedDirectory.raw;
-      return await directoryPage(db,workspaceId,loadedDirectory,continuation,()=>readSelectionPage({db,workspaceId,owner,raw,projection,cursor:continuation,instructions}));
+      const loadedDirectory=await directoryRead(db,raw,true,context);raw=loadedDirectory.raw;
+      return await directoryPage(db,workspaceId,loadedDirectory,continuation,()=>readSelectionPage({db,workspaceId,owner,raw,projection,cursor:continuation,instructions,context}));
     }catch(error){if(Number.isInteger(error?.status)&&typeof error?.code==='string'){const header=(await db.batch([prepared(db,'SELECT revision,write_token FROM studio_states WHERE owner_id=?',owner)]))[0]?.results?.[0];if(header?.revision!==raw.revision||header?.write_token!==raw.source.token){if(!continuation)continue;throw new StudioError(409,'planning_selection_conflict','Planen er ændret. Hent det berørte område igen.');}throw new StudioError(error.status,error.code,error.message);}throw error;}
   }
   throw new StudioError(409,'planning_selection_conflict','Planen ændrer sig i et andet vindue. Hent det berørte område igen.');

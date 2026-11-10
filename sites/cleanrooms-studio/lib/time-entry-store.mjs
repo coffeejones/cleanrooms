@@ -1,4 +1,5 @@
 /* Durable attendance rows. The small legacy ledger is now only a revision/demo header. */
+import {personPredicate,jsonSitePredicate} from './department-access.mjs';
 import Time from '../src/timekeeping-model.js';
 import {legacyTimeActivityStatements} from './activity-store.mjs';
 
@@ -62,11 +63,12 @@ export async function findTimeEntry({db,workspaceId,id,shiftId}){
   return row?decode(row):null;
 }
 
-export async function readTimeEntries({db,workspaceId,from,to,personId,includeDemo=false,limit=5000,cursor=null}){
+export async function readTimeEntries({db,workspaceId,from,to,personId,includeDemo=false,limit=5000,cursor=null,context}){
   if(!Number.isSafeInteger(limit)||limit<1||limit>5000)throw new TypeError('Vælg en sidestørrelse mellem 1 og 5000.');
   let after=null;if(cursor!==null){try{after=JSON.parse(cursor);if(!Array.isArray(after)||after.length!==2||!Time.validDate(after[0])||typeof after[1]!=='string'||after[1].length>512)throw Error('cursor');}catch{throw new TypeError('Listen er ændret. Hent registreringerne igen.');}}
-  const scope='workspace_id = ? AND work_date >= ? AND work_date <= ?'+(personId?' AND person_id = ?':'')+(includeDemo?'':' AND demo = 0')+(after?' AND (work_date > ? OR (work_date = ? AND id > ?))':'');
-  const args=[workspaceId,from,to,...(personId?[personId]:[]),...(after?[after[0],after[0],after[1]]:[])];
+  const peopleAccess=personPredicate(context,'workspace_time_entries.person_id'),siteAccess=jsonSitePredicate(context,'workspace_time_entries.config');
+  const scope='workspace_id = ? AND work_date >= ? AND work_date <= ?'+(personId?' AND person_id = ?':'')+(includeDemo?'':' AND demo = 0')+(after?' AND (work_date > ? OR (work_date = ? AND id > ?))':'')+' AND ('+peopleAccess.sql+') AND ('+siteAccess.sql+')';
+  const args=[workspaceId,from,to,...(personId?[personId]:[]),...(after?[after[0],after[0],after[1]]:[]),...peopleAccess.values,...siteAccess.values];
   // First fetch bounded metadata so a page of long employee comments cannot create an enormous D1 response.
   const maximum=Math.min(limit,500),metadata=await rows(db,`SELECT id,work_date,version,length(CAST(config AS BLOB)) AS bytes FROM workspace_time_entries WHERE ${scope} ORDER BY work_date,id LIMIT ?`,...args,maximum+1);
   let bytes=0;const selected=[];

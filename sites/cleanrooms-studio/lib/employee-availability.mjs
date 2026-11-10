@@ -1,4 +1,5 @@
 /* Account-owned all-day marks are warnings in planning and constraints on new transfers. */
+import {isScoped,personPredicate} from './department-access.mjs';
 import Time from '../src/timekeeping-model.js';
 import Directory from '../src/directory-records.js';
 import Data from '../src/studio-data.js';
@@ -74,8 +75,10 @@ export async function readPlanningAvailability({ db, context, payload, helpers: 
   const workspaceId = context.workspace.id;
   const directory = async () => (await rows(db, 'SELECT version,write_token FROM workspace_directory_state WHERE workspace_id=?', workspaceId))[0] ?? null;
   const before = await directory();
+  const access=personPredicate(context,'employee.id');
   const selected = await rows(db, `SELECT employee.id FROM json_each(?) chosen CROSS JOIN workspace_directory_records employee
-    WHERE employee.workspace_id=? AND employee.kind='employee' AND employee.id=chosen.value AND employee.deleted=0`, JSON.stringify([...new Set(personIds)]), workspaceId);
+    WHERE employee.workspace_id=? AND employee.kind='employee' AND employee.id=chosen.value AND employee.deleted=0 AND (${access.sql})`, JSON.stringify([...new Set(personIds)]), workspaceId,...access.values);
+  if(isScoped(context)&&selected.length!==new Set(personIds).size)fail(403,'department_person_forbidden','En medarbejder ligger uden for dine afdelinger.');
   const people = await readEmployeeAvailability({ db, workspaceId, personIds: selected.map(employee => employee.id), from, to });
   const guard = employeeAvailabilityGuard(workspaceId, people);
   if (!(await rows(db, `SELECT 1 AS valid WHERE ${guard.sql}`, ...guard.values))[0]) changed();

@@ -239,7 +239,7 @@
       appendAppLoginFeedback(group);
       return group;
     }
-    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab='information';saveMessage='';error.hidden=true;for(const key of ['name','initials','role','target'])controls[key].value=String(person[key]??'');controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=>{const option=node('option','',site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint('field:name');}
+    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab='information';saveMessage='';error.hidden=true;for(const key of ['name','initials','role','target'])controls[key].value=String(person[key]??'');controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=>{if(site.restricted)return;const option=node('option','',site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint('field:name');}
     async function savePerson(){
       if(!editing||pending||!options.canEdit||disposed||!before)return;
       const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===''?NaN:Number(controls.target.value),site:Number(controls.site.value),active:controls.active.checked};

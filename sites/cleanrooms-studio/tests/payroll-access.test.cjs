@@ -1,5 +1,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
+
+// Validate the authorization boundary token while comparing every domain field.
+const domainBody=body=>{assert.match(body.accessIdentity,/^[a-f0-9]{64}$/);const {accessIdentity:_accessIdentity,...value}=body;return value;};
 const fs=require('node:fs');
 const path=require('node:path');
 const {DatabaseSync}=require('node:sqlite');
@@ -34,7 +37,7 @@ function noConfig(result){assert.equal(Object.hasOwn(result.body,'payroll'),fals
 
 test('payroll is durable per workspace/person and never changes the shared plan revision or history',async()=>{
   const {db,workspace}=await setup(),before=await Store.readStudio(db,owner.id);
-  assert.deepEqual((await read(db)).body,{personId:person.id,version:0,payroll:null,updatedAt:null,policyVersion:0,policy:{schema:1,groups:[],links:[]}});
+  assert.deepEqual(domainBody((await read(db)).body),{personId:person.id,version:0,payroll:null,updatedAt:null,policyVersion:0,policy:{schema:1,groups:[],links:[]}});
   const saved=await save(db,0);assert.equal(saved.status,200);assert.equal(saved.body.version,1);assert.deepEqual(saved.body.payroll,config());assert.ok(saved.body.updatedAt);
   assert.deepEqual((await read(db)).body,saved.body);assert.deepEqual(await Store.readStudio(db,owner.id),before);
   const row=db.sqlite.prepare('SELECT * FROM workspace_payroll').get();assert.equal(row.workspace_id,workspace.id);assert.equal(row.person_id,person.id);assert.equal(row.updated_by,owner.id);assert.deepEqual(JSON.parse(row.config),config());assert.ok(row.write_token);

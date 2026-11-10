@@ -1,4 +1,5 @@
 /* Company-owned absence requests. Snapshot fields are compatibility projections only. */
+import {isScoped,personPredicate,assertPersonAccess} from './department-access.mjs';
 import Data from '../src/studio-data.js';
 import Time from '../src/timekeeping-model.js';
 import {StudioError} from './studio-store.mjs';
@@ -116,10 +117,12 @@ export async function handleAbsenceAction({db,context,payload,principal,helpers:
   const manager=h.capabilities(context).plan,workspaceId=context.workspace.id,stamp=new Date().toISOString(),personId=manager?payload.personId:context.member.personId;
   if(!manager&&!personId)fail(403,'leave_forbidden','Kontoen skal være knyttet til en medarbejder.');
   if(!manager&&payload.personId&&payload.personId!==personId)fail(403,'leave_forbidden','Du kan kun se dit eget fravær.');
+  if(manager&&personId)await assertPersonAccess({db,context,personId});
   if(payload.action==='leaveRead'){
     const fence=await readFence(db,workspaceId);
     const limit=payload.limit??100;if(!Number.isInteger(limit)||limit<1||limit>500)fail(400,'leave_limit_invalid','Vælg højst 500 anmodninger ad gangen.');
     const clauses=['workspace_id=?'],values=[workspaceId];
+    if(manager&&isScoped(context)){const access=personPredicate(context,'workspace_absences.person_id');clauses.push(access.sql);values.push(...access.values);}
     if(personId&&(typeof personId!=='string'||!await first(db,"SELECT id FROM workspace_directory_records WHERE workspace_id=? AND kind='employee' AND id=? AND deleted=0",workspaceId,personId)))fail(404,'leave_person_invalid','Medarbejderen findes ikke i arbejdsområdet.');
     if(personId){clauses.push('person_id=?');values.push(personId);}
     for(const [key,sql]of [['from','to_date>=?'],['to','from_date<=?']])if(payload[key]){if(!Time.validDate(payload[key])||payload[key]<Data.minDate||payload[key]>Data.maxDate)fail(400,'leave_date_invalid','Vælg en gyldig dato.');clauses.push(sql);values.push(payload[key]);}
@@ -128,7 +131,7 @@ export async function handleAbsenceAction({db,context,payload,principal,helpers:
     if(payload.q!==undefined){if(!text(payload.q,120))fail(400,'leave_search_invalid','Søg efter et medarbejdernavn på højst 120 tegn.');const search=payload.q.trim().toLocaleLowerCase('da-DK');if(search){clauses.push("person_id IN (SELECT id FROM workspace_directory_records employee WHERE employee.workspace_id=? AND employee.kind='employee' AND employee.deleted=0 AND instr(employee.name_sort,?)>0)");values.push(workspaceId,search);}}
     const counts={pending:0,approved:0,rejected:0,all:0};for(const row of await all(db,`SELECT status,COUNT(*) AS total FROM workspace_absences WHERE ${clauses.join(' AND ')} GROUP BY status`,...values)){if(Object.hasOwn(counts,row.status))counts[row.status]=row.total;counts.all+=row.total;}
     if(payload.status&&payload.status!=='all'){if(!['pending','approved','rejected'].includes(payload.status))fail(400,'leave_status_invalid','Vælg en gyldig status.');clauses.push('status=?');values.push(payload.status);}
-    const scope=JSON.stringify({personId:personId||null,from:payload.from||null,to:payload.to||null,type:payload.type||'all',status:payload.status||'all',q:(payload.q||'').trim().toLocaleLowerCase('da-DK')});
+    const scope=JSON.stringify({...(manager&&isScoped(context)?{access:context.accessScope,memberVersion:context.member.version,roleVersion:context.role.version}:{}),personId:personId||null,from:payload.from||null,to:payload.to||null,type:payload.type||'all',status:payload.status||'all',q:(payload.q||'').trim().toLocaleLowerCase('da-DK')});
     let cursor=null;if(payload.cursor){const value=cursorDecode(payload.cursor);if(Array.isArray(value))cursor=value;else{if(!value||value.v!==2||!Array.isArray(value.after))fail(400,'leave_cursor_invalid','Sidehenvisningen er ugyldig.');if(value.workspace!==workspaceId||value.scope!==scope||value.absence!==fence.absence||value.directory!==fence.directory)fail(409,'leave_changed','Fraværet eller filtrene er ændret. Hent listen igen.');cursor=value.after;}if(cursor.length!==2||!Time.validDate(cursor[0])||!text(cursor[1],512))fail(400,'leave_cursor_invalid','Sidehenvisningen er ugyldig.');}
     const page=await absencePage(db,clauses,values,{limit,cursor});
     const people=await peopleFor(db,workspaceId,page.requests),current=await readFence(db,workspaceId);if(current.absence!==fence.absence||current.directory!==fence.directory)fail(409,'leave_changed','Fraværet eller medarbejderne er ændret. Hent listen igen.');
@@ -157,6 +160,7 @@ export async function handleAbsenceAction({db,context,payload,principal,helpers:
     if(header.bytes>ABSENCE_ENTRY_BYTES)fail(413,'leave_entry_too_large','Fraværsanmodningen er for stor til at kunne behandles sikkert. Kontakt administratoren.');
     const row=await first(db,'SELECT * FROM workspace_absences WHERE workspace_id=? AND id=? AND version=? AND length(CAST(config AS BLOB))<=?',workspaceId,payload.id,header.version,header.bytes);
     if(!row)fail(409,'leave_changed','Anmodningen er ændret. Hent den igen.');
+    await assertPersonAccess({db,context,personId:row.person_id});
     if(!Number.isSafeInteger(payload.version)||payload.version!==row.version)fail(409,'leave_changed','Anmodningen er ændret. Hent den igen.');
     if(row.status!=='pending')fail(409,'leave_changed','Anmodningen er allerede behandlet.');
     if(!['approved','rejected'].includes(payload.status)||!text(payload.reason||'',16000))fail(400,'leave_status_invalid','Vælg et gyldigt svar.');

@@ -4,6 +4,8 @@ import Window from '../src/planning-window.js';
 import {currentCalendarSummary,packCalendarSummary,unpackCalendarSummary,calendarSummaryChunks} from './planning-calendar-summary.mjs';
 import {decodePlanningRecord,planWindowFields,trimPlanningSnapshot,PlanningStoreError} from './planning-store.mjs';
 import {publicationWindowPage,projectPublicationWindow} from './publication-store.mjs';
+import {projectStudioAccess} from './department-access.mjs';
+import {planningRecordPredicate,planningScopeStamp,filterPlanningRows} from './department-planning-access.mjs';
 import {storedScheduleErrors} from './planning-validation.mjs';
 
 const encode=new TextEncoder(),decode=new TextDecoder('utf-8',{fatal:true});
@@ -65,8 +67,8 @@ export async function ensurePlanWindowIndex({db,workspaceId,owner,raw,splitSnaps
   return changed;
 }
 
-function candidateQuery(workspaceId,studio,{from,to},after=null,maxRows=PAGE_ROWS){
-  const sql=`WITH candidates(kind,id) AS (
+function candidateQuery(workspaceId,studio,{from,to},after=null,maxRows=PAGE_ROWS,context){
+  const access=planningRecordPredicate(context);const sql=`WITH candidates(kind,id) AS (
     SELECT kind,id FROM workspace_plan_records INDEXED BY workspace_plan_window_to WHERE workspace_id=? AND kind='series' AND window_schema=1 AND window_to>=? AND window_from<=?
     UNION SELECT kind,id FROM workspace_plan_records INDEXED BY workspace_plan_window_from WHERE workspace_id=? AND kind='shift' AND window_schema=1 AND window_from>=? AND window_from<=?
     UNION SELECT kind,id FROM workspace_plan_records INDEXED BY workspace_plan_window_origin WHERE workspace_id=? AND kind='shift' AND window_schema=1 AND origin_date>=? AND origin_date<=?
@@ -75,12 +77,12 @@ function candidateQuery(workspaceId,studio,{from,to},after=null,maxRows=PAGE_ROW
     SELECT kind,id FROM candidates
     UNION SELECT 'series',child.parent_id FROM candidates chosen CROSS JOIN workspace_plan_records child WHERE child.workspace_id=? AND child.kind=chosen.kind AND child.id=chosen.id AND child.kind='shift' AND child.parent_id IS NOT NULL
   ) SELECT record.kind,record.id,record.version,record.deleted,record.sort_order,record.window_from,record.window_to,record.origin_date,record.parent_id,record.window_version,record.window_schema,record.write_token,record.schedule_version,length(CAST(record.schedule_config AS BLOB)) AS schedule_bytes,CASE WHEN json_valid(record.schedule_config) THEN json_extract(record.schedule_config,'$.bytes') END AS calendar_bytes,length(CAST(record.config AS BLOB)) AS stored_bytes,json_extract(record.config,'$.bytes') AS payload_bytes
-    FROM selected chosen CROSS JOIN workspace_plan_records record WHERE record.workspace_id=? AND record.kind=chosen.kind AND record.id=chosen.id
+    FROM selected chosen CROSS JOIN workspace_plan_records record WHERE record.workspace_id=? AND record.kind=chosen.kind AND record.id=chosen.id AND (${access.sql})
     ${after?'AND (record.kind>? OR (record.kind=? AND record.id>?))':''} ORDER BY record.kind,record.id LIMIT ?`;
-  const values=[workspaceId,from,to,workspaceId,from,to,workspaceId,from,to,workspaceId,monday(from),monday(to),workspaceId,workspaceId,...(after?[after.kind,after.kind,after.id]:[]),maxRows+1];return {sql,values};
+  const values=[workspaceId,from,to,workspaceId,from,to,workspaceId,from,to,workspaceId,monday(from),monday(to),workspaceId,workspaceId,...access.values,...(after?[after.kind,after.kind,after.id]:[]),maxRows+1];return {sql,values};
 }
 
-async function deferredDraftPage({db,workspaceId,metadata,maxRows,maxBytes,includeRecordWindows,maxSourceBytes=Infinity}){
+async function deferredDraftPage({db,workspaceId,metadata,maxRows,maxBytes,includeRecordWindows,maxSourceBytes=Infinity,context,studio}){
   const selected=[];let estimated=0;for(const row of metadata){const size=row.deleted?4:row.kind==='week'?(row.calendar_bytes||row.schedule_bytes||512):(row.schedule_bytes||512);if(!Number.isSafeInteger(size)||size<1||row.schedule_bytes>512*1024)fail(500,'planning_calendar_summary_invalid','Kalenderens tidsoversigt er ugyldig.');const proofBytes=encode.encode(JSON.stringify({kind:row.kind,id:row.id,version:row.version,token:row.write_token})).length;if(selected.length&&(selected.length>=maxRows||estimated+size+proofBytes>maxBytes))break;selected.push(row);estimated+=size+proofBytes;}
   const found=selected.length?await rows(db,`SELECT item.kind,item.id,item.version,item.deleted,item.sort_order,item.write_token,item.schedule_version,item.schedule_config FROM json_each(?) selected CROSS JOIN workspace_plan_records item WHERE item.workspace_id=? AND item.kind=json_extract(selected.value,'$.kind') AND item.id=json_extract(selected.value,'$.id') AND item.version=json_extract(selected.value,'$.version') AND item.write_token=json_extract(selected.value,'$.token') AND length(CAST(item.schedule_config AS BLOB))<=524288 ORDER BY item.kind,item.id`,JSON.stringify(selected.map(({kind,id,version,write_token})=>({kind,id,version,token:write_token}))),workspaceId):[];
   if(found.length!==selected.length)fail(409,'planning_window_conflict','Planen ændrede sig under indlæsningen.');const records=[],deferred=[],recordWindows={},metadataById=new Map(selected.map(row=>[Planning.key(row.kind,row.id),row]));let bytes=0,sourceBytes=0;
@@ -95,33 +97,33 @@ async function deferredDraftPage({db,workspaceId,metadata,maxRows,maxBytes,inclu
   const key=Planning.key(row.kind,row.id),index=metadataById.get(key),window={from:index.window_from,to:index.window_to,origin:index.origin_date,parent:index.parent_id};
   const record={kind:row.kind,id:row.id,value,sortOrder:row.sort_order,version:row.version},size=encode.encode(JSON.stringify(record)).length+(includeRecordWindows?encode.encode(JSON.stringify({[key]:window})).length:0);if(records.length&&bytes+size>maxBytes)break;records.push(record);bytes+=size;if(includeRecordWindows)recordWindows[key]=window;if(row.kind==='series'&&value||row.kind==='shift'&&value?.edit)deferred.push(key);
   }
-  const last=records.at(-1);return {records,deferred,...(includeRecordWindows?{recordWindows}:{}),bytes,sourceBytes,nextAfter:metadata.length>records.length?{kind:last.kind,id:last.id}:null};
+  const last=records.at(-1);return {records:filterPlanningRows(context,records,studio),deferred,...(includeRecordWindows?{recordWindows}:{}),bytes,sourceBytes,nextAfter:metadata.length>records.length?{kind:last.kind,id:last.id}:null};
 }
 
-export async function draftWindowPage({db,workspaceId,studio,projection,after=null,maxRows=PAGE_ROWS,maxBytes=PAGE_BYTES,instructions,includeRecordWindows=false,maxSourceBytes=Infinity}){
+export async function draftWindowPage({db,workspaceId,studio,projection,after=null,maxRows=PAGE_ROWS,maxBytes=PAGE_BYTES,instructions,includeRecordWindows=false,maxSourceBytes=Infinity,context}){
   if(!Number.isSafeInteger(maxRows)||maxRows<1||maxRows>(instructions==='deferred'&&includeRecordWindows?DEFERRED_PAGE_ROWS:PAGE_ROWS))fail(400,'invalid_calendar_window','Kalenderens sidestørrelse er ugyldig.');
-  const query=candidateQuery(workspaceId,studio,projection,after,maxRows),metadata=await rows(db,query.sql,...query.values),selected=[];let bytes=0;
+  const query=candidateQuery(workspaceId,studio,projection,after,maxRows,context),metadata=await rows(db,query.sql,...query.values),selected=[];let bytes=0;
   for(const row of metadata)if(!Number.isSafeInteger(row.version)||row.version<1||row.window_schema!==1||row.window_version!==row.version||!Number.isSafeInteger(row.payload_bytes)||row.stored_bytes>512*1024)fail(500,'planning_window_index_invalid','Kalenderens indeks passer ikke til planposten. Eksisterende data er bevaret.');
-  if(instructions==='deferred')return deferredDraftPage({db,workspaceId,metadata,maxRows,maxBytes,includeRecordWindows,maxSourceBytes});
+  if(instructions==='deferred')return deferredDraftPage({db,workspaceId,metadata,maxRows,maxBytes,includeRecordWindows,maxSourceBytes,context,studio});
   for(const row of metadata){const size=(row.deleted?4:row.payload_bytes)+encode.encode(row.id).length+150;if(selected.length&&(selected.length>=maxRows||bytes+size>maxBytes))break;selected.push(row);bytes+=size;}
   const found=selected.length?await rows(db,`SELECT item.* FROM json_each(?) selected CROSS JOIN workspace_plan_records item WHERE item.workspace_id=? AND item.kind=json_extract(selected.value,'$.kind') AND item.id=json_extract(selected.value,'$.id') AND item.version=json_extract(selected.value,'$.version') ORDER BY item.kind,item.id`,JSON.stringify(selected.map(({kind,id,version})=>({kind,id,version}))),workspaceId):[];
   if(found.length!==selected.length)fail(409,'planning_window_conflict','Planen ændrede sig under indlæsningen. Hent perioden igen.');
   const records=[];for(const row of found)records.push({kind:row.kind,id:row.id,value:row.deleted?null:await decodePlanningRecord(db,workspaceId,row),sortOrder:row.sort_order,version:row.version});
-  const last=selected.at(-1);return {records,bytes,nextAfter:metadata.length>selected.length?{kind:last.kind,id:last.id}:null};
+  const last=selected.at(-1);return {records:filterPlanningRows(context,records,studio),bytes,nextAfter:metadata.length>selected.length?{kind:last.kind,id:last.id}:null};
 }
 
-export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor=null,instructions}){
+export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor=null,instructions,context}){
   const absence=(await first(db,'SELECT version FROM workspace_absence_imports WHERE workspace_id=?',workspaceId))?.version||0;
-  if(cursor&&(cursor.workspace!==workspaceId||cursor.revision!==raw.revision||cursor.token!==raw.source.token||cursor.from!==projection.from||cursor.to!==projection.to||cursor.absenceVersion!==absence||cursor.instructions!==instructions))fail(409,'planning_window_conflict','Planen eller fraværet er ændret. Hent kalenderperioden igen.');
+  if(cursor&&(cursor.workspace!==workspaceId||cursor.revision!==raw.revision||cursor.token!==raw.source.token||cursor.from!==projection.from||cursor.to!==projection.to||cursor.absenceVersion!==absence||cursor.instructions!==instructions||(cursor.access??null)!==planningScopeStamp(context)))fail(409,'planning_window_conflict','Planen eller fraværet er ændret. Hent kalenderperioden igen.');
   const records=[],publicationRows=[],auxRows=[],versions={},deferred=[],recordWindows={},pageRows=instructions==='deferred'?DEFERRED_PAGE_ROWS:PAGE_ROWS;let next=null;
-  const base={v:1,workspace:workspaceId,revision:raw.revision,token:raw.source.token,absenceVersion:absence,from:projection.from,to:projection.to,...(instructions?{instructions}:{})};
+  const base={v:1,workspace:workspaceId,revision:raw.revision,token:raw.source.token,absenceVersion:absence,from:projection.from,to:projection.to,...(instructions?{instructions}:{}),...(planningScopeStamp(context)?{access:planningScopeStamp(context)}:{})};
   if(!cursor||cursor.phase==='draft'){
-    const page=await draftWindowPage({db,workspaceId,studio:raw.studio||{},projection,after:cursor?.after||null,instructions,maxRows:pageRows,includeRecordWindows:instructions==='deferred'});records.push(...page.records);deferred.push(...page.deferred||[]);Object.assign(recordWindows,page.recordWindows);
+    const page=await draftWindowPage({db,workspaceId,studio:raw.studio||{},projection,after:cursor?.after||null,instructions,context,maxRows:pageRows,includeRecordWindows:instructions==='deferred'});records.push(...page.records);deferred.push(...page.deferred||[]);Object.assign(recordWindows,page.recordWindows);
     if(page.nextAfter)next={...base,phase:'draft',after:page.nextAfter};
-    else if(records.length<pageRows&&page.bytes<=PAGE_BYTES-1024){const published=await publicationWindowPage({db,workspaceId,...projection,instructions,cursor:null,maxRows:pageRows-records.length,maxBytes:PAGE_BYTES-page.bytes});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};}
+    else if(records.length<pageRows&&page.bytes<=PAGE_BYTES-1024){const published=await publicationWindowPage({db,workspaceId,...projection,instructions,context,cursor:null,maxRows:pageRows-records.length,maxBytes:PAGE_BYTES-page.bytes});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};}
     else next={...base,phase:'publication',after:null};
   }else{
-    const published=await publicationWindowPage({db,workspaceId,...projection,instructions,cursor:cursor.after||null,maxRows:pageRows,maxBytes:PAGE_BYTES});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};
+    const published=await publicationWindowPage({db,workspaceId,...projection,instructions,context,cursor:cursor.after||null,maxRows:pageRows,maxBytes:PAGE_BYTES});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};
   }
   for(const row of records){
     if(storedScheduleErrors(row.kind,row.id,row.value).length)fail(409,'planning_schedule_repair_required','Den gemte '+(row.kind==='series'?'vagtserie':'vagt')+' '+row.id+' har ugyldige tider eller datoer. Ret eller fjern posten, før kalenderperioden åbnes.');
@@ -132,7 +134,7 @@ export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor
     statement(db,'SELECT version FROM workspace_absence_imports WHERE workspace_id=?',workspaceId)
   ]),header=final[0]?.results?.[0],finalAbsence=final[1]?.results?.[0]?.version||0;
   if(!header||header.revision!==raw.revision||header.write_token!==raw.source.token||finalAbsence!==absence)fail(409,'planning_window_conflict','Planen eller fraværet er ændret. Hent kalenderperioden igen.');
-  return {revision:raw.revision,...(!cursor?{studio:windowMetadata(raw.studio)}:{}),planning:{schema:1,partial:true,projection,versions,...(instructions==='deferred'?{instructions,deferred,recordWindows,absenceVersion:absence}:{}),metadataHash:await hash(Planning.canonical(Planning.metadata(raw.studio||{})))},records,publicationRows,auxRows,nextCursor:next?encodeCursor(next):null};
+  return {revision:raw.revision,...(!cursor?{studio:projectStudioAccess(context,windowMetadata(raw.studio))}:{}),planning:{schema:1,partial:true,projection,versions,...(instructions==='deferred'?{instructions,deferred,recordWindows,absenceVersion:absence}:{}),metadataHash:await hash(Planning.canonical(Planning.metadata(raw.studio||{})))},records,publicationRows,auxRows,nextCursor:next?encodeCursor(next):null};
 }
 
 export function projectStudioWindow(studio,planning,scope,touchedChanges=[]){

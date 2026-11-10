@@ -1,4 +1,5 @@
 /* Period-bound wage estimates reuse compact schedules and dated, private payroll records. */
+import {isScoped,assertDepartmentAccess,assertSiteAccess} from './department-access.mjs';
 import Cost from '../src/planning-cost-model.js';
 import Data from '../src/studio-data.js';
 import Scope from '../src/planning-scope.js';
@@ -22,14 +23,16 @@ export async function readPlanningCost({db,context,payload,helpers:h}){
   try{scope=requestedScope(payload.scope);}catch{h.fail(400,'planning_cost_scope_invalid','Vælg virksomheden, en afdeling eller et arbejdssted.');}
   const frame=await initializeTimekeepingContext({db,context,helpers:h});
   let siteIndices=null;
+  if(scope.kind==='department')assertDepartmentAccess(context,scope.id);
   if(scope.kind!=='company'){
-    const found=await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:scope.kind,ids:[scope.id],catalog:true});
+    const found=await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:scope.kind,ids:[scope.id],catalog:true,context});
     if(found.directory.revision!==frame.directoryRevision)h.fail(409,'planning_cost_changed','Området er ændret. Hent lønestimatet igen.');
     const record=found.records.find(item=>item.id===scope.id&&item.value);
     if(!record)h.fail(404,'planning_cost_scope_missing','Afdelingen eller arbejdsstedet findes ikke længere.');
     siteIndices=new Set(scope.kind==='site'?[record.siteIndex]:record.value.siteIds);
+    if(isScoped(context))for(const site of siteIndices)assertSiteAccess(context,site);
   }
-  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,[range],{maxRecords:20000,maxBytes:8*1024*1024}),draft=Scope.summaryStudio(summaries),suppressed=new Set(draft.deleted),rows=[];
+  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,[range],{maxRecords:20000,maxBytes:8*1024*1024,context}),draft=Scope.summaryStudio(summaries),suppressed=new Set(draft.deleted),rows=[];
   const add=shift=>{
     if(shift.date<range.from||shift.date>range.to||suppressed.has(shift.id)||siteIndices&&!siteIndices.has(shift.site))return;
     if(rows.length>=Cost.MAX_SHIFTS)h.fail(413,'planning_cost_too_large','Vælg et mindre område til lønestimatet.');

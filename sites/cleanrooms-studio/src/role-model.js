@@ -3,14 +3,14 @@
   'use strict';
   const PERMISSION_KEYS=Object.freeze(['plan','departments.manage','users.manage','roles.manage','payroll.view','payroll.manage','payroll.groups.manage','chat.manage']);
   const CATALOG=Object.freeze([
-    Object.freeze({id:'plan',label:'Planlæg vagter',description:'Se og redigér hele vagtplanen.',requires:Object.freeze([])}),
+    Object.freeze({id:'plan',label:'Planlæg vagter',description:'Se og redigér vagtplanen i de afdelinger, du har adgang til.',requires:Object.freeze([])}),
     Object.freeze({id:'departments.manage',label:'Administrér afdelinger',description:'Opret og redigér afdelinger og arbejdssteder.',requires:Object.freeze(['plan'])}),
     Object.freeze({id:'users.manage',label:'Administrér konti',description:'Invitér brugere og administrér kontoadgang inden for dine egne rettigheder.',requires:Object.freeze([])}),
     Object.freeze({id:'roles.manage',label:'Administrér roller',description:'Opret og redigér roller inden for dine egne rettigheder.',requires:Object.freeze([])}),
     Object.freeze({id:'payroll.view',label:'Se løn og tillæg',description:'Se medarbejdernes lønaftaler og planlagte løn.',requires:Object.freeze(['plan'])}),
     Object.freeze({id:'payroll.manage',label:'Administrér løn og tillæg',description:'Opret og redigér medarbejdernes lønaftaler og tillæg.',requires:Object.freeze(['plan','payroll.view'])}),
     Object.freeze({id:'payroll.groups.manage',label:'Administrér løngrupper',description:'Administrér fælles løngrupper og tilknytninger med virkning for flere medarbejdere.',requires:Object.freeze(['plan','payroll.view','payroll.manage'])}),
-    Object.freeze({id:'chat.manage',label:'Administrer chatrum',description:'Se alle afdelingsrum, opret og rediger rum og fastgør beskeder.',requires:Object.freeze([])})
+    Object.freeze({id:'chat.manage',label:'Administrer chatrum',description:'Se de afdelingsrum, du har adgang til, opret og rediger rum og fastgør beskeder.',requires:Object.freeze([])})
   ]);
   function validatePermissions(value) {
     if(!Array.isArray(value))return ['Rettigheder skal være en liste.'];

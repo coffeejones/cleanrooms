@@ -1,11 +1,13 @@
 /* Sites identity selects one durable workspace; client snapshots never grant access. */
 import {StudioError,MAX_BODY_BYTES,readStudio,readRawStudio,readStudioWindow,projectStudioWindow,readStudioSelection,projectStudioSelection,splitSnapshot,writeStudio,validateStudio} from './studio-store.mjs';
 import Departments from '../src/department-model.js';
+import {storedAccessScope,loadDepartmentAccess,isScoped,siteAllowed,departmentAllowed,assertSiteAccess,assertPersonAccess,assertDirectoryKeysAccess,validateGrantScope,assertTargetScope,grantScopeGuard,accessGuard,projectOrganization,projectStudioAccess,sitePredicate,personPredicate,jsonSitePredicate} from './department-access.mjs';
 import Data from '../src/studio-data.js';
 import Checklist from '../src/checklist-progress.js';
 import Actions from '../src/schedule-actions.js';
 import PlanningScope from '../src/planning-scope.js';
 import Planning from '../src/planning-records.js';
+import {assertPlanningCommandAccess,assertPlanningScopesAccess,filterPlanningRows} from './department-planning-access.mjs';
 import {initializePlanningCommandStorage,readPlanningCommandContext} from './planning-command-store.mjs';
 import {PlanningStoreError,preparePlanningCommandWrite} from './planning-store.mjs';
 import {readPublicationPlanningContext,readPublicationLineage,publicationCommandConflict} from './publication-command.mjs';
@@ -51,7 +53,7 @@ const ROLES=['admin','planner','employee'];
 const CHAT_ACTIONS=new Set(['chatList','chatRead','chatSync','chatCreate','chatUpdate','chatSend','chatPin','chatReadMark','chatMute','chatDemo']);
 const MOBILE_ADMIN_ACTIONS=new Set(['createEmployeeUser','createAppLogin','resetAppLogin','revokeAppLogin','readAppLogin','revealAppStartCode']);
 const PREFS=['role','page','group','view','zoom','calendarLayoutVersion','calendarAnchor','day','onlyOpen','week','pageIndex','search','site','departmentId','employeePerson','employeeWeek','employeeDate','employeeView','employeeCalendarVersion','employeeShift','demoReturnPage','worksiteDate','worksiteSite'];
-const PRIVATE_KEYS=[...PREFS,'viewer','capabilities','permissions','roleId','roleName','ownerId','userId','cloudCapabilities','manageDepartments','manageUsers','manageRoles','canManageDepartments','manageSiteGps','manageAppLogins','viewPayroll','managePayroll','managePayrollGroups','chat','manageChat'];
+const PRIVATE_KEYS=[...PREFS,'viewer','capabilities','permissions','roleId','roleName','ownerId','userId','cloudCapabilities','manageDepartments','manageUsers','manageRoles','canManageDepartments','manageSiteGps','manageAppLogins','viewPayroll','managePayroll','managePayrollGroups','chat','manageChat','accessScope','access','scopeRestricted','allowedDepartmentIds','allowedSiteIds','companyPayroll'];
 const PAYROLL_FIELDS=new Set(['payroll','payrollConfig','payrollByPerson','payrollPolicy','payrollGroups','payrollLinks','payrollPolicyHistory','salary','salaries']);
 const fail=(status,code,message)=>{throw new StudioError(status,code,message);};
 const statement=(db,sql,...values)=>db.prepare(sql).bind(...values);
@@ -164,35 +166,39 @@ function member(row) {
   if(!row)return null;
   let preferences={};try{preferences=JSON.parse(row.preferences||'{}');}catch{}
   return {userId:row.user_id,workspaceId:row.workspace_id,email:row.email,name:row.name,role:row.role,roleId:row.role_id,
-    manageDepartments:row.manage_departments===1,personId:row.person_id,status:row.status,version:row.version,
+    manageDepartments:row.manage_departments===1,accessScope:storedAccessScope(row.access_scope),personId:row.person_id,status:row.status,version:row.version,
     preferences:record(preferences)?preferences:{},createdAt:row.created_at,updatedAt:row.updated_at};
 }
 export function capabilities(context) {
   const has=key=>context.role.permissions.includes(key),plan=has('plan');
-  const manageDepartments=has('departments.manage'),manageSiteGps=plan&&manageDepartments&&context.role.id==='admin'&&context.role.isSystem;
+  const restricted=isScoped(context),manageDepartments=has('departments.manage')&&!restricted,manageSiteGps=plan&&manageDepartments&&context.role.id==='admin'&&context.role.isSystem;
   const manageAppLogins=context.role.id==='admin'&&context.role.isSystem&&has('users.manage');
-  return {plan,chat:true,manageChat:has('chat.manage'),manageDepartments,manageSiteGps,manageAppLogins,manageUsers:has('users.manage'),manageRoles:has('roles.manage'),previewEmployees:plan,viewPayroll:plan&&has('payroll.view'),managePayroll:plan&&has('payroll.view')&&has('payroll.manage'),managePayrollGroups:plan&&has('payroll.view')&&has('payroll.manage')&&has('payroll.groups.manage')};
+  return {plan,chat:true,manageChat:has('chat.manage'),scopeRestricted:restricted,allowedDepartmentIds:restricted?[...context.access.departmentIds]:null,allowedSiteIds:restricted?[...context.access.siteIds]:null,manageDepartments,manageSiteGps,manageAppLogins,manageUsers:has('users.manage'),manageRoles:has('roles.manage')&&!restricted,previewEmployees:plan,viewPayroll:plan&&has('payroll.view'),managePayroll:plan&&has('payroll.view')&&has('payroll.manage'),companyPayroll:!restricted&&plan&&has('payroll.view'),managePayrollGroups:!restricted&&plan&&has('payroll.view')&&has('payroll.manage')&&has('payroll.groups.manage')};
 }
 function viewer(context) {
   const m=context.member;
-  return {userId:m.userId,name:m.name,email:m.email,role:m.role,roleId:context.role.id,roleName:context.role.name,personId:m.personId,isOwner:context.workspace.ownerUserId===m.userId,preferences:preferences(m.preferences,context,false)};
+  return {userId:m.userId,name:m.name,email:m.email,role:m.role,roleId:context.role.id,roleName:context.role.name,personId:m.personId,version:m.version,memberVersion:m.version,roleVersion:context.role.version,accessScope:clone(m.accessScope),isOwner:context.workspace.ownerUserId===m.userId,preferences:preferences(m.preferences,context,false)};
 }
 function workspace(row) {return {id:row.id,ownerUserId:row.owner_user_id,snapshotOwnerId:row.snapshot_owner_id};}
 async function membership(db,userId) {return member(await first(db,'SELECT * FROM workspace_members WHERE user_id = ?',userId));}
-function guard(context,permissions=[]) {return {userId:context.member.userId,workspaceId:context.workspace.id,version:context.member.version,roleId:context.role.id,roleVersion:context.role.version,permissions};}
-function actorGuard(context,permissions=[]) {
+function guard(context,permissions=[]) {return {...(isScoped(context)?{extraCondition:accessGuard(context)}:{}),userId:context.member.userId,workspaceId:context.workspace.id,version:context.member.version,roleId:context.role.id,roleVersion:context.role.version,permissions};}
+function actorGuard(context,permissions=[],scopeOverride=null) {
+  const scope=scopeOverride||accessGuard(context);
   return {sql:`EXISTS (SELECT 1 FROM workspace_members actor JOIN workspace_roles actor_role
     ON actor_role.workspace_id = actor.workspace_id AND actor_role.id = actor.role_id
     WHERE actor.user_id = ? AND actor.workspace_id = ? AND actor.status = 'active' AND actor.version = ?
     AND actor.role_id = ? AND actor_role.version = ?
-    ${permissions.map(()=>"AND EXISTS (SELECT 1 FROM json_each(actor_role.permissions) permission WHERE permission.value = ?)").join(' ')})`,
-    values:[context.member.userId,context.workspace.id,context.member.version,context.role.id,context.role.version,...permissions]};
+    ${permissions.map(()=>"AND EXISTS (SELECT 1 FROM json_each(actor_role.permissions) permission WHERE permission.value = ?)").join(' ')}) AND (${scope.sql})`,
+    values:[context.member.userId,context.workspace.id,context.member.version,context.role.id,context.role.version,...permissions,...scope.values]};
 }
 function referenceAcl(context,acl,personIds=[]){const refs=employeeReferenceGuard({workspaceId:context.workspace.id,personIds:personIds.filter(Boolean)});return {sql:'('+acl.sql+') AND ('+refs.sql+')',values:[...acl.values,...refs.values]};}
+async function refreshCommittedDirectoryAccess(db,context,prepared){if(isScoped(context)&&prepared?.statements?.length&&await first(db,'SELECT 1 AS committed WHERE '+prepared.condition.sql,...prepared.condition.values))await loadDepartmentAccess({db,context});}
 async function assertContext(db,context) {
-  const active=await first(db,`SELECT actor.workspace_id,actor.status,actor.version,actor.role_id,actor_role.version AS role_version
+  const scope=accessGuard(context),active=await first(db,`SELECT actor.workspace_id,actor.status,actor.version,actor.role_id,actor_role.version AS role_version,
+    CASE WHEN ${scope.sql} THEN 1 ELSE 0 END AS scope_valid
     FROM workspace_members actor LEFT JOIN workspace_roles actor_role
-    ON actor_role.workspace_id=actor.workspace_id AND actor_role.id=actor.role_id WHERE actor.user_id=?`,context.member.userId);
+    ON actor_role.workspace_id=actor.workspace_id AND actor_role.id=actor.role_id WHERE actor.user_id=?`,...scope.values,context.member.userId);
+  if(isScoped(context)&&active?.scope_valid!==1)fail(403,'department_scope_changed','Afdelingerne eller din adgang er ændret. Genindlæs siden.');
   if(!active||active.status!=='active'||active.workspace_id!==context.workspace.id||active.version!==context.member.version||active.role_id!==context.role.id||active.role_version!==context.role.version)
     fail(403,'membership_changed','Din adgang er ændret. Genindlæs siden.');
 }
@@ -272,8 +278,11 @@ export async function resolveWorkspace(db,principal,options={}) {
   if(!role)fail(403,'role_invalid','Kontoens rolle findes ikke i arbejdsområdet.');
   Object.assign(current,Roles.legacy(role.permissions));
   const context={member:current,workspace:workspace(stored),role};
+  if(current.accessScope.mode==='departments')await loadDepartmentAccess({db,context});
   await staffContext(db,context,options.employeeOnly&&!role.permissions.includes('plan')?{...options,metadataOnly:true,directoryOnly:true}:options);
+  if(!context.access)await loadDepartmentAccess({db,context});
   if(current.personId&&!rosterHas(context,current.personId)||!role.permissions.length&&!current.personId)fail(403,'person_assignment_required','Din konto skal knyttes til en medarbejder i arbejdsområdet.');
+  if(context.workspace.ownerUserId===current.userId&&isScoped(context))fail(403,'owner_membership_invalid','Ejerens adgang skal omfatte hele virksomheden.');
   if(context.workspace.ownerUserId===current.userId&&(role.id!=='admin'||!role.isSystem||!Roles.canGrant(role.permissions,Roles.PERMISSION_KEYS)))fail(403,'owner_membership_invalid','Ejerens adgang skal gendannes af administratoren.');
   return context;
 }
@@ -312,6 +321,7 @@ function preferences(input,context,strict=true) {
     else if(key==='worksiteDate')valid=Actions.validDate(value)&&value>=Data.minDate&&value<=Data.maxDate;
     else if(key==='worksiteSite')valid=Number.isInteger(value)&&value>=0&&value<2000;
     else if(key==='employeeShift')valid=value===null||typeof value==='string'&&value.length<=512;
+    if(valid&&isScoped(context)){if(key==='site'&&value!=='all')valid=siteAllowed(context,Number(value));if(key==='worksiteSite')valid=siteAllowed(context,value);if(key==='departmentId'&&value!=='all')valid=departmentAllowed(context,value);if(key==='employeePerson')valid=context.staff.some(person=>person.id===value&&siteAllowed(context,person.site));}
     if(!valid){if(strict)fail(400,'invalid_preferences','En indstilling har en ugyldig værdi.');continue;}
     result[key]=value;
   }
@@ -332,7 +342,7 @@ export function employeeProjection(studio,personId) {
 function response(body,status=200,extraHeaders={}) {return Response.json(body,{status,headers:{'Cache-Control':'no-store, private','Vary':'oai-authenticated-user-id','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',...extraHeaders}});}
 function errorResponse(error) {
   if(error instanceof StudioError&&error.status===429){const requestId=error.requestId||crypto.randomUUID(),retryAfter=Number.isSafeInteger(error.retryAfterSeconds)&&error.retryAfterSeconds>0?Math.min(error.retryAfterSeconds,3600):60;return response({error:error.code,message:error.message,requestId},429,{'Retry-After':String(retryAfter),'X-Request-ID':requestId});}
-  if(error instanceof StudioError||error instanceof PlanningStoreError||error instanceof DirectoryError||Number.isInteger(error?.status)&&/^(directory_|employee_)/.test(error?.code||''))return response({error:error.code,message:error.message,...(error.conflicts?{conflicts:error.conflicts}:{})},error.status);
+  if(error instanceof StudioError||error instanceof PlanningStoreError||error instanceof DirectoryError||Number.isInteger(error?.status)&&/^(directory_|employee_|department_)/.test(error?.code||''))return response({error:error.code,message:error.message,...(error.conflicts?{conflicts:error.conflicts}:{})},error.status);
   if(/UNIQUE constraint failed: workspace_members|workspace_members_active_person_unique/i.test(String(error?.message)))return response({error:'member_conflict',message:'Medarbejderen eller kontoen er allerede tilknyttet. Hent den seneste liste.'},409);
   const requestId=crypto.randomUUID();
   console.error(JSON.stringify({event:'storage_failed',requestId,errorType:typeof error?.name==='string'?error.name:'Error'}));
@@ -383,14 +393,15 @@ async function calendarPage(db,context,projection,cursor,instructions){
   // the planning-window migration trims its redundant collections.
   const helpers={capabilities,actorGuard,assertContext,fail};
   await ensureEngagement(db,context,helpers);await ensureAbsences(db,context,helpers);
-  const page=await (projection.mode==='calendar'?readStudioWindow:readStudioSelection)(db,context.workspace.snapshotOwnerId,{...projection,cursor,...(instructions==='deferred'?{instructions}:{})});
+  const page=await (projection.mode==='calendar'?readStudioWindow:readStudioSelection)(db,context.workspace.snapshotOwnerId,{...projection,cursor,...(instructions==='deferred'?{instructions}:{}),context});
   const pageShifts=(page.publicationRows||[]).filter(row=>row.kind==='shift'&&!row.value.shift?._instructions).map(row=>row.value.shift);
   const progress=pageShifts.length?await readChecklistProgress(db,context,{shifts:pageShifts}):{};
   const firstPage=page.studio!==undefined,own=viewer(context);
+  const requestSite=jsonSitePredicate(context,'request.config','$.shift.site'),requestFrom=personPredicate(context,'request.from_person_id'),requestTo=personPredicate(context,'request.to_person_id'),seriesSite=sitePredicate(context,'series.site_index'),seriesPerson=personPredicate(context,'series.person_id'),absencePerson=personPredicate(context,'absence.person_id');
   const summaries=firstPage?await db.batch([
-    statement(db,"SELECT COUNT(*) AS n FROM workspace_shift_requests WHERE workspace_id=? AND status='pending'",context.workspace.id),
-    statement(db,"SELECT COUNT(DISTINCT COALESCE(NULLIF(group_id,''),id)) AS n FROM workspace_plan_records WHERE workspace_id=? AND kind='series' AND deleted=0",context.workspace.id),
-    statement(db,"SELECT COUNT(*) AS n FROM workspace_absences WHERE workspace_id=? AND status='pending'",context.workspace.id)
+    statement(db,`SELECT COUNT(*) AS n FROM workspace_shift_requests request WHERE workspace_id=? AND status='pending' AND ${requestSite.sql} AND (request.from_person_id IS NULL OR request.from_person_id='' OR ${requestFrom.sql}) AND (request.to_person_id IS NULL OR request.to_person_id='' OR ${requestTo.sql})`,context.workspace.id,...requestSite.values,...requestFrom.values,...requestTo.values),
+    statement(db,`SELECT COUNT(DISTINCT COALESCE(NULLIF(group_id,''),id)) AS n FROM workspace_plan_records series WHERE workspace_id=? AND kind='series' AND deleted=0 AND ${seriesSite.sql} AND (series.person_id IS NULL OR series.person_id='' OR ${seriesPerson.sql})`,context.workspace.id,...seriesSite.values,...seriesPerson.values),
+    statement(db,`SELECT COUNT(*) AS n FROM workspace_absences absence WHERE workspace_id=? AND status='pending' AND ${absencePerson.sql}`,context.workspace.id,...absencePerson.values)
   ]):null;
   const workflowSummary=firstPage?{pendingCount:Number(summaries[0]?.results?.[0]?.n||0)}:undefined;
   const planningSummary=firstPage?{seriesCount:Number(summaries[1]?.results?.[0]?.n||0),pendingAbsenceCount:Number(summaries[2]?.results?.[0]?.n||0)}:undefined;
@@ -400,12 +411,12 @@ async function calendarPage(db,context,projection,cursor,instructions){
 
 // The request projection controls the client cache only. Authority is selected
 // from validated command targets/dependencies and the server's publication closure.
-async function saveScopedPlanning({db,context,principal,payload,projection}){
+async function saveScopedPlanning({db,context,principal,payload,projection,onContext=()=>{}}){
   const validation=Planning.validatePlanning(payload.planning);if(validation.length)fail(400,'invalid_planning_command',validation[0]);
   if(projection&&projection.mode!=='series'&&payload.planning.changes.some(change=>change.kind==='series'))fail(409,'complete_plan_required','Indlæs hele aftalen, før du ændrer en vagtserie.');
   if(payload.publication!==undefined&&payload.planning.changes.some(change=>change.kind!=='week'))fail(409,'publication_requires_saved_draft','Gem kladden, og gennemgå udgivelsen igen.');
   for(let attempt=0;attempt<4;attempt++){
-    if(attempt)context=await resolveWorkspace(db,principal,{metadataOnly:true});
+    if(attempt){context=await resolveWorkspace(db,principal,{metadataOnly:true});onContext(context);}
     if(!capabilities(context).plan)fail(403,'planning_forbidden','Din konto kan ikke ændre vagtplanen.');
     const h={capabilities,actorGuard,assertContext,fail};
     // Cold legacy imports see their original source once. Warm writes read only
@@ -417,16 +428,18 @@ async function saveScopedPlanning({db,context,principal,payload,projection}){
       raw=await readRawStudio(db,context.workspace.snapshotOwnerId);context.saved=raw;
       if(payload.publication!==undefined&&payload.revision!==raw.revision)fail(409,'revision_conflict','Planen er ændret. Hent den seneste version.');
       const originalHistory=clone(raw.studio?.activity||[]);
-      let previous=await readPlanningCommandContext({db,workspaceId:context.workspace.id,owner:context.workspace.snapshotOwnerId,raw,payload}),publicationContext=null;
+      let previous=await readPlanningCommandContext({db,workspaceId:context.workspace.id,owner:context.workspace.snapshotOwnerId,raw,payload,context}),publicationContext=null;
       let directoryContext=await directoryPlanningContext({db,workspaceId:context.workspace.id,studio:previous.studio});previous.studio=directoryContext.studio;
       if(payload.publication!==undefined&&payload.directoryRevision!==directoryContext.directory.revision)fail(409,'directory_review_changed','Medarbejdere eller arbejdssteder er ændret. Gennemgå udgivelsen igen.');
       if(payload.publication!==undefined){
         publicationContext=await readPublicationPlanningContext({db,workspaceId:context.workspace.id,raw:{...raw,source:raw.source,studio:directoryContext.studio},scope:payload.publication});
+        assertPlanningScopesAccess(context,publicationContext.selection);
         const source=previous.source,receipt=previous.planning,studio=Planning.apply(publicationContext.before,Planning.flatten(previous.studio));
         const selectedDirectory=await directoryPlanningContext({db,workspaceId:context.workspace.id,studio});if(selectedDirectory.directory.revision!==directoryContext.directory.revision)fail(409,'directory_changed','Medarbejderne er ændret. Gennemgå udgivelsen igen.');directoryContext=selectedDirectory;previous={...previous,studio:selectedDirectory.studio};Object.defineProperty(previous,'source',{value:source});Object.defineProperty(previous,'planning',{value:{...receipt,versions:{...publicationContext.planning.versions,...receipt.versions}}});
       }
       context.saved=previous;
       const submission=preparePlanningSubmission(payload,previous);
+      await assertPlanningCommandAccess({db,context,before:previous.studio,changes:submission.changes,publication:payload.publication});
       const ownPreferences={...preferences(context.member.preferences,context,false),...preferences(extractPreferences(payload.studio),context,false)};
       if(payload.publication===undefined&&!submission.changes.length){
         const own=actorGuard(context,['plan']),changed=await db.batch([statement(db,`UPDATE workspace_members SET preferences=?,updated_at=? WHERE user_id=? AND workspace_id=? AND ${own.sql}`,JSON.stringify(ownPreferences),now(),principal.userId,context.workspace.id,...own.values)]);
@@ -454,7 +467,7 @@ async function saveScopedPlanning({db,context,principal,payload,projection}){
       validateStudio(next,{previous:old});appendActivity(next,old,actor,previous.revision+1,at,publication);
       const entries=[...originalHistory,...next.activity],persisted={...next,activity:[],checklistProgress:{},shiftWorkflow:ShiftWorkflow.empty()};delete persisted.absences;delete persisted.absenceHasMore;
       const source=previous.source,receipt=previous.planning,saved={...previous,studio:old};Object.defineProperty(saved,'source',{value:source});Object.defineProperty(saved,'planning',{value:receipt});Object.defineProperty(saved,'directory',{value:directoryContext.directory});
-      const directoryCommitGuard=publication?{sql:'('+directoryContext.guard.sql+') AND ('+absenceGuard(context).sql+')',values:[...directoryContext.guard.values,...absenceGuard(context).values]}:directoryContext.guard;
+      const scopeCommit=accessGuard(context),baseDirectoryGuard=publication?{sql:'('+directoryContext.guard.sql+') AND ('+absenceGuard(context).sql+')',values:[...directoryContext.guard.values,...absenceGuard(context).values]}:directoryContext.guard,directoryCommitGuard={sql:'('+baseDirectoryGuard.sql+') AND ('+scopeCommit.sql+')',values:[...baseDirectoryGuard.values,...scopeCommit.values]};
       const result=await writeStudio(db,context.workspace.snapshotOwnerId,previous.revision,persisted,{
         ...guard(context,['plan']),extraCondition:directoryCommitGuard,...(publication?{workflowLedgerVersion:attendanceVersion}:{}),preferences:JSON.stringify(ownPreferences),
         commandContext:{saved,prepare:async options=>{
@@ -465,7 +478,7 @@ async function saveScopedPlanning({db,context,principal,payload,projection}){
       });
       await assertContext(db,context);
       if(!result.ok){if(!publication&&attempt<3)continue;fail(409,'revision_conflict','Planen eller kontrolgrundlaget er ændret. Hent den seneste version.');}
-      return {revision:result.revision,recordPatch:true,reconciledRecords:planningAckRows(result.reconciledRecords,payload.instructions),planning:{...result.planning,...(projection?{partial:true,projection}:{}),metadataHash:payload.planning.metadataBase},requiresRefresh:Boolean(publication)||submission.rebased||Boolean(projection)&&submission.changes.some(change=>change.kind==='series')};
+      return {revision:result.revision,recordPatch:true,reconciledRecords:planningAckRows(filterPlanningRows(context,result.reconciledRecords,previous.studio),payload.instructions),planning:{...result.planning,...(projection?{partial:true,projection}:{}),metadataHash:payload.planning.metadataBase},requiresRefresh:Boolean(publication)||submission.rebased||Boolean(projection)&&submission.changes.some(change=>change.kind==='series')};
     }catch(error){
       if(error?.code==='planning_command_conflict'&&payload.publication===undefined&&attempt<3)continue;
       if(error instanceof StudioError||error instanceof PlanningStoreError)throw error;
@@ -476,7 +489,7 @@ async function saveScopedPlanning({db,context,principal,payload,projection}){
   fail(409,'revision_conflict','Planen ændrer sig. Hent den seneste version, før du prøver igen.');
 }
 
-export async function handleWorkspaceStudioRequest(request,storage) {
+async function handleWorkspaceStudioRequestInternal(request,storage,onContext) {
   try {
     const principal=principalFromRequest(request);
     if(!['GET','PUT'].includes(request.method))return response({error:'method_not_allowed'},405);
@@ -485,7 +498,7 @@ export async function handleWorkspaceStudioRequest(request,storage) {
     if(payload?.instructions!==undefined&&payload.instructions!=='deferred')fail(400,'invalid_calendar_window','Kalenderens instruktionsvisning er ugyldig.');
     const projection=requestedCalendar(request,payload);
     const fastCommand=request.method==='PUT'&&payload?.commandReceipt==='records'&&record(payload?.planning)&&payload.planning.metadataChanged===false;
-    const db=await database(storage);let context=await resolveWorkspace(db,principal,{metadataOnly:request.method==='GET'&&Boolean(projection)||fastCommand,employeeOnly:request.method==='GET'});const initialCaps=capabilities(context);
+    const db=await database(storage);let context=await resolveWorkspace(db,principal,{metadataOnly:request.method==='GET'&&Boolean(projection)||fastCommand,employeeOnly:request.method==='GET'});const initialCaps=capabilities(context);onContext(context);
     if(request.method==='GET') {
       if(projection&&initialCaps.plan)return response(await calendarPage(db,context,projection,new URL(request.url).searchParams.get('cursor'),new URL(request.url).searchParams.get('instructions')));
       if(!initialCaps.plan){
@@ -494,7 +507,8 @@ export async function handleWorkspaceStudioRequest(request,storage) {
         if(employee){await ensureAbsences(db,context,{capabilities,actorGuard,assertContext,fail,ensureOperationalSource:sourceContext=>ensureOperationalSource(db,sourceContext)});employee.leaveRequests=(await handleAbsenceAction({db,context,payload:{action:'leaveRead',limit:100},principal,helpers:{capabilities,actorGuard,assertContext}})).requests;}
         await assertContext(db,context);return response({revision:context.saved.revision,studio:null,employee,viewer:own,capabilities:initialCaps,workspace:{id:context.workspace.id}});
       }
-      if(context.metadataOnly)context=await resolveWorkspace(db,principal);
+      if(isScoped(context))fail(403,'department_projection_required','Åbn den afgrænsede kalender for dine afdelinger.');
+      if(context.metadataOnly){context=await resolveWorkspace(db,principal);onContext(context);}
       const saved=context.saved;await assertContext(db,context);
       const own=viewer(context),caps=initialCaps,employee=!caps.plan&&context.member.personId&&saved.studio?employeeProjection(saved.studio,context.member.personId):null;
       // Legacy snapshots may omit unchanged defaults internally. A complete
@@ -503,6 +517,7 @@ export async function handleWorkspaceStudioRequest(request,storage) {
       return response({revision:saved.revision,studio:caps.plan&&saved.studio?{...sharedStudio({...saved.studio,...directoryAliases}),...own.preferences,...(saved.directory?{directoryRevision:saved.directory.revision}:{})}:null,...(caps.plan&&saved.planning?{planning:planningReceipt(saved)}:{}),...(caps.plan&&saved.directory?{directory:saved.directory}:{}),employee,viewer:own,capabilities:caps,workspace:{id:context.workspace.id}});
     }
     if(!initialCaps.plan)fail(403,'planning_forbidden','Din konto kan ikke ændre vagtplanen.');
+    if(isScoped(context)&&!fastCommand)fail(403,'department_commands_required','Åbn den afgrænsede kalender eller vagtserie, før du gemmer ændringer.');
     if(!record(payload)||!Number.isSafeInteger(payload.revision)||payload.revision<0||payload.revision>=Number.MAX_SAFE_INTEGER)fail(400,'invalid_request','Send en gyldig revision og plan.');
     const modern=payload.planning!==undefined;
     if(projection?.catalogOnly===true&&(payload.publication!==undefined||!Array.isArray(payload.planning?.changes)||payload.planning.changes.length))fail(409,'planning_catalog_readonly','Åbn vagtserien eller den berørte kalenderperiode, før du ændrer vagter.');
@@ -514,8 +529,9 @@ export async function handleWorkspaceStudioRequest(request,storage) {
     if(!record(payload.studio))fail(400,'invalid_request','Send en gyldig plan.');
     if(containsDeferredInstructions(modern?payload.planning?.changes:payload.studio))fail(409,'planning_details_required','Hent de berørte vagters instruktioner, før du gemmer ændringen.');
     if(hasSharedPayroll({studio:payload.studio,planning:payload.planning??null}))fail(400,'payroll_separate','Lønoplysninger skal gemmes separat fra vagtplanen.');
-    if(fastCommand&&!context.saved.studio?.demoSession&&!payload.studio.demoSession)return response(await saveScopedPlanning({db,context,principal,payload,projection}));
-    if(context.metadataOnly)context=await resolveWorkspace(db,principal);
+    if(isScoped(context)){if(context.saved.studio?.demoSession||payload.studio.demoSession)fail(403,'department_demo_forbidden','Eksempler på tværs af virksomheden kræver adgang til alle afdelinger.');return response(await saveScopedPlanning({db,context,principal,payload,projection,onContext}));}
+    if(fastCommand&&!context.saved.studio?.demoSession&&!payload.studio.demoSession)return response(await saveScopedPlanning({db,context,principal,payload,projection,onContext}));
+    if(context.metadataOnly){context=await resolveWorkspace(db,principal);onContext(context);}
     for(let attempt=0;attempt<4;attempt++){
     const caps=capabilities(context);if(!caps.plan)fail(403,'planning_forbidden','Din konto kan ikke ændre vagtplanen.');
     const previous=context.saved;
@@ -610,7 +626,7 @@ export async function handleWorkspaceStudioRequest(request,storage) {
     const result=await writeStudio(db,context.workspace.snapshotOwnerId,previous.revision,persisted,{...guard(context,required),directoryRevision:payload.directoryRevision??payload.studio.directoryRevision,...(publication||leaveChanged?{extraCondition:absenceGuard(context)}:{}),...(attendanceVersion!==undefined?{workflowLedgerVersion:attendanceVersion}:{}),preferences:JSON.stringify(ownPreferences),...(peopleChanged?{rosterIds}:{}),auditStatements:condition=>[...archiveStatements({db,workspaceId:context.workspace.id,entries:next.activity,condition}),...engagement(condition),...absencePlanStatements({db,context,before:old,next,condition})]});
     await assertContext(db,context);
     if(!result.ok){
-      if(modern&&payload.publication===undefined&&attempt<3){context=await resolveWorkspace(db,principal);continue;}
+      if(modern&&payload.publication===undefined&&attempt<3){context=await resolveWorkspace(db,principal);onContext(context);continue;}
       return response({error:'revision_conflict',message:'Planen er ændret. Hent den seneste version.',revision:result.revision,...(!projection?{studio:result.studio?{...sharedStudio(result.studio),...viewer(context).preferences}:null}:{})},409);
     }
     // Acknowledge exactly our commit: later writers must never advance a queued edit's base token.
@@ -622,13 +638,13 @@ export async function handleWorkspaceStudioRequest(request,storage) {
   }catch(error){return errorResponse(error);}
 }
 
-export async function handleDirectoryRequest(request,storage){
+async function handleDirectoryRequestInternal(request,storage,onContext){
   try{
     if(request.method!=='POST')return response({error:'method_not_allowed'},405);
     sameOrigin(request);const principal=principalFromRequest(request),payload=await requestJSON(request,MAX_BODY_BYTES);
     if(!record(payload)||!['read','write'].includes(payload.action))fail(400,'directory_request_invalid','Vælg en gyldig handling.');
     const db=await database(storage);
-    let context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true}),caps=capabilities(context);
+    let context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true}),caps=capabilities(context);onContext(context);
     if(payload.action==='read'){
       if(Object.keys(payload).some(key=>!['action','kind','ids','cursor','limit','catalog'].includes(key))||payload.catalog!==undefined&&typeof payload.catalog!=='boolean')fail(400,'directory_request_invalid','Oversigtens afgrænsning er ugyldig.');
       const fullAccess=caps.plan,employeeAdmin=caps.manageUsers,departmentAdmin=caps.manageDepartments;
@@ -637,8 +653,9 @@ export async function handleDirectoryRequest(request,storage){
       const point=payload.ids!==undefined;
       if(point&&payload.kind!==undefined&&(!Array.isArray(payload.ids)||payload.ids.some(id=>typeof id!=='string')))fail(400,'directory_keys_invalid','Vælg id fra den samme type poster.');
       if(point&&(payload.cursor!==undefined||payload.limit!==undefined))fail(400,'directory_request_invalid','Vælg poster eller en side ad gangen.');
-      const result=point?await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:payload.kind,ids:payload.ids,catalog:payload.catalog===true}):await readDirectoryPage({db,workspaceId:context.workspace.id,kind:payload.kind,cursor:payload.cursor,limit:payload.limit,catalog:payload.catalog!==false});
-      await assertContext(db,context);return response({...result,records:sharedData(result.records),workspace:{id:context.workspace.id}});
+      if(point&&!(ownEmployee&&!fullAccess))await assertDirectoryKeysAccess({db,context,kind:payload.kind,ids:payload.ids});
+      const result=point?await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:payload.kind,ids:payload.ids,catalog:payload.catalog===true,...(ownEmployee&&!fullAccess?{}:{context})}):await readDirectoryPage({db,workspaceId:context.workspace.id,kind:payload.kind,cursor:payload.cursor,limit:payload.limit,catalog:payload.catalog!==false,context});
+      await assertContext(db,context);return response({...result,records:sharedData(result.records),workspace:{id:context.workspace.id},capabilities:capabilities(context)});
     }
     if(Object.keys(payload).some(key=>!['action','changes'].includes(key)))fail(400,'directory_request_invalid','Ændringen indeholder ukendte felter.');
     const validation=Directory.validateChanges(payload.changes);if(validation.length)fail(400,'directory_command_invalid',validation[0]);
@@ -647,15 +664,16 @@ export async function handleDirectoryRequest(request,storage){
     const required=['plan',...(payload.changes.some(item=>item.kind==='employee')||changesBudget?['users.manage']:[]),...(payload.changes.some(item=>item.kind!=='employee')?['departments.manage']:[])];
     const changesGps=payload.changes.some(item=>item.kind==='site'&&Object.hasOwn(item.patch,'gps'));
     for(let attempt=0;attempt<4;attempt++){
-      if(attempt)context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});
+      if(attempt)context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       if(required.some(key=>!context.role.permissions.includes(key)))fail(403,'directory_write_forbidden','Din rolle har ikke adgang til at ændre disse oplysninger.');
+      if(isScoped(context)){for(const change of payload.changes){if(change.kind!=='employee')fail(403,'department_company_action_forbidden','Afdelingernes struktur administreres på tværs af virksomheden.');if(change.expectedVersion>0)await assertPersonAccess({db,context,personId:change.id});if(Object.hasOwn(change.patch,'site'))assertSiteAccess(context,change.patch.site);else if(change.expectedVersion===0)fail(400,'department_site_required','Vælg et arbejdssted i dine afdelinger.');}}
       if(changesGps&&!capabilities(context).manageSiteGps)fail(403,'site_gps_forbidden','Kun en administrator kan ændre GPS-indstillinger for arbejdssteder.');
       const acl=actorGuard(context,required),newIndices=new Set(payload.changes.filter(item=>item.kind==='site'&&item.expectedVersion===0).map(item=>item.siteIndex)),references=payload.changes.flatMap(item=>item.kind==='employee'?[item.patch.site]:item.kind==='department'&&Array.isArray(item.patch.siteIds)?item.patch.siteIds:[]).filter(index=>Number.isInteger(index)&&index>=0&&index<2000&&!newIndices.has(index)),sitesGuard=siteReferenceGuard({workspaceId:context.workspace.id,siteIndices:references}),condition={sql:'('+acl.sql+') AND ('+sitesGuard.sql+')',values:[...acl.values,...sitesGuard.values]},token=crypto.randomUUID(),at=now(),prepared=await prepareDirectoryWrite({db,workspaceId:context.workspace.id,changes:payload.changes,condition,token,at});
-      if(!prepared.statements.length){await assertContext(db,context);return response({directory:prepared.directory,records:sharedData(prepared.records),workspace:{id:context.workspace.id}});}
+      if(!prepared.statements.length){await assertContext(db,context);return response({directory:prepared.directory,records:sharedData(prepared.records),workspace:{id:context.workspace.id},capabilities:capabilities(context)});}
       let detailBytes=0;const changes=prepared.changed.slice(0,500).map(item=>{const value=Directory.catalog(item.kind,item.value),size=encode.encode(JSON.stringify(value)).byteLength,fields=Object.keys(payload.changes.find(change=>change.kind===item.kind&&change.id===item.id)?.patch||{}),base={field:item.kind==='employee'?'roster':'organization',id:item.id,fields};if(detailBytes+size<=64*1024){detailBytes+=size;return {...base,after:value};}return base;});
       const entry={id:'activity-'+crypto.randomUUID(),kind:'plan',summary:prepared.changed.length+(prepared.changed.length===1?' post opdateret i virksomheden':' poster opdateret i virksomheden'),actor:{userId:principal.userId,name:principal.name},at,revision:context.saved.revision,counts:{total:prepared.changed.length},changes,recoverable:false};
-      const result=await db.batch([...prepared.statements,...archiveStatements({db,workspaceId:context.workspace.id,entries:[entry],condition:prepared.condition})]);await assertContext(db,context);
-      if(result[0]?.meta?.changes===1)return response({directory:prepared.directory,records:sharedData(prepared.records),workspace:{id:context.workspace.id}});
+      const result=await db.batch([...prepared.statements,...archiveStatements({db,workspaceId:context.workspace.id,entries:[entry],condition:prepared.condition})]);if(result[0]?.meta?.changes===1)await refreshCommittedDirectoryAccess(db,context,prepared);await assertContext(db,context);
+      if(result[0]?.meta?.changes===1)return response({directory:prepared.directory,records:sharedData(prepared.records),workspace:{id:context.workspace.id},capabilities:capabilities(context)});
     }
     fail(409,'directory_changed','Virksomhedsoplysningerne ændrer sig. Åbn posten igen.');
   }catch(error){return errorResponse(error);}
@@ -721,6 +739,7 @@ async function grant(db,input,context,current={},newPersonId=null) {
     await staffContext(db,context);
     if(personId!==null&&!rosterHas(context,personId)||!definition.permissions.length&&personId===null)fail(400,'person_assignment_required','En konto uden administrationsrettigheder skal knyttes til en gyldig medarbejder.');
   }
+  if(personId!==null&&newPersonId===null)await assertPersonAccess({db,context,personId});
   return {...Roles.legacy(definition.permissions),roleId:definition.id,definition,personId};
 }
 function inviteEmployeeDraft(payload,context) {
@@ -729,6 +748,7 @@ function inviteEmployeeDraft(payload,context) {
   const input=payload.newEmployee;
   if(!record(input)||Object.keys(input).some(key=>!['name','site'].includes(key))||payload.personId!=null||typeof input.name!=='string'||!input.name.trim()||input.name.trim().length>120||/[\u0000-\u001f\u007f]/.test(input.name)||!Number.isInteger(input.site)||input.site<0||input.site>=2000)
     fail(400,'invalid_invite_employee','Angiv den nye medarbejders navn og arbejdssted.');
+  assertSiteAccess(context,input.site);
   const name=input.name.trim();
   return {id:Roster.newId(),name,initials:Roster.initials(name),site:input.site,target:Roster.defaultEmployeeTarget,role:'Servicemedarbejder',active:true};
 }
@@ -759,7 +779,7 @@ function publicMember(value,context,definition) {
 }
 function publicInvite(row,definition) {
   return {id:row.id,email:row.email,name:row.name,...(definition?Roles.legacy(definition.permissions):{role:row.role,manageDepartments:row.manage_departments===1}),
-    roleId:row.role_id,roleName:definition?.name||'',personId:row.person_id,status:row.status==='pending'&&row.expires_at<=now()?'expired':row.status,
+    roleId:row.role_id,roleName:definition?.name||'',accessScope:storedAccessScope(row.access_scope),personId:row.person_id,status:row.status==='pending'&&row.expires_at<=now()?'expired':row.status,
     version:row.version,expiresAt:row.expires_at,createdAt:row.created_at};
 }
 async function tokenHash(token) {const bytes=await crypto.subtle.digest('SHA-256',encode.encode(token));return [...new Uint8Array(bytes)].map(value=>value.toString(16).padStart(2,'0')).join('');}
@@ -778,20 +798,22 @@ async function acceptInvite(db,principal,payload) {
   const issuer=await membership(db,invite.created_by),issuerRole=issuer?.roleId?await readRole(db,invite.workspace_id,issuer.roleId):null;
   if(!issuer||issuer.workspaceId!==invite.workspace_id||issuer.status!=='active'||!issuerRole?.permissions.includes('users.manage'))fail(403,'invite_issuer_revoked','Invitationens udsteder har ikke længere adgang til at invitere.');
   const issuerContext={member:issuer,workspace:{id:invite.workspace_id},role:issuerRole};
+  await staffContext(db,issuerContext,{metadataOnly:true,directoryOnly:true,personIds:[invite.person_id]});await loadDepartmentAccess({db,context:issuerContext});
+  const acceptedScope=await validateGrantScope({db,context:issuerContext,value:storedAccessScope(invite.access_scope)});
   const permission=await grant(db,{roleId:invite.role_id,personId:invite.person_id},issuerContext);requireGrant(issuerContext,permission.definition);
-  const issuerAcl=referenceAcl(issuerContext,actorGuard(issuerContext,['users.manage']),[permission.personId]),targetAcl=roleFence(invite.workspace_id,permission.definition);
+  const issuerAcl=referenceAcl(issuerContext,actorGuard(issuerContext,['users.manage']),[permission.personId]),roleAcl=roleFence(invite.workspace_id,permission.definition),scopeAcl=grantScopeGuard(issuerContext,acceptedScope),targetAcl={sql:'('+roleAcl.sql+') AND ('+scopeAcl.sql+')',values:[...roleAcl.values,...scopeAcl.values]};
   if(permission.role==='employee'&&permission.personId&&await first(db,"SELECT user_id FROM workspace_members WHERE workspace_id = ? AND person_id = ? AND role = 'employee' AND status = 'active'",invite.workspace_id,permission.personId))fail(409,'person_already_bound','Medarbejderen er allerede knyttet til en aktiv konto.');
   const result=await db.batch([
-    ...accountAuditStatements({db,context:{workspace:{id:invite.workspace_id}},principal,operation:'acceptInvite',id:invite.id,before:{id:invite.id,status:'pending',roleId:permission.roleId,personId:permission.personId,version:invite.version},after:{userId:principal.userId,name:principal.name,email:principal.email,status:'active',roleId:permission.roleId,personId:permission.personId,version:1},condition:{sql:`EXISTS (SELECT 1 FROM workspace_invites WHERE id=? AND token_hash=? AND email=? AND status='pending' AND expires_at>? AND version=?) AND NOT EXISTS (SELECT 1 FROM workspace_members WHERE user_id=?) AND ${issuerAcl.sql} AND ${targetAcl.sql}`,values:[invite.id,hash,principal.email,stamp,invite.version,principal.userId,...issuerAcl.values,...targetAcl.values]}}),
+    ...accountAuditStatements({db,context:{workspace:{id:invite.workspace_id}},principal,operation:'acceptInvite',id:invite.id,before:{id:invite.id,status:'pending',roleId:permission.roleId,personId:permission.personId,accessScope:acceptedScope,version:invite.version},after:{userId:principal.userId,name:principal.name,email:principal.email,status:'active',roleId:permission.roleId,personId:permission.personId,accessScope:acceptedScope,version:1},condition:{sql:`EXISTS (SELECT 1 FROM workspace_invites WHERE id=? AND token_hash=? AND email=? AND status='pending' AND expires_at>? AND version=?) AND NOT EXISTS (SELECT 1 FROM workspace_members WHERE user_id=?) AND ${issuerAcl.sql} AND ${targetAcl.sql}`,values:[invite.id,hash,principal.email,stamp,invite.version,principal.userId,...issuerAcl.values,...targetAcl.values]}}),
     statement(db,`UPDATE workspace_invites SET status = 'accepted',accepted_by = ?,version = version + 1,updated_at = ?
       WHERE id = ? AND token_hash = ? AND email = ? AND status = 'pending' AND expires_at > ? AND version = ?
       AND NOT EXISTS (SELECT 1 FROM workspace_members WHERE user_id = ?) AND ${issuerAcl.sql} AND ${targetAcl.sql}`,
       principal.userId,stamp,invite.id,hash,principal.email,stamp,invite.version,principal.userId,...issuerAcl.values,...targetAcl.values),
-    statement(db,`INSERT INTO workspace_members (user_id,workspace_id,email,name,role,role_id,manage_departments,person_id,status,version,preferences,created_at,updated_at)
-      SELECT ?,workspace_id,?,CASE WHEN name <> '' THEN name ELSE ? END,?,?,?,?, 'active',1,'{}',?,?
+    statement(db,`INSERT INTO workspace_members (user_id,workspace_id,email,name,role,role_id,manage_departments,person_id,status,version,preferences,created_at,updated_at,access_scope)
+      SELECT ?,workspace_id,?,CASE WHEN name <> '' THEN name ELSE ? END,?,?,?,?, 'active',1,'{}',?,?,?
       FROM workspace_invites WHERE id = ? AND token_hash = ? AND status = 'accepted' AND accepted_by = ? AND updated_at = ? AND version = ?
       AND NOT EXISTS (SELECT 1 FROM workspace_members WHERE user_id = ?) AND ${issuerAcl.sql} AND ${targetAcl.sql}`,
-      principal.userId,principal.email,principal.name,permission.role,permission.roleId,Number(permission.manageDepartments),permission.personId,stamp,stamp,
+      principal.userId,principal.email,principal.name,permission.role,permission.roleId,Number(permission.manageDepartments),permission.personId,stamp,stamp,JSON.stringify(acceptedScope),
       invite.id,hash,principal.userId,stamp,invite.version+1,principal.userId,...issuerAcl.values,...targetAcl.values),
 
   ]);
@@ -840,7 +862,8 @@ async function payrollBundle(db,context,personId=null) {
   const versions=[...new Set([...(all?context.staff.map(person=>person.id):ids),...records.keys()])].sort().map(id=>({personId:id,version:records.get(id)?.version||0}));
   return {...stored,records,people,versions};
 }
-function personalPayrollResult(bundle,personId){return {...payrollResult(bundle.records.get(personId),personId),policyVersion:bundle.version,policy:clone(bundle.policy)};}
+function scopedPayrollPolicy(context,policy,personId){if(!isScoped(context))return clone(policy);const links=policy.links.filter(link=>link.personId===personId),groups=new Set(links.map(link=>link.groupId).filter(Boolean));return {...clone(policy),links:clone(links),groups:policy.groups.filter(group=>groups.has(group.id)).map(clone)};}
+function personalPayrollResult(bundle,personId,context){return {...payrollResult(bundle.records.get(personId),personId),policyVersion:bundle.version,policy:scopedPayrollPolicy(context,bundle.policy,personId)};}
 function policyReadResult(bundle){return {policy:clone(bundle.policy),version:bundle.version,people:clone(bundle.people),history:clone(bundle.history)};}
 function policyVersionGuard(context,version){return {sql:'COALESCE((SELECT version FROM workspace_payroll_policies WHERE workspace_id = ?),0) = ?',values:[context.workspace.id,version]};}
 function personVersionsGuard(context,versions,all=false){
@@ -928,15 +951,16 @@ async function payrollAction(db,context,payload,principal) {
   const saving=payload.action==='payrollSave',permissions=saving?PAYROLL_MANAGE:PAYROLL_VIEW;
   permissions.forEach(key=>requirePermission(context,key));
   if(!rosterHas(context,payload.personId))fail(404,'person_missing','Medarbejderen findes ikke i arbejdsområdet.');
+  await assertPersonAccess({db,context,personId:payload.personId});
   const personId=payload.personId,bundle=await payrollBundle(db,context,personId);
-  if(!saving){await assertPayrollAccess(db,context,permissions);return response(personalPayrollResult(bundle,personId));}
+  if(!saving){await assertPayrollAccess(db,context,permissions);return response(personalPayrollResult(bundle,personId,context));}
   if(!Number.isSafeInteger(payload.version)||payload.version<0||payload.version>=Number.MAX_SAFE_INTEGER)fail(400,'invalid_payroll_version','Lønaftalens version er ugyldig.');
   const linked=bundle.policy.links.some(link=>link.personId===personId),policyVersion=payload.policyVersion;
   if(policyVersion!==undefined&&(!Number.isSafeInteger(policyVersion)||policyVersion<0))fail(400,'invalid_payroll_version','Løngruppens version er ugyldig.');
   if((linked&&policyVersion===undefined)||(policyVersion!==undefined&&policyVersion!==bundle.version)){
-    await assertPayrollAccess(db,context,permissions);return response({error:'payroll_policy_changed',message:'Løngruppen er ændret eller kræver en nyere klient. Hent medarbejderens løn igen.',...personalPayrollResult(bundle,personId)},409);
+    await assertPayrollAccess(db,context,permissions);return response({error:'payroll_policy_changed',message:'Løngruppen er ændret eller kræver en nyere klient. Hent medarbejderens løn igen.',...personalPayrollResult(bundle,personId,context)},409);
   }
-  if(payload.version!==(bundle.records.get(personId)?.version||0)){await assertPayrollAccess(db,context,permissions);return response({error:'payroll_conflict',message:'Lønaftalen er ændret. Hent den seneste version.',...personalPayrollResult(bundle,personId)},409);}
+  if(payload.version!==(bundle.records.get(personId)?.version||0)){await assertPayrollAccess(db,context,permissions);return response({error:'payroll_conflict',message:'Lønaftalen er ændret. Hent den seneste version.',...personalPayrollResult(bundle,personId,context)},409);}
   if(!record(payload.payroll))fail(400,'invalid_payroll','Send en gyldig lønaftale.');
   let payroll;try{payroll=Payroll.normalize(payload.payroll);}catch(error){fail(400,'invalid_payroll',error?.message||'Lønaftalen er ugyldig.');}
   const serialized=JSON.stringify(payroll);if(encode.encode(serialized).byteLength>MAX_PAYROLL_BODY_BYTES)fail(413,'body_too_large','Lønaftalen indeholder for mange data.');
@@ -965,15 +989,16 @@ async function payrollAction(db,context,payload,principal) {
   const payrollOffset=policyCommit?.statements.length||0;
   if(!result.slice(payrollOffset,payrollOffset+2).some(item=>item?.meta?.changes===1)){
     const latest=await payrollBundle(db,context,personId);await assertPayrollAccess(db,context,permissions);
-    return response({error:'payroll_conflict',message:'Lønaftalen eller løngruppen er ændret. Hent den seneste version, før du gemmer.',...personalPayrollResult(latest,personId)},409);
+    return response({error:'payroll_conflict',message:'Lønaftalen eller løngruppen er ændret. Hent den seneste version, før du gemmer.',...personalPayrollResult(latest,personId,context)},409);
   }
-  return response({personId,version:payload.version+1,payroll,updatedAt:stamp,policyVersion:policyCommit?.version||bundle.version,policy:clone(personal.policy)});
+  return response({personId,version:payload.version+1,payroll,updatedAt:stamp,policyVersion:policyCommit?.version||bundle.version,policy:scopedPayrollPolicy(context,personal.policy,personId)});
 }
 
 async function payrollPolicyAction(db,context,payload,principal){
   const reading=payload.action==='payrollPolicyRead',personAction=payload.action==='payrollPersonPolicySave',permissions=reading?PAYROLL_VIEW:personAction?PAYROLL_MANAGE:PAYROLL_GROUP_MANAGE;
   permissions.forEach(key=>requirePermission(context,key));
   if(personAction&&!rosterHas(context,payload.personId))fail(404,'person_missing','Medarbejderen findes ikke i arbejdsområdet.');
+  if(personAction)await assertPersonAccess({db,context,personId:payload.personId});
   const bundle=await payrollBundle(db,context,personAction?payload.personId:null);
   if(reading){await assertPayrollAccess(db,context,permissions);return response(policyReadResult(bundle));}
   const expected=personAction?payload.policyVersion:payload.version;
@@ -991,12 +1016,12 @@ async function payrollPolicyAction(db,context,payload,principal){
   validatePolicyChange(bundle.policy,policy,context);const preview=policyPreview(bundle,policy,date);
   if(payload.action==='payrollPolicyPreview'){const previewToken=await policyPreviewToken(bundle,policy,date,context);await assertPayrollAccess(db,context,permissions);return response({preview,previewToken});}
   if(!personAction&&(typeof payload.previewToken!=='string'||payload.previewToken!==await policyPreviewToken(bundle,policy,date,context)))fail(409,'payroll_preview_changed','Forhåndsvisningen er ændret. Gennemgå medarbejderne igen, før du gemmer.');
-  if(canonical(policy)===canonical(bundle.policy)){await assertPayrollAccess(db,context,permissions);return response(personAction?personalPayrollResult(bundle,payload.personId):policyReadResult(bundle));}
+  if(canonical(policy)===canonical(bundle.policy)){await assertPayrollAccess(db,context,permissions);return response(personAction?personalPayrollResult(bundle,payload.personId,context):policyReadResult(bundle));}
   const history=policyHistory(bundle,preview,context,principal,personAction?'person':'policy',bundle.version+1),write=policyWrite(db,context,bundle,policy,history,principal,permissions,!personAction);
   const result=await db.batch(write.statements);await assertPayrollAccess(db,context,permissions);
   if(!result.some(item=>item?.meta?.changes===1))fail(409,'payroll_policy_changed','Løn, medarbejdere eller rettigheder er ændret. Gennemgå den seneste version igen.');
   const committed={...bundle,policy,version:write.version,history};
-  return response(personAction?personalPayrollResult(committed,payload.personId):policyReadResult(committed));
+  return response(personAction?personalPayrollResult(committed,payload.personId,context):policyReadResult(committed));
 }
 
 async function createEmployeeUser(db,context,principal,payload,secret) {
@@ -1029,7 +1054,7 @@ async function createEmployeeUser(db,context,principal,payload,secret) {
   const account={personId,email:credential.email,temporary:true,status:'active',version:credential.version};
   const result=await db.batch([...prepared.statements,credential.statement,...accountAuditStatements({db,context,principal,
     operation:'createEmployeeUser',id:personId,after:{...account,name:employee.name,roleId:definition.id},condition:credential.commit})]);
-  await assertContext(db,context);
+  if(result[0]?.meta?.changes===1)await refreshCommittedDirectoryAccess(db,context,prepared);await assertContext(db,context);
   if(result[prepared.statements.length]?.meta?.changes!==1){
     if(!await first(db,'SELECT 1 WHERE '+addressGuard.sql,...addressGuard.values))addressInUse();
     fail(409,'mobile_account_conflict','Medarbejderlisten eller rollen er ændret. Opdater listen, og prøv igen.');
@@ -1059,6 +1084,7 @@ async function manageMobileCredential(db,context,principal,payload,caps,secret) 
     (!creating&&!reading&&(!Number.isSafeInteger(payload.version)||payload.version<1))) {
     fail(400,'mobile_admin_invalid','Vælg en gyldig medarbejder og det aktuelle app-login.');
   }
+  await assertPersonAccess({db,context,personId:payload.personId});
   const options={db,workspaceId:context.workspace.id,personId:payload.personId,expectedVersion:creating?0:payload.version,actorGuard:actorGuard(context,['users.manage']),secret,
     audit:({condition,before,after})=>accountAuditStatements({db,context,principal,operation:payload.action,id:payload.personId,condition,before,after})};
   if(reading){
@@ -1083,7 +1109,7 @@ async function manageMobileCredential(db,context,principal,payload,caps,secret) 
   return response({account:{personId:payload.personId,email:result.email,temporary:true,status:'active',version:result.version,canRevealStartCode:secret!==undefined},temporaryPassword:result.temporaryPassword});
 }
 
-export async function handleAccountsRequest(request,storage,secret,addressLookupToken) {
+async function handleAccountsRequestInternal(request,storage,secret,addressLookupToken,onContext) {
   try {
     const principal=principalFromRequest(request);
     if(request.method!=='POST')return response({error:'method_not_allowed'},405);
@@ -1094,14 +1120,14 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
     const db=await database(storage);
     if(payload.action==='acceptInvite')return response(await acceptInvite(db,principal,payload));
     if(payload.action==='siteAddressLookup'){
-      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});
+      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       if(!capabilities(context).manageSiteGps)fail(403,'site_gps_forbidden','Kun en administrator kan ændre GPS-indstillinger for arbejdssteder.');
       const result=await lookupSiteAddress(payload,addressLookupToken);
       await assertContext(db,context);
       return response(result);
     }
     if(payload.action==='planningCostRead'){
-      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});
+      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       return response(await readPlanningCost({db,context,payload,helpers:{
         capabilities,assertContext,fail,payrollBundle,policyVersionGuard,personVersionsGuard,first,
         assertPayrollAccess:current=>assertPayrollAccess(db,current,PAYROLL_VIEW),
@@ -1109,17 +1135,19 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
       }}));
     }
     if(payload.action==='planningAvailability'){
-      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});
+      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       return response(await readPlanningAvailability({db,context,payload,helpers:{capabilities,assertContext,fail,rows,first}}));
     }
     if(payload.action==='publicationBudgetRead'){
-      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});
+      const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       return response(await readPublicationBudget({db,context,payload,helpers:{
         capabilities,assertContext,fail,ensureOperationalSource:current=>ensureOperationalSource(db,current)
       }}));
     }
     const mobileAdmin=MOBILE_ADMIN_ACTIONS.has(payload.action);
     const catalogRead=['list','payrollRead','payrollPolicyRead'].includes(payload.action),inviteWrite=payload.action==='invite',operational=mobileAdmin||CHAT_ACTIONS.has(payload.action)||['timeRead','timeWrite','timeDemo','payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen','payrollPeriodExport','payrollExportProfilesRead','payrollExportProfileRead','payrollExportProfileSave','payrollExportProfileArchive','payrollExportProfileEmployees','leaveRead','leaveCreate','leaveDecide','employeeRead','employeeShift','plannerDetail','checklist','workflowRead','workflowReadMessage','workflowRequest','workflowRespond','workflowDecide'].includes(payload.action),context=await resolveWorkspace(db,principal,{metadataOnly:operational||catalogRead||inviteWrite||payload.action==='preferences',directoryOnly:operational||inviteWrite||payload.action==='preferences',catalogOnly:catalogRead,personIds:inviteWrite?[payload.personId]:payload.action==='preferences'?[payload.preferences?.employeePerson]:[]}),caps=capabilities(context);
+    onContext(context);
+    if(isScoped(context)&&(['payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen','payrollPeriodExport','payrollExportProfilesRead','payrollExportProfileRead','payrollExportProfileSave','payrollExportProfileArchive','payrollExportProfileEmployees','payrollPolicyRead','payrollPolicyPreview','payrollPolicySave','createRole','updateRole','timeDemo','workflowDemo','chatDemo'].includes(payload.action)))fail(403,'department_company_action_forbidden','Denne handling omfatter hele virksomheden og kræver adgang til alle afdelinger.');
     await enforceWorkspaceRequestQuota({db,context,action:payload.action,helpers:{actorGuard,assertContext}});
     if(mobileAdmin)return await manageMobileCredential(db,context,principal,payload,caps,secret);
     if(CHAT_ACTIONS.has(payload.action))return response(await handleChatAction({db,context,payload,helpers:{actorGuard,assertContext,fail}}));
@@ -1144,13 +1172,15 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
       if(!caps.manageUsers&&!caps.manageRoles)fail(403,'accounts_forbidden','Din rolle har ikke adgang til kontoadministration.');
       const definitions=(await rows(db,`SELECT r.*,(SELECT COUNT(*) FROM workspace_members assigned WHERE assigned.workspace_id = r.workspace_id AND assigned.role_id = r.id) AS assigned_count
         FROM workspace_roles r WHERE r.workspace_id = ? ORDER BY r.is_system DESC,r.name,r.id`,context.workspace.id)).map(roleDefinition),byId=new Map(definitions.map(role=>[role.id,role]));
-      const members=caps.manageUsers?await rows(db,'SELECT * FROM workspace_members WHERE workspace_id = ? ORDER BY created_at,user_id',context.workspace.id):[];
-      const invites=caps.manageUsers?await rows(db,'SELECT * FROM workspace_invites WHERE workspace_id = ? ORDER BY created_at,id',context.workspace.id):[];
-      const appLogins=caps.manageAppLogins?await listMobileCredentials({db,workspaceId:context.workspace.id}):undefined;
-      const sites=caps.manageUsers&&caps.plan?(context.saved.studio.organization||Departments.defaultOrganization()).sites.map(({id,name},index)=>({id,name,index})):undefined;
+      let members=caps.manageUsers?await rows(db,'SELECT * FROM workspace_members WHERE workspace_id = ? ORDER BY created_at,user_id',context.workspace.id):[];
+      let invites=caps.manageUsers?await rows(db,'SELECT * FROM workspace_invites WHERE workspace_id = ? ORDER BY created_at,id',context.workspace.id):[];
+      let appLogins=caps.manageAppLogins?await listMobileCredentials({db,workspaceId:context.workspace.id}):undefined;
+      if(isScoped(context)){members=members.filter(row=>{try{assertTargetScope(context,storedAccessScope(row.access_scope));return !row.person_id||context.staff.some(person=>person.id===row.person_id&&siteAllowed(context,person.site));}catch{return false;}});invites=invites.filter(row=>{try{assertTargetScope(context,storedAccessScope(row.access_scope));return true;}catch{return false;}});if(appLogins)appLogins=appLogins.filter(login=>context.staff.some(person=>person.id===login.personId&&siteAllowed(context,person.site)));definitions.forEach(role=>{delete role.assignedCount;});}
+      const sites=caps.manageUsers&&caps.plan?(context.saved.studio.organization||Departments.defaultOrganization()).sites.flatMap(({id,name},index)=>siteAllowed(context,index)?[{id,name,index}]:[]):undefined;
+      const departments=(context.saved.studio.organization||Departments.defaultOrganization()).departments.filter(department=>departmentAllowed(context,department.id)).map(({id,name})=>({id,name}));
       await assertContext(db,context);
       return response({members:members.map(row=>publicMember(member(row),context,byId.get(row.role_id))),invites:invites.map(row=>publicInvite(row,byId.get(row.role_id))),roles:definitions,
-        permissionCatalog:Roles.catalog(),...(caps.manageUsers?{staff:context.staff.map(({id,name,initials,active})=>({id,name,initials,active}))}:{}),...(sites?{sites}:{}),...(appLogins?{appLogins}:{}),viewer:viewer(context),capabilities:caps,workspace:{id:context.workspace.id}});
+        permissionCatalog:Roles.catalog(),departments,...(caps.manageUsers?{staff:context.staff.filter(person=>siteAllowed(context,person.site)).map(({id,name,initials,active})=>({id,name,initials,active}))}:{}),...(sites?{sites}:{}),...(appLogins?{appLogins}:{}),viewer:viewer(context),capabilities:caps,workspace:{id:context.workspace.id}});
     }
     if(payload.action==='createRole'||payload.action==='updateRole') {
       requirePermission(context,'roles.manage');
@@ -1188,10 +1218,12 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
         WHERE workspace_id = ? AND role_id = ? AND ${committed}`,derived.role,Number(derived.manageDepartments),stamp,context.workspace.id,current.id,...committedValues));
       const result=await db.batch(mutations);
       if(result[0]?.meta?.changes!==1)fail(409,'role_changed','Rollen, kontotilknytningen eller dine rettigheder er ændret.');
+      if(context.role.id===current.id){context.member=await membership(db,context.member.userId);context.role=await readRole(db,context.workspace.id,current.id);await loadDepartmentAccess({db,context});}
       return response({role:await readRole(db,context.workspace.id,current.id)});
     }
     requirePermission(context,'users.manage');const actor=actorGuard(context,['users.manage']);
     if(payload.action==='invite') {
+      const grantedScope=await validateGrantScope({db,context,value:payload.accessScope});
       const address=email(payload.email);if(!address)fail(400,'invalid_invite','Angiv en gyldig e-mailadresse.');
       if(payload.newUser===true&&payload.personId!=null)fail(400,'invalid_invite','En ny brugerkonto skal oprettes med navn, e-mailadresse og rolle.');
       const employee=inviteEmployeeDraft(payload,context),permission=await grant(db,payload,context,{},employee?.id),name=payload.name??employee?.name??'';requireGrant(context,permission.definition);
@@ -1201,7 +1233,7 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
       if(addressGuard&&!await first(db,'SELECT 1 WHERE '+addressGuard.sql,...addressGuard.values))duplicateInvite();
       const employeeGuard=employee?await inviteEmployeeGuard(db,workspaceId,address,stamp,employee):null;
       const personId=employeeGuard?.personId??permission.personId;
-      let prepared=null,condition=addressGuard?{sql:`${role.sql} AND ${addressGuard.sql}`,values:[...role.values,...addressGuard.values]}:role;
+      const scopeAcl=grantScopeGuard(context,grantedScope);let prepared=null,condition=addressGuard?{sql:`${role.sql} AND ${addressGuard.sql} AND ${scopeAcl.sql}`,values:[...role.values,...addressGuard.values,...scopeAcl.values]}:{sql:role.sql+' AND '+scopeAcl.sql,values:[...role.values,...scopeAcl.values]};
       if(employee){
         const directoryActor=actorGuard(context,['plan','users.manage']),site=siteReferenceGuard({workspaceId,siteIndices:[employee.site]});
         if(!await first(db,'SELECT 1 WHERE '+site.sql,...site.values))fail(400,'invalid_invite_employee','Vælg et eksisterende arbejdssted.');
@@ -1212,10 +1244,10 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
         }
       }
       // Only the directory commit in this batch can authorize an invitation for a new employee.
-      const target=referenceAcl(context,prepared?.condition??condition,[personId]);
-      const result=await db.batch([...(prepared?.statements||[]),statement(db,`INSERT INTO workspace_invites (id,workspace_id,email,name,role,role_id,manage_departments,person_id,token_hash,status,version,expires_at,created_by,created_at,updated_at)
-        SELECT ?,?,?,?,?,?,?,?,?,'pending',1,?,?,?,? WHERE ${actor.sql} AND ${target.sql}`,
-        id,workspaceId,address,name.trim(),permission.role,permission.roleId,Number(permission.manageDepartments),personId,hash,expires,principal.userId,stamp,stamp,...actor.values,...target.values),...accountAuditStatements({db,context,principal,operation:'invite',id,after:{id,email:address,name:name.trim(),roleId:permission.roleId,personId,status:'pending',version:1},condition:{sql:"EXISTS (SELECT 1 FROM workspace_invites WHERE workspace_id=? AND id=? AND status='pending' AND version=1)",values:[workspaceId,id]}})]);
+      const target=referenceAcl(context,prepared?.condition??condition,[personId]),committedActor=prepared?actorGuard(context,['users.manage'],prepared.condition):actor;
+      const result=await db.batch([...(prepared?.statements||[]),statement(db,`INSERT INTO workspace_invites (id,workspace_id,email,name,role,role_id,manage_departments,person_id,token_hash,status,version,expires_at,created_by,created_at,updated_at,access_scope)
+        SELECT ?,?,?,?,?,?,?,?,?,'pending',1,?,?,?,?,? WHERE ${committedActor.sql} AND ${target.sql}`,
+        id,workspaceId,address,name.trim(),permission.role,permission.roleId,Number(permission.manageDepartments),personId,hash,expires,principal.userId,stamp,stamp,JSON.stringify(grantedScope),...committedActor.values,...target.values),...accountAuditStatements({db,context,principal,operation:'invite',id,after:{id,email:address,name:name.trim(),roleId:permission.roleId,personId,accessScope:grantedScope,status:'pending',version:1},condition:{sql:"EXISTS (SELECT 1 FROM workspace_invites WHERE workspace_id=? AND id=? AND status='pending' AND version=1)",values:[workspaceId,id]}})]);
       if(result[prepared?.statements.length||0]?.meta?.changes!==1){
         if(addressGuard){
           await assertContext(db,context);
@@ -1231,6 +1263,8 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
       if(!identity(payload.userId))fail(400,'invalid_member','Vælg en gyldig konto.');
       const current=await membership(db,payload.userId);
       if(!current||current.workspaceId!==context.workspace.id)fail(404,'member_missing','Kontoen findes ikke i arbejdsområdet.');
+      assertTargetScope(context,current.accessScope);const grantedScope=await validateGrantScope({db,context,value:payload.accessScope,current:current.accessScope});
+      if(current.userId===context.workspace.ownerUserId&&grantedScope.mode!=='all')fail(403,'owner_protected','Ejeren skal have adgang til hele virksomheden.');
       if(!Number.isSafeInteger(payload.version)||payload.version!==current.version)fail(409,'member_changed','Kontoen er ændret. Hent listen igen.');
       const currentRole=await readRole(db,context.workspace.id,current.roleId),permission=await grant(db,payload,context,current);
       if(!currentRole)fail(403,'role_invalid','Kontoens rolle kunne ikke bekræftes.');
@@ -1238,24 +1272,26 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
       const status=Object.hasOwn(payload,'status')?payload.status:current.status,name=Object.hasOwn(payload,'name')?payload.name:current.name;
       if(!['active','disabled'].includes(status)||typeof name!=='string'||!name.trim()||name.length>200||/[\u0000-\u001f\u007f]/.test(name))fail(400,'invalid_member','Kontoens navn eller status er ugyldig.');
       if(current.userId===context.workspace.ownerUserId&&(permission.roleId!=='admin'||status!=='active'||payload.manageDepartments===false))fail(403,'owner_protected','Ejeren kan ikke deaktiveres eller miste administratoradgang.');
-      const target=referenceAcl(context,roleFence(context.workspace.id,permission.definition),[permission.personId]),prior=roleFence(context.workspace.id,currentRole),condition=`${actor.sql} AND ${target.sql} AND ${prior.sql}`;
-      const conditions=[...actor.values,...target.values,...prior.values],mutations=[];
+      const target=referenceAcl(context,roleFence(context.workspace.id,permission.definition),[permission.personId]),prior=roleFence(context.workspace.id,currentRole),scopeAcl=grantScopeGuard(context,grantedScope),condition=`${actor.sql} AND ${target.sql} AND ${prior.sql} AND ${scopeAcl.sql}`;
+      const conditions=[...actor.values,...target.values,...prior.values,...scopeAcl.values],mutations=[];
       if(!permission.definition.permissions.includes('users.manage')||status!=='active')mutations.push(statement(db,`UPDATE workspace_invites SET status = 'revoked',version = version + 1,updated_at = ?
         WHERE workspace_id = ? AND created_by = ? AND status = 'pending'
         AND EXISTS (SELECT 1 FROM workspace_members target WHERE target.user_id = ? AND target.workspace_id = ? AND target.version = ?) AND ${condition}`,
         now(),context.workspace.id,current.userId,current.userId,context.workspace.id,current.version,...conditions));
-      mutations.push(...accountAuditStatements({db,context,principal,operation:'updateMember',id:current.userId,before:current,after:{...current,name:name.trim(),roleId:permission.roleId,personId:permission.personId,status,version:current.version+1},condition:{sql:`EXISTS (SELECT 1 FROM workspace_members WHERE user_id=? AND workspace_id=? AND version=?) AND ${condition}`,values:[current.userId,context.workspace.id,current.version,...conditions]}}));
-      mutations.push(statement(db,`UPDATE workspace_members SET name = ?,role = ?,role_id = ?,manage_departments = ?,person_id = ?,status = ?,version = version + 1,updated_at = ?
+      mutations.push(...accountAuditStatements({db,context,principal,operation:'updateMember',id:current.userId,before:current,after:{...current,name:name.trim(),roleId:permission.roleId,personId:permission.personId,status,accessScope:grantedScope,version:current.version+1},condition:{sql:`EXISTS (SELECT 1 FROM workspace_members WHERE user_id=? AND workspace_id=? AND version=?) AND ${condition}`,values:[current.userId,context.workspace.id,current.version,...conditions]}}));
+      mutations.push(statement(db,`UPDATE workspace_members SET name = ?,role = ?,role_id = ?,manage_departments = ?,person_id = ?,status = ?,access_scope = ?,version = version + 1,updated_at = ?
         WHERE user_id = ? AND workspace_id = ? AND version = ? AND ${condition}`,
-        name.trim(),permission.role,permission.roleId,Number(permission.manageDepartments),permission.personId,status,now(),current.userId,context.workspace.id,current.version,...conditions));
+        name.trim(),permission.role,permission.roleId,Number(permission.manageDepartments),permission.personId,status,JSON.stringify(grantedScope),now(),current.userId,context.workspace.id,current.version,...conditions));
       const result=await db.batch(mutations);
       if(result.at(-1)?.meta?.changes!==1)fail(409,'member_changed','Kontoen, rollen eller din kontoadgang er ændret.');
+      if(current.userId===context.member.userId){context.member=await membership(db,current.userId);context.role=await readRole(db,context.workspace.id,context.member.roleId);await loadDepartmentAccess({db,context});}
       return response({member:publicMember(await membership(db,current.userId),context,permission.definition)});
     }
     if(payload.action==='revokeInvite') {
       if(!identity(payload.inviteId))fail(400,'invalid_invite','Vælg en gyldig invitation.');
       const invite=await first(db,'SELECT * FROM workspace_invites WHERE id = ? AND workspace_id = ?',payload.inviteId,context.workspace.id);
       if(!invite)fail(404,'invite_missing','Invitationen findes ikke.');
+      assertTargetScope(context,storedAccessScope(invite.access_scope));
       const target=await readRole(db,context.workspace.id,invite.role_id);if(!target)fail(403,'role_invalid','Invitationens rolle findes ikke.');requireGrant(context,target);
       if(invite.status!=='pending'||payload.version!==undefined&&payload.version!==invite.version)fail(409,'invite_changed','Invitationen er ændret eller allerede brugt.');
       const targetAcl=roleFence(context.workspace.id,target),result=await db.batch([...accountAuditStatements({db,context,principal,operation:'revokeInvite',id:invite.id,before:{...invite,roleId:invite.role_id,personId:invite.person_id},after:{...invite,roleId:invite.role_id,personId:invite.person_id,status:'revoked',version:invite.version+1},condition:{sql:`EXISTS (SELECT 1 FROM workspace_invites WHERE workspace_id=? AND id=? AND status='pending' AND version=?) AND ${actor.sql} AND ${targetAcl.sql}`,values:[context.workspace.id,invite.id,invite.version,...actor.values,...targetAcl.values]}}),statement(db,`UPDATE workspace_invites SET status = 'revoked',version = version + 1,updated_at = ?
@@ -1267,3 +1303,17 @@ export async function handleAccountsRequest(request,storage,secret,addressLookup
     fail(400,'invalid_action','Kontohandlingen understøttes ikke.');
   }catch(error){return errorResponse(error);}
 }
+
+
+async function responseWithAccessIdentity(run){
+ let context=null;const result=await run(value=>{context=value;});
+ if(!context&&result.status>=400)return result;const body=await result.json();if(!record(body))return response(body,result.status,Object.fromEntries(result.headers));
+ let parts;
+ if(context)parts=[context.workspace.id,context.member.userId,context.member.version,context.role.id,context.role.version,context.member.accessScope,isScoped(context)?context.access?.departmentIds??[]:null,isScoped(context)?context.access?.siteIds??[]:null];
+ else if(body.viewer&&body.workspace&&body.capabilities)parts=[body.workspace.id,body.viewer.userId,body.viewer.memberVersion??body.viewer.version,body.viewer.roleId,body.viewer.roleVersion,body.viewer.accessScope,body.capabilities.allowedDepartmentIds,body.capabilities.allowedSiteIds];
+ if(!parts)return response(body,result.status,Object.fromEntries(result.headers));
+ return response({...body,accessIdentity:await tokenHash(canonical(parts))},result.status,Object.fromEntries(result.headers));
+}
+export async function handleWorkspaceStudioRequest(request,storage){return responseWithAccessIdentity(onContext=>handleWorkspaceStudioRequestInternal(request,storage,onContext));}
+export async function handleDirectoryRequest(request,storage){return responseWithAccessIdentity(onContext=>handleDirectoryRequestInternal(request,storage,onContext));}
+export async function handleAccountsRequest(request,storage,secret,addressLookupToken){return responseWithAccessIdentity(onContext=>handleAccountsRequestInternal(request,storage,secret,addressLookupToken,onContext));}

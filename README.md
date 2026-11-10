@@ -61,6 +61,6 @@ npm run lint
 
 GitHub Actions kører begge kontroller med låste afhængigheder. De tidligere kendte røde webtests og hængende kontrol er gennemgået; processer med åbne handles eller annullerede tests gør nu kontrollen rød.
 
-Læs [stabiliseringsnoterne](sites/cleanrooms-studio/docs/stabilisation-2026-11-09.md) for rettelser og præcise afgrænsninger. [Mobilens afhængighedsrapport](mobile/cleanrooms-app/docs/DEPENDENCIES.md) beskriver resterende advisories, som ikke er skjult med inkompatible opgraderinger. Native push, afdelingsafgrænsede planlæggerrettigheder og en hostingbaseret gendannelsesøvelse er fortsat særskilt arbejde.
+Læs [stabiliseringsnoterne](sites/cleanrooms-studio/docs/stabilisation-2026-11-09.md) for rettelser og præcise afgrænsninger. [Mobilens afhængighedsrapport](mobile/cleanrooms-app/docs/DEPENDENCIES.md) beskriver resterende advisories, som ikke er skjult med inkompatible opgraderinger. Native push og afdelingsafgrænsede planlæggerrettigheder er implementeret. En hostingbaseret gendannelsesøvelse er fortsat særskilt arbejde.
 
 Se også [arkitektur](sites/cleanrooms-studio/docs/architecture.md), [drift](sites/cleanrooms-studio/docs/operations.md) og [mobilens datatilkobling](mobile/cleanrooms-app/docs/MOBILE-BACKEND.md).

@@ -1,5 +1,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
+
+// Validate the authorization boundary token while comparing every domain field.
+const domainBody=body=>{assert.match(body.accessIdentity,/^[a-f0-9]{64}$/);const {accessIdentity:_accessIdentity,...value}=body;return value;};
 const fs=require('node:fs');
 const path=require('node:path');
 const {DatabaseSync}=require('node:sqlite');
@@ -33,7 +36,7 @@ function noPrivate(response){assert.equal(Object.hasOwn(response.body,'policy'),
 function seedPolicy(db,workspaceId,value,version=1){db.sqlite.prepare('INSERT INTO workspace_payroll_policies (workspace_id,config,version,history,updated_by,updated_at,write_token) VALUES (?,?,?,?,?,?,?)').run(workspaceId,JSON.stringify(Groups.normalize(value)),version,'[]',owner.id,new Date().toISOString(),'fixture');}
 
 test('policy persistence is private and reference-based, preserves legacy personal configurations and records reviewed impact',async()=>{
-  const {db}=await setup(),before=await Store.readStudio(db,owner.id),empty=await read(db);assert.equal(empty.status,200);assert.deepEqual(empty.body,{policy:{schema:1,groups:[],links:[]},version:0,people:people.map(({id,name})=>({personId:id,name,payroll:null,version:0})),history:[]});
+  const {db}=await setup(),before=await Store.readStudio(db,owner.id),empty=await read(db);assert.equal(empty.status,200);assert.deepEqual(domainBody(empty.body),{policy:{schema:1,groups:[],links:[]},version:0,people:people.map(({id,name})=>({personId:id,name,payroll:null,version:0})),history:[]});
   const raw=config(19000,add(today,-20));assert.equal((await personalSave(db,raw)).status,200);
   const value=policy(),preview=await api(db,'payrollPolicyPreview',{version:0,policy:value,date:add(today,10)});assert.equal(preview.status,200,JSON.stringify(preview.body));assert.equal(preview.body.preview.date,today,'A later review date must not hide an earlier effective assignment.');assert.equal(preview.body.preview.counts.affected,1);
   const saved=await api(db,'payrollPolicySave',{version:0,policy:value,date:add(today,10),previewToken:preview.body.previewToken});assert.equal(saved.status,200,JSON.stringify(saved.body));assert.equal(saved.body.version,1);assert.deepEqual(saved.body.people[0].payroll,raw);assert.equal(saved.body.history[0].actor.userId,owner.id);assert.equal(saved.body.history[0].counts.affected,1);

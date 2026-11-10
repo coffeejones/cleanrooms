@@ -253,6 +253,13 @@
       "when": 1794258000003,
       "tag": "0035_payroll_export_person_index",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1794258000004,
+      "tag": "0036_department_access_scope",
+      "breakpoints": true
     }
   ]
 }

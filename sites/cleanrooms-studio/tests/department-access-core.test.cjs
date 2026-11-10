@@ -1,0 +1,108 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
+const source=fs.readFileSync(require.resolve('./workspace-access.test.cjs'),'utf8');
+const F=new Function('require','__dirname',source.slice(0,source.indexOf("test('"))+'\nreturn {database,owner,otherOwner,studio,json,accounts,route,bootstrap,join,invite};')(require,__dirname);
+const Access=require('../lib/department-access.mjs'),Workspace=require('../lib/workspace-store.mjs');
+const scope=(...departmentIds)=>({mode:'departments',departmentIds}),all={mode:'all',departmentIds:[]};
+const people=[0,1,2].map(site=>({id:'p'+site,name:['Visible Freja','Private Martin','Private Liv'][site],initials:'QA',site,target:37,role:'Service',active:true}));
+async function setup(t){const db=F.database();t.after(()=>db.sqlite.close());await F.bootstrap(db,F.owner,F.studio({demoSeed:false,roster:people}));return db;}
+const actor={id:'department-manager',email:'manager@example.test'};
+const call=async(db,payload,who=F.owner)=>F.json(await F.accounts(db,payload,who));
+
+test('default access remains company-wide; scoped invitations carry authoritative department membership into sessions',async t=>{
+ const db=await setup(t);const before=await call(db,{action:'list'});assert.deepEqual(before.body.viewer.accessScope,all);assert.equal(before.body.departments.length,3);
+ const joined=await F.join(db,actor,{roleId:'planner',accessScope:scope('dep-nord')});assert.deepEqual(joined.viewer.accessScope,scope('dep-nord'));assert.equal(joined.capabilities.scopeRestricted,true);assert.deepEqual(joined.capabilities.allowedSiteIds,[0]);
+ const context=await Workspace.resolveWorkspace(db,{userId:actor.id,email:actor.email,name:'Manager'},{metadataOnly:true,directoryOnly:true});assert.equal(Access.siteAllowed(context,0),true);assert.equal(Access.siteAllowed(context,1),false);await Access.assertPersonAccess({db,context,personId:'p0'});await assert.rejects(Access.assertPersonAccess({db,context,personId:'p1'}),error=>error.status===403);
+ assert.equal((await F.route(db,'GET',undefined,actor)).status,403,'unbounded legacy snapshots are never exposed');
+ const query=Access.personPredicate(context,'employee.id'),rows=await db.batch([db.prepare("SELECT employee.id FROM workspace_directory_records employee WHERE employee.workspace_id=? AND employee.kind='employee' AND "+query.sql).bind(context.workspace.id,...query.values)]);assert.deepEqual(rows[0].results.map(value=>value.id),['p0']);
+});
+
+test('invalid, foreign, duplicate and owner-narrowing grants fail without changing existing memberships',async t=>{
+ const db=await setup(t);for(const value of [scope('missing'),scope('dep-nord','dep-nord'),{mode:'all',departmentIds:['dep-nord']},{mode:'departments',departmentIds:[]},{mode:'departments',departmentIds:['dep-nord'],userId:actor.id}]){const result=await call(db,{action:'invite',email:actor.email,roleId:'planner',accessScope:value});assert.equal(result.status,400,JSON.stringify(result));}
+ const owner=(await call(db,{action:'list'})).body.members.find(member=>member.isOwner),blocked=await call(db,{action:'updateMember',userId:owner.userId,version:owner.version,accessScope:scope('dep-nord')});assert.equal(blocked.status,403);assert.deepEqual((await call(db,{action:'list'})).body.viewer.accessScope,all);
+ const joined=await F.join(db,actor,{roleId:'planner'});assert.deepEqual(joined.viewer.accessScope,all);const list=await call(db,{action:'list'}),member=list.body.members.find(member=>member.userId===actor.id),changed=await call(db,{action:'updateMember',userId:actor.id,version:member.version,accessScope:scope('dep-nord','dep-klinik')});assert.equal(changed.status,200);assert.equal(changed.body.member.version,member.version+1);assert.deepEqual(changed.body.member.accessScope,scope('dep-klinik','dep-nord'));assert.throws(()=>db.sqlite.prepare('UPDATE workspace_members SET access_scope=? WHERE user_id=?').run(JSON.stringify(all),actor.id),/department_scope_version_required/);
+});
+
+test('a scoped administrator cannot widen grants, inspect company payroll or modify shared roles',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});const listed=await call(db,{action:'list'},actor);assert.equal(listed.status,200);assert.equal(listed.body.viewer.accessScope.mode,'departments');assert.deepEqual(listed.body.departments.map(value=>value.id),['dep-nord']);assert.deepEqual(listed.body.staff.map(value=>value.id),['p0']);assert.equal(listed.body.members.some(value=>value.isOwner),false);assert.equal(listed.body.capabilities.manageRoles,false);assert.equal(listed.body.capabilities.companyPayroll,false);
+ for(const accessScope of [all,scope('dep-klinik')]){const result=await call(db,{action:'invite',email:'sub@example.test',roleId:'planner',accessScope},actor);assert.equal(result.status,403);}
+ for(const action of ['payrollPeriodRead','payrollPeriodClose','payrollPeriodReopen','payrollPeriodExport','payrollExportProfilesRead','payrollExportProfileRead','payrollExportProfileEmployees','payrollPolicyRead','createRole','updateRole']){const result=await call(db,{action},actor);assert.equal(result.status,403,action+JSON.stringify(result));}
+ const owner=(await call(db,{action:'list'})).body.members.find(member=>member.isOwner);assert.equal((await call(db,{action:'updateMember',userId:owner.userId,version:owner.version,name:'Changed'},actor)).status,403);
+ const created=await call(db,{action:'invite',email:'sub@example.test',roleId:'planner'},actor);assert.equal(created.status,200,JSON.stringify(created));assert.deepEqual(created.body.invite.accessScope,scope('dep-nord'));
+ assert.equal((await call(db,{action:'invite',email:'foreign@example.test',roleId:'planner',newEmployee:{name:'Foreign employee',site:1}},actor)).status,403);
+});
+
+test('personal payroll keeps only the selected employee policy links and linked group; foreign people stay inaccessible',async t=>{
+ const db=await setup(t);const today=new Date().toISOString().slice(0,10),payroll=amount=>({currency:'DKK',agreements:[{id:'base',from:today,type:'hourly',amountCents:amount}],supplements:[]});
+ for(const [personId,amount] of [['p0',18000],['p1',99999]])assert.equal((await call(db,{action:'payrollSave',personId,version:0,payroll:payroll(amount)})).status,200);
+ await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});const own=await call(db,{action:'payrollRead',personId:'p0'},actor);assert.equal(own.status,200);assert.equal(own.body.payroll.agreements[0].amountCents,18000);assert.equal(JSON.stringify(own.body).includes('99999'),false);
+ assert.equal((await call(db,{action:'payrollRead',personId:'p1'},actor)).status,403);assert.equal((await call(db,{action:'payrollSave',personId:'p1',version:1,payroll:payroll(1)},actor)).status,403);
+});
+
+test('an invitation issuer narrowed after issuing a grant cannot authorize acceptance outside the new scope',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord','dep-klinik')});const target={id:'sub-manager',email:'sub-manager@example.test'},invited=await F.invite(db,target,{roleId:'planner',accessScope:scope('dep-klinik')},actor),member=(await call(db,{action:'list'})).body.members.find(value=>value.userId===actor.id);
+ assert.equal((await call(db,{action:'updateMember',userId:actor.id,version:member.version,accessScope:scope('dep-nord')})).status,200);const result=await call(db,{action:'acceptInvite',token:invited.token},target);assert.equal(result.status,403);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_members WHERE user_id=?').get(target.id).n,0);assert.equal(db.sqlite.prepare('SELECT status FROM workspace_invites WHERE id=?').get(invited.invite.id).status,'pending');
+});
+
+test('concurrent scope revocation fences writes and creates no invitation or phantom audit',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});const before=db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n;let raced=false;
+ db.beforeBatch=statements=>{if(!raced&&statements.some(value=>value.sql.includes('INSERT INTO workspace_invites'))){raced=true;db.beforeBatch=null;db.sqlite.prepare("UPDATE workspace_members SET access_scope=?,version=version+1 WHERE user_id=?").run(JSON.stringify(scope('dep-klinik')),actor.id);}};
+ const result=await call(db,{action:'invite',email:'raced@example.test',roleId:'planner',accessScope:scope('dep-nord')},actor);assert.equal(raced,true);assert.equal(result.status,403);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_invites WHERE email=?').get('raced@example.test').n,0);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n,before);
+});
+
+test('a department mapping edit during a scoped write invalidates the original directory fence',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});let raced=false;db.beforeBatch=statements=>{if(!raced&&statements.some(value=>value.sql.includes('INSERT INTO workspace_invites'))){raced=true;db.beforeBatch=null;db.sqlite.prepare("UPDATE workspace_directory_state SET version=version+1,write_token='changed' WHERE workspace_id=(SELECT workspace_id FROM workspace_members WHERE user_id=?)").run(actor.id);}};
+ const result=await call(db,{action:'invite',email:'mapping-race@example.test',roleId:'planner'},actor);assert.equal(raced,true);assert.equal(result.status,403);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_invites WHERE email=?').get('mapping-race@example.test').n,0);
+});
+
+test('scoped staff creation uses its own committed directory receipt without dropping the subsequent invitation',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});
+ const invited=await call(db,{action:'invite',email:'new-local@example.test',roleId:'employee',newEmployee:{name:'New Local Employee',site:0}},actor);assert.equal(invited.status,200,JSON.stringify(invited));assert.ok(invited.body.createdEmployee);assert.deepEqual(invited.body.invite.accessScope,scope('dep-nord'));
+ const row=db.sqlite.prepare("SELECT id FROM workspace_directory_records WHERE workspace_id=? AND kind='employee' AND id=? AND deleted=0").get(invited.body.workspace.id,invited.body.createdEmployee.id);assert.ok(row);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_invites WHERE email=?').get('new-local@example.test').n,1);
+ const list=await call(db,{action:'list'},actor);assert.equal(list.status,200);assert.ok(list.body.staff.some(person=>person.id===row.id));
+});
+
+test('accessIdentity follows grants and role versions but ignores unrelated directory edits; accepted invitation identity matches subsequent reads',async t=>{
+ const db=await setup(t);const initial=await call(db,{action:'list'});assert.match(initial.body.accessIdentity,/^[a-f0-9]{64}$/);const accepted=await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});const own=await call(db,{action:'list'},actor);assert.equal(accepted.accessIdentity,own.body.accessIdentity);
+ const workspaceId=initial.body.workspace.id;db.sqlite.prepare("UPDATE workspace_directory_state SET version=version+1,write_token='unrelated-directory-change' WHERE workspace_id=?").run(workspaceId);const unchanged=await call(db,{action:'list'},actor);assert.equal(unchanged.body.accessIdentity,own.body.accessIdentity);
+ const member=(await call(db,{action:'list'})).body.members.find(member=>member.userId===actor.id);await call(db,{action:'updateMember',userId:actor.id,version:member.version,accessScope:scope('dep-klinik')});const changed=await call(db,{action:'list'},actor);assert.notEqual(changed.body.accessIdentity,own.body.accessIdentity);assert.deepEqual(changed.body.capabilities.allowedSiteIds,[1]);
+ const self=changed.body.members.find(member=>member.userId===actor.id),narrowed=await call(db,{action:'updateMember',userId:self.userId,version:self.version,name:'Scoped Manager'},actor);assert.equal(narrowed.status,200);assert.notEqual(narrowed.body.accessIdentity,changed.body.accessIdentity,'intentional self edits return the new committed identity');
+});
+
+test('scope changes are retained in safe account audit data without invitation tokens',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'planner'});const member=(await call(db,{action:'list'})).body.members.find(member=>member.userId===actor.id);assert.equal((await call(db,{action:'updateMember',userId:actor.id,version:member.version,accessScope:scope('dep-nord')})).status,200);
+ const audit=db.sqlite.prepare("SELECT entry FROM workspace_activity WHERE kind='access' ORDER BY rowid DESC LIMIT 1").get(),text=audit.entry;assert.match(text,/accessScope/);assert.match(text,/dep-nord/);assert.equal(text.includes('token_hash'),false);assert.equal(text.includes('preferences'),false);
+});
+
+test('scoped app-login creation commits employee and credential together at an allowed home workplace',async t=>{
+ const db=await setup(t);await F.join(db,actor,{roleId:'admin',accessScope:scope('dep-nord')});
+ const create=async(site,extra={})=>{const response=await Workspace.handleAccountsRequest(new Request('https://cleanrooms.example/api/accounts',{method:'POST',headers:{origin:'https://cleanrooms.example','content-type':'application/json','oai-authenticated-user-id':actor.id,'oai-authenticated-user-email':actor.email},body:JSON.stringify({action:'createEmployeeUser',roleId:'employee',name:'App employee',email:site===0?'app-local@example.test':'app-foreign@example.test',site,...extra})}),db,'a'.repeat(64));return {status:response.status,body:await response.json()};};
+ const foreign=await create(1);assert.equal(foreign.status,403);const unsupported=await create(0,{accessScope:scope('dep-nord')});assert.equal(unsupported.status,400,'app-only accounts cannot claim to persist a web scope');
+ const created=await create(0);assert.equal(created.status,200,JSON.stringify(created));assert.ok(created.body.createdEmployee.id);assert.equal(created.body.account.status,'active');const personId=created.body.createdEmployee.id;assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_mobile_credentials WHERE person_id=?').get(personId).n,1);assert.equal((await call(db,{action:'readAppLogin',personId},actor)).status,200);
+});
+
+test('scoped wire metadata preserves stable workplace indices while discarding hidden planning bodies and global counters',()=>{
+ const context={workspace:{id:'ws'},member:{accessScope:scope('dep-nord')},access:{mode:'departments',departmentIds:['dep-nord'],siteIds:[0]}},input=F.studio({roster:people,coverageRules:[{site:0,count:2},{site:1,count:999},{department:'foreign-secret'}],series:[{id:'own',person:'p0',site:0},{id:'foreign-home',person:'p1',site:0}],edits:{own:{person:'p0',site:0},foreign:{person:'p1',site:0}},publications:{slots:{foreign:'SECRET'}},activity:[{message:'SECRET'}],weekPlans:{'1':{published:true,changes:999,baseline:[{id:'own',site:0,person:'p0'},{id:'hidden',site:1,person:'p1'}]}}});
+ const projected=Access.projectStudioAccess(context,input);assert.equal(projected.organization.sites.length,3);assert.equal(projected.organization.sites[1].id,'site-klinik');assert.equal(projected.organization.sites[1].address,'');assert.equal(projected.organization.sites[1].name,'Begrænset arbejdssted');assert.deepEqual(projected.organization.departments.map(value=>value.id),['dep-nord']);assert.deepEqual(projected.series.map(value=>value.id),['own']);assert.deepEqual(Object.keys(projected.edits),['own']);assert.deepEqual(projected.coverageRules,[{site:0,count:2}]);assert.equal(projected.weekPlans['1'].changes,undefined);assert.equal(projected.weekPlans['1'].baseline.length,1);assert.equal(JSON.stringify(projected).includes('SECRET'),false);
+});
+
+test('a retried planning command returns the fresh access identity rather than its initial cached scope',async t=>{
+ const {createDepartmentAccessFixture}=require('./helpers/department-access-fixture.cjs'),Planning=require('../src/planning-records.js'),Window=require('../src/planning-window.js'),f=await createDepartmentAccessFixture(t),projection={mode:'calendar',...f.range};
+ async function collect(){const collector=Window.collector(projection);let cursor=null;do{const query=new URLSearchParams({projection:'calendar',...f.range,...(cursor?{cursor}:{})}),page=await f.plan('GET',undefined,f.scopedPlanner,'/api/studio?'+query);assert.equal(page.status,200,JSON.stringify(page));cursor=collector.add(page.body);}while(cursor);return collector.finish();}
+ const view=await collect(),initialIdentity=(await f.account('preferences',{preferences:{}},f.scopedPlanner)).body.accessIdentity,next=structuredClone(view.studio);next.edits[f.allowedShift.id].note='Safe edit after refreshed access';const changes=Planning.commands(view.studio,next,view.planning.versions),payload={revision:view.revision,directoryRevision:view.directory.revision,commandReceipt:'records',studio:Planning.payloadStudio(next),projection,planning:{version:1,changes,metadataChanged:false,metadataBase:view.planning.metadataHash,dependencies:Planning.dependencies(view.studio,changes,view.planning.versions)}};
+ let selected=false,raced=false;f.db.beforeBatch=statements=>{if(statements.some(query=>query.sql.includes('SELECT record.kind,record.id,record.site_index,record.person_id')))selected=true;if(selected&&!raced&&statements.some(query=>query.sql==='SELECT revision,write_token FROM studio_states WHERE owner_id=?')){raced=true;f.db.beforeBatch=null;f.sqlite.prepare('UPDATE workspace_members SET access_scope=?,version=version+1 WHERE user_id=?').run(JSON.stringify(scope('dep-nord','dep-klinik')),f.scopedPlanner.id);throw new (require('../lib/planning-store.mjs').PlanningStoreError)(409,'planning_command_conflict','Simulated concurrent planning read.');}};
+ const saved=await f.plan('PUT',payload,f.scopedPlanner);assert.equal(raced,true);assert.equal(saved.status,200,JSON.stringify(saved));const current=await f.account('preferences',{preferences:{}},f.scopedPlanner);assert.equal(saved.body.accessIdentity,current.body.accessIdentity);assert.notEqual(saved.body.accessIdentity,initialIdentity);
+});
+
+test('a profile or workplace point read returns a resource access denial after it leaves scope, rather than a reusable empty response',async t=>{
+ const {createDepartmentAccessFixture}=require('./helpers/department-access-fixture.cjs'),f=await createDepartmentAccessFixture(t);
+ const directory=async payload=>{const result=await Workspace.handleDirectoryRequest(new Request('https://cleanrooms.example/api/directory',{method:'POST',headers:{origin:'https://cleanrooms.example','content-type':'application/json','oai-authenticated-user-id':f.scopedPlanner.id,'oai-authenticated-user-email':f.scopedPlanner.email},body:JSON.stringify(payload)}),f.db);return {status:result.status,body:await result.json()};};
+ const before=await directory({action:'read',kind:'employee',ids:[f.allowedPerson.id],catalog:false});assert.equal(before.status,200,JSON.stringify(before));assert.deepEqual(before.body.capabilities.allowedSiteIds,[0]);
+ const changed=await Workspace.handleDirectoryRequest(new Request('https://cleanrooms.example/api/directory',{method:'POST',headers:{origin:'https://cleanrooms.example','content-type':'application/json','oai-authenticated-user-id':f.owner.id,'oai-authenticated-user-email':f.owner.email},body:JSON.stringify({action:'write',changes:[{kind:'employee',id:f.allowedPerson.id,expectedVersion:1,patch:{site:1}}]})}),f.db);assert.equal(changed.status,200,await changed.text());
+ for(const [kind,id]of [['employee',f.allowedPerson.id],['site','site-klinik'],['department','dep-klinik']]){const after=await directory({action:'read',kind,ids:[id]});assert.equal(after.status,403,JSON.stringify(after));assert.match(after.body.error,/^department_/);assert.equal(after.body.records,undefined);assert.equal(after.body.accessIdentity,before.body.accessIdentity,'same scope identity still propagates a resource revocation');}
+});
+
+test('a forged demoSession cannot divert a scoped command into the company-wide snapshot adapter',async t=>{
+ const {createDepartmentAccessFixture}=require('./helpers/department-access-fixture.cjs'),Planning=require('../src/planning-records.js'),f=await createDepartmentAccessFixture(t),full=(await f.plan()).body,next=structuredClone(full.studio),before=f.sqlite.prepare('SELECT revision FROM studio_states WHERE owner_id=?').get(f.owner.id).revision,events=f.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n;
+ next.edits[f.foreignShift.id].note='FORGED FOREIGN MUTATION';const changes=Planning.commands(full.studio,next,full.planning.versions),payload={revision:full.revision,directoryRevision:full.directory.revision,commandReceipt:'records',studio:{...Planning.payloadStudio(next),demoSession:{}},projection:{mode:'calendar',...f.range},planning:{version:1,changes,metadataChanged:false,metadataBase:full.planning.metadataHash,dependencies:Planning.dependencies(full.studio,changes,full.planning.versions)}};
+ const denied=await f.plan('PUT',payload,f.scopedPlanner);assert.equal(denied.status,403,JSON.stringify(denied));assert.equal(denied.body.records,undefined);assert.equal(denied.body.studio,undefined);assert.equal(f.sqlite.prepare('SELECT revision FROM studio_states WHERE owner_id=?').get(f.owner.id).revision,before);assert.equal(f.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n,events);assert.equal((await f.plan()).body.studio.edits[f.foreignShift.id].note,f.foreignShift.note);
+});

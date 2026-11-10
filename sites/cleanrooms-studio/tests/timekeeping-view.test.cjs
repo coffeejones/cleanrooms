@@ -243,3 +243,68 @@ test('a real server filter remains authoritative when loading completes with an 
  assert.deepEqual(rowIds(fixture),['ordinary-entry']);assert.equal(fixture.key('queue:ready').querySelector('.cs-time-review-count').textContent,'1');assert.equal(fixture.key('queue:attention').querySelector('.cs-time-review-count').textContent,'0');assert.equal(fixture.host.textContent.includes('Der er endnu ingen registrerede timer'),false);
  fixture.render({serverNow:'2026-11-02T16:00:00Z'});assert.deepEqual(rowIds(fixture),['ordinary-entry']);assert.equal(fixture.key('queue:ready').querySelector('.cs-time-review-count').textContent,'1');
 });
+
+const periodRange={from:'2026-11-01',to:'2026-11-30'};
+const periodPagination={server:true,page:0,offset:0,hasNext:false,hasPrevious:false};
+test('payroll period navigation forwards the validated target and scoped payroll hides company export only',async t=>{
+ const previous=globalThis.CleanRoomsPayrollPeriodView,opened=[],navigated=[];let destroyed=0;
+ globalThis.CleanRoomsPayrollPeriodView={open:options=>{opened.push(options);return {destroy(){destroyed++;}};}};t.after(()=>{globalThis.CleanRoomsPayrollPeriodView=previous;});
+ const fixture=app({...periodRange,entries:[readyEntry({status:'approved'})]},{onPayrollPeriodAction:async()=>({ok:true}),onPayrollPeriodNavigate:target=>{navigated.push(target);return true;}});
+ await fixture.key('tab:payroll').click();await fixture.key('payroll:period').click();assert.equal(opened[0].date,periodRange.from);
+ const target={kind:'hours',...periodRange,problem:'unapproved'};assert.equal(opened[0].onNavigate(target),true);assert.deepEqual(navigated,[target]);
+ fixture.render({companyPayroll:false});assert.equal(destroyed,1);assert.equal(fixture.key('payroll:period'),undefined);assert.ok(fixture.byClass('cs-time-payroll-table'));assert.ok(fixture.key('tab:payroll'));
+});
+test('payroll focus shows the exact period and one concise repair instruction without changing normal time views',async()=>{
+ const calls=[],fixture=app({...periodRange},{onClearPeriodFocus:()=>calls.push('clear')});assert.equal(fixture.byClass('cs-time-period-focus'),undefined);
+ fixture.render({periodFocus:{...periodRange,problem:'missing_payroll'}});const context=fixture.byClass('cs-time-period-focus');assert.ok(context.textContent.includes('Mangler løngrundlag'));assert.match(context.textContent,/2026/);assert.ok(context.textContent.includes('Ret lønaftalen, og genåbn og godkend registreringen igen.'));assert.equal(context.querySelectorAll('button').length,1);
+ await fixture.key('period:clear').click();assert.deepEqual(calls,['clear']);fixture.render({periodFocus:null});assert.equal(fixture.byClass('cs-time-period-focus'),undefined);
+});
+test('a generic payroll blocker opens registrations even when the previous view was payroll',async()=>{
+ const fixture=app({...periodRange,entries:[readyEntry({status:'approved'})]});await fixture.key('tab:payroll').click();assert.ok(fixture.byClass('cs-time-payroll-table'));
+ fixture.render({entries:[readyEntry({status:'submitted'})],periodFocus:{...periodRange,problem:'unapproved'},pagination:periodPagination,serverFilter:{queue:'all',search:'',scope:'real',problem:'unapproved'}});
+ assert.equal(fixture.key('tab:entries').getAttribute('aria-selected'),'true');assert.equal(fixture.byClass('cs-time-payroll-table'),undefined);assert.deepEqual(rowIds(fixture),['time-1']);assert.ok(fixture.byClass('cs-time-period-focus').textContent.includes('Afventer godkendelse'));
+});
+test('switching to payroll retains the selected tab and plain period context after the problem filter is removed',async()=>{
+ let fixture;fixture=app({...periodRange,entries:[readyEntry()],periodFocus:{...periodRange,problem:'unapproved'},pagination:periodPagination,serverFilter:{queue:'all',scope:'real',search:'',problem:'unapproved'}},{onFilterChange:filter=>fixture.render({entries:[readyEntry({status:'approved'})],periodFocus:{...periodRange},serverFilter:filter}),onClearPeriodFocus:()=>{}});
+ await fixture.key('tab:payroll').click();assert.equal(fixture.key('tab:payroll').getAttribute('aria-selected'),'true');assert.ok(fixture.byClass('cs-time-payroll-table'));const context=fixture.byClass('cs-time-period-focus');assert.ok(context.textContent.startsWith('Lønperiode'));assert.equal(fixture.byClass('cs-time-period-focus-hint'),undefined);assert.ok(fixture.key('period:clear'));
+});
+test('an exact period entry opens after its server page arrives and closing it never reopens the stale request',async()=>{
+ const closed=[],focus={...periodRange,problem:'missing_payroll',entryId:'focused',personId:'emma'},filter={queue:'all',search:'',scope:'real',problem:'missing_payroll',entryId:'focused'};
+ const fixture=app({...periodRange,entries:[],loading:true,periodFocus:focus,requestedEntryId:'focused',pagination:periodPagination,serverFilter:filter},{onCloseFocusedEntry:id=>closed.push(id)});
+ assert.equal(fixture.key('detail:close'),undefined);fixture.render({loading:false,entries:[readyEntry({id:'focused',status:'approved'})]});assert.ok(fixture.key('detail:close'));assert.ok(fixture.byClass('cs-time-detail-focused'));
+ await fixture.key('detail:close').click();assert.deepEqual(closed,['focused']);fixture.render({serverNow:'2026-12-01T12:00:00Z'});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({periodFocus:{...focus,entryId:'another'},requestedEntryId:'another',entries:[readyEntry({id:'another',status:'approved'})],serverFilter:{...filter,entryId:'another'}});assert.ok(fixture.key('detail:close'));await fixture.key('detail:close').click();assert.deepEqual(closed,['focused','another']);
+});
+test('reopening a payroll problem keeps the fresh unapproved registration in its inspector until explicit reapproval',async()=>{
+ const focus={...periodRange,problem:'missing_payroll',entryId:'repair-entry',personId:'emma'},filter={queue:'all',search:'',scope:'real',problem:'missing_payroll',entryId:'repair-entry'},writes=[];let fixture,record=readyEntry({id:'repair-entry',status:'approved'});
+ fixture=app({...periodRange,entries:[record],periodFocus:focus,requestedEntryId:record.id,pagination:periodPagination,serverFilter:filter},{
+  onAction:async(_action,payload)=>{writes.push(payload);record={...record,status:payload.operation==='approve'?'approved':'submitted',version:record.version+1};return {ok:true,entry:record};},
+  onRefresh:async()=>{const repaired=record.status==='approved';fixture.render({entries:repaired?[]:[record],periodFocus:repaired?{...periodRange,problem:'unapproved'}:{...focus,problem:'unapproved'},requestedEntryId:repaired?null:record.id,serverFilter:repaired?{queue:'all',search:'',scope:'real',problem:'unapproved'}:{...filter,problem:'unapproved'}});}
+ });
+ await fixture.key('entry:reopen').click();await fixture.input('reason','Lønaftalen er rettet');await fixture.key('draft:save').click();assert.equal(writes.length,1);assert.equal(writes[0].operation,'reopen');assert.equal(writes[0].version,2);assert.ok(fixture.key('detail:close'));assert.ok(fixture.key('entry:approve'));assert.equal(fixture.key('entry:reopen'),undefined);assert.ok(fixture.byClass('cs-time-period-focus').textContent.includes('Afventer godkendelse'));
+ await fixture.key('entry:approve').click();assert.deepEqual(writes.map(value=>value.operation),['reopen','approve']);assert.equal(writes[1].version,3);assert.equal(fixture.key('detail:close'),undefined);assert.equal(fixture.calls.length,0);
+});
+test('refreshing an already focused entry retains its inspector when the loading projection briefly has no rows',()=>{
+ const focus={...periodRange,problem:'unapproved',entryId:'time-1',personId:'emma'},filter={queue:'all',search:'',scope:'real',problem:'unapproved',entryId:'time-1'},record=readyEntry(),fixture=app({...periodRange,entries:[record],periodFocus:focus,requestedEntryId:record.id,pagination:periodPagination,serverFilter:filter});assert.ok(fixture.key('detail:close'));
+ fixture.render({loading:true,entries:[],pagination:{...periodPagination,loading:true}});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({loading:false,entries:[{...record,version:3}],pagination:{...periodPagination,loading:false}});assert.ok(fixture.key('detail:close'));assert.ok(fixture.key('entry:approve'));
+});
+test('focus waits for matching period, server entry filter and employee instead of opening stale records',()=>{
+ const focus={...periodRange,problem:'invalid_time',entryId:'target',personId:'emma'},filter={queue:'all',scope:'real',search:'',problem:'invalid_time',entryId:'target'};
+ const fixture=app({...periodRange,entries:[readyEntry({id:'target',personId:'foreign'})],periodFocus:focus,requestedEntryId:'target',pagination:periodPagination,serverFilter:filter});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({entries:[readyEntry({id:'target',date:'2026-12-01'})]});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({entries:[readyEntry({id:'target'})],serverFilter:{...filter,entryId:'other'}});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({serverFilter:{...filter,problem:'unapproved'}});assert.equal(fixture.key('detail:close'),undefined);
+ fixture.render({serverFilter:filter});assert.ok(fixture.key('detail:close'));
+ fixture.render({from:'2026-12-01',to:'2026-12-31'});assert.equal(fixture.key('detail:close'),undefined);assert.equal(fixture.byClass('cs-time-period-focus'),undefined);
+});
+test('changing hidden period filters resets the prior inspector and selected batch even on the same page',async()=>{
+ const filter={queue:'all',scope:'real',search:'',problem:'unapproved'},fixture=app({...periodRange,entries:[readyEntry()],pagination:periodPagination,serverFilter:filter});
+ await fixture.key('inspect:time-1').click();assert.ok(fixture.key('detail:close'));fixture.render({serverFilter:{...filter,problem:'invalid_time'}});assert.equal(fixture.key('detail:close'),undefined);
+ const checkbox=fixture.key('select:time-1');checkbox.checked=true;await checkbox.fire('change');assert.ok(fixture.key('bulk:approve'));
+ fixture.render({serverFilter:{...filter,problem:'invalid_time',entryId:'time-1'}});assert.equal(fixture.key('bulk:approve'),undefined);assert.equal(fixture.key('select:time-1').checked,false);
+});
+test('payroll access revocation removes focus context and the automatically opened inspector',()=>{
+ const focus={...periodRange,problem:'missing_payroll',entryId:'time-1',personId:'emma'},fixture=app({...periodRange,periodFocus:focus,requestedEntryId:'time-1'});assert.ok(fixture.key('detail:close'));
+ fixture.render({canViewPayroll:false});assert.equal(fixture.key('detail:close'),undefined);assert.equal(fixture.byClass('cs-time-period-focus'),undefined);assert.equal(fixture.byClass('cs-time-pay-detail'),undefined);
+});

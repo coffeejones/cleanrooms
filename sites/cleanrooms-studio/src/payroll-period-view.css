@@ -58,3 +58,13 @@
 #cleanrooms-studio .cs-payroll-period-registration-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
 #cleanrooms-studio .cs-payroll-period-registration .cs-payroll-period-field{width:100%;min-width:0}
 #cleanrooms-studio .cs-payroll-period-field input{width:100%;min-width:0;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid #89979b;border-radius:6px;background:#fff;color:#243943;font:inherit}
+
+#cleanrooms-studio .cs-payroll-period-blockers li{display:block}
+#cleanrooms-studio .cs-payroll-period-problem-copy,#cleanrooms-studio .cs-payroll-period-problem{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;text-align:left;font:inherit;color:inherit}
+#cleanrooms-studio .cs-payroll-period-problem{position:relative;padding:6px 18px 6px 0;border:0;background:transparent;cursor:pointer;border-radius:3px}
+#cleanrooms-studio .cs-payroll-period-problem::after{content:'›';position:absolute;right:0;font-size:19px;color:#785625}
+#cleanrooms-studio .cs-payroll-period-problem:hover{color:#243943;text-decoration:underline;text-underline-offset:3px}
+#cleanrooms-studio .cs-payroll-period-problem-people{display:grid;gap:12px;margin:8px 0 2px;padding-top:10px;border-top:1px solid #eadfcc}
+#cleanrooms-studio .cs-payroll-period-problem-people>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+#cleanrooms-studio .cs-payroll-period-problem-people>div>div{display:grid;gap:4px;flex:1;min-width:140px;color:#243943}
+#cleanrooms-studio .cs-payroll-period-problem-link{padding:0;border:0;border-radius:2px;background:transparent;color:#00684a;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}

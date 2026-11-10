@@ -1,4 +1,5 @@
 /* Attendance has its own guarded ledger; a plan save cannot replace it. */
+import {isScoped,assertPersonAccess,assertSiteAccess} from './department-access.mjs';
 import Time from '../src/timekeeping-model.js';
 import Groups from '../src/payroll-groups-model.js';
 import Directory from '../src/directory-records.js';
@@ -49,9 +50,13 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   const caps=h.capabilities(context),manager=caps.plan,personId=context.member.personId,workspaceId=context.workspace.id,stamp=new Date().toISOString(),local=Time.localNow(new Date(stamp));
   if(!manager&&!personId)h.fail(403,'time_forbidden','Kontoen skal være knyttet til en medarbejder.');
   const range={from:payload.from||monday(local.date),to:payload.to||Time.addDays(monday(local.date),6)};
+  if(payload.action==='timeRead'&&payload.entryId!==undefined&&(!manager||payload.queue===undefined||typeof payload.entryId!=='string'||!payload.entryId||payload.entryId.length>512))h.fail(400,'time_page_invalid','Vælg en gyldig registrering i planlæggerens liste.');
+  if(payload.problem!==undefined){if(!manager||!caps.viewPayroll)h.fail(403,'time_payroll_problem_forbidden','Din rolle har ikke adgang til lønperiodens problemer.');if(payload.action!=='timeRead'||payload.queue===undefined||!['unapproved','invalid_time','missing_payroll'].includes(payload.problem)||payload.scope==='demo')h.fail(400,'time_page_invalid','Vælg et gyldigt problem i den almindelige tidsregistrering.');}
   if(!Time.validDate(range.from)||!Time.validDate(range.to)||range.to<range.from||(Date.parse(range.to)-Date.parse(range.from))/86400000>366)h.fail(400,'time_range_invalid','Vælg en periode på højst ét år.');
   if(payload.personId&&!manager&&payload.personId!==personId)h.fail(403,'time_person_forbidden','Du kan kun se dine egne registreringer.');
   if(payload.personId!==undefined&&!Directory.validId('employee',payload.personId))h.fail(400,'time_person_invalid','Vælg en gyldig medarbejder.');
+  if(manager&&payload.personId)await assertPersonAccess({db,context,personId:payload.personId});
+  if(manager&&isScoped(context)&&(payload.scope==='demo'||payload.action==='timeDemo'||payload.demo===true))h.fail(403,'department_scope_forbidden','Eksempeldata kræver adgang til hele virksomheden.');
   const frame=await initializeTimekeepingContext({db,context,helpers:h});
   let {row,document}=await ensureTimeEntries({db,workspaceId,helpers:h,context}),published=[];
   const scopedPerson=manager?payload.personId:personId;
@@ -77,21 +82,21 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
       const page=await readPlannerTimePage({db,context,payload,range,frame,header:row,document,helpers:h,caps,stamp,hydrate:async entries=>{salaryPeople=entries.map(item=>item.personId);bundlePromise=null;return Promise.all(entries.map(dto));}});
       const planned=payload.scope==='demo'?{plannedRows:page.plannedRows}:await timekeepingPlannedRows({db,context,frame,...range,personId:scopedPerson});
       await assertTimekeepingContext({db,context,frame,helpers:h});
-      return {...page,from:range.from,to:range.to,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,plannedRows:planned.plannedRows,demo:document.demo?{...clone(document.demo),shifts:undefined,active:true}:{active:false},canManage:true,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};
+      return {...page,from:range.from,to:range.to,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,plannedRows:planned.plannedRows,demo:!isScoped(context)&&document.demo?{...clone(document.demo),shifts:undefined,active:true}:{active:false},canManage:true,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};
     }
     const beforeHeader=await h.first(db,'SELECT version FROM workspace_timekeeping WHERE workspace_id = ?',workspaceId);
-    let page;try{page=await readTimeEntries({db,workspaceId,...range,personId:manager?payload.personId:personId,includeDemo:manager,limit:payload.pageSize??5000,cursor:payload.cursor??null});}catch(error){h.fail(error.status||400,error.code||'time_page_invalid',error.message);}
+    let page;try{page=await readTimeEntries({db,workspaceId,...range,personId:manager?payload.personId:personId,context:manager?context:undefined,includeDemo:manager&&!isScoped(context),limit:payload.pageSize??5000,cursor:payload.cursor??null});}catch(error){h.fail(error.status||400,error.code||'time_page_invalid',error.message);}
     // A forgotten older checkout must remain reachable even outside the employee's current calendar month.
     if(!manager&&!payload.cursor){const running=await h.first(db,"SELECT config FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = 0 AND status IN ('running','paused') LIMIT 1",workspaceId,personId);if(running){const active=JSON.parse(running.config);if(!page.entries.some(item=>item.id===active.id))page.entries.push(active);}}
     row=await h.first(db,'SELECT * FROM workspace_timekeeping WHERE workspace_id = ?',workspaceId);
     if((beforeHeader?.version||0)!==(row?.version||0))h.fail(409,'time_conflict','Registreringerne ændrede sig, mens de blev hentet. Prøv igen.');
     if(row)document=JSON.parse(row.config);
-    const firstPage=!payload.cursor;if(firstPage)published=await readPublishedTimeShifts({db,workspaceId,...range,...(scopedPerson?{personId:scopedPerson}:{})});
-    const shifts=[...published,...(firstPage&&manager?document.demo?.shifts||[]:[])].filter(s=>(manager||s.person===personId)&&(!payload.personId||s.person===payload.personId)&&s.date>=range.from&&s.date<=range.to);
+    const firstPage=!payload.cursor;if(firstPage)published=await readPublishedTimeShifts({db,workspaceId,context:manager?context:undefined,...range,...(scopedPerson?{personId:scopedPerson}:{})});
+    const shifts=[...published,...(firstPage&&manager&&!isScoped(context)?document.demo?.shifts||[]:[])].filter(s=>(manager||s.person===personId)&&(!payload.personId||s.person===payload.personId)&&s.date>=range.from&&s.date<=range.to);
     if(!manager){const missing=page.entries.filter(historical=>!shifts.some(shift=>shift.id===historical.shiftId)),current=await readPublishedTimeShifts({db,workspaceId,ids:[...new Set(missing.map(entry=>entry.shiftId))]});for(const historical of missing){const live=current.find(shift=>shift.id===historical.shiftId);if(!firstPage&&live?.person===personId&&live.date>=range.from&&live.date<=range.to)continue;const frozen=historical.frozenShift||{id:historical.shiftId,person:historical.personId,date:historical.date,site:historical.site,start:historical.plannedStart,end:historical.plannedEnd,plannedBreakMinutes:historical.plannedBreakMinutes||0};shifts.push({...clone(frozen),recovered:true,cancelled:!live,note:frozen.note||''});}}
     salaryPeople=page.entries.map(entry=>entry.personId);bundlePromise=null;
     const planned=firstPage&&manager?await timekeepingPlannedRows({db,context,frame,...range,personId:scopedPerson}):null;
-    const result={from:range.from,to:range.to,entries:await Promise.all(page.entries.map(dto)),nextCursor:page.nextCursor,ledgerVersion:row?.version||0,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,...(firstPage||shifts.length?{shifts:clone(shifts)}:{}),...(planned?{plannedRows:planned.plannedRows}:{}),demo:manager&&document.demo?{...clone(document.demo),shifts:undefined,active:true}:{active:false},canManage:manager,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};
+    const result={from:range.from,to:range.to,entries:await Promise.all(page.entries.map(dto)),nextCursor:page.nextCursor,ledgerVersion:row?.version||0,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,...(firstPage||shifts.length?{shifts:clone(shifts)}:{}),...(planned?{plannedRows:planned.plannedRows}:{}),demo:manager&&!isScoped(context)&&document.demo?{...clone(document.demo),shifts:undefined,active:true}:{active:false},canManage:manager,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};
     if(entry&&(manager||entry.personId===personId&&!entry.demo))result.entry=await dto(entry);
     await assertTimekeepingContext({db,context,frame,helpers:h});return result;
   }
@@ -171,6 +176,7 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   // An existing record owns its historical assignment/plan even after a later cancellation or a legacy reassignment.
   const shift=current?(current.frozenShift||{id:current.shiftId,person:current.personId,date:current.date,site:current.site,start:current.plannedStart,end:current.plannedEnd,plannedBreakMinutes:current.plannedBreakMinutes||0}):liveShift;
   if(!shift||!shift.person||!current&&!(await timekeepingPeople({db,context,personIds:[shift.person]})).some(p=>p.id===shift.person))h.fail(404,'time_shift_missing','Den udgivne vagt findes ikke længere.');
+  if(manager){assertSiteAccess(context,shift.site);await assertPersonAccess({db,context,personId:shift.person});}
   if(!manager&&shift.person!==personId)h.fail(403,'time_shift_forbidden','Vagten er ikke tildelt din konto.');
   if(payload.personId&&payload.personId!==shift.person)h.fail(403,'time_person_forbidden','Registreringen og medarbejderen stemmer ikke overens.');
   if(payload.version!==(current?.version||0))h.fail(409,'time_conflict','Registreringen er ændret. Hent den seneste version.');

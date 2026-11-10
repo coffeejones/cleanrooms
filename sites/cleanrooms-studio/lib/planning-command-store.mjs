@@ -1,6 +1,8 @@
 /* Read exactly the command targets and the complete families required by their
  * original dependency tokens. Client-supplied scopes never select authority. */
 import Planning from '../src/planning-records.js';
+import {isScoped} from './department-access.mjs';
+import {assertPlanningCommandAccess,assertPlanningHeadersAccess} from './department-planning-access.mjs';
 import {PlanningStoreError,readPlanningRecords,ensurePlanningImported} from './planning-store.mjs';
 import {ensurePlanWindowIndex} from './planning-window-store.mjs';
 import {ensurePlanningSchedules} from './planning-selection-store.mjs';
@@ -32,10 +34,16 @@ async function exceptionHeaders(db,workspaceId,seriesIds){
   return [...result.values()];
 }
 
-export async function readPlanningCommandContext({db,workspaceId,owner,raw,payload}){
+
+async function authorizeIdentities(db,workspaceId,context,identities){
+  if(!isScoped(context)||!identities.length)return;const headers=[];
+  for(const batch of chunks(identities))headers.push(...await rows(db,`SELECT record.kind,record.id,record.site_index,record.person_id,record.parent_id,record.origin_date FROM json_each(?) chosen CROSS JOIN workspace_plan_records record WHERE record.workspace_id=? AND record.kind=json_extract(chosen.value,'$.kind') AND record.id=json_extract(chosen.value,'$.id')`,JSON.stringify(batch),workspaceId));
+  await assertPlanningHeadersAccess({db,context,headers});
+}
+export async function readPlanningCommandContext({db,workspaceId,owner,raw,payload,context}){
   if(raw?.source?.workspaceId!==workspaceId)fail(403,'planning_workspace_mismatch','Planen tilhører ikke dette arbejdsområde.');
   const errors=Planning.validatePlanning(payload?.planning);if(errors.length)fail(400,'invalid_planning_command',errors[0]);
-  const targets=payload.planning.changes.map(({kind,id})=>({kind,id})),changed=await readPlanningRecords({db,workspaceId,identities:targets}),parentIds=new Set(),groups=new Set(payload.planning.dependencies.groups.map(item=>item.id));let parentBytes=0;
+  const targets=payload.planning.changes.map(({kind,id})=>({kind,id}));await authorizeIdentities(db,workspaceId,context,targets);const changed=await readPlanningRecords({db,workspaceId,identities:targets}),parentIds=new Set(),groups=new Set(payload.planning.dependencies.groups.map(item=>item.id));let parentBytes=0;
   const addParent=id=>{if(parentIds.has(id))return;parentBytes+=encoder.encode(id).length;if(parentBytes>16*1024*1024)fail(413,'planning_command_scope_too_large','Ændringen indeholder for mange serieafhængigheder. Gem færre vagter ad gangen.');parentIds.add(id);};
   for(const item of payload.planning.dependencies.series)addParent(item.id);
   for(const row of changed.headers){if(row.kind==='series')groups.add(row.group_id||row.id);if(row.kind==='shift'&&row.parent_id)addParent(row.parent_id);}
@@ -45,8 +53,9 @@ export async function readPlanningCommandContext({db,workspaceId,owner,raw,paylo
     // wildcard or a tenant-wide series scan, even when IDs themselves contain @.
     for(let index=change.id.indexOf('@');index>=0;index=change.id.indexOf('@',index+1))if(index>0)addParent(change.id.slice(0,index));
   }}
-  const familySeries=await groupHeaders(db,workspaceId,[...groups]),familyExceptions=await exceptionHeaders(db,workspaceId,familySeries.map(item=>item.id)),identities=[...familySeries,...familyExceptions,...[...parentIds].map(id=>({kind:'series',id}))],known=new Set(changed.records.map(key)),related=await readPlanningRecords({db,workspaceId,identities:identities.filter(row=>!known.has(key(row)))}),records=[...changed.records,...related.records],versions={...related.versions,...changed.versions};
+  const familySeries=await groupHeaders(db,workspaceId,[...groups]),familyExceptions=await exceptionHeaders(db,workspaceId,familySeries.map(item=>item.id)),identities=[...familySeries,...familyExceptions,...[...parentIds].map(id=>({kind:'series',id}))],known=new Set(changed.records.map(key)),related=await (async()=>{const selected=identities.filter(row=>!known.has(key(row)));await authorizeIdentities(db,workspaceId,context,selected);return readPlanningRecords({db,workspaceId,identities:selected});})(),records=[...changed.records,...related.records],versions={...related.versions,...changed.versions};
   const current=await first(db,'SELECT revision,write_token FROM studio_states WHERE owner_id=?',owner);if(!current||current.revision!==raw.revision||current.write_token!==raw.source.token)fail(409,'planning_command_conflict','Planen ændrede sig under valideringen. Hent den seneste version.');
   const studio=Planning.apply({...raw.studio,series:[],edits:{},deleted:[],weekPlans:{}},records),saved={revision:raw.revision,studio,commandScope:{targets,groups:[...groups],parents:[...parentIds],records:records.map(({kind,id})=>({kind,id}))}};
+  await assertPlanningCommandAccess({db,context,before:studio,changes:payload.planning.changes,publication:payload.publication});
   Object.defineProperty(saved,'planning',{value:{schema:1,versions,metadataHash:await hash(Planning.canonical(Planning.metadata(raw.studio||{})))},enumerable:false,configurable:true});Object.defineProperty(saved,'source',{value:raw.source,enumerable:false});return saved;
 }

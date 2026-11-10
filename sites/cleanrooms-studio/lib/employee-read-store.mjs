@@ -1,6 +1,8 @@
 /* Personal calendars are published, person-scoped projections. Descriptions and
  * checklist documents are loaded only when that occurrence is opened. */
 import Data from '../src/studio-data.js';
+import {isScoped,assertPersonAccess} from './department-access.mjs';
+import {planningScopeStamp} from './department-planning-access.mjs';
 import Time from '../src/timekeeping-model.js';
 import Directory from '../src/directory-records.js';
 import {readDirectoryHeader,readDirectoryRecords} from './directory-store.mjs';
@@ -31,16 +33,18 @@ export async function handleEmployeeRead(options){
 async function readEmployee({db,context,payload,helpers:h}){
   const caps=h.capabilities(context),preview=caps.plan===true,personId=payload.personId??context.member.personId;
   if(!Directory.validId('employee',personId)||!preview&&personId!==context.member.personId)fail(403,'employee_person_forbidden','Du kan kun se dine egne udgivne vagter.');
+  if(preview)await assertPersonAccess({db,context,personId});
+  const scopedContext=preview&&isScoped(context)?context:undefined;
   const frame=await initializeEmployeeReadContext({db,context,helpers:h}),chosen=await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:'employee',ids:[personId],catalog:true}),person=chosen.records.find(row=>row.value)?.value;if(!person)fail(403,'person_assignment_required','Kontoen er ikke knyttet til en medarbejder.');
   const common={person,minDate:Data.minDate,maxDate:Data.maxDate,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,preview};
   if(payload.action==='employeeShift'){
-    const detail=await readEmployeePublishedShift({db,workspaceId:context.workspace.id,personId,shiftId:payload.shiftId});if(!detail)fail(404,'employee_shift_missing','Vagten er ikke længere udgivet til denne medarbejder.');
+    const detail=await readEmployeePublishedShift({db,workspaceId:context.workspace.id,personId,shiftId:payload.shiftId,context:scopedContext});if(!detail)fail(404,'employee_shift_missing','Vagten er ikke længere udgivet til denne medarbejder.');
     const progress=await readChecklistProgress(db,context,{personId,shifts:[detail.shift]});await assertEmployeeReadContext({db,context,frame,helpers:h});return {...common,...detail,progress};
   }
   if(payload.action!=='employeeRead')fail(400,'employee_action_invalid','Vælg en gyldig medarbejdervisning.');
   const {from,to}=payload;if(!Time.validDate(from)||!Time.validDate(to)||from>to||from<Data.minDate||to>Data.maxDate||(Date.parse(to)-Date.parse(from))/86400000>=56)fail(400,'employee_period_invalid','Vælg højst 56 kalenderdage.');
-  let cursor=null;if(payload.cursor!=null){const value=decode(payload.cursor);if(value?.schema!==1||value.workspaceId!==context.workspace.id||value.personId!==personId||value.from!==from||value.to!==to||typeof value.after!=='string')fail(400,'employee_cursor_invalid','Sidehenvisningen hører til en anden visning.');if(value.planRevision!==frame.planRevision||value.planToken!==frame.planToken||value.directoryRevision!==frame.directoryRevision||value.directoryToken!==frame.directoryToken)fail(409,'employee_context_changed','Vagtplanen eller medarbejderoplysningerne er ændret. Hent dine vagter igen.');cursor=value.after;}
-  const page=await readPublishedEmployeePage({db,workspaceId:context.workspace.id,personId,from,to,cursor,limit:payload.limit??500}),firstPage=cursor===null,today=Time.localNow().date,next=firstPage?await readPublishedEmployeePage({db,workspaceId:context.workspace.id,personId,from:today,to:Data.maxDate,next:true}):null;
+  let cursor=null;if(payload.cursor!=null){const value=decode(payload.cursor);if(value?.schema!==1||value.workspaceId!==context.workspace.id||value.personId!==personId||value.from!==from||value.to!==to||typeof value.after!=='string'||(value.access??null)!==planningScopeStamp(scopedContext))fail(400,'employee_cursor_invalid','Sidehenvisningen hører til en anden visning.');if(value.planRevision!==frame.planRevision||value.planToken!==frame.planToken||value.directoryRevision!==frame.directoryRevision||value.directoryToken!==frame.directoryToken)fail(409,'employee_context_changed','Vagtplanen eller medarbejderoplysningerne er ændret. Hent dine vagter igen.');cursor=value.after;}
+  const page=await readPublishedEmployeePage({db,workspaceId:context.workspace.id,personId,from,to,cursor,limit:payload.limit??500,context:scopedContext}),firstPage=cursor===null,today=Time.localNow().date,next=firstPage?await readPublishedEmployeePage({db,workspaceId:context.workspace.id,personId,from:today,to:Data.maxDate,next:true,context:scopedContext}):null;
   await assertEmployeeReadContext({db,context,frame,helpers:h});
-  return {...common,from,to,shifts:page.shifts,sites:sitesFor([...page.sites,...(next?.sites||[])]),taskSummaries:{...page.taskSummaries,...(next?.taskSummaries||{})},...(firstPage?{nextShift:next?.shifts[0]||null}:{}),nextCursor:page.nextCursor?encode({schema:1,workspaceId:context.workspace.id,personId,from,to,...frame,after:page.nextCursor}):null};
+  return {...common,from,to,shifts:page.shifts,sites:sitesFor([...page.sites,...(next?.sites||[])]),taskSummaries:{...page.taskSummaries,...(next?.taskSummaries||{})},...(firstPage?{nextShift:next?.shifts[0]||null}:{}),nextCursor:page.nextCursor?encode({schema:1,workspaceId:context.workspace.id,personId,from,to,...frame,...(planningScopeStamp(scopedContext)?{access:planningScopeStamp(scopedContext)}:{}),after:page.nextCursor}):null};
 }

@@ -105,12 +105,12 @@ test('employee choice caches rebuild for renames, archives, additions, removals 
 });
 
 test('preference receipts preserve employee caches while plan receipts still invalidate them',()=>{
-  const creation=source.split('\n').find(line=>line.includes('persistence = globalThis.CleanRoomsPersistence.create({onReconciled:'));
+  const creation=source.split('\n').find(line=>line.includes('persistence = globalThis.CleanRoomsPersistence.create({'));
   assert.ok(creation,'Exercise the production persistence callbacks.');
   let callbacks,invalidations=0,changes=0,renders=0;
   const state={role:'admin',demoSession:null};
   const context=vm.createContext({
-    CleanRoomsPersistence:{create:options=>{callbacks=options;return {};}},reconcilePlanning(){},
+    CleanRoomsPersistence:{create:options=>{callbacks=options;return {};}},reconcilePlanning(){},resetChangedAccess(){},
     employeeReader:{invalidate:()=>invalidations++},state,clone:plain,q:()=>({hidden:true}),publicationBusy:false,
     render:()=>renders++,paintEditorPlanningConflict(){},renderChanges:()=>changes++,renderCloudStatus(){},cloudLoaded:true,renderEmployee(){}
   });

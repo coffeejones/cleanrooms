@@ -153,7 +153,7 @@ test('planner availability is bounded to selected employees, workspace and dates
   assert.equal(JSON.stringify(result).includes('notifications'),false);assert.equal(JSON.stringify(result).includes('privateField'),false);
   const queries=[];db.beforeBatch=statements=>{queries.push(...statements.map(item=>item.sql));};
   const routed=await action(db,'planningAvailability',options.payload);
-  assert.equal(routed.status,200,JSON.stringify(routed.body));assert.deepEqual(routed.body,result);
+  assert.equal(routed.status,200,JSON.stringify(routed.body));assert.match(routed.body.accessIdentity,/^[a-f0-9]{64}$/);assert.deepEqual(routed.body,{...result,accessIdentity:routed.body.accessIdentity});
   assert.equal(queries.some(sql=>/FROM studio_state_chunks|FROM workspace_plan_records|FROM workspace_plan_record_chunks|FROM workspace_publication_chunks/.test(sql)),false,'availability never fetches plan or instructions');
   queries.length=0;
   const forbidden=await action(db,'planningAvailability',options.payload,bea);

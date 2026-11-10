@@ -88,3 +88,45 @@ test('missing payroll totals count only approved records and never label unappro
   for(const entry of entries){delete entry.payroll;db.sqlite.prepare('UPDATE workspace_time_entries SET config=? WHERE id=?').run(JSON.stringify(entry),entry.id);}
   const result=await read(db);assert.equal(result.status,200,JSON.stringify(result));assert.equal(result.body.summary.missingPayrollCount,3);assert.equal(result.body.summary.approvedCents,0);assert.equal(result.body.summary.counts.approved,3);assert.equal(result.body.summary.people.reduce((sum,person)=>sum+person.missingPayrollCount,0),3);
 });
+
+
+test('payroll-period problem pages use the same frozen-source rules as closing and cursor-bind the problem',async t=>{
+ const {db,entries}=await setup(125);t.after(()=>db.sqlite.close());
+ const unapproved=await read(db,{problem:'unapproved',pageSize:20});assert.equal(unapproved.status,200,JSON.stringify(unapproved));assert.equal(unapproved.body.matchedCount,100);assert.equal(unapproved.body.summary.counts.approved,0);assert.ok(unapproved.body.entries.every(entry=>entry.status!=='approved'&&entry.payrollPeriodProblem==='unapproved'));assert.ok(unapproved.body.nextCursor);
+ const crossed=await read(db,{problem:'missing_payroll',pageSize:20,cursor:unapproved.body.nextCursor});assert.equal(crossed.status,409);
+ const missing=await read(db,{problem:'missing_payroll'});assert.equal(missing.status,200,JSON.stringify(missing));assert.equal(missing.body.matchedCount,25);assert.equal(missing.body.summary.missingPayrollCount,25);assert.equal(missing.body.summary.approvedCents,0,'A fresh estimate must not replace an absent frozen snapshot');assert.ok(missing.body.entries.every(entry=>entry.status==='approved'&&entry.payrollPeriodProblem==='missing_payroll'&&entry.payroll.unavailableReason));
+ const first=entries[0],bad={...first,end:'06:00',breakMinutes:999};db.sqlite.prepare('UPDATE workspace_time_entries SET config=? WHERE id=?').run(JSON.stringify(bad),first.id);db.sqlite.prepare('UPDATE workspace_timekeeping SET version=version+1').run();
+ const invalid=await read(db,{problem:'invalid_time'});assert.equal(invalid.status,200,JSON.stringify(invalid));assert.equal(invalid.body.matchedCount,1);assert.equal(invalid.body.entries[0].id,first.id);
+});
+
+test('payroll problem filters reject employee access, payroll-blind planners, demo data and unknown categories',async t=>{
+ const {db}=await setup(2);t.after(()=>db.sqlite.close());
+ const planner={id:'problem-blind-planner',email:'blind-planner@example.com'};await join(db,planner,null,'planner');
+ assert.equal((await read(db,{problem:'unapproved'},planner)).status,403);
+ await join(db,employee,people[0].id);assert.equal((await read(db,{problem:'unapproved'},employee)).status,403);
+ assert.equal((await read(db,{problem:'anything'})).status,400);assert.equal((await read(db,{problem:'unapproved',scope:'demo'})).status,400);assert.equal((await action(db,'timeRead',{...range,problem:'unapproved'})).status,400);
+});
+
+test('an exact entry target reaches an off-page registration without bypassing the selected period or cursor generation',async t=>{
+ const {db,entries}=await setup(125);t.after(()=>db.sqlite.close());const target=entries.at(-1),first=await read(db);assert.equal(first.status,200);assert.equal(first.body.entries.some(entry=>entry.id===target.id),false);
+ const exact=await read(db,{entryId:target.id,pageSize:1});assert.equal(exact.status,200,JSON.stringify(exact));assert.deepEqual(exact.body.entries.map(entry=>entry.id),[target.id]);assert.equal(exact.body.matchedCount,1);assert.equal(exact.body.nextCursor,null);assert.equal(exact.body.page.entryId,target.id);
+ assert.equal((await read(db,{entryId:target.id,cursor:first.body.nextCursor})).status,409);
+ const outside=await read(db,{entryId:target.id,from:'2026-11-02',to:'2026-11-08'});assert.equal(outside.status,200);assert.equal(outside.body.entries.length,0);assert.equal(outside.body.matchedCount,0);
+ const wrongPerson=await read(db,{entryId:target.id,personId:people[1].id});assert.equal(wrongPerson.status,200);assert.equal(wrongPerson.body.entries.length,0);
+});
+
+test('exact entry targets require a planner queue and reject malformed IDs without changing employee ownership reads',async t=>{
+ const {db,entries}=await setup(2);t.after(()=>db.sqlite.close());await join(db,employee,people[0].id);
+ assert.equal((await action(db,'timeRead',{...range,entryId:entries[0].id})).status,400);
+ assert.equal((await read(db,{entryId:entries[0].id},employee)).status,400);
+ for(const entryId of ['',null,1,'bad\nidentity','x'.repeat(513)])assert.equal((await read(db,{entryId})).status,400,JSON.stringify(entryId));
+ const ordinary=await action(db,'timeRead',range,employee);assert.equal(ordinary.status,200);assert.ok(ordinary.body.entries.every(entry=>entry.personId===people[0].id));
+});
+
+test('an exact ID cannot reveal a foreign-home employee even when the historical shift is at an allowed workplace',async t=>{
+ const {db,entries}=await setup(4);t.after(()=>db.sqlite.close());const Workspace=require('../lib/workspace-store.mjs');
+ const moved=await Workspace.handleDirectoryRequest(new Request('https://cleanrooms.example/api/directory',{method:'POST',headers:{origin:'https://cleanrooms.example','content-type':'application/json','oai-authenticated-user-id':owner.id,'oai-authenticated-user-email':owner.email},body:JSON.stringify({action:'write',changes:[{kind:'employee',id:people[1].id,expectedVersion:1,patch:{site:1}}]})}),db);assert.equal(moved.status,200,await moved.text());
+ const planner={id:'exact-scoped-planner',email:'exact-scoped@example.test'},invited=await action(db,'invite',{email:planner.email,roleId:'planner',accessScope:{mode:'departments',departmentIds:['dep-nord']}});assert.equal(invited.status,200,JSON.stringify(invited));assert.equal((await action(db,'acceptInvite',{token:new URL(invited.body.inviteUrl).searchParams.get('token')},planner)).status,200);
+ const own=await read(db,{entryId:entries[0].id},planner);assert.equal(own.status,200,JSON.stringify(own));assert.equal(own.body.entries.length,1);assert.equal(own.body.entries[0].payroll,undefined);
+ const foreign=await read(db,{entryId:entries[1].id},planner);assert.equal(foreign.status,200,JSON.stringify(foreign));assert.equal(foreign.body.entries.length,0);assert.equal(foreign.body.matchedCount,0);assert.equal(JSON.stringify(foreign.body).includes(people[1].name),false);
+});

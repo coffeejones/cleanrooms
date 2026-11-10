@@ -16,14 +16,15 @@
   const model=()=>globalThis.CleanRoomsTimekeeping;
   const approvable=entry=>entry?.status==='submitted'&&time(entry.start)&&time(entry.end)&&!entry.flags?.some(flag=>['overlap','dst_transition'].includes(flag))&&Number.isFinite(entry.workedMinutes)&&entry.workedMinutes>0&&typeof model()?.validate==='function'&&model().validate(entry).length===0;
   const QUEUES={attention:{label:'Kræver opmærksomhed',detail:'Afvigelser til gennemgang',help:'Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.'},ready:{label:'Følger planen',detail:'Klar til samlet godkendelse',help:'Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.'},progress:{label:'I gang',detail:'Afventer afslutning',help:'Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.'},approved:{label:'Godkendte',detail:'Låst efter godkendelse',help:'Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.'}};
+  const PERIOD_PROBLEMS={unapproved:'Afventer godkendelse',invalid_time:'Registreringer til rettelse',missing_payroll:'Mangler løngrundlag'};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged}={}) {
+  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
     if(!element?.ownerDocument)throw new TypeError('Timeregistrering kræver et indholdsfelt.');
     const doc=element.ownerDocument,page=doc.createElement('div');page.className='cs-timekeeping-page';element.replaceChildren(page);
     let periodPanel=null;
     let options={},tab='entries',status=null,search='',selectedId=null,selected=new Map(),draft=null,mode=null,pending=false,pagePending=false,disposed=false,message='',error='',conflict=false,viewScope='real',demoWasActive=false,bulkConfirm=null,rangeKey='',reviewOptions=null,reviewScope=null,reviewCache=new WeakMap(),shiftIndex=new Map(),reviewToday,listScroll=0,detailSections=new Set();
     const PAGE_SIZE=50,pages={entries:0,week:0,payroll:0};
-    let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey='',queueBeforePayroll='all';
+    let personSource,plannedPersonSource,personIndex=new Map(),serverViewKey='',queueBeforePayroll='all',periodFocusKey='',openedFocusKey='';
     const node=(tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=String(text);return el;};
     const differenceNode=(value,{unavailable='Kan ikke sammenlignes',reasons=[]}={})=>{
       const el=node('span','cs-time-delta'),known=Number.isFinite(value),amount=known?Math.round(Math.abs(value)):null,direction=!known?'unknown':!amount?'equal':value>0?'more':'less';
@@ -76,7 +77,20 @@
     function currentEntry(){return entries().find(item=>String(item.id)===String(selectedId));}
     function clearDraft(){draft=null;mode=null;conflict=false;}
     function openEntry(entry){listScroll=page.querySelector('.cs-timekeeping-body')?.scrollTop||0;selectedId=entry.id;detailSections.clear();clearDraft();error='';paint('detail:close');const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;}
-    function closeEntry(entry){selectedId=null;detailSections.clear();clearDraft();paint('entry:'+entry.id);const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=listScroll;}
+    function closeEntry(entry){const focused=periodFocus();selectedId=null;detailSections.clear();clearDraft();paint('entry:'+entry.id);const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=listScroll;if(focused&&String(options.requestedEntryId)===String(entry.id)&&typeof onCloseFocusedEntry==='function')return onCloseFocusedEntry(entry.id);}
+    function periodFocus(){
+      const focus=options.periodFocus;
+      if(!focus||!options.canViewPayroll||viewScope!=='real'||focus.problem!=null&&!Object.hasOwn(PERIOD_PROBLEMS,focus.problem)||!/^\d{4}-\d{2}-\d{2}$/.test(focus.from||'')||!/^\d{4}-\d{2}-\d{2}$/.test(focus.to||'')||focus.to<focus.from||focus.from!==options.from||focus.to!==options.to)return null;
+      return focus;
+    }
+    function paintPeriodFocus(){
+      const focus=periodFocus();if(!focus)return;
+      const strip=node('div','cs-time-period-focus'),context=node('div','cs-time-period-focus-context');strip.setAttribute('role','region');strip.setAttribute('aria-label','Fra lønperioden');
+      const range=new Date(focus.from+'T12:00:00Z').toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})+' – '+new Date(focus.to+'T12:00:00Z').toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+      context.append(node('strong','',PERIOD_PROBLEMS[focus.problem]||'Lønperiode'),node('span','cs-time-caption',range));
+      if(focus.problem==='missing_payroll')context.append(node('span','cs-time-period-focus-hint','Ret lønaftalen, og genåbn og godkend registreringen igen.'));
+      strip.append(context);if(typeof onClearPeriodFocus==='function')strip.append(button('Vis alle timer',()=>onClearPeriodFocus(),'cs-button cs-quiet','period:clear'));page.append(strip);
+    }
     async function refresh(){if(blocked()||typeof onRefresh!=='function')return;pending=true;error='';paint();try{await onRefresh();}catch(problem){error=problem?.message||'Registreringerne kunne ikke hentes.';}finally{pending=false;paint();}}
     async function invoke(action,payload,success){
       if(blocked()||typeof onAction!=='function')return false;pending=true;error='';message='';paint();
@@ -149,6 +163,7 @@
         const control=button(label,()=>{const previous=tab;tab=value;selectedId=null;bulkConfirm=null;selected.clear();clearDraft();const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;if(serverPaged()&&value==='payroll'&&previous!=='payroll'){queueBeforePayroll=status||'all';status='approved';paint('tab:'+value);filterChanged();}else if(serverPaged()&&previous==='payroll'&&value!=='payroll'){status=queueBeforePayroll;paint('tab:'+value);filterChanged();}else paint('tab:'+value);},'cs-time-tab','tab:'+value);control.setAttribute('role','tab');control.setAttribute('aria-selected',String(tab===value));tabs.append(control);
       }
       const navigation=node('div','cs-time-navigation');navigation.append(tabs);if(demoBar)navigation.append(demoBar);page.append(navigation);
+      paintPeriodFocus();
       if(message){const statusBox=node('p','cs-time-message',message);statusBox.setAttribute('role','status');page.append(statusBox);}
       if(error||options.error||options.pagination?.error){const errorBox=node('div','cs-time-error');errorBox.setAttribute('role','alert');errorBox.append(node('p','',error||options.error||options.pagination.error));if(!blocked())errorBox.append(button('Hent registreringer igen',refresh,'cs-button','reload:error'));page.append(errorBox);}
       const body=node('div','cs-timekeeping-body');body.dataset.timeTab=tab;body.setAttribute('role','tabpanel');body.setAttribute('aria-label',tab==='week'?'Ugens overblik':tab==='payroll'?'Løngrundlag':'Registreringer');
@@ -269,8 +284,8 @@
       body.append(metricStrip([['Godkendte timer',minutes(approvedMinutes)],['Timebaseret løngrundlag',count>missing?money(cents):count?'—':money(0),'inkl. tidsbestemte tillæg'],['Mangler lønaftale',String(missing),'godkendte registreringer']]));
       if(serverPaged()&&!aggregate)body.append(node('p','cs-time-caption','Løngrundlaget vises for de indlæste registreringer.'));
       const payrollHead=node('div','cs-time-payroll-heading');payrollHead.append(node('h3','cs-time-heading','Godkendt løngrundlag'));
-      if(viewScope==='real'&&typeof onPayrollPeriodAction==='function'&&globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button('Lønperiode og eksport',()=>{
-        periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.('#cleanrooms-studio')||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onClose:()=>{periodPanel=null;}});
+      if(viewScope==='real'&&options.companyPayroll!==false&&typeof onPayrollPeriodAction==='function'&&globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button('Lønperiode og eksport',()=>{
+        periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.('#cleanrooms-studio')||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onNavigate:onPayrollPeriodNavigate,onClose:()=>{periodPanel=null;}});
       },'cs-button cs-quiet','payroll:period'));
       body.append(payrollHead,node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.'));
       if(!approved.length){body.append(node('p','cs-time-empty',serverPaged()&&count?'Ingen godkendte registreringer på denne side.':'Godkend registreringer, før de indgår i løngrundlaget.'));const pager=pagination(0,'payroll');if(pager)body.append(pager);return;}
@@ -353,12 +368,20 @@
       if(nextScope!==viewScope||rangeKey!==nextRange){status=null;pages.entries=pages.week=pages.payroll=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();}
       viewScope=nextScope;rangeKey=nextRange;demoWasActive=!!options.demo?.active;
       if(serverPaged()){
-        const filter=options.serverFilter||{},key=[options.pagination.page||0,filter.queue||'all',filter.search||'',filter.scope||viewScope,nextRange].join('|');
+        const filter=options.serverFilter||{},key=JSON.stringify([options.pagination.page||0,filter.queue||'all',filter.search||'',filter.scope||viewScope,filter.problem||'',filter.entryId||'',nextRange]);
         if(key!==serverViewKey){selected.clear();bulkConfirm=null;selectedId=null;clearDraft();status=filter.queue||'all';if(typeof filter.search==='string')search=filter.search;if(filter.scope==='real'||filter.scope==='demo')viewScope=filter.scope;serverViewKey=key;}
       }else serverViewKey='';
       const current=new Map(scopedEntries().filter(approvable).map(item=>[item.id,item.version]));selected=new Map([...selected].filter(([id,version])=>current.get(id)===version));
-      if(selectedId&&!currentEntry()){selectedId=null;clearDraft();}
+      if(selectedId&&!currentEntry()&&!options.loading&&options.pagination?.loading!==true){selectedId=null;clearDraft();}
       if(options.canManage!==true){selected.clear();bulkConfirm=null;clearDraft();}
+      if(!options.canViewPayroll||options.companyPayroll===false){periodPanel?.destroy?.();periodPanel=null;}
+      const focused=periodFocus(),focusKey=focused?JSON.stringify([focused.from,focused.to,focused.problem,focused.personId||'',focused.entryId||'',options.requestedEntryId||'']):'';
+      if(focusKey!==periodFocusKey){if(periodFocusKey){selectedId=null;clearDraft();}periodFocusKey=focusKey;openedFocusKey='';if(focused?.problem||focused&&options.requestedEntryId)tab='entries';}
+      if(focused&&options.requestedEntryId&&(!focused.entryId||focused.entryId===options.requestedEntryId)&&openedFocusKey!==focusKey&&!options.loading&&options.pagination?.loading!==true){
+        const filter=options.serverFilter||{},matchesFilter=!serverPaged()||filter.scope!=='demo'&&filter.problem===focused.problem&&filter.entryId===options.requestedEntryId;
+        const requested=matchesFilter&&scopedEntries().find(item=>item.id===options.requestedEntryId&&item.date>=focused.from&&item.date<=focused.to&&(!focused.personId||item.personId===focused.personId));
+        if(requested){tab='entries';selectedId=requested.id;detailSections.clear();clearDraft();error='';listScroll=0;openedFocusKey=focusKey;}
+      }
       chooseDefaultQueue();paint();
     }
     function destroy(){disposed=true;periodPanel?.destroy?.();periodPanel=null;options={};selected.clear();draft=null;element.replaceChildren();}

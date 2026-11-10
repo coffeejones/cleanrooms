@@ -194,7 +194,7 @@ test('employee creation includes app access and profile navigation while adminis
   const role=find('#cs-account-invite-role');role.value='planner';role.fire('change');
   assert.equal(site.required,false);assert.equal(site.parentElement.hidden,true);assert.equal(site.disabled,true);
   name.value='Kun planlægger';email.value='planner@example.com';send.click();await settle();
-  assert.deepEqual(calls.filter(call=>call.action==='invite').at(-1).payload,{name:'Kun planlægger',roleId:'planner',newUser:true,email:'planner@example.com'});
+  assert.deepEqual(calls.filter(call=>call.action==='invite').at(-1).payload,{name:'Kun planlægger',roleId:'planner',newUser:true,email:'planner@example.com',accessScope:{mode:'all',departmentIds:[]}});
   assert.equal(find('#cs-account-employee-result').hidden,true);
   assert.equal(find('#cs-account-invite-link').value,'https://example.com/join?token=synthetic');
   controller.destroy();
@@ -250,4 +250,22 @@ test('users list combines app and web access and opens the employee profile for 
   controller.render({viewer,capabilities:{plan:true,manageUsers:true}});await settle();
   assert.equal(find('[data-app-user-id="p-mads"]'),null);
   controller.destroy();
+});
+
+
+test('web invitation and member editing preserve explicit department scope with required selection',async()=>{
+ const element=accountsViewDOM(),context=vm.createContext({}),calls=[];vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/accounts-view.js'),'utf8'),context);
+ const model={roles:[{id:'planner',name:'Planlægger',permissions:['plan']}],departments:[{id:'north',name:'Ringsted'},{id:'south',name:'Nykøbing'}],members:[{userId:'local',name:'Lokal planlægger',email:'local@example.test',roleId:'planner',status:'active',version:3,accessScope:{mode:'departments',departmentIds:['north']}}],invites:[],staff:[]};
+ const view=context.CleanRoomsAccountsView.mount({element,onAction:async(action,payload)=>{calls.push({action,payload:plain(payload)});return action==='list'?{ok:true,...model}:{ok:true};}}),settle=()=>new Promise(resolve=>setImmediate(resolve)),find=selector=>element.querySelector(selector);
+ view.render({viewer:{userId:'owner',permissions:['plan','users.manage']},capabilities:{plan:true,manageUsers:true}});await settle();
+ find('#cs-account-invite-name').value='Ny planlægger';find('#cs-account-invite-email').value='planner@example.test';const mode=find('#cs-account-invite-scope-mode');mode.value='departments';mode.fire('change');find('#cs-account-invite-send').click();await settle();assert.equal(calls.some(call=>call.action==='invite'),false);
+ const north=find('[data-department-scope="north"]');north.checked=true;north.fire('change');find('#cs-account-invite-send').click();await settle();assert.deepEqual(calls.find(call=>call.action==='invite').payload.accessScope,{mode:'departments',departmentIds:['north']});
+ const member=find('[data-user-id="local"]');assert.match(member.textContent,/Ringsted/);member.querySelector('button').click();assert.equal(find('#cs-account-edit-scope-mode').value,'departments');find('#cs-account-edit-save').click();await settle();const saved=calls.find(call=>call.action==='updateMember');assert.deepEqual(saved.payload.accessScope,{mode:'departments',departmentIds:['north']});assert.equal(saved.payload.version,3);view.destroy();
+});
+
+test('a scoped user manager cannot select company-wide web access and scope changes clear former choices',async()=>{
+ const element=accountsViewDOM(),context=vm.createContext({}),calls=[];vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/accounts-view.js'),'utf8'),context);let department={id:'north',name:'Ringsted'};
+ const view=context.CleanRoomsAccountsView.mount({element,onAction:async(action,payload)=>{calls.push({action,payload:plain(payload)});return {ok:true,roles:[{id:'planner',name:'Planlægger',permissions:['plan']}],departments:[department],staff:[],members:[],invites:[]};}}),settle=()=>new Promise(resolve=>setImmediate(resolve));
+ const render=()=>view.render({viewer:{userId:'local',permissions:['plan','users.manage'],accessScope:{mode:'departments',departmentIds:[department.id]}},capabilities:{plan:true,manageUsers:true,scopeRestricted:true,allowedDepartmentIds:[department.id]}});render();await settle();let mode=element.querySelector('#cs-account-invite-scope-mode');assert.equal(mode.value,'departments');assert.equal(mode.children[0].disabled,true);assert.match(element.textContent,/Ringsted/);
+ department={id:'south',name:'Nykøbing'};render();await settle();assert.equal(element.querySelector('[data-department-scope="north"]'),null);assert.ok(element.querySelector('[data-department-scope="south"]'));view.destroy();
 });

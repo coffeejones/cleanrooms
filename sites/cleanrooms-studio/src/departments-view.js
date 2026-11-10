@@ -5,7 +5,7 @@
   function mount({element,portal,onSelect,onSave}={}) {
     if(!element?.ownerDocument||!portal?.append)throw new TypeError('Afdelingsvælgeren kræver et felt og et panelfelt.');
     const doc=element.ownerDocument,win=doc.defaultView,uid=++instance,suffix=uid===1?'':'-'+uid;
-    let organization={version:1,sites:[],departments:[]},selectedId=null,canManage=false,busy=false,pending=false,menuOpen=false,managerOpen=false,editingId=null,editingVersion=null,query='',returnFocus=null,saveGeneration=0,disposed=false;
+    let organization={version:1,sites:[],departments:[]},selectedId=null,canManage=false,scopeRestricted=false,busy=false,pending=false,menuOpen=false,managerOpen=false,editingId=null,editingVersion=null,query='',returnFocus=null,saveGeneration=0,disposed=false;
     const inertBefore=new Map();
     const node=(tag,className,text)=>{const item=doc.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item;};
     const id=(item,name)=>{item.id='cs-department-'+name+suffix;return item;};
@@ -16,6 +16,7 @@
     const departments=()=>Array.isArray(organization.departments)?organization.departments:[];
     const siteIdsFor=department=>[...new Set((Array.isArray(department?.siteIds)?department.siteIds:[]).filter(index=>Number.isInteger(index)&&index>=0&&index<sites().length))];
     const metaFor=department=>{const count=siteIdsFor(department).length;return kindLabel(department.kind)+' · '+count+(count===1?' arbejdssted':' arbejdssteder');};
+    const allLabel=()=>scopeRestricted?'Dine afdelinger':'Alle afdelinger';
     const disabled=()=>busy||pending;
     const setDisabled=()=>{
       trigger.disabled=busy;
@@ -69,8 +70,8 @@
       const needle=query.trim().toLocaleLowerCase('da-DK');options.replaceChildren();
       const appendOption=(department)=>{
         const active=department?String(department.id)===String(selectedId):selectedId===null;
-        const option=button(department?department.name+', '+metaFor(department):'Alle afdelinger','cs-department-option',()=>{closeMenu(true);onSelect?.(department?.id??null);},null);option.dataset.departmentId=department?.id??'';option.setAttribute('aria-pressed',String(active));
-        const copy=node('span','cs-department-option-copy');copy.append(node('span','cs-department-option-name',department?.name||'Alle afdelinger'),node('span','cs-department-option-meta',department?metaFor(department):'Vis alle arbejdssteder'));option.append(copy,node('span','cs-department-option-check',active?'✓':''));options.append(option);
+        const option=button(department?department.name+', '+metaFor(department):allLabel(),'cs-department-option',()=>{closeMenu(true);onSelect?.(department?.id??null);},null);option.dataset.departmentId=department?.id??'';option.setAttribute('aria-pressed',String(active));
+        const copy=node('span','cs-department-option-copy');copy.append(node('span','cs-department-option-name',department?.name||allLabel()),node('span','cs-department-option-meta',department?metaFor(department):scopeRestricted?'Vis dine arbejdssteder':'Vis alle arbejdssteder'));option.append(copy,node('span','cs-department-option-check',active?'✓':''));options.append(option);
       };
       if(!needle||'alle afdelinger'.includes(needle))appendOption(null);
       for(const department of departments()){
@@ -104,7 +105,7 @@
     }
     function renderWorksites(selected){
       const chosen=new Set(selected);worksiteOptions.replaceChildren();
-      sites().forEach((site,index)=>{const label=node('label','cs-department-site-option'),checkbox=node('input',''),copy=node('span','cs-department-site-copy');checkbox.type='checkbox';checkbox.checked=chosen.has(index);checkbox.dataset.departmentSite=String(index);copy.append(node('span','cs-department-site-name',site.name));if(site.address)copy.append(node('span','cs-department-site-address',site.address));label.append(checkbox,copy);worksiteOptions.append(label);});
+      sites().forEach((site,index)=>{if(site.restricted)return;const label=node('label','cs-department-site-option'),checkbox=node('input',''),copy=node('span','cs-department-site-copy');checkbox.type='checkbox';checkbox.checked=chosen.has(index);checkbox.dataset.departmentSite=String(index);copy.append(node('span','cs-department-site-name',site.name));if(site.address)copy.append(node('span','cs-department-site-address',site.address));label.append(checkbox,copy);worksiteOptions.append(label);});
       if(!sites().length)worksiteOptions.append(node('p','cs-department-help','Der er endnu ingen arbejdssteder. Opret et nedenfor, eller gem en tom afdeling.'));
     }
     function setDraft(departmentId){
@@ -119,6 +120,7 @@
     }
     function openManager(departmentId){
       if(disposed||!canManage||disabled())return;
+      if(scopeRestricted&&departmentId==null)departmentId=departments()[0]?.id;
       returnFocus=menuOpen?trigger:doc.activeElement;closeMenu(false);managerOpen=true;layer.hidden=false;applyInert();setDraft(departmentId);body.scrollTop=0;doc.addEventListener('keydown',trap,true);closeButton.focus({preventScroll:true});
     }
     function closeManager(restore){
@@ -153,11 +155,11 @@
       if(event.target.tagName==='TEXTAREA'&&!event.ctrlKey&&!event.metaKey)return;
       event.preventDefault();submitDraft(event);
     });
-    function updateTrigger(){const selected=departments().find(item=>String(item.id)===String(selectedId));triggerName.textContent=selected?.name||'Alle afdelinger';trigger.title=selected?selected.name+', '+metaFor(selected):'Alle afdelinger';trigger.setAttribute('aria-label','Vælg afdeling: '+triggerName.textContent);}
+    function updateTrigger(){const selected=departments().find(item=>String(item.id)===String(selectedId));triggerName.textContent=selected?.name||allLabel();trigger.title=selected?selected.name+', '+metaFor(selected):allLabel();trigger.setAttribute('aria-label','Vælg afdeling: '+triggerName.textContent);}
     function render(next={}){
       if(disposed)return;
       if(next.organization&&Array.isArray(next.organization.sites)&&Array.isArray(next.organization.departments))organization=next.organization;
-      selectedId=next.selectedId??null;canManage=Boolean(next.canManage);busy=Boolean(next.busy);updateTrigger();renderMenu();
+      selectedId=next.selectedId??null;canManage=Boolean(next.canManage);scopeRestricted=Boolean(next.scopeRestricted);create.hidden=scopeRestricted;addSiteLabel.hidden=scopeRestricted;busy=Boolean(next.busy);updateTrigger();renderMenu();
       if(managerOpen){if(!canManage)closeManager(true);else{const chosen=[...worksiteOptions.querySelectorAll('input[data-department-site]')].filter(item=>item.checked).map(item=>Number(item.dataset.departmentSite));renderList();renderWorksites(chosen);applyInert();}}
       setDisabled();if(menuOpen)positionMenu();
     }

@@ -2,6 +2,7 @@
 import Publication from '../src/publication-model.js';
 import Data from '../src/studio-data.js';
 import Time from '../src/timekeeping-model.js';
+import {isScoped,sitePredicate,personPredicate} from './department-access.mjs';
 import {publishedEmployeeDescriptor,publishedEmployeeIndexStatements} from './published-employee-index.mjs';
 
 export const PUBLICATION_CHUNK_BYTES=256*1024;
@@ -9,6 +10,8 @@ const MAX_PAYLOAD_BYTES=64*1024*1024,READ_BYTES=1024*1024;
 const encode=new TextEncoder(),decode=new TextDecoder('utf-8',{fatal:true});
 const record=value=>Boolean(value&&typeof value==='object'&&!Array.isArray(value));
 const clone=value=>JSON.parse(JSON.stringify(value));
+function scopedShifts(context,alias='workspace_published_shifts'){if(!isScoped(context))return {sql:'1=1',values:[]};const site=sitePredicate(context,alias+'.site'),person=personPredicate(context,alias+'.person_id');return {sql:`(${site.sql}) AND (${alias}.person_id IS NULL OR ${alias}.person_id='' OR (${person.sql}))`,values:[...site.values,...person.values]};}
+function andFilter(left,right){return {sql:'('+left.sql+') AND ('+right.sql+')',values:[...left.values,...right.values]};}
 const canonical=value=>JSON.stringify(Array.isArray(value)?value.map(item=>JSON.parse(canonical(item))):record(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,JSON.parse(canonical(value[key]))])):value);
 const same=(left,right)=>canonical(left)===canonical(right);
 const statement=(db,sql,...values)=>db.prepare(sql).bind(...values);
@@ -39,17 +42,17 @@ async function employeeDescriptors(db,workspaceId,headers){
 export async function readPublishedEmployeeLocations({db,workspaceId,scopeKeys}){
   const result=new Map();for(const batch of groups([...new Set(scopeKeys)],32)){const headers=await rows(db,'SELECT scope_key,from_date,to_date,site,version,write_token,window_version FROM workspace_publication_scopes WHERE workspace_id=? AND deleted=0 AND scope_key IN (SELECT value FROM json_each(?))',workspaceId,JSON.stringify(batch));if(headers.length!==batch.length)throw conflict();const values=await readWindowHeaders(db,workspaceId,'scope',headers);for(const [key,value]of values)result.set(key,clone(Publication.locationDetails(value.value.location)));}return result;
 }
-export async function readEmployeePublishedShift({db,workspaceId,personId,shiftId}){
+export async function readEmployeePublishedShift({db,workspaceId,personId,shiftId,context}){
   if(typeof shiftId!=='string'||!shiftId||shiftId.length>512)throw Object.assign(new TypeError('Vælg en gyldig vagt.'),{status:400,code:'employee_shift_invalid'});
-  const header=await first(db,`SELECT ${employeeColumns},deleted,byte_length,chunk_count,payload_version FROM workspace_published_shifts WHERE workspace_id=? AND id=?${personId!==undefined?' AND person_id=?':''} AND deleted=0`,workspaceId,shiftId,...(personId!==undefined?[personId]:[]));if(!header)return null;
+  const scope=scopedShifts(context);const header=await first(db,`SELECT ${employeeColumns},deleted,byte_length,chunk_count,payload_version FROM workspace_published_shifts WHERE workspace_id=? AND id=?${personId!==undefined?' AND person_id=?':''} AND deleted=0 AND (${scope.sql})`,workspaceId,shiftId,...(personId!==undefined?[personId]:[]),...scope.values);if(!header)return null;
   const value=(await hydratePayloads(db,workspaceId,'shift',[header])).get(shiftId);if(!value)throw conflict();validatePublishedIdentity(value.value,header);const sites=await readPublishedEmployeeLocations({db,workspaceId,scopeKeys:[header.scope_key]}),live=await first(db,'SELECT version,write_token,deleted FROM workspace_published_shifts WHERE workspace_id=? AND id=?',workspaceId,shiftId);if(live?.version!==header.version||live.write_token!==header.write_token||live.deleted)throw conflict();const site=sites.get(header.scope_key);return {shift:{...clone(value.value),location:site},site,publicationVersion:header.version};
 }
 /* The only warm instruction reads are explicit details. Periods use typed
  * schedules and a SQL join against current hashed checklist descriptors. */
-export async function readPublishedEmployeePage({db,workspaceId,from=Data.minDate,to=Data.maxDate,personId,cursor=null,limit=500,ids,next=false}){
+export async function readPublishedEmployeePage({db,workspaceId,from=Data.minDate,to=Data.maxDate,personId,cursor=null,limit=500,ids,next=false,context}){
   if(!Time.validDate(from)||!Time.validDate(to)||from>to||from<Data.minDate||to>Data.maxDate||!Number.isInteger(limit)||limit<1||limit>500||personId!==undefined&&typeof personId!=='string'||ids!==undefined&&(!Array.isArray(ids)||ids.length>5000||ids.some(id=>typeof id!=='string'||!id||id.length>512)))throw Object.assign(new TypeError('Vælg en gyldig vagtperiode.'),{status:400,code:'employee_period_invalid'});
   let after=null;if(cursor!==null){try{after=JSON.parse(cursor);if(!Array.isArray(after)||after.length!==2||!Time.validDate(after[0])||typeof after[1]!=='string'||after[1].length>512)throw Error();}catch{throw Object.assign(new TypeError('Sidehenvisningen er ugyldig.'),{status:400,code:'employee_cursor_invalid'});}}
-  const where=['workspace_id=?','deleted=0','work_date>=?','work_date<=?'],values=[workspaceId,from,to];if(personId!==undefined){where.push('person_id=?');values.push(personId);}if(ids!==undefined){where.push('id IN (SELECT value FROM json_each(?))');values.push(JSON.stringify([...new Set(ids)]));}if(after){where.push('(work_date>? OR (work_date=? AND id>?))');values.push(after[0],after[0],after[1]);}
+  const scope=scopedShifts(context),where=['workspace_id=?','deleted=0','work_date>=?','work_date<=?',scope.sql],values=[workspaceId,from,to,...scope.values];if(personId!==undefined){where.push('person_id=?');values.push(personId);}if(ids!==undefined){where.push('id IN (SELECT value FROM json_each(?))');values.push(JSON.stringify([...new Set(ids)]));}if(after){where.push('(work_date>? OR (work_date=? AND id>?))');values.push(after[0],after[0],after[1]);}
   const headers=await rows(db,`SELECT ${employeeColumns} FROM workspace_published_shifts INDEXED BY ${personId!==undefined?'workspace_published_shifts_person':'workspace_published_shifts_window'} WHERE ${where.join(' AND ')} ORDER BY work_date,id LIMIT ?`,...values,(next?1:limit)+1),selected=headers.slice(0,next?1:limit);await employeeDescriptors(db,workspaceId,selected);
   const idsSelected=selected.map(row=>row.id),pauses=await readPublishedTimeShifts({db,workspaceId,ids:idsSelected,...(personId?{personId}:{})}),pauseById=new Map(pauses.map(shift=>[shift.id,shift.plannedBreakMinutes])),locations=await readPublishedEmployeeLocations({db,workspaceId,scopeKeys:selected.map(row=>row.scope_key)}),counts=new Map();
   if(selected.length){const counted=await rows(db,`SELECT current.id,COUNT(item.task_key) AS total,COALESCE(SUM(CASE WHEN progress.checked=1 AND progress.structure=item.structure AND progress.signature=item.signature THEN 1 ELSE 0 END),0) AS checked FROM json_each(?) chosen CROSS JOIN workspace_published_shifts current LEFT JOIN workspace_published_checklist_items item ON item.workspace_id=current.workspace_id AND item.shift_id=current.id AND item.published_version=current.version AND item.structure=current.checklist_structure LEFT JOIN workspace_checklist_tasks progress ON progress.workspace_id=item.workspace_id AND progress.shift_id=item.shift_id AND progress.person_id=current.person_id AND progress.task_key=item.task_key WHERE current.workspace_id=? AND current.id=json_extract(chosen.value,'$.id') AND current.version=json_extract(chosen.value,'$.version') AND current.write_token=json_extract(chosen.value,'$.token') AND current.employee_version=current.version AND current.deleted=0 GROUP BY current.id`,JSON.stringify(selected.map(row=>({id:row.id,version:row.version,token:row.write_token}))),workspaceId);if(counted.length!==selected.length)throw conflict();for(const row of counted)counts.set(row.id,row);}
@@ -59,12 +62,12 @@ export async function readPublishedEmployeePage({db,workspaceId,from=Data.minDat
 
 // Time review needs the frozen assignment and agreed pause, not its instruction.
 // An older writer dirties this derived summary; repair only the selected rows.
-export async function readPublishedTimeShifts({db,workspaceId,from,to,personId,ids}){
+export async function readPublishedTimeShifts({db,workspaceId,from,to,personId,ids,context}){
   if(typeof workspaceId!=='string'||!workspaceId||personId!==undefined&&(typeof personId!=='string'||!personId)||ids!==undefined&&(!Array.isArray(ids)||ids.length>5000||ids.some(id=>typeof id!=='string'||!id))||ids===undefined&&(!Time.validDate(from)||!Time.validDate(to)||from>to||(Date.parse(to)-Date.parse(from))/86400000>366))throw Object.assign(new TypeError('Vælg en gyldig periode eller de berørte vagter.'),{status:400,code:'publication_time_scope_invalid'});
   const result=[],seen=new Set(),expected=[];
   const batches=ids===undefined?[null]:ids.length?guardDocuments([...new Set(ids)]).map(value=>JSON.parse(value)):[];
   for(const chosen of batches){let after='',afterDate=from;for(;;){
-    const where=['workspace_id=?','deleted=0'],values=[workspaceId];if(personId!==undefined){where.push('person_id=?');values.push(personId);}if(chosen){where.push('id>?','id IN (SELECT value FROM json_each(?))');values.push(after,JSON.stringify(chosen));}else{where.push('work_date>=? AND work_date<=?','(work_date>? OR (work_date=? AND id>?))');values.push(from,to,afterDate,afterDate,after);}
+    const scope=scopedShifts(context),where=['workspace_id=?','deleted=0',scope.sql],values=[workspaceId,...scope.values];if(personId!==undefined){where.push('person_id=?');values.push(personId);}if(chosen){where.push('id>?','id IN (SELECT value FROM json_each(?))');values.push(after,JSON.stringify(chosen));}else{where.push('work_date>=? AND work_date<=?','(work_date>? OR (work_date=? AND id>?))');values.push(from,to,afterDate,afterDate,after);}
     const index=chosen?'':` INDEXED BY ${personId===undefined?'workspace_published_shifts_window':'workspace_published_shifts_person'}`;
     const headers=await rows(db,`SELECT id,person_id,work_date,site,start_time,end_time,version,write_token,time_version,length(CAST(time_config AS BLOB)) AS time_bytes FROM workspace_published_shifts${index} WHERE ${where.join(' AND ')} ORDER BY ${chosen?'':'work_date,'}id LIMIT 500`,...values);
     const summaries=new Map(),warm=headers.filter(row=>row.time_version===row.version&&row.time_bytes>0&&row.time_bytes<=2048).map(row=>({id:row.id,version:row.version,token:row.write_token}));
@@ -326,27 +329,27 @@ export async function ensurePublicationWindowMetadata({db,workspaceId}){
  * generations across pages and retries a concurrent replacement. An individual
  * existing long description may exceed the soft byte budget; it is never cut. */
 export async function publicationWindowPage(options){
-  const {from,to}=options;windowPeriod(from,to);return publicationReadPage({...options,scopeFilter:{sql:'from_date<=? AND to_date>=?',values:[to,from]},shiftFilter:{sql:'work_date>=? AND work_date<=?',values:[from,to]},withAbsences:true});
+  const {from,to,context}=options;windowPeriod(from,to);return publicationReadPage({...options,scopeFilter:andFilter({sql:'from_date<=? AND to_date>=?',values:[to,from]},sitePredicate(context,'workspace_publication_scopes.site')),shiftFilter:andFilter({sql:'work_date>=? AND work_date<=?',values:[from,to]},scopedShifts(context)),withAbsences:true});
 }
 
-export async function publicationSelectionPage({selection,calendar,...options}){
+export async function publicationSelectionPage({selection,calendar,context,...options}){
   const keys=selection?.scopeKeys||[];if(!Array.isArray(keys)||keys.length>10000)throw selectionTooLarge();for(const key of keys)scopeParts(key);if(calendar)windowPeriod(calendar.from,calendar.to);
   const chosen=JSON.stringify(keys),scopeFilter={sql:'scope_key IN (SELECT value FROM json_each(?))',values:[chosen]},shiftFilter={...scopeFilter};
   if(calendar){scopeFilter.sql='('+scopeFilter.sql+' OR (from_date<=? AND to_date>=?))';scopeFilter.values=[chosen,calendar.to,calendar.from];shiftFilter.sql='('+shiftFilter.sql+' OR (work_date>=? AND work_date<=?))';shiftFilter.values=[chosen,calendar.from,calendar.to];}
-  return publicationReadPage({...options,scopeFilter,shiftFilter,scopeLinks:selection?.scopeLinks||[],fullScopeKeys:selection?.scopeKeys||[],withAbsences:false});
+  return publicationReadPage({...options,context,scopeFilter:andFilter(scopeFilter,sitePredicate(context,'workspace_publication_scopes.site')),shiftFilter:andFilter(shiftFilter,scopedShifts(context)),scopeLinks:selection?.scopeLinks||[],fullScopeKeys:selection?.scopeKeys||[],withAbsences:false});
 }
 
-export async function publicationAvailabilityPage({db,workspaceId,ranges,cursor=null,maxRows=500,maxBytes=1024*1024,allowOversized=true}){
+export async function publicationAvailabilityPage({db,workspaceId,ranges,cursor=null,maxRows=500,maxBytes=1024*1024,allowOversized=true,context}){
   if(!Array.isArray(ranges)||ranges.length>20000||!Number.isSafeInteger(maxRows)||maxRows<1||maxRows>500||!Number.isSafeInteger(maxBytes)||maxBytes<1024||maxBytes>2*1024*1024||cursor!==null&&(!record(cursor)||typeof cursor.date!=='string'||typeof cursor.id!=='string'||!cursor.id||cursor.id.length>512||Object.keys(cursor).some(key=>!['date','id'].includes(key)))){const error=new Error('Planvisningens sidehenvisning er ugyldig.');error.status=400;error.code='invalid_publication_availability_cursor';throw error;}
   for(const range of ranges){if(!record(range)||typeof range.from!=='string'||typeof range.to!=='string'||range.from>range.to||range.from<Data.minDate||range.to>Data.maxDate||![range.from,range.to].every(day=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day+'T12:00:00Z'))&&new Date(day+'T12:00:00Z').toISOString().slice(0,10)===day))throw invalid();}
-  const headers=await rows(db,`SELECT DISTINCT target.id,target.person_id,target.work_date,target.site,target.start_time,target.end_time FROM json_each(?) chosen CROSS JOIN workspace_published_shifts target INDEXED BY workspace_published_shifts_window WHERE target.workspace_id=? AND target.deleted=0 AND target.work_date>=json_extract(chosen.value,'$.from') AND target.work_date<=json_extract(chosen.value,'$.to') ${cursor?'AND (target.work_date,target.id)>(?,?)':''} ORDER BY target.work_date,target.id LIMIT ?`,JSON.stringify(ranges),workspaceId,...(cursor?[cursor.date,cursor.id]:[]),maxRows+1);
+  const scope=scopedShifts(context,'target');const headers=await rows(db,`SELECT DISTINCT target.id,target.person_id,target.work_date,target.site,target.start_time,target.end_time FROM json_each(?) chosen CROSS JOIN workspace_published_shifts target INDEXED BY workspace_published_shifts_window WHERE target.workspace_id=? AND target.deleted=0 AND target.work_date>=json_extract(chosen.value,'$.from') AND target.work_date<=json_extract(chosen.value,'$.to') AND (${scope.sql}) ${cursor?'AND (target.work_date,target.id)>(?,?)':''} ORDER BY target.work_date,target.id LIMIT ?`,JSON.stringify(ranges),workspaceId,...scope.values,...(cursor?[cursor.date,cursor.id]:[]),maxRows+1);
   const result=[];let bytes=0,last=null;
   for(const row of headers){const item={kind:'availability',id:JSON.stringify(['published',row.id]),value:{kind:'published',id:row.id,value:{id:row.id,person:row.person_id,site:row.site,date:row.work_date,start:row.start_time,end:row.end_time}}},size=encode.encode(JSON.stringify(item)).length;if((result.length||!allowOversized)&&(result.length===maxRows||bytes+size>maxBytes))break;result.push(item);bytes+=size;last=row;}
   if(headers.length&&!result.length)return {auxRows:[],nextCursor:cursor,blocked:true};
   return {auxRows:result,nextCursor:headers.length>result.length?{date:last.work_date,id:last.id}:null};
 }
 
-async function publicationReadPage({db,workspaceId,from,to,cursor=null,maxRows=500,maxBytes=1024*1024,scopeFilter,shiftFilter,scopeLinks=[],withAbsences,instructions,fullScopeKeys=[],allowOversized=true}){
+async function publicationReadPage({db,workspaceId,from,to,cursor=null,maxRows=500,maxBytes=1024*1024,scopeFilter,shiftFilter,scopeLinks=[],withAbsences,instructions,fullScopeKeys=[],allowOversized=true,context}){
   const compactScopes=new Set(fullScopeKeys),compact=header=>instructions==='deferred'&&!compactScopes.has(header.scope_key);
   const stages=withAbsences?['state','scope','shift','absence']:['state','scope','shift'];
   if(!Number.isSafeInteger(maxRows)||maxRows<1||maxRows>(withAbsences&&instructions==='deferred'?1000:500)||!Number.isSafeInteger(maxBytes)||maxBytes<1024||maxBytes>2*1024*1024||cursor!==null&&(!record(cursor)||!stages.includes(cursor.stage)||typeof cursor.after!=='string'||Object.keys(cursor).some(key=>!['stage','after'].includes(key)))){const error=new Error('Kalenderens sideangivelse er ugyldig.');error.status=400;error.code='invalid_calendar_cursor';throw error;}
@@ -355,7 +358,7 @@ async function publicationReadPage({db,workspaceId,from,to,cursor=null,maxRows=5
   const append=(target,value)=>{const bytes=encode.encode(JSON.stringify(value)).length;if((size()||!allowOversized)&&(size()>=maxRows||used+bytes>maxBytes))return false;target.push(value);used+=bytes;return true;};
   const page=nextCursor=>({rows:result,auxRows,nextCursor,...(nextCursor&&!size()?{blocked:true}:{})});
   if(stage==='state'){
-    const value=await ensurePublicationWindowMetadata({db,workspaceId});value.value.scopeLinks=clone(scopeLinks);if(!append(result,{kind:'state',id:'state',value}))return page({stage,after});stage='scope';after='';
+    const value=await ensurePublicationWindowMetadata({db,workspaceId});if(isScoped(context))value.value.sequence=0;value.value.scopeLinks=clone(scopeLinks);if(!append(result,{kind:'state',id:'state',value}))return page({stage,after});stage='scope';after='';
   }
   while(true){
     if(size()>=maxRows||used>=maxBytes)return page({stage,after});
@@ -363,7 +366,7 @@ async function publicationReadPage({db,workspaceId,from,to,cursor=null,maxRows=5
     let headers;
     if(stage==='scope')headers=await rows(db,`SELECT scope_key,from_date,to_date,site,version,write_token,window_version,length(CAST(window_config AS BLOB)) AS window_bytes FROM workspace_publication_scopes WHERE workspace_id=? AND deleted=0 AND (${scopeFilter.sql})${whereAfter} ORDER BY scope_key LIMIT ?`,workspaceId,...scopeFilter.values,...(after?[after]:[]),remaining+1);
     else if(stage==='shift')headers=await rows(db,`SELECT ${employeeColumns},deleted,byte_length,chunk_count,payload_version FROM workspace_published_shifts WHERE workspace_id=? AND deleted=0 AND (${shiftFilter.sql})${whereAfter} ORDER BY id LIMIT ?`,workspaceId,...shiftFilter.values,...(after?[after]:[]),remaining+1);
-    else headers=await rows(db,`SELECT id,person_id,from_date,to_date,type,status,version,length(CAST(json_extract(config,'$.days') AS BLOB)) AS days_bytes FROM workspace_absences WHERE workspace_id=? AND status IN ('approved','pending') AND from_date<=? AND to_date>=?${whereAfter} ORDER BY id LIMIT ?`,workspaceId,to,from,...(after?[after]:[]),remaining+1);
+    else {const access=personPredicate(context,'workspace_absences.person_id');headers=await rows(db,`SELECT id,person_id,from_date,to_date,type,status,version,length(CAST(json_extract(config,'$.days') AS BLOB)) AS days_bytes FROM workspace_absences WHERE workspace_id=? AND status IN ('approved','pending') AND from_date<=? AND to_date>=? AND (${access.sql})${whereAfter} ORDER BY id LIMIT ?`,workspaceId,to,from,...access.values,...(after?[after]:[]),remaining+1);}
     if(!headers.length){if(stage===stages.at(-1))return page(null);stage=stages[stages.indexOf(stage)+1];after='';continue;}
     const selected=[];let estimate=used;
     for(const header of headers){const estimated=(stage==='scope'?(header.window_version===header.version&&header.window_bytes?header.window_bytes:PUBLICATION_CHUNK_BYTES):stage==='shift'?(compact(header)?512:header.byte_length):header.days_bytes+encode.encode(JSON.stringify(header)).length)+512;if(size()+selected.length>=maxRows||(size()+selected.length||!allowOversized)&&estimate+estimated>maxBytes)break;selected.push(header);estimate+=estimated;}

@@ -1,6 +1,6 @@
 /* Serial, revision-checked cloud saves through a source-bound MessageChannel. */
 (() => {
-  function create({onStatus = () => {},onSaved = () => {},onReconciled = () => {}} = {}) {
+  function create({onStatus = () => {},onSaved = () => {},onReconciled = () => {},onAccessChanged = () => {}} = {}) {
     let port = null, connection = null, nextId = 0, revision = 0, ready = false;
     let pending = null, running = false, ticket = 0, timer = null, failed = false;
     const requests = new Map(), waiters = [], idle = [];
@@ -13,6 +13,7 @@
     const WARM_RETENTION_WEEKS=12;
     let warmEpoch=0,warmJob=null;
     const freshViewportCache=()=>Viewport.create({maxWeeks:viewportCache?.inspect?.maxWeeks||4});
+    let accessEpoch=0;
     let acknowledged=null,planning=null,activeItem=null,reconciliationGeneration=0,projection=null,lastLoaded=null,coverageValid=true;
     let detailCoverage=new Set();
     const copy = value => JSON.parse(JSON.stringify(value));
@@ -199,13 +200,21 @@
       });
       return connection;
     }
+    function invalidateAccess(){
+      accessEpoch++;loadGeneration++;reconciliationGeneration++;ready=false;failed=true;coverageValid=false;pending=null;acknowledged=null;planning=null;lastLoaded=null;projection=null;cancelPreferences();cancelWarmViewport();viewportCache?.clear();detailCache.clear();detailCacheBytes=0;detailCacheGeneration=null;detailCoverage.clear();detailFreshness.clear();activeItem=null;clearTimeout(timer);waiters.splice(0).forEach(waiter=>waiter.resolve(false));onAccessChanged();
+    }
     async function request(action,data = {}) {
-      await connect(); const id = ++nextId;
-      return new Promise((resolve,reject) => {
+      await connect();const id=++nextId,accessAtStart=accessEpoch,superseded=()=>({ok:false,status:403,error:'access_changed',superseded:true,message:'Din adgang er ændret. Visningen genindlæses.'});
+      let result;try{result=await new Promise((resolve,reject)=>{
         const clockIn=action==='account'&&data.operation==='timeWrite'&&data.payload?.operation==='start';
-        const deadline = setTimeout(() => { requests.delete(id); reject(new Error('Gemningen tog for lang tid. Prøv igen.')); },clockIn?45000:action==='account'&&data.operation==='payrollPeriodDownload'?180000:30000);
-        requests.set(id,{resolve,deadline}); port.postMessage({id,action,...data});
-      });
+        const deadline=setTimeout(()=>{requests.delete(id);reject(new Error('Gemningen tog for lang tid. Prøv igen.'));},clockIn?45000:action==='account'&&data.operation==='payrollPeriodDownload'?180000:30000);
+        requests.set(id,{resolve,deadline});port.postMessage({id,action,...data});
+      });}catch(error){if(accessAtStart!==accessEpoch)return superseded();throw error;}
+      if(accessAtStart!==accessEpoch)return superseded();
+      const identityChanged=typeof lastLoaded?.accessIdentity==='string'&&typeof result.accessIdentity==='string'&&result.accessIdentity!==lastLoaded.accessIdentity;
+      const revoked=lastLoaded!==null&&(result.status===401||result.status===403&&['membership_changed','membership_disabled','membership_required','membership_invalid','role_invalid','department_scope_invalid','department_scope_unavailable','department_scope_changed','department_person_forbidden','department_site_forbidden','department_forbidden','department_scope_forbidden','department_directory_forbidden'].includes(result.error));
+      if(identityChanged||revoked){invalidateAccess();return superseded();}
+      return result;
     }
     async function readProjection(selected,generation,{isCurrent=()=>true}={}){
       if(selected&&!Window)throw new Error('Kalenderens periodeindlæsning er ikke klar. Genindlæs siden.');
@@ -227,8 +236,8 @@
       return {ok:false,status:409,message:'Kalenderen ændrer sig. Prøv at hente perioden igen.'};
     }
     function loadedResult(result){
-      const capabilities={manageDepartments:result.capabilities?.manageDepartments===true,manageSiteGps:result.capabilities?.manageSiteGps===true,manageAppLogins:result.capabilities?.manageAppLogins===true,manageUsers:result.capabilities?.manageUsers===true,manageRoles:result.capabilities?.manageRoles===true,viewPayroll:result.capabilities?.viewPayroll===true,managePayroll:result.capabilities?.managePayroll===true,managePayrollGroups:result.capabilities?.managePayrollGroups===true,chat:result.capabilities?.chat===true,manageChat:result.capabilities?.manageChat===true,plan:result.capabilities?.plan===true,previewEmployees:result.capabilities?.previewEmployees===true};
-      return {ok:true,studio:result.studio,employee:result.employee||null,viewer:result.viewer||null,workspace:result.workspace||null,capabilities,...Object.fromEntries(['workflowSummary','planningSummary','selection','availability','catalog','directory'].filter(field=>result[field]!==undefined).map(field=>[field,copy(result[field])]))};
+      const capabilities={manageDepartments:result.capabilities?.manageDepartments===true,manageSiteGps:result.capabilities?.manageSiteGps===true,manageAppLogins:result.capabilities?.manageAppLogins===true,manageUsers:result.capabilities?.manageUsers===true,manageRoles:result.capabilities?.manageRoles===true,viewPayroll:result.capabilities?.viewPayroll===true,managePayroll:result.capabilities?.managePayroll===true,managePayrollGroups:result.capabilities?.managePayrollGroups===true,chat:result.capabilities?.chat===true,manageChat:result.capabilities?.manageChat===true,plan:result.capabilities?.plan===true,previewEmployees:result.capabilities?.previewEmployees===true,...(typeof result.capabilities?.scopeRestricted==='boolean'?{scopeRestricted:result.capabilities.scopeRestricted,allowedDepartmentIds:Array.isArray(result.capabilities.allowedDepartmentIds)?result.capabilities.allowedDepartmentIds.filter(id=>typeof id==='string').slice(0,1000):[],allowedSiteIds:Array.isArray(result.capabilities.allowedSiteIds)?result.capabilities.allowedSiteIds.filter(id=>Number.isInteger(id)&&id>=0&&id<2000):[]}:{}),...(typeof result.capabilities?.companyPayroll==='boolean'?{companyPayroll:result.capabilities.companyPayroll}:{})};
+      return {ok:true,studio:result.studio,employee:result.employee||null,viewer:result.viewer||null,...(typeof result.accessIdentity==='string'?{accessIdentity:result.accessIdentity}:{}),workspace:result.workspace||null,capabilities,...Object.fromEntries(['workflowSummary','planningSummary','selection','availability','catalog','directory'].filter(field=>result[field]!==undefined).map(field=>[field,copy(result[field])]))};
     }
     // A small, private point cache is independent of the compact week cache.
     // Progress is a snapshot valid for at most 30 seconds, per occurrence/person.
@@ -487,7 +496,7 @@
         const item = pending; pending = null; activeItem=item;
         try {
           const payload=writePayload(item);const result = await sendDraft(item,payload);
-          if (!result.ok) { if (!pending) pending = item; errorStatus(new Error(result.message || 'Ændringen er ikke gemt. Prøv igen.'),result.status === 409); break; }
+          if (!result.ok) { if(result.superseded){activeItem=null;break;}if (!pending) pending = item; errorStatus(new Error(result.message || 'Ændringen er ikke gemt. Prøv igen.'),result.status === 409); break; }
           acknowledge(result,item,payload);acknowledgeQueuedPreferences(item);
           activeItem=null;onSaved(result);
           for (let i = waiters.length - 1;i >= 0;i--) if (waiters[i].ticket <= item.ticket) waiters.splice(i,1)[0].resolve(true);
@@ -552,7 +561,7 @@
       let published=false;running=true;onStatus({state:'saving',message:'Udgiver den gennemgåede plan…'});
       try {
         const item=capture(studio);activeItem=item;const payload=writePayload(item,publication);const result=await request('write',payload);
-        if(!result.ok){errorStatus(new Error(result.message||'Planen kunne ikke udgives.'),result.status===409);return result;}
+        if(!result.ok){if(result.superseded)return result;errorStatus(new Error(result.message||'Planen kunne ikke udgives.'),result.status===409);return result;}
         acknowledge(result,item,payload);activeItem=null;onSaved(result);published=true;return result;
       } catch(error){errorStatus(error);return {ok:false,message:error.message};}
       finally{activeItem=null;running=false;resumeQueued();savedStatus(published?'Planen er udgivet og gemt':'Alle ændringer er gemt');}

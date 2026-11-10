@@ -8,7 +8,7 @@
   const money=value=>Number.isSafeInteger(value)?new Intl.NumberFormat('da-DK',{style:'currency',currency:'DKK'}).format(value/100):'—';
   const minutes=value=>Number.isSafeInteger(value)?Math.floor(value/60)+' t'+(value%60?' '+value%60+' min':''):'—';
   const stamp=value=>{const date=new Date(value);return Number.isFinite(date.getTime())?date.toLocaleString('da-DK',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Copenhagen'}):'';};
-  function open({element,date,onAction,onChanged,onClose}={}) {
+  function open({element,date,onAction,onChanged,onClose,onNavigate}={}) {
     if(!element?.ownerDocument||typeof onAction!=='function')throw new TypeError('Lønperioden kræver adgang til kontoen.');
     const doc=element.ownerDocument,previous=doc.activeElement,id='cs-payroll-period-'+ ++sequence;
     let profilePanel=null,profileGeneration=0,profiles=[],profileId='standard-v1',profileError='';
@@ -76,6 +76,21 @@
       const holder=node('label','cs-payroll-period-field'),input=node('textarea');input.rows=3;input.maxLength=4000;input.value=manual.reason;input.disabled=busy;input.dataset.payrollPeriodFocus='manual:reason';input.addEventListener('input',()=>{manual.reason=input.value;save.disabled=busy||!validManual();});holder.append(node('span','','Begrundelse'),input);
       const save=button('Gem registrering',()=>saveRegistration(),'cs-button','manual:save');save.disabled=busy||!validManual();section.append(grid,holder,node('p','cs-payroll-period-caption','Gemte timer skal godkendes, før perioden kan afsluttes.'),save,button('Annuller',()=>{manual=null;paint();},'cs-button cs-quiet'));return section;
     }
+    async function navigateProblem(code,target){
+      if(disposed||busy||!data||typeof onNavigate!=='function'||!['unapproved','invalid_time','missing_payroll'].includes(code)||!target||!['hours','payroll-person'].includes(target.kind)||target.from!==data.from||target.to!==data.to)return;
+      const token=++epoch,period={from:data.from,to:data.to};busy=true;error='';message='';paint();
+      try{
+        const result=await onAction('payrollPeriodRead',period);if(disposed||token!==epoch)return;if(!result?.ok){if([401,403].includes(result?.status)){data=null;manual=null;created=null;}throw Error(result?.message||'Adgangen til lønperioden kunne ikke bekræftes.');}accept(result);
+        if(data.status!=='open'||data.from!==period.from||data.to!==period.to)throw Error('Lønperioden er ændret. Gennemgå den seneste version.');
+        const blocker=data.blockers.find(item=>item.code===code&&item.count>0);let destination;
+        if(target.entryId){const row=data.problemEntries?.[code]?.find(item=>item.entryId===target.entryId&&item.personId===target.personId);destination=row?.actions?.find(action=>action.kind===target.kind);}
+        else if(target.kind==='hours')destination=blocker?.action;
+        if(!blocker||!destination||destination.from!==period.from||destination.to!==period.to||target.kind==='hours'&&destination.problem!==code)throw Error('Problemet er ændret eller allerede afklaret. Listen er opdateret.');
+        if(await onNavigate({...destination})===false){if(!disposed)throw Error('Siden kunne ikke åbnes. Kontrollér adgangen, og prøv igen.');return;}
+        if(!disposed&&token===epoch)close(true);
+      }catch(cause){if(!disposed&&token===epoch)error=cause?.message||'Problemet kunne ikke åbnes. Hent lønperioden igen.';}
+      finally{if(!disposed&&token===epoch){busy=false;paint();}}
+    }
     async function write(action,payload,success){
       if(disposed||busy||!data)return;const token=++epoch;busy=true;error='';message='';paint();
       try{const result=await onAction(action,payload);if(disposed||token!==epoch)return;
@@ -113,7 +128,12 @@
       if(data.status==='closed'){
         const closure=data.closure;body.append(node('p','cs-payroll-period-caption','Afsluttet '+stamp(closure?.closedAt)+(closure?.closedBy?.name?' af '+closure.closedBy.name:'')+'. Version '+closure?.revision+'.'));
       }else if(data.blockers.length){
-        const blockers=node('section','cs-payroll-period-blockers');blockers.append(node('h4','','Afklar før afslutning'));const list=node('ul');for(const item of data.blockers){const line=node('li');line.append(node('span','',item.message),node('strong','',String(item.count)));list.append(line);}blockers.append(list);body.append(blockers);
+        const blockers=node('section','cs-payroll-period-blockers');blockers.append(node('h4','','Afklar før afslutning'));const list=node('ul');for(const item of data.blockers){
+          const line=node('li'),actionable=typeof onNavigate==='function'&&item.action?.kind==='hours'&&['unapproved','invalid_time','missing_payroll'].includes(item.code),copy=actionable?button('',()=>navigateProblem(item.code,item.action),'cs-payroll-period-problem','problem:'+item.code):node('div','cs-payroll-period-problem-copy');copy.append(node('span','',item.message),node('strong','',String(item.count)));if(actionable)copy.setAttribute('aria-label',item.message+' '+item.count+' · Åbn timer');line.append(copy);
+          if(typeof onNavigate==='function'&&item.code==='missing_payroll'&&Array.isArray(data.problemEntries?.missing_payroll)){
+            const samples=node('div','cs-payroll-period-problem-people');for(const entry of data.problemEntries.missing_payroll){const row=node('div'),identity=node('div');identity.append(node('strong','',entry.personName||'Medarbejder'),node('span','cs-payroll-period-caption',day(entry.date)));row.append(identity);for(const target of entry.actions||[]){if(!['payroll-person','hours'].includes(target.kind))continue;row.append(button(target.kind==='payroll-person'?'Se lønaftale':'Åbn registrering',()=>navigateProblem(item.code,target),'cs-payroll-period-problem-link','problem:'+item.code+':'+target.kind+':'+entry.entryId));}samples.append(row);}if(item.count>data.problemEntries.missing_payroll.length)samples.append(node('p','cs-payroll-period-caption','De første '+data.problemEntries.missing_payroll.length+' vises her. Åbn timer for at se alle.'));line.append(samples);
+          }list.append(line);
+        }blockers.append(list);body.append(blockers);
       }else body.append(node('p','cs-payroll-period-caption',data.canClose?'Perioden er klar. Afslutning låser registreringerne og gemmer løngrundlaget.':'Perioden kan ikke afsluttes endnu.'));
       if(data.status==='open'&&data.canManage){
         if(manual||created)body.append(registrationContent());

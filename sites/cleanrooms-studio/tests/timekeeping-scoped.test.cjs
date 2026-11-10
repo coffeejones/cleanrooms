@@ -79,7 +79,8 @@ test('publication time budgets count net planned hours for all sites and open sh
  db.queries=[];
  const planned=await read({...week,to:'2026-11-08'});
  assert.equal(planned.status,200,JSON.stringify(planned.body));
- assert.deepEqual(planned.body,{revision:saved.revision+1,directoryRevision:planned.body.directoryRevision,scope:{kind:'company'},budget:{period:'week',periods:[
+ assert.match(planned.body.accessIdentity,/^[a-f0-9]{64}$/);
+ assert.deepEqual(planned.body,{accessIdentity:planned.body.accessIdentity,revision:saved.revision+1,directoryRevision:planned.body.directoryRevision,scope:{kind:'company'},budget:{period:'week',periods:[
    {...week,plannedMinutes:1230,budgetHours:20.5},
    {from:'2026-11-02',to:'2026-11-08',plannedMinutes:480,budgetHours:20.5}
  ]}});
@@ -134,7 +135,8 @@ test('publication budget initializes a legacy plan without requiring an earlier 
  t.after(()=>db.sqlite.close());
  const result=await action(db,'publicationBudgetRead',week);
  assert.equal(result.status,200,JSON.stringify(result.body));
- assert.deepEqual(result.body,{revision:1,directoryRevision:1,scope:{kind:'company'},budget:{period:'week',periods:[{...week,plannedMinutes:915,budgetHours:20}]}});
+ assert.match(result.body.accessIdentity,/^[a-f0-9]{64}$/);
+ assert.deepEqual(result.body,{accessIdentity:result.body.accessIdentity,revision:1,directoryRevision:1,scope:{kind:'company'},budget:{period:'week',periods:[{...week,plannedMinutes:915,budgetHours:20}]}});
  const workspaceId=db.sqlite.prepare('SELECT id FROM workspaces WHERE owner_user_id=?').get(owner.id).id;
  assert.ok(db.sqlite.prepare('SELECT schema FROM workspace_plan_window_imports WHERE workspace_id=?').get(workspaceId));
 });

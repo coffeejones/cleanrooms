@@ -1,4 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+
+// Validate the authorization boundary token while comparing every domain field.
+const domainBody=body=>{assert.match(body.accessIdentity,/^[a-f0-9]{64}$/);const {accessIdentity:_accessIdentity,...value}=body;return value;};
 const {DatabaseSync}=require('node:sqlite'),Store=require('../lib/studio-store.mjs'),Workspace=require('../lib/workspace-store.mjs'),Publication=require('../src/publication-model.js'),Departments=require('../src/department-model.js'),References=require('../lib/directory-references.mjs');
 const {renderMobileGpsHandoff}=require('../lib/mobile-gps-handoff.mjs');
 const {handleMobileAuthRequest}=require('../lib/mobile-auth-route.mjs');
@@ -127,7 +130,7 @@ test('only the workspace administrator can issue an app login and only the gatew
  assert.equal((await handleMobileAuthRequest(make({action:'createAppLogin',personId:beta,email:'other@example.test'},authenticated.body.token,key),db,key)).status,400);
  const revoked=await accounts(db,'revokeAppLogin',{personId:alpha,version:created.body.account.version});
  assert.equal(revoked.status,200);
- assert.deepEqual(revoked.body,{ok:true,version:2});
+ assert.deepEqual(domainBody(revoked.body),{ok:true,version:2});
  assert.equal((await accounts(db,'revealAppStartCode',{personId:alpha,version:1},owner,key)).status,409);
  assert.equal((await handleMobileAuthRequest(make({action:'session'},authenticated.body.token,key),db,key)).status,401);
 });
@@ -167,7 +170,7 @@ test('creating a new employee issues mobile access atomically and reveals only t
 
  const read=async()=>accounts(db,'readAppLogin',{personId},owner,key);
  const reveal=async(version,actor=owner,secret=key)=>accounts(db,'revealAppStartCode',{personId,version},actor,secret);
- assert.deepEqual((await read()).body,{account:{...body.account,canRevealStartCode:true}});
+ assert.deepEqual(domainBody((await read()).body),{account:{...body.account,canRevealStartCode:true}});
  assert.equal((await reveal(1,worker)).status,403);
  assert.equal((await reveal(1,owner,'c'.repeat(64))).status,409);
  const revealed=await reveal(1);
@@ -207,23 +210,23 @@ test('creating a new employee issues mobile access atomically and reveals only t
 test('missing app access suggests one current email for the active employee in the same workspace',async t=>{
  const {db,value}=await setup();t.after(()=>db.sqlite.close());
  const read=(personId=alpha,actor=owner)=>accounts(db,'readAppLogin',{personId},actor);
- assert.deepEqual((await read()).body,{account:null,suggestedEmail:null});
+ assert.deepEqual(domainBody((await read()).body),{account:null,suggestedEmail:null});
  const invite=(email,actor=owner)=>accounts(db,'invite',{email,roleId:'employee',personId:alpha},actor);
  await join(db,worker,alpha);
  assert.equal((await Store.writeStudio(db,foreign.id,0,value)).ok,true);
  assert.equal((await plan(db,{actor:foreign})).status,200);
  assert.equal((await invite('foreign-profile@example.test',foreign)).status,200);
  assert.equal((await invite(worker.email)).status,200);
- assert.deepEqual((await read()).body,{account:null,suggestedEmail:worker.email});
- assert.deepEqual((await read(beta)).body,{account:null,suggestedEmail:null});
+ assert.deepEqual(domainBody((await read()).body),{account:null,suggestedEmail:worker.email});
+ assert.deepEqual(domainBody((await read(beta)).body),{account:null,suggestedEmail:null});
  assert.equal((await read(alpha,worker)).status,403);
  const conflict=await invite('other-email@example.test');
  assert.equal(conflict.status,200);
- assert.deepEqual((await read()).body,{account:null,suggestedEmail:null});
+ assert.deepEqual(domainBody((await read()).body),{account:null,suggestedEmail:null});
  db.sqlite.prepare('UPDATE workspace_invites SET expires_at=? WHERE id=?').run(stamp,conflict.body.invite.id);
- assert.deepEqual((await read()).body,{account:null,suggestedEmail:worker.email});
+ assert.deepEqual(domainBody((await read()).body),{account:null,suggestedEmail:worker.email});
  assert.equal((await directory(db,{action:'write',changes:[patch(alpha,1,{active:false})]})).status,200);
- assert.deepEqual((await read()).body,{account:null,suggestedEmail:null});
+ assert.deepEqual(domainBody((await read()).body),{account:null,suggestedEmail:null});
 });
 
 test('the mobile handoff reads one current site, seals its policy, and enforces Sites membership and tenant scope',async()=>{
@@ -420,15 +423,15 @@ test('GPS address lookup is administrator-only and saves the canonical address w
  assert.equal((await accounts(db,'siteAddressLookup',{query:title},worker)).status,403);
  assert.equal((await lookup({id:'../../other'})).status,400);
  assert.equal(fetch.mock.callCount(),0);
- assert.deepEqual((await lookup({query:address})).body,{suggestions:[{id,address}]});
- assert.deepEqual((await lookup({query:'Ingen match 404'})).body,{suggestions:[]});
+ assert.deepEqual(domainBody((await lookup({query:address})).body),{suggestions:[{id,address}]});
+ assert.deepEqual(domainBody((await lookup({query:'Ingen match 404'})).body),{suggestions:[]});
  assert.equal((await lookup({query:'Tjenesten utilgængelig'})).body.error,'address_lookup_unavailable');
  const resolved=await lookup({id});
  assert.equal(resolved.status,200,JSON.stringify(resolved));
  assert.equal(resolved.body.address,address);
  assert.ok(Math.abs(resolved.body.latitude-55.460494)<1e-6);
  assert.ok(Math.abs(resolved.body.longitude-12.041896)<1e-6);
- const gps={...resolved.body,enabled:true,radiusMeters:125};
+ const gps={...domainBody(resolved.body),enabled:true,radiusMeters:125};
  const save=await directory(db,{action:'write',changes:[patch('site-nord',1,{address,gps},'site')]});
  assert.equal(save.status,200,JSON.stringify(save));
  const {readDirectorySite}=require('../lib/directory-store.mjs');

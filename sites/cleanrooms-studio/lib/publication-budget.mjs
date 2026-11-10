@@ -1,4 +1,5 @@
 import Data from '../src/studio-data.js';
+import {isScoped,assertDepartmentAccess,assertSiteAccess} from './department-access.mjs';
 import Scope from '../src/planning-scope.js';
 import Range from '../src/publication-range.js';
 import Series from '../src/series-engine.js';
@@ -60,14 +61,16 @@ export async function readPublicationBudget({db,context,payload,helpers:h}){
   const saved=await h.ensureOperationalSource(context);
   const directory=await readDirectoryHeader({db,workspaceId:context.workspace.id});
   if(!directory)h.fail(409,'publication_budget_directory_changed','Virksomhedens timebudgetter er ændret. Prøv igen.');
-  let budget=saved.studio?.workspaceSettings?.workHoursBudget,siteIndices=null;
+  let budget=isScoped(context)&&scope.kind==='company'?null:saved.studio?.workspaceSettings?.workHoursBudget,siteIndices=null;
+  if(scope.kind==='department')assertDepartmentAccess(context,scope.id);
   if(scope.kind!=='company'){
-    const found=await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:scope.kind,ids:[scope.id],catalog:true});
+    const found=await readDirectoryRecords({db,workspaceId:context.workspace.id,kind:scope.kind,ids:[scope.id],catalog:true,context});
     if(found.directory.revision!==directory.version)h.fail(409,'publication_budget_directory_changed','Virksomhedens timebudgetter er ændret. Prøv igen.');
     const record=found.records.find(item=>item.id===scope.id&&item.value);
     if(!record)h.fail(404,'publication_budget_scope_missing','Afdelingen eller arbejdsstedet findes ikke længere.');
     budget=record.value.workHoursBudget;
     siteIndices=new Set(scope.kind==='site'?[record.siteIndex]:record.value.siteIds);
+    if(isScoped(context))for(const site of siteIndices)assertSiteAccess(context,site);
     if([...siteIndices].some(index=>!Number.isInteger(index)||index<0||index>=directory.next_site_index))h.fail(500,'publication_budget_scope_invalid','Timebudgettets arbejdssteder kunne ikke læses.');
   }
   if(budget!=null&&!Roster.validWorkHoursBudget(budget))h.fail(500,'publication_budget_invalid','Det lagrede timebudget kunne ikke læses.');
@@ -85,7 +88,7 @@ export async function readPublicationBudget({db,context,payload,helpers:h}){
   const ranges=Scope.mergeRanges(periods.map(({from,to})=>({
     from:from<Data.minDate?Data.minDate:from,to:to>Data.maxDate?Data.maxDate:to
   })));
-  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,ranges);
+  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,ranges,{context});
   const {series,edits,deleted}=Scope.summaryStudio(summaries);
   const suppressed=new Set(deleted);
   const seeded=frame.demoSeed?await timekeepingPeople({db,context,personIds:Data.staff.map(({id})=>id)}):[];

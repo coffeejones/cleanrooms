@@ -1,4 +1,5 @@
 /* Department conversation rows never enter a planning snapshot or grant access. */
+import {isScoped,departmentPredicate,assertDepartmentAccess,assertPersonAccess} from './department-access.mjs';
 import {StudioError} from './studio-store.mjs';
 import {readDirectoryHeader} from './directory-store.mjs';
 const encode=new TextEncoder(),decode=new TextDecoder('utf-8',{fatal:true});
@@ -35,8 +36,9 @@ function principalGuard(context,facts,h){
 function directoryGuard(context,header){return {sql:'EXISTS (SELECT 1 FROM workspace_directory_state directory WHERE directory.workspace_id=? AND directory.version=? AND directory.write_token=?)',values:[context.workspace.id,header.version,header.write_token]};}
 function roomAccess(context,facts,alias='room'){
  const dep=`EXISTS (SELECT 1 FROM workspace_directory_records department WHERE department.workspace_id=${alias}.workspace_id AND department.kind='department' AND department.id=${alias}.department_id AND department.deleted=0`;
- if(facts.manager)return {sql:dep+')',values:[]};
- return {sql:dep+" AND EXISTS (SELECT 1 FROM workspace_directory_records me JOIN json_each(department.catalog,'$.siteIds') site ON site.value=me.site_index WHERE me.workspace_id=department.workspace_id AND me.kind='employee' AND me.id=? AND me.deleted=0 AND me.active=1))",values:[facts.personId]};
+ if(facts.manager){const scope=departmentPredicate(context,alias+'.department_id');return {sql:dep+') AND ('+scope.sql+')',values:scope.values};}
+ const scope=departmentPredicate(context,alias+'.department_id');
+ return {sql:dep+" AND EXISTS (SELECT 1 FROM workspace_directory_records me JOIN json_each(department.catalog,'$.siteIds') site ON site.value=me.site_index WHERE me.workspace_id=department.workspace_id AND me.kind='employee' AND me.id=? AND me.deleted=0 AND me.active=1)) AND ("+scope.sql+")",values:[facts.personId,...scope.values]};
 }
 async function readHeader(db,context){const header=await readDirectoryHeader({db,workspaceId:context.workspace.id});if(!header)fail(409,'chat_directory_required','Indlæs virksomhedens afdelinger, før chatten åbnes.');return header;}
 async function fence(db,context,guard,h){await h.assertContext(db,context);if(!await first(db,'SELECT 1 AS valid WHERE '+guard.sql,...guard.values))fail(409,'chat_access_changed','Afdelingen eller din adgang er ændret. Åbn chatten igen.');}
@@ -64,33 +66,35 @@ async function verifyRoomVersion(db,workspaceId,room,summary){
  const current=await first(db,'SELECT version,latest_seq FROM workspace_chat_rooms WHERE workspace_id=? AND id=?',workspaceId,room.id);
  if(!current||summary.version!==room.version||current.version!==room.version)fail(409,'chat_sync_changed','Samtalen blev ændret under opdateringen. Prøv igen.');return current;
 }
-function cursorFacts(context,facts){return {workspace:context.workspace.id,user:context.member.userId,person:facts.personId??null,preview:facts.preview};}
+function cursorFacts(context,facts){return {...(isScoped(context)?{access:JSON.stringify(context.accessScope),memberVersion:context.member.version,roleVersion:context.role.version}:{}),workspace:context.workspace.id,user:context.member.userId,person:facts.personId??null,preview:facts.preview};}
 function assertCursor(cursor,expected){if(!plain(cursor)||Object.keys(expected).some(key=>cursor[key]!==expected[key]))fail(400,'chat_cursor_invalid','Sidehenvisningen tilhører en anden samtale eller konto.');}
 
 export async function handleChatAction({db,context,payload,helpers:h}){
  allowedPayload(payload);const facts=actorFacts(context,payload),header=await readHeader(db,context),base=and(principalGuard(context,facts,h),directoryGuard(context,header)),workspaceId=context.workspace.id;
+ if(facts.preview)await assertPersonAccess({db,context,personId:facts.personId});
  await fence(db,context,base,h);
  const shared={canManage:facts.manager,readonly:facts.preview,accessKey:[context.member.version,context.role.id,context.role.version,header.version,facts.preview?facts.personId:''].join(':'),viewer:{userId:context.member.userId,name:context.member.name}};
  if(payload.action==='chatList'){
   const limit=payload.limit??100;if(!Number.isInteger(limit)||limit<1||limit>100)fail(400,'chat_limit_invalid','Vælg højst 100 chatrum ad gangen.');
   let after='';if(payload.cursor!==undefined){const cursor=cursorDecode(payload.cursor);assertCursor(cursor,{...cursorFacts(context,facts),kind:'rooms'});if(!validId(cursor.after))fail(400,'chat_cursor_invalid','Sidehenvisningen er ugyldig.');after=cursor.after;}
   const found=await roomSummaries(db,context,facts,{after,limit:limit+1}),selected=found.slice(0,limit),rooms=selected;
-  const departments=[];if(facts.manager){const values=await rows(db,`SELECT department.id,json_extract(department.catalog,'$.name') name,
+  const departments=[];if(facts.manager){const scope=departmentPredicate(context,'department.id');const values=await rows(db,`SELECT department.id,json_extract(department.catalog,'$.name') name,
    (SELECT COUNT(*) FROM json_each(department.catalog,'$.siteIds') site CROSS JOIN workspace_directory_records employee INDEXED BY workspace_directory_site WHERE employee.workspace_id=department.workspace_id AND employee.kind='employee' AND employee.site_index=site.value AND employee.deleted=0 AND employee.active=1) member_count,
    EXISTS(SELECT 1 FROM workspace_chat_rooms room WHERE room.workspace_id=department.workspace_id AND room.department_id=department.id) has_room
-   FROM workspace_directory_records department WHERE department.workspace_id=? AND department.kind='department' AND department.deleted=0 ORDER BY department.name_sort,department.id LIMIT 1001`,workspaceId);if(values.length>1000)fail(413,'chat_departments_too_many','Virksomheden har for mange afdelinger til denne oversigt.');for(const row of values)departments.push({id:row.id,name:row.name,memberCount:row.member_count,hasRoom:Boolean(row.has_room)});}
+   FROM workspace_directory_records department WHERE department.workspace_id=? AND department.kind='department' AND department.deleted=0 AND (${scope.sql}) ORDER BY department.name_sort,department.id LIMIT 1001`,workspaceId,...scope.values);if(values.length>1000)fail(413,'chat_departments_too_many','Virksomheden har for mange afdelinger til denne oversigt.');for(const row of values)departments.push({id:row.id,name:row.name,memberCount:row.member_count,hasRoom:Boolean(row.has_room)});}
   const access=roomAccess(context,facts),unreadRow=facts.preview?{n:0}:await first(db,`SELECT SUM((SELECT COUNT(*) FROM workspace_chat_messages item WHERE item.workspace_id=room.workspace_id AND item.room_id=room.id AND item.seq>COALESCE(reader.last_read_seq,0) AND item.author_id<>?)) n
    FROM workspace_chat_rooms room LEFT JOIN workspace_chat_readers reader ON reader.workspace_id=room.workspace_id AND reader.room_id=room.id AND reader.user_id=?
    WHERE room.workspace_id=? AND COALESCE(reader.muted,0)=0 AND ${access.sql}`,context.member.userId,context.member.userId,workspaceId,...access.values);
   await fence(db,context,base,h);return {...shared,rooms,departments,unreadCount:Number(unreadRow?.n||0),nextCursor:found.length>limit?cursorEncode({...cursorFacts(context,facts),kind:'rooms',after:selected.at(-1).id}):null};
  }
  if(payload.action==='chatCreate'){
-  if(!facts.manager)fail(403,'chat_manage_required','Din rolle kan ikke oprette chatrum.');if(!validId(payload.departmentId))fail(400,'chat_department_invalid','Vælg en gyldig afdeling.');const title=name(payload.name),department=await first(db,"SELECT id FROM workspace_directory_records WHERE workspace_id=? AND kind='department' AND id=? AND deleted=0",workspaceId,payload.departmentId);if(!department)fail(404,'chat_department_missing','Afdelingen findes ikke længere.');
+  if(!facts.manager)fail(403,'chat_manage_required','Din rolle kan ikke oprette chatrum.');assertDepartmentAccess(context,payload.departmentId);if(!validId(payload.departmentId))fail(400,'chat_department_invalid','Vælg en gyldig afdeling.');const title=name(payload.name),department=await first(db,"SELECT id FROM workspace_directory_records WHERE workspace_id=? AND kind='department' AND id=? AND deleted=0",workspaceId,payload.departmentId);if(!department)fail(404,'chat_department_missing','Afdelingen findes ikke længere.');
   if(await first(db,'SELECT id FROM workspace_chat_rooms WHERE workspace_id=? AND department_id=?',workspaceId,payload.departmentId))fail(409,'chat_room_exists','Afdelingen har allerede et chatrum.');
   const id='chat-'+crypto.randomUUID(),at=stamp(),token=crypto.randomUUID(),condition=and(base,{sql:"EXISTS (SELECT 1 FROM workspace_directory_records WHERE workspace_id=? AND kind='department' AND id=? AND deleted=0)",values:[workspaceId,payload.departmentId]});
   const result=await db.batch([statement(db,`INSERT INTO workspace_chat_rooms(workspace_id,id,department_id,name,version,latest_seq,write_token,created_by,created_at,updated_at,demo) SELECT ?,?,?,?,1,0,?,?,?,?,0 WHERE ${condition.sql} ON CONFLICT(workspace_id,department_id) DO NOTHING`,workspaceId,id,payload.departmentId,title,token,context.member.userId,at,at,...condition.values)]);
   await fence(db,context,condition,h);if(result[0]?.meta?.changes!==1)fail(409,'chat_room_exists','Afdelingen har allerede et chatrum.');const summary=await roomSummary(db,context,facts,id);await fence(db,context,condition,h);return {...shared,room:summary};
  }
+ if(payload.action==='chatDemo'&&isScoped(context))fail(403,'department_scope_forbidden','Eksempler kan kun oprettes med adgang til hele virksomheden.');
  if(payload.action==='chatDemo')return seedDemo({db,context,facts,base,h,shared});
  const {room,condition}=await authorizeRoom(db,context,facts,payload.roomId,base);
  if(payload.action==='chatSync'){

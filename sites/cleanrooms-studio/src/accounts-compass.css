@@ -117,3 +117,12 @@
 #cleanrooms-studio[data-page="accounts"] .cs-accounts-input:focus-visible{
   outline:2px solid var(--cs-access-blue);outline-offset:0;box-shadow:none;
 }
+
+#cleanrooms-studio .cs-accounts-scope-field{display:grid;gap:8px;min-width:0;margin:0;padding:0;border:0}
+#cleanrooms-studio .cs-accounts-scope-field legend{margin-bottom:8px;padding:0}
+#cleanrooms-studio .cs-accounts-scope-field .cs-accounts-caption{margin:0;font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-accounts-scope-details{display:grid;gap:10px;min-width:0}
+#cleanrooms-studio .cs-accounts-scope-options{display:grid;gap:2px;max-height:176px;overflow:auto;scrollbar-gutter:stable;padding-right:8px}
+#cleanrooms-studio .cs-accounts-scope-option{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px;line-height:20px}
+#cleanrooms-studio .cs-accounts-scope-option input{width:15px;height:15px;min-height:0;margin:0;accent-color:#00684a}
+#cleanrooms-studio .cs-accounts-scope-summary{margin-top:4px;color:#5c6c75}

@@ -5,7 +5,7 @@ import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
+import { HomeFlowBackground } from '@/components/home-flow-background';
 import { HomeShiftDock } from '@/components/home-shift-dock';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
@@ -119,16 +119,7 @@ export default function HomeScreen() {
       contentContainerStyle={styles.content}
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
     >
-      <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.backgroundTexture}>
-        <Svg width="100%" height="100%">
-          <Defs>
-            <Pattern id="home-background-dots" width={24} height={24} patternUnits="userSpaceOnUse">
-              <Circle cx={12} cy={12} r={.55} fill={colors.line} opacity={.35} />
-            </Pattern>
-          </Defs>
-          <Rect width="100%" height="100%" fill="url(#home-background-dots)" />
-        </Svg>
-      </View>
+      <HomeFlowBackground />
       {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
       {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
       <View style={styles.agenda}>
@@ -204,7 +195,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
   content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
-  backgroundTexture: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
   brandName: { letterSpacing: -.4, lineHeight: 22 },

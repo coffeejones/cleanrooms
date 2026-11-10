@@ -138,9 +138,25 @@ export function instantForLocal(date: string, time: string): number {
 }
 
 export function shiftInterval(shift: Pick<Shift, 'date' | 'start' | 'end'>): { start: number; end: number } {
+  if (shift.start === shift.end) throw new RangeError('Vagtens start og slut skal være forskellige.');
   const start = instantForLocal(shift.date, shift.start);
-  const endDate = shift.end <= shift.start ? addDays(shift.date, 1) : shift.date;
+  const endDate = shift.end < shift.start ? addDays(shift.date, 1) : shift.date;
   return { start, end: instantForLocal(endDate, shift.end) };
+}
+
+/** Planning dates belong to the start day; a night shift also occupies the next calendar day. */
+export function shiftDates(shift: Pick<Shift, 'date' | 'start' | 'end'>): string[] {
+  shiftInterval(shift);
+  return shift.end < shift.start && shift.end !== '00:00' ? [shift.date, addDays(shift.date, 1)] : [shift.date];
+}
+
+export function shiftTimeLabel(shift: Pick<Shift, 'start' | 'end'>): string {
+  return `${shift.start}–${shift.end}${shift.end < shift.start ? ' (+1 dag)' : ''}`;
+}
+
+export function shiftOverlapsDates(shift: Pick<Shift, 'date' | 'start' | 'end'>, from: string, to: string): boolean {
+  const interval = shiftInterval(shift);
+  return interval.start < instantForLocal(addDays(to, 1), '00:00') && interval.end > instantForLocal(from, '00:00');
 }
 
 export function clockInAvailability(state: AppState, shift: Shift, now: number):
@@ -155,7 +171,7 @@ export function clockInAvailability(state: AppState, shift: Shift, now: number):
   if (state.entries.some(item => item.status === 'running' || item.status === 'paused')) {
     return unavailable('Afslut din igangværende vagt først.');
   }
-  if (shift.date !== copenhagenDate(now) || now < opensAt || now >= end) {
+  if (now < opensAt || now >= end) {
     return unavailable('Du kan stemple ind fra 30 minutter før vagten på vagtdagen.');
   }
   return { opensAt, allowed: true };
@@ -357,7 +373,7 @@ export function coworkersForDay(state: AppState, shift: Shift): Person[] {
 }
 
 export function upcoming(state: AppState, from = state.today): Shift[] {
-  return state.shifts.filter(s => s.personId === state.selfId && s.date >= from).sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+  return state.shifts.filter(s => s.personId === state.selfId && (s.date >= from || s.date === addDays(from, -1) && shiftDates(s).includes(from))).sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
 }
 
 export function futureOpenShifts(shifts: Shift[], now: number): Shift[] {

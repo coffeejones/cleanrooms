@@ -397,3 +397,25 @@ test('legacy demo GPS areas are added without overriding configured or custom wo
   restored.sites[0].geofence.latitude = 100;
   assert.equal(validateSnapshot(restored), false);
 });
+
+
+test('overnight clock-in remains available after midnight and preserves the original shift identity', () => {
+  const night=shift({id:'night-new-year',date:'2026-12-31',start:'22:00',end:'06:00'}),state={...seed(),today:'2027-01-01',shifts:[night],entries:[],sites:[{id:night.siteId,name:'Own site',address:''}]};
+  const now=at('2027-01-01','00:22');
+  assert.equal(M.clockInAvailability(state,night,now).allowed,true);
+  const started=applyAction(state,{type:'clockIn',shiftId:night.id},now);assert.equal(started.result.ok,true);
+  assert.equal(started.state.entries[0].shiftId,night.id);assert.equal(started.state.entries[0].clockIn,iso('2027-01-01','00:22'));
+  assert.equal(M.clockInAvailability(state,night,at('2027-01-01','06:00')).allowed,false);
+  assert.deepEqual(M.upcoming(state,'2027-01-01').map(item=>item.id),[night.id]);
+});
+
+test('night calendars cover both days but a midnight checkout occupies only the start day', () => {
+  const night=shift({date:'2026-12-31',start:'22:00',end:'06:00'});
+  assert.deepEqual(M.shiftDates(night),['2026-12-31','2027-01-01']);
+  assert.deepEqual(M.shiftDates({...night,end:'00:00'}),['2026-12-31']);
+  assert.equal(M.shiftOverlapsDates(night,'2027-01-01','2027-01-01'),true);
+  assert.equal(M.shiftOverlapsDates({...night,end:'00:00'},'2027-01-01','2027-01-01'),false);
+  assert.equal(M.shiftTimeLabel(night),'22:00–06:00 (+1 dag)');
+  assert.equal(M.shiftTimeLabel({...night,start:'08:00',end:'16:00'}),'08:00–16:00');
+  assert.throws(()=>M.shiftInterval({...night,start:'22:00',end:'22:00'}),/forskellige/);
+});

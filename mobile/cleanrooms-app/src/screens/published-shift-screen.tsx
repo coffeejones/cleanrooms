@@ -12,7 +12,7 @@ import { ShiftOffer } from '@/components/shift-offer';
 import { ShiftTimeChange } from '@/components/shift-time-change';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { addDays, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
+import { shiftTimeLabel, addDays, clockTimeLabel, instantForLocal, currency, dateLabel, minutesLabel, shiftInterval, type ClockInLocation, type Result } from '@/domain/model';
 import { readClockInLocation } from '@/location/clock-in-location';
 import { useNow } from '@/state/app-store';
 import { invalidateEmployeeResources, usePublishedResource, usePublishedShift } from '@/state/published-schedule';
@@ -75,7 +75,8 @@ export default function PublishedShiftScreen() {
     }
   }, [checkoutDraft, entry]);
   const running = entry?.status === 'running' || entry?.status === 'paused';
-  const canStart = detail && !entry && detail.shift.date === copenhagenDate(now);
+  const plannedInterval = detail ? shiftInterval(detail.shift) : null;
+  const canStart = detail && !entry && plannedInterval && now >= Math.max(plannedInterval.start - 30 * 60_000, instantForLocal(detail.shift.date, '00:00')) && now < plannedInterval.end;
   const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'rejected' ? 'Sendt retur' :
     entry?.status === 'paused' ? 'På pause' : entry?.status === 'running' ? 'I gang' : entry ? 'Afsluttet' : 'Planlagt';
   const statusColor = entry?.status === 'rejected' ? colors.danger : entry?.status === 'paused' ? colors.warning :
@@ -204,7 +205,7 @@ export default function PublishedShiftScreen() {
                 </Row>
               </Row>
               <Txt size={32} weight="600" accessibilityRole="header" style={{ letterSpacing: -1.2 }}>
-                {detail.shift.start}–{detail.shift.end}
+                {shiftTimeLabel(detail.shift)}
               </Txt>
             </View>
             {timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
@@ -285,7 +286,7 @@ export default function PublishedShiftScreen() {
           <Surface style={[cardStyles.listSurface, { padding: 18, gap: 14 }]}>
             <Txt size={15} weight="600" accessibilityRole="header">Kollegaer den dag</Txt>
             <ScheduleFeedback loading={coworkers.loading && !coworkerPage} error={coworkerError ?? coworkers.error} onRetry={refreshColleagues} />
-            {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{person.start}–{person.end}</Txt></Row>)}
+            {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{shiftTimeLabel(person)}</Txt></Row>)}
             {coworkerPage?.colleagues.length === 0 && <Txt size={13} color={colors.muted}>Ingen andre på arbejdsstedet den dag.</Txt>}
             {coworkerPage?.nextCursor && <Pressable accessibilityRole="button" accessibilityState={{ disabled: loadingMore || coworkers.loading || Boolean(coworkers.error), busy: loadingMore }} disabled={loadingMore || coworkers.loading || Boolean(coworkers.error)} onPress={() => void loadMoreColleagues()} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={13} weight="600" color={colors.accent}>{loadingMore ? 'Henter…' : 'Vis flere'}</Txt></Pressable>}
           </Surface>
@@ -303,7 +304,7 @@ export default function PublishedShiftScreen() {
       <ShiftConfirmation
         kind={form}
         commentDraft={form === 'clock-out' ? { text: checkoutDraft.draft, ready: checkoutDraft.draftReady, error: checkoutDraft.draftError, setText: checkoutDraft.setDraft, clear: checkoutDraft.clear } : undefined}
-        summary={detail ? `${detail.site.name} · ${detail.shift.start}–${detail.shift.end}` : ''}
+        summary={detail ? `${detail.site.name} · ${shiftTimeLabel(detail.shift)}` : ''}
         locationCheck={detail?.clockInRadius ? 'required' : undefined}
         onConfirm={(comment, signal) => form === 'clock-in' ? register('start', null, signal) : register('finish', comment, signal)}
         onDismiss={() => setForm(null)}

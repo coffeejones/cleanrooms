@@ -11,7 +11,7 @@ import { ShiftTimeChange } from '@/components/shift-time-change';
 import { EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { clockInAvailability, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, shiftPay, workedMinutes, type Result, type TimeEntry } from '@/domain/model';
+import { shiftTimeLabel, clockInAvailability, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, shiftInterval, shiftPay, workedMinutes, type Result, type TimeEntry } from '@/domain/model';
 import { useApp } from '@/state/app-store';
 
 type ShiftParams = { id: string; action?: string };
@@ -119,7 +119,7 @@ export default function ShiftScreen() {
   const showDescription = Boolean(shift.description || tasks.length);
   const showLeave = mine && canRequest;
   const date = dateLabel(shift.date, { weekday: 'long', month: 'long' });
-  const shiftTimes = `${shift.start}–${shift.end}`;
+  const shiftTimes = shiftTimeLabel(shift);
   const shiftContext = [shift.role, shift.breakMinutes > 0 ? `${shift.breakMinutes} min planlagt pause` : '']
     .filter(Boolean).join(' · ');
   const clockInHint = availability.opensAt > now

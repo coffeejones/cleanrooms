@@ -5,7 +5,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { Button, EmptyState, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { addDays, dateLabel, instantForLocal } from '@/domain/model';
+import { shiftTimeLabel, addDays, dateLabel, instantForLocal } from '@/domain/model';
 import { useNow } from '@/state/app-store';
 import { useEmployeeWorkflow, type EmployeeWorkflow, type EmployeeWorkflowShift } from '@/state/employee-data';
 import { useScopedState } from '@/state/scoped-state';
@@ -81,7 +81,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
           <Txt size={12} weight="500" color={colors.muted}>{dateLabel(shift.date, { weekday: 'long', month: 'long' })}</Txt>
           <Row gap={12} style={{ alignItems: 'center' }}>
             <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-              <Txt size={17} weight="600">{shift.start}–{shift.end}</Txt>
+              <Txt size={17} weight="600">{shiftTimeLabel(shift)}</Txt>
               <Txt size={13} color={colors.muted}>{shift.siteName || 'Arbejdssted'}</Txt>
             </View>
             {sent ? <Txt size={13} color={colors.muted}>Anmodet</Txt>

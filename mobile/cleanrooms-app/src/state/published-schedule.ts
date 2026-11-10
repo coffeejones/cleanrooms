@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { MobileAuthError, type PublishedShift } from '@/auth/mobile-auth-api';
+import { addDays, shiftOverlapsDates } from '@/domain/model';
 
 type Resource<T> = { key: string; generation: number; data?: T; loading: boolean; refreshing: boolean; error?: string };
 const inFlight = new Map<string, Promise<unknown>>();
@@ -71,8 +72,8 @@ export function usePublishedSchedule(from: string, to: string) {
     const shifts = new Map<string, PublishedShift>();
     let cursor: string | null = null;
     do {
-      const page = await readPublishedSchedule(from, to, cursor);
-      for (const item of page.shifts) shifts.set(item.shift.id, item);
+      const page = await readPublishedSchedule(addDays(from, -1), to, cursor);
+      for (const item of page.shifts) if (shiftOverlapsDates(item.shift, from, to)) shifts.set(item.shift.id, item);
       if (page.nextCursor && page.nextCursor === cursor) throw new Error('Ugyldig sidehenvisning.');
       cursor = page.nextCursor;
     } while (cursor);

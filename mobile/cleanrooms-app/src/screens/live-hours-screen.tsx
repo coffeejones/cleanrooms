@@ -8,7 +8,7 @@ import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, payPeriod } from '@/domain/model';
+import { shiftTimeLabel, clockTimeLabel, copenhagenDate, currency, dateLabel, minutesLabel, payPeriod } from '@/domain/model';
 import { useEmployeeCompanySettings, useEmployeeHours, type EmployeeHoursRow } from '@/state/employee-data';
 import { useNow } from '@/state/app-store';
 
@@ -91,7 +91,7 @@ function LiveHourRow({ row: { shift, site, entry, pay, sourceLabel } }: { row: E
   const registeredEnd = pay.kind === 'registered' && pay.interval ? Date.parse(pay.interval.endAt) : NaN;
   const registeredInterval = Number.isFinite(registeredStart) && Number.isFinite(registeredEnd) && registeredEnd > registeredStart;
   const rowDate = registeredInterval ? copenhagenDate(registeredStart) : shift.date;
-  const rowTime = registeredInterval ? `${clockTimeLabel(registeredStart)}–${clockTimeLabel(registeredEnd)}` : `${shift.start}–${shift.end}`;
+  const rowTime = registeredInterval ? `${clockTimeLabel(registeredStart)}–${clockTimeLabel(registeredEnd)}${copenhagenDate(registeredEnd) > copenhagenDate(registeredStart) ? ' (+1 dag)' : ''}` : shiftTimeLabel(shift);
   const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'running' ? 'I gang' : entry?.status === 'paused' ? 'På pause' : entry?.status === 'rejected' ? 'Sendt retur' : entry?.clockOut ? 'Til godkendelse' : 'Planlagt';
   return <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })} style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.paper }]}>
     <View style={styles.day}><Txt size={18} weight="700">{Number(rowDate.slice(-2))}.</Txt><Txt size={11} color={colors.muted}>{dateLabel(rowDate, { day: undefined, month: 'short' })}</Txt></View>

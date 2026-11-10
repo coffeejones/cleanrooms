@@ -290,9 +290,10 @@ function publishedResource() {
     if (name === 'react-native') return { AppState: { addEventListener: () => ({ remove() {} }) } };
     if (name === '@/auth/mobile-auth') return { useMobileAuth: () => auth };
     if (name === '@/auth/mobile-auth-api') return { MobileAuthError };
+    if (name === '@/domain/model') return require(path.join(compiled, 'domain/model.js'));
     throw Error('Unexpected resource dependency ' + name);
   } });
-  return { auth, MobileAuthError, render: loader => harness.render(() => module.exports.usePublishedResource('same-period', loader)), unmount: harness.unmount };
+  return { auth, MobileAuthError, render: loader => harness.render(() => module.exports.usePublishedResource('same-period', loader)), renderSchedule: (from,to) => harness.render(() => module.exports.usePublishedSchedule(from,to)), unmount: harness.unmount };
 }
 test('actual published resources never join an old session request after same-account reauthentication with an unchanged expiry', async () => {
   const { auth, render, unmount } = publishedResource();
@@ -309,4 +310,15 @@ test('actual resources keep current data through connection loss but remove it i
   render(load); await tick(); assert.equal(render(load).data, 'own-private-hours');
   failure = Error('offline'); render(load).refresh(); await tick(); assert.equal(render(load).data, 'own-private-hours');
   failure = new MobileAuthError(403); render(load).refresh(); await tick(); assert.equal(render(load).data, undefined); assert.match(render(load).error, /Scoped request/); unmount();
+});
+
+
+test('actual schedule hook requests a bounded prior day and retains only shifts touching the selected week', async () => {
+  const { auth, renderSchedule, unmount } = publishedResource(), calls=[];
+  const record=(id,date,start,end)=>({shift:{id,date,start,end,personId:'own-person'},site:{id:'own-site',name:'Own site',address:''}});
+  auth.readPublishedSchedule=async(from,to,cursor)=>{calls.push({from,to,cursor});return {shifts:[record('carry','2026-12-31','22:00','06:00'),record('midnight-end','2026-12-31','20:00','00:00'),record('old-day','2026-12-31','08:00','16:00'),record('new-day','2027-01-01','08:00','16:00')],nextCursor:null};};
+  renderSchedule('2027-01-01','2027-01-07');await tick();
+  const result=renderSchedule('2027-01-01','2027-01-07');
+  assert.deepEqual(calls,[{from:'2026-12-31',to:'2027-01-07',cursor:null}]);
+  assert.deepEqual(plain(result.data.map(item=>item.shift.id)),['carry','new-day']);unmount();
 });

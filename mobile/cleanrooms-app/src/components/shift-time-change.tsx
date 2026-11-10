@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel, type Shift } from '@/domain/model';
+import { shiftTimeLabel, dateLabel, type Shift } from '@/domain/model';
 
 export function ShiftTimeChange({ shift }: { shift: Shift }) {
   const [visible, setVisible] = useState(false);
@@ -44,11 +44,11 @@ export function ShiftTimeChange({ shift }: { shift: Shift }) {
             <View style={styles.times}>
               <View style={styles.time}>
                 <Txt size={12} weight="600" color={colors.muted}>Tidligere tid</Txt>
-                <Txt size={18} color={colors.muted} style={styles.previous}>{previous.start}–{previous.end}</Txt>
+                <Txt size={18} color={colors.muted} style={styles.previous}>{shiftTimeLabel(previous)}</Txt>
               </View>
               <View style={[styles.time, cardStyles.divider]}>
                 <Txt size={12} weight="600" color={colors.accent}>Ny tid</Txt>
-                <Txt size={22} weight="700">{shift.start}–{shift.end}</Txt>
+                <Txt size={22} weight="700">{shiftTimeLabel(shift)}</Txt>
               </View>
             </View>
           </View>

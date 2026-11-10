@@ -4,7 +4,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { Button, Row, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel } from '@/domain/model';
+import { shiftTimeLabel, dateLabel } from '@/domain/model';
 import { useEmployeeWorkflow, type EmployeeRequest, type EmployeeWorkflow } from '@/state/employee-data';
 import { invalidateEmployeeResources } from '@/state/published-schedule';
 import { useScopedState } from '@/state/scoped-state';
@@ -52,7 +52,7 @@ export function EmployeeShiftRequests() {
       const recipient = request.toPersonId === personId && request.kind === 'offer';
       return <View key={request.id} style={{ gap: 6 }}>
         <Txt size={14} weight="600">{request.kind === 'claim' ? 'Ledig vagt' : recipient ? `${request.fromName} tilbyder en vagt` : `Tilbud til ${request.toName}`}</Txt>
-        <Txt size={13}>{dateLabel(request.shift.date, { weekday: 'short' })} · {request.shift.start}–{request.shift.end}</Txt>
+        <Txt size={13}>{dateLabel(request.shift.date, { weekday: 'short' })} · {shiftTimeLabel(request.shift)}</Txt>
         <Txt size={12} color={colors.muted}>{request.shift.siteName}</Txt>
         {!!request.comment && <Txt size={13} color={colors.muted}>{request.comment}</Txt>}
         {request.blockedReason && <Txt size={12} color={colors.warning}>{request.blockedReason}</Txt>}

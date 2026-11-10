@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
-import { dateLabel, type Shift } from '@/domain/model';
+import { shiftTimeLabel, dateLabel, type Shift } from '@/domain/model';
 import { useAppData } from '@/state/app-store';
 import { Icon, LiveClock, Row, Txt } from './ui';
 
@@ -35,7 +35,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   const siteLabel = site?.name ?? (dateTile ? 'Arbejdssted' : '');
   const label = [
     spokenDay,
-    shift.start + ' til ' + shift.end,
+    shift.start + ' til ' + shift.end + (shift.end < shift.start ? ' næste dag' : ''),
     siteLabel,
     missed ? 'Ikke registreret' : status,
     requestStatus,
@@ -76,12 +76,12 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
         <View style={{ flex: 1, minWidth: dateTile ? 0 : undefined, gap: dateTile ? 3 : 2 }}>
           {dateTile ? (
             <>
-              <Txt size={17} weight="600" style={{ lineHeight: 23, letterSpacing: -.25 }}>{shift.start}–{shift.end}</Txt>
+              <Txt size={17} weight="600" style={{ lineHeight: 23, letterSpacing: -.25 }}>{shiftTimeLabel(shift)}</Txt>
               <Txt size={13} color={colors.muted} numberOfLines={2} style={{ lineHeight: 18 }}>{siteLabel}</Txt>
             </>
           ) : (
             <>
-              <Txt size={15} weight="500">{shift.start}–{shift.end}</Txt>
+              <Txt size={15} weight="500">{shiftTimeLabel(shift)}</Txt>
               <Txt size={12} color={colors.muted} numberOfLines={1}>{site?.name}{!shift.personId ? ' · ' + shift.role : ''}</Txt>
             </>
           )}

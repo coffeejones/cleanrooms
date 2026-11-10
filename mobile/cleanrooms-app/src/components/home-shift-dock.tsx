@@ -6,7 +6,7 @@ import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useS
 import { Icon, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
+import { shiftTimeLabel, dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
 import { demoNow, useAppData } from '@/state/app-store';
 import { elapsedSeconds, monotonicNow } from '@/state/attendance-runtime';
 
@@ -98,7 +98,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
     <View style={cardStyles.raisedFrame}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${status}, ${siteName}, ${date}, ${shift.start} til ${shift.end}. ${counterLabel} ${entry || waiting ? duration.spoken : shift.start}.`}
+        accessibilityLabel={`${status}, ${siteName}, ${date}, ${shiftTimeLabel(shift)}. ${counterLabel} ${entry || waiting ? duration.spoken : shift.start}.`}
         accessibilityHint="Åbner vagtdetaljer"
         onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
         style={({ pressed }) => [cardStyles.raisedSurface, styles.card, pressed && styles.pressed]}
@@ -108,7 +108,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
           <View style={styles.details}>
             <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
             <Txt size={15} weight="600" style={styles.site}>{siteName}</Txt>
-            <Txt size={12} color={colors.muted}>{date} · {shift.start}–{shift.end}</Txt>
+            <Txt size={12} color={colors.muted}>{date} · {shiftTimeLabel(shift)}</Txt>
           </View>
           <View style={[styles.counter, compactWidth && styles.stackedCounter]}>
             <Txt size={11} color={colors.muted}>{counterLabel}</Txt>

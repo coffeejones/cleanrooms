@@ -1,3 +1,4 @@
+import { shiftTimeLabel } from '@/domain/model';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import type { NavigationProp } from 'expo-router/react-navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -246,7 +247,7 @@ function HoursRecord({ shift, state, from, to, last }: {
   const date = dateLabel(shift.date);
   const [day, month] = date.split(/\s+/, 2);
   const isToday = shift.date === state.today;
-  const plannedTime = `${shift.start}–${shift.end}`;
+  const plannedTime = shiftTimeLabel(shift);
   const amount = currency(pay.totalCents);
   const payCaption = registered ? `${minutesLabel(pay.minutes)} registreret`
     : active || missing ? 'Forventet' : `Forventet · ${minutesLabel(pay.minutes)}`;

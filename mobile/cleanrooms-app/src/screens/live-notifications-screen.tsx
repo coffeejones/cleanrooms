@@ -6,7 +6,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel, TIME_ZONE } from '@/domain/model';
+import { shiftTimeLabel, dateLabel, TIME_ZONE } from '@/domain/model';
 import { useEmployeeInbox, type EmployeeInbox, type EmployeeWorkflowMessage, type EmployeeWorkflowShift } from '@/state/employee-data';
 import { invalidateEmployeeResources } from '@/state/published-schedule';
 import { EmployeeShiftRequests } from '@/components/employee-shift-requests';
@@ -17,7 +17,7 @@ const timestamp = new Intl.DateTimeFormat('da-DK', { timeZone: TIME_ZONE, day: '
 const titles: Record<string, string> = { new: 'Ny vagt', changed: 'Vagt ændret', moved: 'Vagt flyttet', cancelled: 'Vagt aflyst', request: 'Vagtanmodning', reminder: 'Vagtpåmindelse', checkout_reminder: 'Husk at stemple ud' };
 
 function shiftLabel(shift: EmployeeWorkflowShift) {
-  return `${dateLabel(shift.date, { weekday: 'short' })} · ${shift.start}–${shift.end}`;
+  return `${dateLabel(shift.date, { weekday: 'short' })} · ${shiftTimeLabel(shift)}`;
 }
 
 export default function LiveNotificationsScreen() {

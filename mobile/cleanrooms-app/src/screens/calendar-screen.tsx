@@ -13,7 +13,7 @@ import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { addDays, copenhagenDate, dateLabel, mondayOfWeek, type Shift } from '@/domain/model';
+import { addDays, copenhagenDate, dateLabel, mondayOfWeek, shiftDates, type Shift } from '@/domain/model';
 import { useAppData, useNow } from '@/state/app-store';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { usePublishedSchedule } from '@/state/published-schedule';
@@ -102,9 +102,11 @@ export default function CalendarScreen() {
     const groups = new Map<string, Shift[]>();
     const shifts = live ? (schedule.data ?? []).map(item => item.shift) : state.shifts.filter(shift => shift.personId === state.selfId);
     for (const shift of shifts) {
-      const group = groups.get(shift.date);
-      if (group) group.push(shift);
-      else groups.set(shift.date, [shift]);
+      for (const day of shiftDates(shift)) {
+        const group = groups.get(day);
+        if (group) group.push(shift);
+        else groups.set(day, [shift]);
+      }
     }
     for (const group of groups.values()) group.sort((a, b) => a.start.localeCompare(b.start));
     return groups;
@@ -331,7 +333,7 @@ export default function CalendarScreen() {
               <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
               {selectedShifts.map((shift, index) => (
                 <View key={shift.id} style={index > 0 && cardStyles.divider}>
-                  <ShiftRow shift={shift} publishedSite={publishedSites.get(shift.id)} publishedEntry={publishedEntries.get(shift.id)} publishedToday={live ? today : undefined} showDate={false} dateTile />
+                  <ShiftRow shift={shift} publishedSite={publishedSites.get(shift.id)} publishedEntry={publishedEntries.get(shift.id)} publishedToday={live ? today : undefined} showDate={shift.date !== selection} dateTile />
                 </View>
               ))}
               {selectedShifts.length === 0 && (!live || (schedule.data && !schedule.error)) && (

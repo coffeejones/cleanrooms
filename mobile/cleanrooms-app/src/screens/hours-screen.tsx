@@ -259,9 +259,7 @@ function HoursRecord({ shift, state, from, to, last }: {
     <ShiftDetailsButton shiftId={shift.id} haptic="light"
       accessibilityRole="button"
       accessibilityLabel={`${date}, ${worksite}, planlagt ${plannedTime}, ${status}, ${amount} før skat, ${payCaption}`}
-      style={({ pressed }) => [
-        styles.record, last && styles.lastRecord, pressed && styles.pressed,
-      ]}>
+      style={[styles.record, last && styles.lastRecord]}>
       <View style={styles.recordDate} aria-hidden>
         <Txt size={18} weight="700" color={isToday ? colors.accent : colors.ink} maxFontSizeMultiplier={1.5} style={styles.dateDay}>
           {day}

@@ -1,10 +1,9 @@
-import { router } from 'expo-router';
 import { useIsFocused } from 'expo-router/react-navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useReduceMotionPreference } from '@/components/motion-preference';
-import { PressFeedback } from '@/components/press-feedback';
+import { ShiftDetailsButton } from '@/components/shift-details-button';
 import { Icon, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -136,15 +135,15 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
   const compactWidth = fontScale > 1.3 || width < 350;
 
   return (
-    <PressFeedback
+    <ShiftDetailsButton
+      shiftId={shift.id}
       accessibilityRole="button"
       accessibilityLabel={`${status}, ${siteName}, ${date}, ${shift.start} til ${shift.end}. ${counterLabel} ${entry || waiting ? duration.spoken : shift.start}.`}
       accessibilityHint="Åbner vagtdetaljer"
       haptic="light"
-      onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
       style={cardStyles.raisedFrame}
     >
-      {({ pressed }) => <View style={[cardStyles.raisedSurface, styles.card, pressed && styles.pressed]}>
+      <View style={styles.card}>
         <Animated.View style={statusIconStyle}>
           <ShiftStatusIcon running={running} paused={paused} focused={focused} />
         </Animated.View>
@@ -166,8 +165,8 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
         <View style={styles.chevron}>
           <Icon name="chevron-right" size={12} color={colors.muted} />
         </View>
-      </View>}
-    </PressFeedback>
+      </View>
+    </ShiftDetailsButton>
   );
 }
 
@@ -176,7 +175,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10,
     paddingHorizontal: 12, paddingVertical: 12,
   },
-  pressed: { backgroundColor: colors.paper },
   icon: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center' },
   chevron: { width: 12, height: 20, alignItems: 'center', justifyContent: 'center' },
   cardContent: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'flex-start', gap: 9 },

@@ -50,14 +50,12 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
       accessibilityRole="button"
       accessibilityLabel={label}
       haptic="light"
-      style={({ pressed }) => ({
+      style={{
         paddingVertical: dateTile ? 16 : 9,
         paddingHorizontal: dateTile ? 16 : undefined,
         minHeight: dateTile ? 84 : 57,
         justifyContent: 'center',
-        opacity: pressed && !dateTile ? .6 : 1,
-        backgroundColor: pressed && dateTile ? colors.paper : undefined,
-      })}
+      }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }}>
         {showDate && dateTile && (

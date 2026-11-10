@@ -1,95 +1,88 @@
-import { router, useIsFocused, useNavigationContainerRef } from 'expo-router';
-import { findFocusedRoute } from 'expo-router/react-navigation';
-import { useEffect, useRef, type ComponentProps, type ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
+import { router, useIsFocused } from 'expo-router';
+import { useLayoutEffect, useRef, type ComponentProps, type ReactNode } from 'react';
+import { StyleSheet, View, type GestureResponderEvent, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '@/constants/palette';
 import { useReduceMotionPreference } from './motion-preference';
 import { PressFeedback } from './press-feedback';
 
-export function ShiftDetailsButton({ shiftId, children, ...props }: Omit<ComponentProps<typeof PressFeedback>, 'children' | 'onPress'> & {
+const radius = 116;
+
+type ShiftDetailsButtonProps = Omit<ComponentProps<typeof PressFeedback>, 'children' | 'onPress' | 'ref' | 'style'> & {
   shiftId: string;
   children: ReactNode;
-}) {
-  const navigation = useNavigationContainerRef();
+  style?: StyleProp<ViewStyle>;
+};
+
+export function ShiftDetailsButton({ shiftId, children, style, disabled, onPressIn, ...props }: ShiftDetailsButtonProps) {
   const focused = useIsFocused();
   const reduceMotion = useReduceMotionPreference();
-  const stopWatching = useRef<(() => void) | null>(null);
-  const opacity = useSharedValue(0);
-  const highlight = useAnimatedStyle(() => ({ opacity: opacity.get() }));
-
-  useEffect(() => {
-    opacity.set(0);
-    return () => {
-      stopWatching.current?.();
-      stopWatching.current = null;
-      cancelAnimation(opacity);
+  const button = useRef<View>(null);
+  const press = useRef(0);
+  const origin = useSharedValue({ x: 0, y: 0 });
+  const progress = useSharedValue(1);
+  const ripple = useAnimatedStyle(() => {
+    const { x, y } = origin.get();
+    const phase = progress.get();
+    return {
+      opacity: .15 * (1 - phase),
+      transform: [{ translateX: x - radius }, { translateY: y - radius }, { scale: .06 + .94 * phase }],
     };
-  }, [opacity, reduceMotion, shiftId]);
+  });
 
-  useEffect(() => {
-    if (!focused) {
-      cancelAnimation(opacity);
-      opacity.set(0);
-    }
-  }, [focused, opacity]);
+  useLayoutEffect(() => {
+    // Let the outgoing ripple finish during the push and clear it before a return.
+    if (focused || reduceMotion || disabled) progress.set(1);
+    return () => { press.current += 1; };
+  }, [disabled, focused, progress, reduceMotion, shiftId]);
 
-  function openDetails() {
-    stopWatching.current?.();
-    stopWatching.current = null;
-    cancelAnimation(opacity);
-    opacity.set(0);
-
-    const sourceKey = !reduceMotion && focused && navigation.isReady()
-      ? findFocusedRoute(navigation.getRootState())?.key
-      : undefined;
-    if (sourceKey) {
-      let detailKey: string | undefined;
-      const unsubscribe = navigation.addListener('state', () => {
-        const route = findFocusedRoute(navigation.getRootState());
-        if (!route?.key) return;
-
-        const matchesShift = route.name === 'shift/[id]' && route.params && 'id' in route.params && route.params.id === shiftId;
-        if (!detailKey && route.key === sourceKey) return;
-        if (matchesShift && (!detailKey || route.key === detailKey)) {
-          detailKey = route.key;
-          return;
-        }
-
-        // Consume the highlight on the first navigation away from these details.
-        unsubscribe();
-        stopWatching.current = null;
-        if (!detailKey || route.key !== sourceKey) return;
-
-        opacity.set(1);
-        opacity.set(withDelay(230, withTiming(0, {
-          duration: 520,
-          easing: Easing.inOut(Easing.quad),
-          reduceMotion: ReduceMotion.System,
-        }), ReduceMotion.System));
+  function startRipple(event: GestureResponderEvent) {
+    onPressIn?.(event);
+    if (reduceMotion || disabled || !focused) return;
+    const id = ++press.current;
+    const { pageX, pageY } = event.nativeEvent;
+    // Touch coordinates may come from a child label. Measure the row in the same space.
+    button.current?.measure((_x, _y, width, height, left, top) => {
+      if (id !== press.current || width <= 0 || height <= 0) return;
+      const x = pageX - left;
+      const y = pageY - top;
+      origin.set({
+        x: x >= 0 && x <= width ? x : width / 2,
+        y: y >= 0 && y <= height ? y : height / 2,
       });
-      stopWatching.current = unsubscribe;
-    }
-
-    router.push({ pathname: '/shift/[id]', params: { id: shiftId } });
+      progress.set(0);
+      progress.set(withTiming(1, { duration: 240, easing: Easing.out(Easing.quad), reduceMotion: ReduceMotion.System }));
+    });
   }
 
+  const { borderRadius, borderTopLeftRadius, borderTopRightRadius, borderBottomLeftRadius, borderBottomRightRadius, borderCurve } = StyleSheet.flatten(style) ?? {};
+
   return (
-    <PressFeedback {...props} onPress={openDetails}>
-      <Animated.View pointerEvents="none" aria-hidden style={[styles.highlight, highlight]} />
+    <PressFeedback
+      {...props}
+      ref={button}
+      disabled={disabled}
+      style={style}
+      onPressIn={startRipple}
+      onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shiftId } })}
+    >
+      <View pointerEvents="none" aria-hidden style={[styles.clip, { borderRadius, borderTopLeftRadius, borderTopRightRadius, borderBottomLeftRadius, borderBottomRightRadius, borderCurve }]}>
+        <Animated.View style={[styles.ripple, ripple]} />
+      </View>
       {children}
     </PressFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  highlight: {
+  clip: { ...StyleSheet.absoluteFill, overflow: 'hidden' },
+  ripple: {
     position: 'absolute',
-    top: 1,
-    bottom: 1,
-    left: 4,
-    right: 4,
-    borderRadius: 8,
-    backgroundColor: colors.accentSoft,
+    left: 0,
+    top: 0,
+    width: radius * 2,
+    height: radius * 2,
+    borderRadius: radius,
+    backgroundColor: colors.accent,
   },
 });

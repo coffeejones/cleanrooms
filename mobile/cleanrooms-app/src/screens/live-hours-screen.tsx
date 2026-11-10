@@ -101,7 +101,7 @@ function LiveHourRow({ row: { shift, site, entry, pay, sourceLabel } }: { row: E
   const rowDate = registeredInterval ? copenhagenDate(registeredStart) : shift.date;
   const rowTime = registeredInterval ? `${clockTimeLabel(registeredStart)}–${clockTimeLabel(registeredEnd)}` : `${shift.start}–${shift.end}`;
   const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'running' ? 'I gang' : entry?.status === 'paused' ? 'På pause' : entry?.status === 'rejected' ? 'Sendt retur' : entry?.clockOut ? 'Til godkendelse' : 'Planlagt';
-  return <ShiftDetailsButton shiftId={shift.id} haptic="light" accessibilityRole="button" style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.paper }]}>
+  return <ShiftDetailsButton shiftId={shift.id} haptic="light" accessibilityRole="button" style={styles.row}>
     <View style={styles.day}><Txt size={18} weight="700">{Number(rowDate.slice(-2))}.</Txt><Txt size={11} color={colors.muted}>{dateLabel(rowDate, { day: undefined, month: 'short' })}</Txt></View>
     <View style={{ flex: 1, minWidth: 0, gap: 2 }}><Txt size={15} weight="600">{rowTime}</Txt><Txt size={13} color={colors.muted} numberOfLines={2}>{site.name}</Txt><Txt size={11} color={colors.muted}>{status}</Txt></View>
     <View style={{ alignItems: 'flex-end', maxWidth: '42%', gap: 2 }}><Txt size={15} weight="600">{pay.unavailableReason ? '—' : currency(pay.totalCents)}</Txt><Txt size={12} color={colors.muted}>{pay.kind === 'registered' ? minutesLabel(pay.minutes) : 'Forventet'}</Txt>{sourceLabel && entry?.status === 'approved' && <Txt size={10} color={colors.muted}>{sourceLabel}</Txt>}</View>

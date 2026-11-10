@@ -10,7 +10,6 @@ import { colors } from '@/constants/palette';
 import { addDays, dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
 import { demoNow, useAppData } from '@/state/app-store';
 import { elapsedSeconds, monotonicNow } from '@/state/attendance-runtime';
-import { HomeShiftGlow } from './home-shift-glow';
 
 function durationLabel(seconds: number) {
   const days = Math.floor(seconds / 86_400);
@@ -189,7 +188,6 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
           <Icon name="chevron-right" size={12} color={colors.muted} />
         </View>
       </Pressable>
-      {!running && !paused && <HomeShiftGlow focused={focused} />}
     </Animated.View>
   );
 }

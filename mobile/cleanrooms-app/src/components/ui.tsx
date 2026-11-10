@@ -1,11 +1,11 @@
 import { Button as NativeButton, Host, Text as NativeText } from '@expo/ui';
-import { contentShape, shapes } from '@expo/ui/swift-ui/modifiers';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Pressable, Text, View, useWindowDimensions, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colors } from '@/constants/palette';
+import { buttonContentModifiers } from './button-content-shape';
 
 export function Txt({ size = 15, weight = '400', color = colors.ink, style, ...props }: TextProps & { size?: number; weight?: TextStyle['fontWeight']; color?: string }) {
   return <Text selectable {...props} style={[{ fontSize: size, fontWeight: weight, color, lineHeight: size * 1.4, fontVariant: ['tabular-nums'] }, style]} />;
@@ -72,7 +72,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, style, c
       >
         <NativeText
           style={{ width: innerWidth, height: innerHeight }}
-          modifiers={process.env.EXPO_OS === 'ios' ? [contentShape(shapes.rectangle())] : undefined}
+          modifiers={buttonContentModifiers}
           textStyle={{ color: filled ? colors.white : colors.ink, fontSize: process.env.EXPO_OS === 'ios' ? 15 * fontScale : 15, fontWeight: '600', textAlign: 'center' }}
         >{label}</NativeText>
       </NativeButton>

@@ -1,10 +1,12 @@
 import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
+import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { HomeShiftDock } from '@/components/home-shift-dock';
+import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
 import { Row, Txt } from '@/components/ui';
 import { ShiftRow } from '@/components/shift-row';
@@ -44,6 +46,25 @@ export default function HomeScreen() {
   const weekStart = selectedWeek ?? currentWeek;
   const showingCurrentWeek = weekStart === currentWeek;
   const weekEnd = addDays(weekStart, 6);
+  const reduceMotion = useReduceMotionPreference();
+  const previousWeek = useRef(weekStart);
+  const weekSlide = useSharedValue(0);
+  const weekMotion = useAnimatedStyle(() => {
+    const offset = weekSlide.get();
+    return { transform: [{ translateX: offset }], opacity: 1 - Math.abs(offset) * 0.025 };
+  });
+
+  useLayoutEffect(() => {
+    const previous = previousWeek.current;
+    previousWeek.current = weekStart;
+    if (reduceMotion) {
+      weekSlide.set(0);
+    } else if (previous !== weekStart) {
+      weekSlide.set(weekStart > previous ? 8 : -8);
+      weekSlide.set(withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }));
+    }
+  }, [reduceMotion, weekSlide, weekStart]);
+
   const schedule = usePublishedSchedule(weekStart, weekEnd);
   const activeTime = useEmployeeActiveTime();
   const activeLiveRecord = activeTime.data ?? null;
@@ -123,7 +144,7 @@ export default function HomeScreen() {
             />
           </Row>
         </Row>
-        <View style={[cardStyles.listSurface, styles.agendaList]}>
+        <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
           <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
           {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
             <View key={shift.id}>
@@ -138,13 +159,14 @@ export default function HomeScreen() {
               {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
             </Txt>
           )}
-        </View>
+        </Animated.View>
       </View>
     </ScrollView>
     {next && nextStart !== undefined && (
       <View style={styles.dock}>
         <HomeShiftDock
           shift={next}
+          today={today}
           siteName={site?.name ?? 'Arbejdssted'}
           start={nextStart}
           entry={activeShift ? activeEntry : undefined}

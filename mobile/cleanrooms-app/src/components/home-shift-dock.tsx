@@ -3,10 +3,11 @@ import { useIsFocused } from 'expo-router/react-navigation';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { useReduceMotionPreference } from '@/components/motion-preference';
 import { Icon, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
+import { addDays, dateLabel, workingIntervals, type Shift, type TimeEntry } from '@/domain/model';
 import { demoNow, useAppData } from '@/state/app-store';
 import { elapsedSeconds, monotonicNow } from '@/state/attendance-runtime';
 
@@ -50,16 +51,20 @@ function ShiftStatusIcon({ running, paused, focused }: { running: boolean; pause
   );
 }
 
-export function HomeShiftDock({ shift, siteName, start, entry, live = false, serverClock }: {
+export function HomeShiftDock({ shift, siteName, start, today, entry, live = false, serverClock }: {
   shift: Shift;
   siteName: string;
   start: number;
+  today: string;
   entry?: TimeEntry;
   live?: boolean;
   serverClock?: { workedSeconds?: number; measuredAt?: number; receivedAtMonotonic?: number };
 }) {
   const { state } = useAppData();
   const focused = useIsFocused();
+  const reduceMotion = useReduceMotionPreference();
+  const pressScale = useSharedValue(1);
+  const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: pressScale.get() }] }));
   const { fontScale, width } = useWindowDimensions();
   const [realNow, setRealNow] = useState(Date.now);
   const [elapsedNow, setElapsedNow] = useState(monotonicNow);
@@ -67,6 +72,25 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
   const paused = entry?.status === 'paused';
   const now = live ? realNow : demoNow(state, realNow);
   const counting = running || (!entry && start > now);
+
+  useEffect(() => {
+    cancelAnimation(pressScale);
+    pressScale.set(1);
+    return () => cancelAnimation(pressScale);
+  }, [focused, pressScale, reduceMotion, shift.id]);
+
+  function animatePress(pressed: boolean) {
+    if (reduceMotion || !focused) {
+      cancelAnimation(pressScale);
+      pressScale.set(1);
+      return;
+    }
+    pressScale.set(withTiming(pressed ? 0.99 : 1, {
+      duration: pressed ? 90 : 160,
+      easing: Easing.out(Easing.cubic),
+      reduceMotion: ReduceMotion.Never,
+    }));
+  }
 
   useEffect(() => {
     if (!focused || !counting) return;
@@ -92,14 +116,17 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
   const counterLabel = entry ? 'Arbejdet' : waiting ? 'Starter om' : 'Planlagt fra';
   const statusColor = running ? colors.success : paused ? colors.warning : colors.muted;
   const date = dateLabel(shift.date, { weekday: 'short' });
+  const visibleDate = shift.date === today ? 'I dag' : shift.date === addDays(today, 1) ? 'I morgen' : date;
   const compactWidth = fontScale > 1.3 || width < 350;
 
   return (
-    <View style={cardStyles.raisedFrame}>
+    <Animated.View style={[cardStyles.raisedFrame, pressStyle]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${status}, ${siteName}, ${date}, ${shift.start} til ${shift.end}. ${counterLabel} ${entry || waiting ? duration.spoken : shift.start}.`}
         accessibilityHint="Åbner vagtdetaljer"
+        onPressIn={() => animatePress(true)}
+        onPressOut={() => animatePress(false)}
         onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
         style={({ pressed }) => [cardStyles.raisedSurface, styles.card, pressed && styles.pressed]}
       >
@@ -108,7 +135,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
           <View style={styles.details}>
             <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
             <Txt size={15} weight="600" style={styles.site}>{siteName}</Txt>
-            <Txt size={12} color={colors.muted}>{date} · {shift.start}–{shift.end}</Txt>
+            <Txt size={12} color={colors.muted}>{visibleDate} · {shift.start}–{shift.end}</Txt>
           </View>
           <View style={[styles.counter, compactWidth && styles.stackedCounter]}>
             <Txt size={11} color={colors.muted}>{counterLabel}</Txt>
@@ -119,7 +146,7 @@ export function HomeShiftDock({ shift, siteName, start, entry, live = false, ser
         </View>
         <Icon name="chevron-right" size={12} color={colors.muted} />
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 

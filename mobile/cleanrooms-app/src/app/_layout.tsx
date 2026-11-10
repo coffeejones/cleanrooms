@@ -17,6 +17,10 @@ function AppContent() {
   const { state } = useMobileAuth();
   const reduceMotion = useReduceMotionPreference();
   const isDemo = state.mode === 'demo';
+  const detailTransition = {
+    animation: reduceMotion ? 'none' : process.env.EXPO_OS === 'ios' ? 'simple_push' : 'default',
+    animationDuration: 220,
+  } as const;
   if (state.mode === 'loading' || (isDemo && !ready)) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.white }}><Txt weight="600" size={22}>CleanRooms</Txt><Txt color={colors.muted}>{isDemo ? 'Åbner demoen…' : 'Åbner CleanRooms…'}</Txt></View>;
   return <View style={{ flex: 1, backgroundColor: colors.white }}>
     {isDemo && storageError && <View accessibilityRole="alert" style={{ backgroundColor: '#fff0e5', padding: 10 }}><Txt size={12}>{storageError}</Txt></View>}
@@ -26,17 +30,18 @@ function AppContent() {
       </Stack.Protected>
       <Stack.Protected guard={isDemo || state.mode === 'signedIn'}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ title: 'Indstillinger' }} />
-        <Stack.Screen name="chat/[id]" options={{ title: 'Samtale', headerStyle: { backgroundColor: colors.white } }} />
-        <Stack.Screen name="notifications" options={{ title: 'Notifikationer' }} />
+        <Stack.Screen name="settings" options={{ ...detailTransition, title: 'Indstillinger' }} />
+        <Stack.Screen name="chat/[id]" options={{ ...detailTransition, title: 'Samtale', headerStyle: { backgroundColor: colors.white } }} />
+        <Stack.Screen name="notifications" options={{ ...detailTransition, title: 'Notifikationer' }} />
         <Stack.Screen name="shift/[id]" options={{
+          ...detailTransition,
           title: 'Din vagt',
-          animation: reduceMotion ? 'none' : process.env.EXPO_OS === 'ios' ? 'simple_push' : 'fade',
-          animationDuration: 230,
+          animation: !reduceMotion && process.env.EXPO_OS === 'android' ? 'fade' : detailTransition.animation,
+          animationDuration: 170,
         }} />
       </Stack.Protected>
       <Stack.Protected guard={state.mode === 'signedIn'}>
-        <Stack.Screen name="account" options={{ title: 'Indstillinger' }} />
+        <Stack.Screen name="account" options={{ ...detailTransition, title: 'Indstillinger' }} />
       </Stack.Protected>
     </Stack>
   </View>;

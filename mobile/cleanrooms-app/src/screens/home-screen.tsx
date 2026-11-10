@@ -41,6 +41,9 @@ export default function HomeScreen() {
   const { state: auth } = useMobileAuth();
   const { fontScale } = useWindowDimensions();
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+  // Content layout keeps the week heading clear without following the scroll offset.
+  const [agendaTop, setAgendaTop] = useState<number | null>(null);
+  const [agendaBodyTop, setAgendaBodyTop] = useState<number | null>(null);
   const live = auth.mode === 'signedIn';
   const today = live ? copenhagenDate(now) : state.today;
   const currentWeek = mondayOfWeek(today);
@@ -112,66 +115,70 @@ export default function HomeScreen() {
 
   const content = <>
     <Stack.Screen options={headerOptions} />
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      showsVerticalScrollIndicator={false}
-      style={styles.canvas}
-      contentContainerStyle={styles.content}
-      refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
-    >
-      {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
-      {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
-      <View style={styles.agenda}>
-        <Row gap={12} style={styles.sectionHead}>
-          <View style={styles.sectionIntro}>
-            <Row gap={8} style={styles.weekHeading}>
-              <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
-              {weekShiftCount !== null && (
-                <Txt size={12} color={muted}>{weekShiftCount} {weekShiftCount === 1 ? 'vagt' : 'vagter'}</Txt>
-              )}
+    <View style={styles.viewport}>
+      {agendaTop !== null && agendaBodyTop !== null && (
+        <HomeFlowBackground style={{ top: agendaTop + agendaBodyTop }} />
+      )}
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
+      >
+        {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
+        {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
+        <View style={styles.agenda} onLayout={event => setAgendaTop(event.nativeEvent.layout.y)}>
+          <Row gap={12} style={styles.sectionHead}>
+            <View style={styles.sectionIntro}>
+              <Row gap={8} style={styles.weekHeading}>
+                <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
+                {weekShiftCount !== null && (
+                  <Txt size={12} color={muted}>{weekShiftCount} {weekShiftCount === 1 ? 'vagt' : 'vagter'}</Txt>
+                )}
+              </Row>
+              <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
+            </View>
+            <Row gap={6}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Gå til denne uge"
+                accessibilityState={{ disabled: showingCurrentWeek }}
+                disabled={showingCurrentWeek}
+                onPress={() => setSelectedWeek(null)}
+                style={({ pressed }) => [styles.todayButton, pressed && styles.softPressed]}
+              >
+                <Txt size={13} weight="500" color={showingCurrentWeek ? muted : accent} selectable={false}>I dag</Txt>
+              </Pressable>
+              <PeriodArrows
+                previousLabel="Forrige uge"
+                nextLabel="Næste uge"
+                onPrevious={() => moveWeek(-1)}
+                onNext={() => moveWeek(1)}
+              />
             </Row>
-            <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
-          </View>
-          <Row gap={6}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Gå til denne uge"
-              accessibilityState={{ disabled: showingCurrentWeek }}
-              disabled={showingCurrentWeek}
-              onPress={() => setSelectedWeek(null)}
-              style={({ pressed }) => [styles.todayButton, pressed && styles.softPressed]}
-            >
-              <Txt size={13} weight="500" color={showingCurrentWeek ? muted : accent} selectable={false}>I dag</Txt>
-            </Pressable>
-            <PeriodArrows
-              previousLabel="Forrige uge"
-              nextLabel="Næste uge"
-              onPrevious={() => moveWeek(-1)}
-              onNext={() => moveWeek(1)}
-            />
           </Row>
-        </Row>
-        <View style={styles.agendaBody}>
-          <HomeFlowBackground style={styles.flowCanvas} />
-          <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
-            <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
-            {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
-              <View key={shift.id}>
-                {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
-                <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
-                  publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
-                  dateTile endedWithoutEntry={!live && !entry && end <= now} />
-              </View>
-            ))}
-            {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
-              <Txt size={13} color={muted} style={styles.emptyAgenda}>
-                {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
-              </Txt>
-            )}
-          </Animated.View>
+          <View style={styles.agendaBody} onLayout={event => setAgendaBodyTop(event.nativeEvent.layout.y)}>
+            <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
+              <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
+              {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
+                <View key={shift.id}>
+                  {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
+                  <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
+                    publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
+                    dateTile endedWithoutEntry={!live && !entry && end <= now} />
+                </View>
+              ))}
+              {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
+                <Txt size={13} color={muted} style={styles.emptyAgenda}>
+                  {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
+                </Txt>
+              )}
+            </Animated.View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
     {next && nextStart !== undefined && (
       <View style={styles.dock}>
         <HomeShiftDock
@@ -196,6 +203,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
+  viewport: { flex: 1 },
+  scroll: { flex: 1 },
   content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
   dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
@@ -203,7 +212,6 @@ const styles = StyleSheet.create({
   brandText: { flexShrink: 1 },
   agenda: { flexGrow: 1, gap: 16 },
   agendaBody: { flexGrow: 1 },
-  flowCanvas: { left: -20, right: -20, bottom: -20 },
   agendaList: { overflow: 'hidden' },
   agendaDivider: { marginHorizontal: 16 },
   sectionHead: { justifyContent: 'space-between', paddingTop: 4 },

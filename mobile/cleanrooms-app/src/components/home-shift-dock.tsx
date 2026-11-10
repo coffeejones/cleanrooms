@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useIsFocused } from 'expo-router/react-navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useReduceMotionPreference } from '@/components/motion-preference';
@@ -45,7 +45,7 @@ function ShiftStatusIcon({ running, paused, focused }: { running: boolean; pause
   return (
     <View style={styles.icon}>
       <Animated.View style={motion}>
-        <Icon name={running ? 'clock' : paused ? 'pause' : 'calendar'} size={running ? 23 : 20} color={iconColor} />
+        <Icon name={running ? 'clock' : paused ? 'pause' : 'calendar'} size={20} color={iconColor} />
       </Animated.View>
     </View>
   );
@@ -104,6 +104,29 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
   }, [counting, focused, shift.id, state.demoStartedAt]);
 
   const waiting = !entry && start > now;
+  const statusKey = running ? 'running' : paused ? 'paused' : waiting ? 'waiting' : 'scheduled';
+  const previousStatus = useRef({ key: statusKey, focused });
+  const statusOpacity = useSharedValue(1);
+  const statusIconStyle = useAnimatedStyle(() => ({ opacity: statusOpacity.get() }));
+  const statusLabelStyle = useAnimatedStyle(() => ({ opacity: statusOpacity.get() }));
+
+  useLayoutEffect(() => {
+    const previous = previousStatus.current;
+    previousStatus.current = { key: statusKey, focused };
+    if (!focused || reduceMotion || !previous.focused) {
+      cancelAnimation(statusOpacity);
+      statusOpacity.set(1);
+    } else if (previous.key !== statusKey) {
+      statusOpacity.set(0.75);
+      statusOpacity.set(withTiming(1, {
+        duration: 170,
+        easing: Easing.out(Easing.cubic),
+        reduceMotion: ReduceMotion.Never,
+      }));
+    }
+    return () => cancelAnimation(statusOpacity);
+  }, [focused, reduceMotion, statusKey, statusOpacity]);
+
   const workedUntil = paused ? Date.parse(entry.pauses.at(-1)?.start ?? entry.clockIn) : now;
   const serverElapsed = serverClock && elapsedSeconds({ version: 1, status: running ? 'running' : 'paused', clockIn: null, clockOut: null, pauseAt: null, ...serverClock }, elapsedNow);
   const elapsed = live
@@ -130,10 +153,14 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
         onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
         style={({ pressed }) => [cardStyles.raisedSurface, styles.card, pressed && styles.pressed]}
       >
-        <ShiftStatusIcon running={running} paused={paused} focused={focused} />
+        <Animated.View style={statusIconStyle}>
+          <ShiftStatusIcon running={running} paused={paused} focused={focused} />
+        </Animated.View>
         <View style={[styles.cardContent, compactWidth && styles.stacked]}>
           <View style={styles.details}>
-            <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
+            <Animated.View style={statusLabelStyle}>
+              <Txt size={12} weight="600" color={statusColor}>{status}</Txt>
+            </Animated.View>
             <Txt size={15} weight="600" style={styles.site}>{siteName}</Txt>
             <Txt size={12} color={colors.muted}>{visibleDate} · {shift.start}–{shift.end}</Txt>
           </View>
@@ -144,7 +171,9 @@ export function HomeShiftDock({ shift, siteName, start, today, entry, live = fal
             </Txt>
           </View>
         </View>
-        <Icon name="chevron-right" size={12} color={colors.muted} />
+        <View style={styles.chevron}>
+          <Icon name="chevron-right" size={12} color={colors.muted} />
+        </View>
       </Pressable>
     </Animated.View>
   );
@@ -157,6 +186,7 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: colors.paper },
   icon: { width: 28, height: 36, alignItems: 'center', justifyContent: 'center' },
+  chevron: { width: 12, height: 20, alignItems: 'center', justifyContent: 'center' },
   cardContent: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 9 },
   details: { flex: 1, minWidth: 0 },
   site: { lineHeight: 21, letterSpacing: -0.15 },

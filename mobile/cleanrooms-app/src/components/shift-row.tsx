@@ -1,9 +1,13 @@
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { useIsFocused } from 'expo-router/react-navigation';
+import { useEffect } from 'react';
+import { Pressable, View, useWindowDimensions } from 'react-native';
+import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
 import { dateLabel, type Shift } from '@/domain/model';
 import { useAppData } from '@/state/app-store';
+import { useReduceMotionPreference } from './motion-preference';
 import { Icon, LiveClock, Row, Txt } from './ui';
 
 export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday, showDate = true, dateTile = false, endedWithoutEntry = false }: {
@@ -16,6 +20,33 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   endedWithoutEntry?: boolean;
 }) {
   const { state } = useAppData();
+  const focused = useIsFocused();
+  const reduceMotion = useReduceMotionPreference();
+  const { fontScale } = useWindowDimensions();
+  const homeTile = dateTile && showDate;
+  const stackedDate = fontScale > 1.05;
+  const pressScale = useSharedValue(1);
+  const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: pressScale.get() }] }));
+
+  useEffect(() => {
+    cancelAnimation(pressScale);
+    pressScale.set(1);
+    return () => cancelAnimation(pressScale);
+  }, [focused, homeTile, pressScale, reduceMotion, shift.id]);
+
+  function animatePress(pressed: boolean) {
+    if (!homeTile || reduceMotion || !focused) {
+      cancelAnimation(pressScale);
+      pressScale.set(1);
+      return;
+    }
+    pressScale.set(withTiming(pressed ? 0.99 : 1, {
+      duration: pressed ? 90 : 160,
+      easing: Easing.out(Easing.cubic),
+      reduceMotion: ReduceMotion.Never,
+    }));
+  }
+
   const site = publishedSite ?? state.sites.find(place => place.id === shift.siteId);
   const entry = publishedSite ? publishedEntry : state.entries.find(record => record.shiftId === shift.id);
   const active = entry && (entry.status === 'running' || entry.status === 'paused');
@@ -45,6 +76,8 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      onPressIn={() => animatePress(true)}
+      onPressOut={() => animatePress(false)}
       onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
       style={({ pressed }) => ({
         paddingVertical: dateTile ? 16 : 9,
@@ -55,15 +88,20 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
         backgroundColor: pressed && dateTile ? colors.paper : undefined,
       })}
     >
-      <Row gap={dateTile ? 16 : 12}>
+      <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }, pressStyle]}>
         {showDate && dateTile && (
           <View style={{ flexBasis: 52, flexShrink: 0, gap: 3 }}>
             <Txt size={11} weight="500" color={today ? colors.accent : colors.muted} style={{ lineHeight: 15 }}>
               {tileWeekday}
             </Txt>
-            <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 25, letterSpacing: -.5 }}>
-              {dateNumber}<Txt size={11} color={colors.muted}> {dateMonth}</Txt>
-            </Txt>
+            <View style={{ flexDirection: stackedDate ? 'column' : 'row', alignItems: stackedDate ? 'flex-start' : 'baseline', gap: stackedDate ? 0 : 2 }}>
+              <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 25, letterSpacing: -.5 }}>
+                {dateNumber.replace(/\.$/, '')}
+              </Txt>
+              <Txt size={11} color={colors.muted} style={{ flexShrink: 0 }}>
+                {dateMonth}
+              </Txt>
+            </View>
           </View>
         )}
         {showDate && !dateTile && (
@@ -88,22 +126,24 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
           {missed && <Txt size={11} color={colors.warning}>Ikke registreret</Txt>}
           {requestStatus && <Txt size={11} color={colors.warning}>{requestStatus}</Txt>}
         </View>
-        <Row gap={7}>
+        <Row gap={7} style={homeTile ? { minHeight: 20 } : undefined}>
           {entry?.clockOut ? (
-            <Icon name="check-circle" size={17} color={colors.success} />
+            <Icon name="check-circle" size={homeTile ? 16 : 17} color={colors.success} />
           ) : active ? (
             <Row gap={5}>
               {paused
-                ? <Icon name="pause" size={14} color={activeColor} />
-                : <LiveClock size={14} color={activeColor} />}
+                ? <Icon name="pause" size={homeTile ? 16 : 14} color={activeColor} />
+                : <LiveClock size={homeTile ? 16 : 14} color={activeColor} />}
               <Txt size={11} weight="500" color={activeColor}>{status}</Txt>
             </Row>
           ) : !shift.personId && !pending ? (
             <Txt size={11} weight="600" color={colors.accent}>Ledig</Txt>
           ) : null}
-          <Icon name="chevron-right" size={dateTile ? 12 : 14} color={colors.muted} />
+          <View style={homeTile ? { width: 14, height: 20, alignItems: 'center', justifyContent: 'center' } : undefined}>
+            <Icon name="chevron-right" size={dateTile ? 12 : 14} color={colors.muted} />
+          </View>
         </Row>
-      </Row>
+      </Animated.View>
     </Pressable>
   );
 }

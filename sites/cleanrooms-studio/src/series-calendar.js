@@ -10,8 +10,8 @@
   function assess({shifts=[],existing=[],blockedDates=[],pendingRequests=[]}={}) {
     const ids=new Set(shifts.map(shift=>shift.id)),conflicts=[],seen=new Set();
     Engine.conflicts(shifts,[...existing.filter(shift=>!ids.has(shift.id)),...shifts]).forEach(issue=>{const key=[issue.shift.id,issue.other.id].sort().join('|');if(!seen.has(key)){seen.add(key);conflicts.push({...issue,date:issue.shift.date});}});
-    shifts.forEach(shift=>{if(blockedDates.some(item=>item.person===shift.person&&item.date===shift.date))conflicts.push({type:'leave',date:shift.date,shift});});
-    return {conflicts:conflicts.sort((a,b)=>a.date.localeCompare(b.date)),pendingRequests:pendingRequests.filter(item=>shifts.some(shift=>shift.person===item.person&&shift.date===item.date))};
+    shifts.forEach(shift=>{const hit=blockedDates.find(item=>item.person===shift.person&&Engine.shiftDates(shift).includes(item.date));if(hit)conflicts.push({type:'leave',date:hit.date,shift});});
+    return {conflicts:conflicts.sort((a,b)=>a.date.localeCompare(b.date)),pendingRequests:pendingRequests.filter(item=>shifts.some(shift=>shift.person===item.person&&Engine.shiftDates(shift).includes(item.date)))};
   }
   function model({draft={},shifts=[],conflicts=[],pendingRequests=[],unavailableDates=[],today,state={}}={}) {
     const days=new Map(),get=value=>{if(!days.has(value))days.set(value,{date:value,shifts:[],conflicts:[],pending:[],unavailable:false});return days.get(value);};
@@ -59,7 +59,7 @@
     const selected=value.days.get(value.selected);
     if(selected){
       const detail=el('section','cs-series-date-detail');detail.setAttribute('aria-label','Detaljer for '+label(value.selected));detail.append(el('h5',null,label(value.selected)));
-      selected.shifts.forEach(shift=>detail.append(el('p','cs-series-date-shift',shift.start+'–'+shift.end+' · '+(options.personName?.(shift.person)||'')+' · '+(sites[shift.site]?.name||'Arbejdssted')+(shift.plannedBreakMinutes?' · '+shift.plannedBreakMinutes+' min pause':''))));
+      selected.shifts.forEach(shift=>detail.append(el('p','cs-series-date-shift',shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':'')+' · '+(options.personName?.(shift.person)||'')+' · '+(sites[shift.site]?.name||'Arbejdssted')+(shift.plannedBreakMinutes?' · '+shift.plannedBreakMinutes+' min pause':''))));
       const seen=new Set();selected.conflicts.forEach(issue=>{
         const text=issue.type==='leave'?'Godkendt fravær på denne dato.':'Overlap med '+(issue.other?.start||'')+'–'+(issue.other?.end||'')+' hos '+(sites[issue.other?.site]?.name||'et andet arbejdssted')+'.';
         if(!seen.has(text)){seen.add(text);detail.append(el('p','cs-series-date-conflict',text));}

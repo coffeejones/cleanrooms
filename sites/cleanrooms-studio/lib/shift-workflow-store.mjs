@@ -3,6 +3,7 @@ import {isScoped,assertSiteAccess,assertPersonAccess,accessGuard} from './depart
 import Workflow from '../src/shift-workflow-model.js';
 import Publication from '../src/publication-model.js';
 import Data from '../src/studio-data.js';
+import Series from '../src/series-engine.js';
 import Departments from '../src/department-model.js';
 import Checklist from '../src/checklist-progress.js';
 import {writeStudio,StudioError} from './studio-store.mjs';
@@ -22,7 +23,7 @@ const safeComment=value=>typeof value==='string'&&value.length<=16000&&!/[\u0000
 const localNow=stamp=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Copenhagen',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(stamp)),part=type=>parts.find(item=>item.type===type).value;return {date:part('year')+'-'+part('month')+'-'+part('day'),time:part('hour')+':'+part('minute')};};
 const weekFor=day=>{const date=new Date(day+'T12:00:00Z');date.setUTCDate(date.getUTCDate()-((date.getUTCDay()+6)%7));const from=date.toISOString().slice(0,10);date.setUTCDate(date.getUTCDate()+6);return {from,to:date.toISOString().slice(0,10)};};
 const siteList=studio=>studio.organization?.sites||Departments.defaultOrganization().sites;
-const overlap=(one,two)=>one.person===two.person&&one.date===two.date&&one.id!==two.id&&one.start<two.end&&two.start<one.end;
+const overlap=(one,two)=>Series.conflicts([one],[two]).length>0;
 
 export async function handleShiftWorkflowAction(args){try{return await workflowAction(args);}catch(error){if(!(error instanceof StudioError)&&Number.isInteger(error?.status)&&error.status>=400&&error.status<=599&&typeof error.code==='string')throw new StudioError(error.status,error.code,error.message);throw error;}}
 async function workflowAction({db,context,payload,principal,helpers:h}){
@@ -71,7 +72,7 @@ async function workflowAction({db,context,payload,principal,helpers:h}){
     if(unavailable)h.fail(409,'workflow_unavailable',availabilityMessage(unavailable));
     const proposed={...shift,person:target};
     if((await scoped.conflicts(shift,target)).some(other=>overlap(proposed,other)))h.fail(409,'workflow_overlap','Medarbejderen har en overlappende vagt. Vælg en anden medarbejder eller ret planen.');
-    if(await h.first(db,"SELECT id FROM workspace_absences WHERE workspace_id=? AND person_id=? AND status='approved' AND from_date<=? AND to_date>=? LIMIT 1",workspaceId,target,shift.date,shift.date))h.fail(409,'workflow_leave','Medarbejderen har godkendt fravær på denne dato.');
+    if(await h.first(db,"SELECT id FROM workspace_absences WHERE workspace_id=? AND person_id=? AND status='approved' AND from_date<=? AND to_date>=? LIMIT 1",workspaceId,target,Series.shiftDates(shift).at(-1),shift.date))h.fail(409,'workflow_leave','Medarbejderen har godkendt fravær på denne dato.');
   }
   function describeRequest(request){
     const current=publishedShift(request.shift.id),valid=Boolean(current&&Workflow.future(current,local)&&request.shift.fingerprint===fingerprint(current));

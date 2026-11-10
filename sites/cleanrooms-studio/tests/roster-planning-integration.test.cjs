@@ -110,6 +110,6 @@ test('directory edit availability comes from the existing trusted capability gat
 });
 
 test('invalid planning data leaves the employee directory usable without showing invented zero totals',()=>{
-  const app=application();app.setup([anna],{edits:{bad:shift('bad',anna.id,'2026-10-28',0,'12:00','08:00')}});
+  const app=application();app.setup([anna],{edits:{bad:shift('bad',anna.id,'2026-10-28',0,'12:00','12:00')}});
   assert.doesNotThrow(()=>app.renderRoster());assert.equal(app.last().planning,null);assert.match(app.last().planningError,/Ugens plan kunne ikke beregnes/);assert.deepEqual(plain(app.last().staff),[anna]);
 });

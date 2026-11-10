@@ -7,6 +7,7 @@
   const weekdayLetters = ['M','T','O','T','F','L','S'];
   const formatter = new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   const str = value => value == null ? '' : String(value);
+  const clockLabel=shift=>str(shift.start)+'–'+str(shift.end)+(shift.end<shift.start?' +1 dag':'');
   const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value+'T12:00:00Z'));
   const formatDate = value => validDate(value) ? formatter.format(new Date(value+'T12:00:00Z')) : 'Dato mangler';
   const isOpenEnded = phase => phase?.openEnded === true && phase.endDate === '2100-12-31';
@@ -16,7 +17,7 @@
   const phaseOrder = (a,b) => str(a.startDate).localeCompare(str(b.startDate)) || str(a.endDate).localeCompare(str(b.endDate)) || str(a.id).localeCompare(str(b.id));
   const patternTimes = phase => [...new Set(Array.isArray(phase.weekdays) ? phase.weekdays : [])].filter(day => Number.isInteger(day) && day >= 0 && day < 7).sort((a,b) => a-b).map(day => ({day,start:phase.dayTimes?.[day]?.start || phase.start,end:phase.dayTimes?.[day]?.end || phase.end,plannedBreakMinutes:phase.dayTimes?.[day]?.plannedBreakMinutes??phase.plannedBreakMinutes??0}));
   const pauseLabel=phase=>{const pauses=[...new Set(patternTimes(phase).map(item=>item.plannedBreakMinutes))].sort((a,b)=>a-b);return pauses.some(value=>value>0)?(pauses.length===1?pauses[0]+' min ulønnet pause':pauses[0]+'–'+pauses.at(-1)+' min pause · varierer pr. dag'):'';};
-  const patternLabel = phase => { const times = patternTimes(phase), unique = [...new Set(times.map(time => str(time.start)+'–'+str(time.end)))]; return unique.length > 1 ? 'Varierende tider' : unique[0] || str(phase.start)+'–'+str(phase.end); };
+  const patternLabel = phase => { const times = patternTimes(phase), unique = [...new Set(times.map(time => clockLabel(time)))]; return unique.length > 1 ? 'Varierende tider' : unique[0] || clockLabel(phase); };
 
   function fallbackGroups(phases,options,today) {
     const grouped = new Map();
@@ -110,8 +111,8 @@
       identity.append(avatar,copy); row.append(identity);
       const pattern = field(series.startDate > options.today ? 'Næste rytme' : !isOpenEnded(series) && series.endDate < options.today ? 'Seneste rytme' : 'Nuværende rytme','cs-series-row-pattern'); pattern.append(node('strong','cs-series-row-time',patternLabel(series)));
       const selected = new Set(Array.isArray(series.weekdays) ? series.weekdays : []), week = node('div','cs-series-week-pattern'); week.setAttribute('role','img'); week.setAttribute('aria-label','Gentages: '+days.filter((_,index) => selected.has(index)).join(', '));
-      weekdayLetters.forEach((day,index) => { const item = node('span','cs-series-weekday',day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute('aria-hidden','true'); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+' '+str(time.start)+'–'+str(time.end); } week.append(item); }); pattern.append(week);
-      if (patternLabel(series) === 'Varierende tider') { const times=node('span','cs-series-pattern-times',patternTimes(series).map(time => shortDays[time.day]+' '+str(time.start)+'–'+str(time.end)).join(' · '));times.title=times.textContent;pattern.append(times); }
+      weekdayLetters.forEach((day,index) => { const item = node('span','cs-series-weekday',day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute('aria-hidden','true'); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+' '+clockLabel(time); } week.append(item); }); pattern.append(week);
+      if (patternLabel(series) === 'Varierende tider') { const times=node('span','cs-series-pattern-times',patternTimes(series).map(time => shortDays[time.day]+' '+clockLabel(time)).join(' · '));times.title=times.textContent;pattern.append(times); }
       if(pauseLabel(series))pattern.append(node('span','cs-series-planned-break',pauseLabel(series)));
       row.append(pattern);
       const period = field('Samlet periode','cs-series-row-period'),range=node('span','cs-series-row-value');
@@ -120,7 +121,7 @@
       const nextField = field('Overblik','cs-series-row-next'),future=entry.phases.find(phase=>phase.startDate>options.today&&phase.id!==series.id);
       nextField.append(node('span','cs-series-row-state',{active:'I gang',upcoming:'Kommende',ended:'Afsluttet'}[entry.status]));
       if(future) nextField.append(node('span','cs-series-next-change','Ny periode '+formatDate(future.startDate)));
-      else if(next){nextField.append(node('span','cs-series-next-label','Næste vagt '+formatDate(next.date)),node('span','cs-series-next-time',str(next.start)+'–'+str(next.end)));if(next.site!==series.site)nextField.append(node('span','cs-series-next-site',siteName(next.site)));if(next.person!==series.person)nextField.append(node('span','cs-series-next-site',options.personName?.(next.person)||'Ledig vagt'));}
+      else if(next){nextField.append(node('span','cs-series-next-label','Næste vagt '+formatDate(next.date)),node('span','cs-series-next-time',clockLabel(next)));if(next.site!==series.site)nextField.append(node('span','cs-series-next-site',siteName(next.site)));if(next.person!==series.person)nextField.append(node('span','cs-series-next-site',options.personName?.(next.person)||'Ledig vagt'));}
       else if(entry.status==='ended')nextField.append(node('span','cs-series-next-label','Ingen kommende vagter'));
       else nextField.append(node('span','cs-series-next-label','Ingen planlagte vagter'));
       if(entry.expiring)nextField.append(node('span','cs-series-expiry',entry.daysToEnd===0?'Udløber i dag':'Udløber om '+entry.daysToEnd+(entry.daysToEnd===1?' dag':' dage')));
@@ -147,14 +148,14 @@
        if(built)return;built=true;
        const facts=node('div','cs-series-expanded-facts'),count=entry.upcomingCount??entry.upcoming?.length??0;
        facts.append(node('span','cs-series-upcoming',entry.openEnded?'Gentages uden slutdato':count+(count===1?' kommende vagt':' kommende vagter')));
-       if(next)facts.append(node('span','cs-series-expanded-next','Næste vagt: '+formatDate(next.date)+' · '+str(next.start)+'–'+str(next.end)+' · '+(options.personName?.(next.person)||'Ledig vagt')+' · '+siteName(next.site)));
+       if(next)facts.append(node('span','cs-series-expanded-next','Næste vagt: '+formatDate(next.date)+' · '+clockLabel(next)+' · '+(options.personName?.(next.person)||'Ledig vagt')+' · '+siteName(next.site)));
        body.append(facts);
        const periods=node('ol','cs-series-periods');
        entry.phases.forEach(phase => {
         const item = node('li','cs-series-period'); item.dataset.phaseId = str(phase.id);
         const range = node('div','cs-series-period-range'); range.append(node('strong',null,formatDate(phase.startDate)+' – '+endLabel(phase)),node('span','cs-series-period-state',phase.startDate > options.today ? 'Kommende periode' : !isOpenEnded(phase) && phase.endDate < options.today ? 'Afsluttet periode' : 'Gældende periode'));
         const person = node('div','cs-series-period-person'); person.append(node('strong',null,options.personName?.(phase.person) || 'Ledig vagt'),node('span',null,siteName(phase.site)));
-        const rhythm = node('div','cs-series-period-rhythm'); rhythm.append(node('strong',null,patternLabel(phase)),node('span',null,patternTimes(phase).map(time => shortDays[time.day]+(patternLabel(phase) === 'Varierende tider' ? ' '+str(time.start)+'–'+str(time.end) : '')).join(' · ')));
+        const rhythm = node('div','cs-series-period-rhythm'); rhythm.append(node('strong',null,patternLabel(phase)),node('span',null,patternTimes(phase).map(time => shortDays[time.day]+(patternLabel(phase) === 'Varierende tider' ? ' '+clockLabel(time) : '')).join(' · ')));
         if(pauseLabel(phase))rhythm.append(node('span','cs-series-planned-break',pauseLabel(phase)));
         item.append(range,person,rhythm);
         if (typeof options.onEdit === 'function') { const edit = button('Rediger periode',trigger => options.onEdit(phase,trigger),'cs-button cs-quiet'); edit.dataset.productFocus = 'series:'+str(phase.id)+':edit-period'; edit.setAttribute('aria-label','Rediger perioden '+(isOpenEnded(phase)?'fra '+formatDate(phase.startDate)+' uden slutdato':formatDate(phase.startDate)+' til '+formatDate(phase.endDate))+' for '+(options.personName?.(phase.person) || 'Ledig vagt')); item.append(edit); }

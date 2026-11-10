@@ -97,6 +97,18 @@ test('running records never accrue time or money and published future shifts rem
   assert.equal(result.rows[0].pay.kind, 'planned'); assert.equal(result.rows[0].entry.status, 'running');
 });
 
+test('real published overnight shifts split mobile date-range totals at midnight without counting pauses twice',async t=>{
+  const night=shift('month-night',own,'2026-10-31',{start:'22:00',end:'06:00',plannedBreakMinutes:30});
+  const {db,employee,policy,attendance}=await setup(t,[night]);policy(rate(18000),rate(18000),'group');attendance(night);
+  const before=await readMobileHours(db,employee,{from:'2026-10-31',to:'2026-10-31'});
+  const after=await readMobileHours(db,employee,{from:'2026-11-01',to:'2026-11-01'});
+  const full=await readMobileHours(db,employee,{from:'2026-10-31',to:'2026-11-01'});
+  assert.equal(before.summary.plannedMinutes,120);assert.equal(after.summary.plannedMinutes,330);assert.equal(full.summary.plannedMinutes,450);
+  assert.equal(before.summary.workedMinutes,120);assert.equal(after.summary.workedMinutes,330);assert.equal(full.summary.workedMinutes,450);
+  assert.equal(before.summary.earnedCents,36000);assert.equal(after.summary.earnedCents,99000);assert.equal(full.summary.earnedCents,135000);
+  assert.equal(after.rows.length,1);assert.equal(after.rows[0].shift.id,night.id);assert.equal(after.rows[0].shift.date,night.date);
+});
+
 test('approved salary snapshots remain authoritative after the configured rate changes', async t => {
   const { db, employee, policy, attendance, shifts } = await setup(t);
   policy(rate(99000));

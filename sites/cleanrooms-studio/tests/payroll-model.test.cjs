@@ -73,7 +73,7 @@ test('unconfigured or not-yet-effective rates and real double bookings are repor
 test('duplicate IDs deduplicate exact records, reject contradictions and invalid own shift fields fail explicitly',()=>{
   const original=shift('same'),result=estimate({shifts:[original,{...original}]});assert.equal(result.shiftCount,1);assert.equal(result.baseCents,148400);
   for(const patch of [{date:'2026-10-27'},{site:1},{end:'14:00'},{note:'changed'},{noteRich:'changed'}])assert.throws(()=>estimate({shifts:[original,{...original,...patch}]}),/Samme vagt-id/);
-  for(const patch of [{date:'2026-02-30'},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'07:00'},{end:'07:00'},{site:-1},{site:'0'},{id:''}])assert.throws(()=>estimate({shifts:[shift('bad','2026-10-26',patch)]}),TypeError);
+  for(const patch of [{date:'2026-02-30'},{start:'7:00'},{end:'24:00'},{end:'07:00'},{site:-1},{site:'0'},{id:''}])assert.throws(()=>estimate({shifts:[shift('bad','2026-10-26',patch)]}),TypeError);
   for(const extra of [{month:'2026-2'},{month:'0000-01'},{month:'2026-13'},{personId:''},{shifts:null}])assert.throws(()=>estimate(extra),TypeError);
   assert.throws(()=>estimate({config:config({agreements:[agreement('huge','2026-01-01','hourly',Number.MAX_SAFE_INTEGER)]}),shifts:[original]}),RangeError);
 });

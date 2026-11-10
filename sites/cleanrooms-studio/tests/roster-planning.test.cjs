@@ -47,7 +47,7 @@ test('zero targets and rounded fractional hours never produce Infinity or hide a
 
 test('invalid calendar values, non-Monday starts, malformed shifts and ambiguous roster identities fail closed',()=>{
   for(const patch of [{weekStart:'2026-10-27'},{weekStart:'2026-02-30'},{today:'2026-02-30'},{horizonEnd:'2026-10-30'},{horizonEnd:undefined},{nowTime:'7:00'},{staff:[{id:'p0',target:NaN}]},{staff:[{id:'p0',target:Infinity}]},{staff:[{id:'p0',target:169}]},{staff:[{id:'p0',target:-1}]},{staff:[{id:'p0',target:37},{id:'p0',target:30}]},{weeklyShifts:null},{upcomingShifts:{}}])assert.throws(()=>Planning.build(options(patch)),TypeError,JSON.stringify(patch));
-  for(const patch of [{date:'2026-02-30'},{start:'24:00'},{start:'23:00',end:'06:00'},{start:'15:00',end:'15:00'},{site:-1},{site:'0'},{id:''}])assert.throws(()=>Planning.build(options({weeklyShifts:[shift('bad','2026-10-31',patch)]})),TypeError,JSON.stringify(patch));
+  for(const patch of [{date:'2026-02-30'},{start:'24:00'},{start:'23:00',end:'06:99'},{start:'15:00',end:'15:00'},{site:-1},{site:'0'},{id:''}])assert.throws(()=>Planning.build(options({weeklyShifts:[shift('bad','2026-10-31',patch)]})),TypeError,JSON.stringify(patch));
   const crossed=Planning.build(options({weekStart:'2026-12-28',today:'2027-01-01',horizonEnd:'2027-01-28',weeklyShifts:[shift('new-year','2027-01-01')]}));assert.equal(crossed.weekEnd,'2027-01-03');assert.equal(crossed.byPerson.p0.plannedMinutes,480);
 });
 

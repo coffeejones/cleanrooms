@@ -22,7 +22,12 @@
     if(!shift)return null;
     return {id:shift.id,person:shift.person,site:shift.site,date:shift.date,start:shift.start,end:shift.end,plannedBreakMinutes:shift.plannedBreakMinutes??0,siteName:sites[shift.site]?.name||shift.siteName||'Arbejdssted',fingerprint:fingerprint(shift)};
   }
-  function validSummary(value){return record(value)&&id(value.id)&&typeof value.person==='string'&&Number.isInteger(value.site)&&value.site>=0&&/^\d{4}-\d{2}-\d{2}$/.test(value.date)&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value.start)&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value.end)&&value.start<value.end&&Number.isSafeInteger(value.plannedBreakMinutes)&&value.plannedBreakMinutes>=0&&text(value.siteName,500)&&text(value.fingerprint,100);}
+  function validSummary(value){
+    if(!record(value)||!id(value.id)||typeof value.person!=='string'||!Number.isInteger(value.site)||value.site<0||!/^\d{4}-\d{2}-\d{2}$/.test(value.date)||!Number.isFinite(Date.parse(value.date+'T00:00:00Z'))||new Date(value.date+'T00:00:00Z').toISOString().slice(0,10)!==value.date||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value.start)||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value.end)||value.start===value.end)return false;
+    const minute=time=>Number(time.slice(0,2))*60+Number(time.slice(3)),duration=minute(value.end)-minute(value.start)+(value.end<value.start?1440:0);
+    return Number.isSafeInteger(value.plannedBreakMinutes)&&value.plannedBreakMinutes>=0&&value.plannedBreakMinutes<duration&&text(value.siteName,500)&&text(value.fingerprint,100);
+  }
+
   function validate(value){
     if(!record(value)||value.version!==1||!Number.isSafeInteger(value.sequence)||value.sequence<0||!Array.isArray(value.notifications)||!Array.isArray(value.requests)||value.notifications.length>MAX_NOTIFICATIONS||value.requests.length>MAX_REQUESTS)return ['Beskederne eller vagtanmodningerne er ugyldige.'];
     const ids=new Set();

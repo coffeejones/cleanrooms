@@ -16,16 +16,18 @@ const week=day=>{const date=new Date(day+'T12:00:00Z');date.setUTCDate(date.getU
 const scopeKey=shift=>week(shift.date)+'|'+shift.site;
 
 export async function publishedConflictNeighbors({db,workspaceId,shifts}){
-  const pairs=[...new Map(shifts.filter(shift=>shift.person).map(shift=>[JSON.stringify([shift.person,shift.date]),{person:shift.person,date:shift.date}])).values()],result=new Map();
+  const pairs=[...new Map(shifts.filter(shift=>shift.person).flatMap(shift=>[-1,0,1].map(offset=>Time.addDays(shift.date,offset)).map(date=>[JSON.stringify([shift.person,date]),{person:shift.person,date}]))).values()],result=new Map();
   for(const batch of groups(pairs)){let after='';while(true){const rows=await all(db,`SELECT DISTINCT target.id,target.person_id,target.work_date,target.site,target.start_time,target.end_time FROM json_each(?) chosen CROSS JOIN workspace_published_shifts target INDEXED BY workspace_published_shifts_person WHERE target.workspace_id=? AND target.deleted=0 AND target.person_id=json_extract(chosen.value,'$.person') AND target.work_date=json_extract(chosen.value,'$.date') AND target.id>? ORDER BY target.id LIMIT 500`,JSON.stringify(batch),workspaceId,after);
       for(const row of rows){result.set(row.id,{id:row.id,person:row.person_id,date:row.work_date,site:row.site,start:row.start_time,end:row.end_time});if(result.size>50000)fail(413,'publication_context_too_large','Udgivelsen berører for mange vagter. Vælg en mindre periode.');}if(rows.length<500)break;after=rows.at(-1).id;}}
   return [...result.values()];
 }
 
 export function publicationCommandConflict({afterShifts,publishedNeighbors,scopes}){
-  const selected=new Set(scopes.flatMap(scope=>scope.siteIds.map(site=>scope.from+'|'+site))),groups=new Map(),values=[...afterShifts,...publishedNeighbors.filter(shift=>!selected.has(scopeKey(shift)))];
-  for(const shift of values){if(!shift.person)continue;const key=JSON.stringify([shift.person,shift.date]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(shift);}
-  for(const shifts of groups.values()){shifts.sort((a,b)=>a.start.localeCompare(b.start));for(let index=0;index<shifts.length;index++)for(let prior=0;prior<index;prior++)if(shifts[prior].id!==shifts[index].id&&shifts[prior].end>shifts[index].start&&(selected.has(scopeKey(shifts[prior]))||selected.has(scopeKey(shifts[index]))))return [shifts[prior],shifts[index]];}return null;
+  const selected=new Set(scopes.flatMap(scope=>scope.siteIds.map(site=>scope.from+'|'+site))),values=[...afterShifts,...publishedNeighbors.filter(shift=>!selected.has(scopeKey(shift)))];
+  // A Sunday occurrence remains owned by Sunday's publication, but its Monday
+  // interval still conflicts with a newly published Monday assignment.
+  for(const {shift,other}of Series.conflicts(values,values))if(selected.has(scopeKey(shift))||selected.has(scopeKey(other)))return [shift,other];
+  return null;
 }
 
 async function assertSource(db,raw,workspaceId){

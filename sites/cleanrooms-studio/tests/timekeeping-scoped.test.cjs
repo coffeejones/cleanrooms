@@ -101,8 +101,8 @@ test('publication time budgets count net planned hours for all sites and open sh
  ]});
  const indexed=db.queries.find(query=>query.sql.includes('INDEXED BY workspace_plan_window_to'));
  assert.deepEqual(JSON.parse(indexed.values[0]),[
-   {from:'2026-10-01',to:'2026-11-30'},
-   {from:'2028-01-01',to:'2028-01-31'}
+   {from:'2026-09-30',to:'2026-11-30'},
+   {from:'2027-12-31',to:'2028-01-31'}
  ]);
 });
 

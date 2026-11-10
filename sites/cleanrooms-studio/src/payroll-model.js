@@ -84,15 +84,25 @@
     };
     return same(past(before),past(after))?[]:['Tidligere grundløn og tillæg kan ikke ændres eller fjernes. Opret en ny ændring fra i dag eller senere; afslut et løbende tillæg fra denne dato.'];
   }
-  function supplementMinutes(supplement,shift){
+  function grossMinutes(shift){const difference=minute(shift.end)-minute(shift.start);return difference<0?difference+1440:difference;}
+  function dayParts(shift,from,to){
+    const start=minute(shift.start),finish=start+grossMinutes(shift),paidEnd=finish-(shift.plannedBreakMinutes??0),parts=[];
+    for(let offset=0;offset<=Math.floor((finish-1)/1440);offset++){
+      const day=addDays(shift.date,offset);if(!day||day<from||day>to)continue;
+      const first=Math.max(start,offset*1440),last=Math.min(finish,(offset+1)*1440),paidLast=Math.max(first,Math.min(last,paidEnd));
+      parts.push({id:shift.id,date:day,start:clock(first-offset*1440),end:clock(last-offset*1440),minutes:paidLast-first,grossMinutes:last-first,plannedBreakMinutes:last-paidLast,baseCents:0,supplementCents:0,totalCents:0,agreementId:null,baseType:null,supplements:[]});
+    }
+    return parts;
+  }
+  function supplementMinutes(supplement,part){
     const within=anchor=>anchor&&anchor>=supplement.from&&(supplement.to===null||anchor<=supplement.to)&&supplement.weekdays.includes(weekday(anchor));
-    // The planned pause has no placement. Like corrected attendance, the
-    // estimate allocates it at the end of the shift, including supplements.
-    const start=minute(shift.start),end=minute(shift.end)-(shift.plannedBreakMinutes??0),intersection=(from,to)=>Math.max(0,Math.min(end,to)-Math.max(start,from));
-    if(supplement.start===null)return within(shift.date)?end-start:0;
+    // Each part is a civil workday, already clipped to the estimate month and
+    // the planned pause allocated at the original shift's end.
+    const start=minute(part.start),end=start+part.minutes,intersection=(from,to)=>Math.max(0,Math.min(end,to)-Math.max(start,from));
+    if(supplement.start===null)return within(part.date)?part.minutes:0;
     const windowStart=minute(supplement.start),windowEnd=minute(supplement.end);
-    if(windowEnd>windowStart)return within(shift.date)?intersection(windowStart,windowEnd):0;
-    return (within(shift.date)?intersection(windowStart,1440):0)+(within(addDays(shift.date,-1))?intersection(0,windowEnd):0);
+    if(windowEnd>windowStart)return within(part.date)?intersection(windowStart,windowEnd):0;
+    return (within(part.date)?intersection(windowStart,1440):0)+(within(addDays(part.date,-1))?intersection(0,windowEnd):0);
   }
   function estimate({config,personId,month,shifts=[]}={}){
     const normalized=normalize(config);
@@ -104,19 +114,25 @@
     for(const shift of shifts){
       if(!record(shift)||typeof shift.person!=='string')throw new TypeError('En vagt har ugyldige medarbejderoplysninger.');
       if(shift.person!==personId)continue;
-      if(!text(shift.id,500)||!date(shift.date)||!time(shift.start)||!time(shift.end)||shift.end<=shift.start||!Number.isInteger(shift.site)||shift.site<0
+      if(!text(shift.id,500)||!date(shift.date)||!time(shift.start)||!time(shift.end)||shift.end===shift.start||!Number.isInteger(shift.site)||shift.site<0
         ||['note','noteRich','seriesId'].some(key=>shift[key]!=null&&typeof shift[key]!=='string'))throw new TypeError('En vagt har ugyldigt id, dato, klokkeslæt, arbejdssted eller beskrivelse.');
-      if(shift.plannedBreakMinutes!==undefined&&(!Number.isSafeInteger(shift.plannedBreakMinutes)||shift.plannedBreakMinutes<0||shift.plannedBreakMinutes>=minute(shift.end)-minute(shift.start)))throw new TypeError('Den planlagte pause skal være et ikke-negativt helt antal minutter og kortere end vagten.');
+      if(shift.endDate!==undefined&&shift.endDate!==(shift.end<shift.start?addDays(shift.date,1):shift.date))throw new TypeError('Vagtens slutdato svarer ikke til det planlagte tidsrum.');
+      if(shift.plannedBreakMinutes!==undefined&&(!Number.isSafeInteger(shift.plannedBreakMinutes)||shift.plannedBreakMinutes<0||shift.plannedBreakMinutes>=grossMinutes(shift)))throw new TypeError('Den planlagte pause skal være et ikke-negativt helt antal minutter og kortere end vagten.');
       const prior=unique.get(shift.id);if(prior&&!same(prior,shift))throw new TypeError('Samme vagt-id forekommer med forskellige oplysninger. Hent planen igen.');
       if(!prior)unique.set(shift.id,shift);
     }
-    const selected=[...unique.values()].filter(shift=>shift.date>=from&&shift.date<=to).sort(order).map(shift=>({...clone(shift),grossMinutes:minute(shift.end)-minute(shift.start),plannedBreakMinutes:shift.plannedBreakMinutes??0,minutes:minute(shift.end)-minute(shift.start)-(shift.plannedBreakMinutes??0),baseCents:0,supplementCents:0,totalCents:0,agreementId:null,baseType:null,supplements:[]}));
+    const selected=[...unique.values()].sort(order).map(shift=>{const parts=dayParts(shift,from,to);return {...clone(shift),grossMinutes:parts.reduce((sum,part)=>sum+part.grossMinutes,0),plannedBreakMinutes:parts.reduce((sum,part)=>sum+part.plannedBreakMinutes,0),minutes:parts.reduce((sum,part)=>sum+part.minutes,0),baseCents:0,supplementCents:0,totalCents:0,agreementId:null,baseType:null,supplements:[],dayParts:parts};}).filter(shift=>shift.dayParts.length);
     const agreements=normalized.agreements,lines=[],uncovered=new Set(),overlaps=[];
     const agreementFor=day=>{let current=null;for(const agreement of agreements){if(agreement.from>day)break;current=agreement;}return current;};
-    for(const shift of selected){const agreement=agreementFor(shift.date);if(!agreement)uncovered.add(shift.date);else{shift.agreementId=agreement.id;shift.baseType=agreement.type;}}
+    const parts=selected.flatMap(shift=>shift.dayParts);
+    for(const shift of selected){
+      for(const part of shift.dayParts){const agreement=agreementFor(part.date);if(!agreement){if(part.minutes>0)uncovered.add(part.date);}else{part.agreementId=agreement.id;part.baseType=agreement.type;}}
+      const firstPaid=shift.dayParts.find(part=>part.minutes>0)||shift.dayParts[0];shift.agreementId=firstPaid.agreementId;shift.baseType=firstPaid.baseType;
+    }
+    const interval=shift=>{const start=Date.parse(shift.date+'T00:00:00Z')+minute(shift.start)*60000;return {start,end:start+grossMinutes(shift)*60000};};
     for(let index=0;index<selected.length;index++)for(let next=index+1;next<selected.length;next++){
-      const shift=selected[index],other=selected[next];if(other.date!==shift.date||other.start>=shift.end)break;
-      if(shift.start<other.end)overlaps.push({date:shift.date,shiftId:shift.id,otherId:other.id,start:clock(Math.max(minute(shift.start),minute(other.start))),end:clock(Math.min(minute(shift.end),minute(other.end)))});
+      const shift=selected[index],other=selected[next],left=interval(shift),right=interval(other);if(right.start>=left.end)break;
+      if(left.start<right.end){const start=Math.max(left.start,right.start),end=Math.min(left.end,right.end);overlaps.push({date:new Date(start).toISOString().slice(0,10),shiftId:shift.id,otherId:other.id,start:new Date(start).toISOString().slice(11,16),end:new Date(end).toISOString().slice(11,16)});}
     }
     function hourly(line,contributions,supplement){
       const units=contributions.map(({shift,minutes})=>{const numerator=BigInt(line.rateCents)*BigInt(minutes);return {shift,minutes,cents:numerator/60n,remainder:numerator%60n};});
@@ -125,7 +141,7 @@
       let remaining=BigInt(line.amountCents)-units.reduce((sum,item)=>sum+item.cents,0n);
       const ranked=[...units].sort((a,b)=>a.remainder===b.remainder?order(a.shift,b.shift):a.remainder>b.remainder?-1:1);
       for(const item of ranked){if(remaining<=0n)break;item.cents++;remaining--;}
-      for(const item of units){const cents=safe(item.cents);if(supplement){item.shift.supplementCents=safe(BigInt(item.shift.supplementCents)+item.cents);item.shift.supplements.push({id:supplement.id,name:supplement.name,minutes:item.minutes,rateCents:line.rateCents,amountCents:cents});}else item.shift.baseCents=cents;}
+      for(const item of units){const cents=safe(item.cents);if(supplement){item.shift.supplementCents=safe(BigInt(item.shift.supplementCents)+item.cents);item.shift.supplements.push({id:supplement.id,name:supplement.name,minutes:item.minutes,rateCents:line.rateCents,amountCents:cents});}else item.shift.baseCents=safe(BigInt(item.shift.baseCents)+item.cents);}
       lines.push(line);
     }
     for(let index=0;index<agreements.length;index++){
@@ -133,18 +149,22 @@
       if(periodFrom>periodTo||periodFrom>to)continue;
       const line={id:'base:'+agreement.id,label:agreement.type==='monthly'?'Månedsløn':'Timeløn',type:'base',calculation:agreement.type,agreementId:agreement.id,from:periodFrom,to:periodTo,rateCents:agreement.amountCents,minutes:0,amountCents:0,quantity:0};
       if(agreement.type==='monthly'){line.days=days(periodFrom,periodTo);line.monthDays=monthDays;line.quantity=line.days/monthDays;line.amountCents=rounded(BigInt(agreement.amountCents)*BigInt(line.days),BigInt(monthDays));lines.push(line);}
-      else hourly(line,selected.filter(shift=>shift.agreementId===agreement.id).map(shift=>({shift,minutes:shift.minutes})));
+      else hourly(line,parts.filter(part=>part.agreementId===agreement.id&&part.minutes>0).map(shift=>({shift,minutes:shift.minutes})));
     }
     for(const supplement of normalized.supplements){
       if(supplement.type==='monthly'){
         const periodFrom=supplement.from>from?supplement.from:from,periodTo=supplement.to&&supplement.to<to?supplement.to:to;if(periodFrom>periodTo)continue;
         const count=days(periodFrom,periodTo);lines.push({id:'supplement:'+supplement.id,label:supplement.name,type:'supplement',calculation:'monthly',supplementId:supplement.id,from:periodFrom,to:periodTo,rateCents:supplement.amountCents,minutes:0,days:count,monthDays,quantity:count/monthDays,amountCents:rounded(BigInt(supplement.amountCents)*BigInt(count),BigInt(monthDays))});
       }else{
-        const contributions=selected.map(shift=>({shift,minutes:supplementMinutes(supplement,shift)})).filter(item=>item.minutes>0);if(!contributions.length)continue;
+        const contributions=parts.map(shift=>({shift,minutes:supplementMinutes(supplement,shift)})).filter(item=>item.minutes>0);if(!contributions.length)continue;
         hourly({id:'supplement:'+supplement.id,label:supplement.name,type:'supplement',calculation:'hourly',supplementId:supplement.id,from:contributions[0].shift.date,to:contributions.at(-1).shift.date,rateCents:supplement.amountCents},contributions,supplement);
       }
     }
-    for(const shift of selected)shift.totalCents=safe(BigInt(shift.baseCents)+BigInt(shift.supplementCents));
+    for(const shift of selected){
+      for(const part of shift.dayParts)part.totalCents=safe(BigInt(part.baseCents)+BigInt(part.supplementCents));
+      shift.baseCents=safe(shift.dayParts.reduce((sum,part)=>sum+BigInt(part.baseCents),0n));shift.supplementCents=safe(shift.dayParts.reduce((sum,part)=>sum+BigInt(part.supplementCents),0n));shift.totalCents=safe(BigInt(shift.baseCents)+BigInt(shift.supplementCents));
+      const additions=new Map();for(const part of shift.dayParts)for(const addition of part.supplements){if(!additions.has(addition.id))additions.set(addition.id,{...addition,minutes:0,amountCents:0});const total=additions.get(addition.id);total.minutes+=addition.minutes;total.amountCents=safe(BigInt(total.amountCents)+BigInt(addition.amountCents));}shift.supplements=[...additions.values()];
+    }
     const sum=type=>safe(lines.filter(line=>line.type===type).reduce((total,line)=>total+BigInt(line.amountCents),0n));
     const baseCents=sum('base'),supplementCents=sum('supplement'),activeAgreement=agreementFor(to);
     return {label:'Planlagt løn',currency:'DKK',month,from,to,minutes:selected.reduce((total,shift)=>total+shift.minutes,0),plannedBreakMinutes:selected.reduce((total,shift)=>total+shift.plannedBreakMinutes,0),breakAllocation:'end-of-shift',breakAssumption:'Planlagte pauser er placeret sidst i vagten i dette skøn. Faktisk løn følger de registrerede pauser.',shiftCount:selected.length,baseCents,supplementCents,totalCents:safe(BigInt(baseCents)+BigInt(supplementCents)),

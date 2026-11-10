@@ -95,7 +95,7 @@ test('legacy and modern command paths reject the same invalid schedule cores wit
     const result=await api(db,{method:'PUT',body});assert.equal(result.status,400,JSON.stringify(result));assert.equal(result.body.error,'invalid_studio');
     assert.equal((await Store.readStudio(db,owner.id)).revision,before.revision);assert.equal(db.sqlite.prepare('SELECT COUNT(*) n FROM workspace_activity').get().n,audit);
    }
-   for(const patch of [{start:'99:00'},{date:'2026-02-30'},{end:'06:00'},{person:null},{site:-1},{plannedBreakMinutes:480}]){
+   for(const patch of [{start:'99:00'},{date:'2026-02-30'},{end:'07:00'},{person:null},{site:-1},{plannedBreakMinutes:480}]){
     const body=command(full,next=>{next.edits.one={...next.edits.one,...patch};},{projection:null});if(!records)delete body.commandReceipt;
     const result=await api(db,{method:'PUT',body});assert.equal(result.status,400,JSON.stringify(result));
    }

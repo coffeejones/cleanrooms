@@ -575,3 +575,9 @@ test('asynchronous wage or budget headings preserve a protected native drag and 
  assert.equal(view.card.classList.contains('is-dragging'),true);assert.equal(view.result.element.querySelectorAll('.cs-event')[0],view.card);
  view.over(2);assert.equal(view.previews.length,before+1);assert.equal(view.previews.at(-1),'2026-10-28');view.drop(2);assert.equal(view.moves.length,1);
 });
+
+test('overnight cards keep their start-day placement and a shared next-day time band while day totals split',()=>{
+ const shifts=[{id:'night-a',person:'p0',date:'2026-10-26',site:0,start:'22:00',end:'06:00',plannedBreakMinutes:30},{id:'night-b',person:'p1',date:'2026-10-26',site:0,start:'22:00',end:'06:00'}];
+ const view=setup({shifts,dayHours:day=>day==='2026-10-26'?240:day==='2026-10-27'?690:0});
+ assert.equal(view.cells[0].querySelectorAll('.cs-event').length,2);assert.equal(view.cells[1].querySelectorAll('.cs-event').length,0);assert.match(view.cells[0].querySelectorAll('.cs-time-group-label')[0].textContent,/22:00.*06:00.*\+1 dag/);assert.match(view.card.getAttribute('aria-label'),/\+1 dag/);assert.match(view.cells[0].querySelectorAll('.cs-board-hours')[0].textContent,/4 timer/);assert.match(view.cells[1].querySelectorAll('.cs-board-hours')[0].textContent,/11,5 timer/);view.result.dispose();
+});

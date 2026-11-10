@@ -35,7 +35,7 @@
   function validShift(shift,slot){
     const clock=value=>typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
     return record(shift)&&typeof shift.id==='string'&&shift.id.trim()&&typeof shift.person==='string'&&Number.isInteger(shift.site)&&shift.site===slot.site
-      &&validDate(shift.date)&&shift.date>=slot.from&&shift.date<=slot.to&&clock(shift.start)&&clock(shift.end)&&shift.start<shift.end&&Series.validPlannedBreak(shift)
+      &&validDate(shift.date)&&shift.date>=slot.from&&shift.date<=slot.to&&clock(shift.start)&&clock(shift.end)&&Series.shiftInterval(shift)!==null&&Series.validPlannedBreak(shift)
       &&(shift.note===undefined||typeof shift.note==='string')&&(shift.noteRich===undefined||typeof shift.noteRich==='string')&&(shift.seriesId===undefined||typeof shift.seriesId==='string');
   }
   function validate(value){

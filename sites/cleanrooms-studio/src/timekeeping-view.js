@@ -12,8 +12,15 @@
   const money=value=>Number.isSafeInteger(value)?new Intl.NumberFormat('da-DK',{style:'currency',currency:'DKK'}).format(value/100):'—';
   const initials=name=>String(name||'').trim().split(/\s+/).slice(0,2).map(part=>Array.from(part)[0]||'').join('').toUpperCase();
   const time=value=>typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
+  const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value+'T12:00:00Z'))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
+  const inferredEndDate=(date,start,end)=>{if(!validDate(date)||!time(start)||!time(end)||end>=start)return date;const next=new Date(date+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);return next.toISOString().slice(0,10);};
+  const daySuffix=(date,endDate)=>{if(!validDate(date)||!validDate(endDate)||date===endDate)return '';const count=Math.round((Date.parse(endDate+'T12:00:00Z')-Date.parse(date+'T12:00:00Z'))/86400000);return count>0?' · +'+count+(count===1?' dag':' dage'):' · '+dateLabel(endDate);};
   const completePayroll=payroll=>Boolean(payroll&&!payroll.unavailableReason&&Number.isSafeInteger(payroll.totalCents));
   const model=()=>globalThis.CleanRoomsTimekeeping;
+  const recordedStartAt=entry=>entry.timingResolved?entry.resolvedStartAt:entry.breakAllocation==='clocked'?entry.clockStartAt:null;
+  const recordedEndAt=entry=>entry.timingResolved?entry.resolvedEndAt:entry.breakAllocation==='clocked'?entry.clockEndAt:null;
+  const actualDate=(instant,fallback)=>model()?.validInstant?.(instant)?model().localNow(new Date(instant)).date:fallback;
+  const uniqueInstant=(date,clock,recorded)=>{if(model()?.validInstant?.(recorded)){const point=model().localNow(new Date(recorded));if(point.date===date&&point.time===clock)return recorded;}const value=model()?.instantForLocal?.(date,clock);return Number.isFinite(value)?new Date(value).toISOString():null;};
   const approvable=entry=>entry?.status==='submitted'&&time(entry.start)&&time(entry.end)&&!entry.flags?.some(flag=>['overlap','dst_transition'].includes(flag))&&Number.isFinite(entry.workedMinutes)&&entry.workedMinutes>0&&typeof model()?.validate==='function'&&model().validate(entry).length===0;
   const QUEUES={attention:{label:'Kræver opmærksomhed',detail:'Afvigelser til gennemgang',help:'Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.'},ready:{label:'Følger planen',detail:'Klar til samlet godkendelse',help:'Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.'},progress:{label:'I gang',detail:'Afventer afslutning',help:'Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.'},approved:{label:'Godkendte',detail:'Låst efter godkendelse',help:'Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.'}};
   const PERIOD_PROBLEMS={unapproved:'Afventer godkendelse',invalid_time:'Registreringer til rettelse',missing_payroll:'Mangler løngrundlag'};
@@ -65,7 +72,7 @@
       const planned={start,end,plannedBreakMinutes:(current||entry).plannedBreakMinutes},pause=model()?.plannedBreak?.(planned)??(planned.plannedBreakMinutes===undefined?0:Number.isSafeInteger(planned.plannedBreakMinutes)&&planned.plannedBreakMinutes>=0?planned.plannedBreakMinutes:null);
       const begin=model()?.minute?.(start),finish=model()?.minute?.(end);let duration=null;
       if(typeof model()?.plannedMinutes==='function')duration=model().plannedMinutes(planned);
-      else if(Number.isFinite(begin)&&Number.isFinite(finish)){const gross=finish>begin?finish-begin:finish+1440-begin;duration=pause!==null&&pause<gross?gross-pause:null;}
+      else if(Number.isFinite(begin)&&Number.isFinite(finish)){const gross=finish>begin?finish-begin:finish<begin?finish+1440-begin:0;duration=pause!==null&&pause<gross?gross-pause:null;}
       return {start,end,breakMinutes:pause,minutes:duration};
     }
     function filteredEntries(){
@@ -133,7 +140,7 @@
       }catch(problem){error=problem?.message||'Godkendelsen blev afbrudt. Hent den seneste liste.';message=count+' af '+batch.items.length+(batch.items.length===1?' registrering er godkendt.':' registreringer er godkendt.');}
       finally{bulkConfirm=null;try{if(!disposed&&typeof onRefresh==='function')await onRefresh();}catch(problem){error=error||problem?.message||'Hent listen igen for at se den seneste status.';}pending=false;if(!disposed)paint('filter:status');}
     }
-    function edit(entry,kind){if(!options.canManage||blocked())return;mode=kind;conflict=false;error='';draft={version:entry.version,start:entry.start||entry.plannedStart||'',end:entry.end||'',endDate:entry.endDate||entry.date,breakMinutes:entry.breakMinutes??0,reason:'',resolveDST:entry.flags?.includes('dst_transition')===true,actualStartAt:entry.resolvedStartAt||entry.clockStartAt||'',actualEndAt:entry.resolvedEndAt||entry.clockEndAt||''};paint('field:'+(kind==='reopen'||kind==='reject'?'reason':'start'));page.querySelector?.('.cs-time-form')?.scrollIntoView?.({block:'nearest',inline:'nearest'});}
+    function edit(entry,kind){if(!options.canManage||blocked())return;mode=kind;conflict=false;error='';const start=entry.start||entry.plannedStart||'',end=entry.end||'',startDate=actualDate(recordedStartAt(entry),entry.date),inferred=inferredEndDate(startDate,start,end);draft={version:entry.version,start,end,startDate,preciseStart:startDate!==entry.date,endDate:entry.end&&entry.endDate||inferred,endDateExplicit:Boolean(entry.end&&entry.endDate&&entry.endDate!==inferred),breakMinutes:entry.breakMinutes??0,reason:'',resolveDST:entry.flags?.includes('dst_transition')===true,actualStartAt:entry.resolvedStartAt||entry.clockStartAt||'',actualEndAt:entry.resolvedEndAt||entry.clockEndAt||''};paint('field:'+(kind==='reopen'||kind==='reject'?'reason':'start'));page.querySelector?.('.cs-time-form')?.scrollIntoView?.({block:'nearest',inline:'nearest'});}
     async function saveDraft(){
       const entry=currentEntry();if(!entry||!draft||blocked()||!options.canManage)return;
       if(entry.version!==draft.version){conflict=true;error='Registreringen er ændret. Luk redigeringen og hent den seneste version.';paint();return;}
@@ -143,7 +150,14 @@
       if(!time(draft.start)||!time(draft.end)){error='Angiv en gyldig start- og sluttid.';paint();return;}
       const pause=Number(draft.breakMinutes);if(!Number.isSafeInteger(pause)||pause<0||pause>1440){error='Angiv pausen som et helt antal minutter.';paint('field:break');return;}
       if(draft.resolveDST&&(!model()?.validInstant?.(draft.actualStartAt)||!model()?.validInstant?.(draft.actualEndAt))){error='Angiv start og slut som entydige UTC-tidspunkter, fx 2026-10-25T00:30:00.000Z.';paint('field:actual-start');return;}
-      await invoke('timeWrite',writePayload(entry,'correct',{date:entry.date,start:draft.start,end:draft.end,endDate:draft.endDate,breakMinutes:pause,reason:draft.reason.trim(),...(draft.resolveDST?{actualStartAt:draft.actualStartAt,actualEndAt:draft.actualEndAt}:{})}),'Registreringen er rettet og sendt til godkendelse.');
+      let precise=draft.resolveDST?{actualStartAt:draft.actualStartAt,actualEndAt:draft.actualEndAt}:{};
+      if(draft.preciseStart&&!draft.resolveDST){
+        if(!validDate(draft.startDate)||!validDate(draft.endDate)){error='Angiv gyldige start- og afslutningsdatoer.';paint('field:start-date');return;}
+        const actualStartAt=uniqueInstant(draft.startDate,draft.start,recordedStartAt(entry)),actualEndAt=uniqueInstant(draft.endDate,draft.end,recordedEndAt(entry));
+        if(!actualStartAt||!actualEndAt){draft.resolveDST=true;error='Tidspunktet ligger ved et skift mellem sommer- og vintertid. Kontrollér de præcise UTC-tidspunkter.';paint('field:actual-start');return;}
+        precise={actualStartAt,actualEndAt};
+      }
+      await invoke('timeWrite',writePayload(entry,'correct',{date:entry.date,start:draft.start,end:draft.end,endDate:draft.endDate,breakMinutes:pause,reason:draft.reason.trim(),...precise}),'Registreringen er rettet og sendt til godkendelse.');
     }
     function paint(requestedFocus){
       if(disposed)return;
@@ -244,8 +258,8 @@
           if(options.canManage&&approvable(entry)){const check=node('input');check.type='checkbox';check.checked=selected.get(entry.id)===entry.version;check.disabled=blocked();check.setAttribute('aria-label','Vælg registreringen for '+nameFor(entry)+' '+dateLabel(entry.date));check.dataset.timeFocus='select:'+entry.id;check.addEventListener('change',()=>{if(check.checked)selected.set(entry.id,entry.version);else selected.delete(entry.id);bulkConfirm=null;paint('select:'+entry.id);});selection.append(check);}
           const identity=node('td','cs-time-person-cell'),identityButton=button('',()=>openEntry(entry),'cs-time-person','entry:'+entry.id);identityButton.setAttribute('aria-label','Åbn registrering for '+nameFor(entry)+' '+dateLabel(entry.date));
           const avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('span','cs-time-person-copy');avatar.setAttribute('aria-hidden','true');copy.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));identityButton.append(avatar,copy);identity.append(identityButton);
-          const plannedData=plannedFacts(entry),planned=node('td','cs-time-number');planned.dataset.label='Planlagt';planned.append(node('strong','',plannedData.start&&plannedData.end?plannedData.start+'–'+plannedData.end:'—'));
-          const actual=node('td','cs-time-number');actual.dataset.label='Registreret';actual.append(node('strong','',entry.start?(entry.start+'–'+(entry.end||'…')):'—'));if(!entry.end)actual.append(node('span','cs-time-caption',entry.start?'Afventer afslutning':'Afventer registrering'));
+          const plannedData=plannedFacts(entry),planned=node('td','cs-time-number');planned.dataset.label='Planlagt';planned.append(node('strong','',plannedData.start&&plannedData.end?plannedData.start+'–'+plannedData.end+daySuffix(entry.date,inferredEndDate(entry.date,plannedData.start,plannedData.end)):'—'));
+          const actual=node('td','cs-time-number');actual.dataset.label='Registreret';actual.append(node('strong','',entry.start?(entry.start+'–'+(entry.end||'…')+(entry.end?daySuffix(entry.date,entry.endDate):'')):'—'));if(!entry.end)actual.append(node('span','cs-time-caption',entry.start?'Afventer afslutning':'Afventer registrering'));
           const pause=node('td','cs-time-number cs-time-pause-comparison');pause.dataset.label='Pause';pause.append(node('strong','',safeNumber(entry.breakMinutes)+' min'));
           const differences=node('td','cs-time-differences');differences.dataset.label='Afvigelse';differences.append(differenceNode(entry.end&&Number.isFinite(plannedData.minutes)?entry.workedMinutes-plannedData.minutes:NaN,{unavailable:entry.end?'Kan ikke sammenlignes':entry.start?'Afventer afslutning':'Ikke registreret',reasons:result.reasons||[]}));
           const state=node('td','cs-time-state-cell');state.dataset.label='Status';state.append(statusNode(entry,true));
@@ -302,10 +316,11 @@
       const facts=node('table','cs-time-comparison'),thead=node('thead'),header=node('tr'),tbody=node('tbody');facts.setAttribute('aria-label','Planlagt og registreret tid');
       for(const label of ['','Planlagt','Registreret']){const cell=node('th','',label);cell.scope='col';header.append(cell);}thead.append(header);
       const endWithDate=(end,endDate)=>!end?'Afventer afslutning':end+(endDate&&endDate!==entry.date?' · '+dateLabel(endDate):'');
-      const plannedEndDate=plannedData.start&&plannedData.end&&plannedData.end<=plannedData.start?model()?.addDays?.(entry.date,1):entry.date;
+      const plannedEndDate=inferredEndDate(entry.date,plannedData.start,plannedData.end);
+      const actualStartDate=actualDate(recordedStartAt(entry),entry.date);
       for(const [key,label,planned,actual] of [
-        ['start','Start',plannedData.start||'—',entry.start||'Ikke registreret'],
-        ['end','Slut',plannedData.end?endWithDate(plannedData.end,plannedEndDate):'—',entry.start?endWithDate(entry.end,entry.endDate):'Ikke registreret'],
+        ['start','Start',plannedData.start||'—',entry.start?entry.start+daySuffix(entry.date,actualStartDate):'Ikke registreret'],
+        ['end','Slut',plannedData.end?plannedData.end+daySuffix(entry.date,plannedEndDate):'—',entry.start?endWithDate(entry.end,entry.endDate):'Ikke registreret'],
         ['pause','Pause',plannedData.breakMinutes===null?'—':plannedData.breakMinutes+' min · ulønnet',safeNumber(entry.breakMinutes)+' min'],
         ['net','Arbejdstid',minutes(plannedData.minutes),entry.end?minutes(entry.workedMinutes):'Afventer afslutning']
       ]){const row=node('tr');row.dataset.fact=key;const labelCell=node('th','',label);labelCell.scope='row';const plannedCell=node('td','',planned),actualCell=node('td','',actual);actualCell.dataset.changed=String(key==='start'?Boolean(entry.start&&plannedData.start&&entry.start!==plannedData.start):key==='end'?Boolean(entry.end&&plannedData.end&&(entry.end!==plannedData.end||entry.endDate&&entry.endDate!==plannedEndDate)):key==='pause'?plannedData.breakMinutes!==null&&entry.breakMinutes!==plannedData.breakMinutes:Boolean(entry.end&&Number.isFinite(plannedData.minutes)&&entry.workedMinutes!==plannedData.minutes));row.append(labelCell,plannedCell,actualCell);tbody.append(row);}facts.append(thead,tbody);comparison.append(facts);
@@ -324,10 +339,11 @@
           if(mode==='reopen')form.append(node('p','cs-time-caption','Godkendelsen ophæves, og timerne skal gennemgås og godkendes igen.'));
           else if(mode==='reject')form.append(node('p','cs-time-caption','Bed medarbejderen supplere sin forklaring. Selve tiderne kan kun rettes af planlæggeren.'));
           else{
-            const pair=node('div','cs-time-field-pair'),start=field('start','Start','time',draft.start),end=field('end','Slut','time',draft.end),pause=field('break','Pause i minutter','number',draft.breakMinutes);
+            const pair=node('div','cs-time-field-pair'),start=field('start','Start','time',draft.start),end=field('end','Slut','time',draft.end),pause=field('break','Pause i minutter','number',draft.breakMinutes),date=field('end-date','Afslutningsdato','date',draft.endDate);
             start.input.step=end.input.step='60';pause.input.min='0';pause.input.max='1440';pause.input.step='1';
-            for(const [control,key] of [[start.input,'start'],[end.input,'end'],[pause.input,'breakMinutes']])control.addEventListener('input',()=>{draft[key]=control.value;});pair.append(start.holder,end.holder);form.append(pair,pause.holder,node('p','cs-time-caption','Den samlede pause placeres ved vagtens slutning ved beregning af tillæg. Stemplede pauser bruger ellers de faktiske pauseintervaller.'));
-            if(draft.resolveDST||draft.endDate!==entry.date){const date=field('end-date','Afslutningsdato','date',draft.endDate);date.input.addEventListener('input',()=>{draft.endDate=date.input.value;});form.append(date.holder);}
+            for(const [control,key] of [[start.input,'start'],[end.input,'end'],[pause.input,'breakMinutes']])control.addEventListener('input',()=>{draft[key]=control.value;if(key!=='breakMinutes'&&!draft.endDateExplicit&&time(draft.start)&&time(draft.end)){draft.endDate=inferredEndDate(draft.startDate,draft.start,draft.end);date.input.value=draft.endDate;}});pair.append(start.holder,end.holder);form.append(pair,pause.holder,node('p','cs-time-caption','Den samlede pause placeres ved vagtens slutning ved beregning af tillæg. Stemplede pauser bruger ellers de faktiske pauseintervaller.'));
+            if(draft.preciseStart){const startDate=field('start-date','Startdato','date',draft.startDate);startDate.input.addEventListener('input',()=>{draft.startDate=startDate.input.value;if(!draft.endDateExplicit&&validDate(draft.startDate)){draft.endDate=inferredEndDate(draft.startDate,draft.start,draft.end);date.input.value=draft.endDate;}});form.append(startDate.holder);}
+            date.input.addEventListener('input',()=>{draft.endDate=date.input.value;draft.endDateExplicit=true;});form.append(date.holder);
             if(draft.resolveDST){
               form.append(node('p','cs-time-caption','Vagten er afsluttet sikkert. Afklar start og slut i UTC før løngodkendelse. De lokale tider ovenfor vises i Europe/Copenhagen.'));
               for(const [key,label,name]of [['actualStartAt','Start i UTC','actual-start'],['actualEndAt','Slut i UTC','actual-end']]){const precise=field(name,label,'text',draft[key]);precise.input.placeholder='2026-10-25T00:30:00.000Z';precise.input.addEventListener('input',()=>{draft[key]=precise.input.value.trim();});form.append(precise.holder);}

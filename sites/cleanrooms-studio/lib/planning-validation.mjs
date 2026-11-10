@@ -14,7 +14,8 @@ export function shiftCoreErrors(shift, expectedId) {
   if (typeof shift.person !== 'string' || shift.person !== '' && !identity(shift.person)) errors.push('Vælg en gyldig medarbejder.');
   if (!Number.isInteger(shift.site) || shift.site < 0 || shift.site >= 2000) errors.push('Vælg et gyldigt arbejdssted.');
   if (!Time.validDate(shift.date) || shift.date < '2000-01-01' || shift.date > '2100-12-31') errors.push('Vælg en gyldig vagtdato inden for kalenderen.');
-  if (Time.minute(shift.start) === null || Time.minute(shift.end) === null || shift.end <= shift.start) errors.push('Vagtens sluttid skal være efter start samme dag.');
+  if (Time.minute(shift.start) === null || Time.minute(shift.end) === null || shift.end === shift.start) errors.push('Vagtens start og slut skal være forskellige; vagten må være kortere end 24 timer.');
+  if (shift.endDate !== undefined && shift.endDate !== Series.shiftEndDate(shift)) errors.push('Vagtens slutdato skal svare til det planlagte tidsrum.');
   if (!Series.validPlannedBreak(shift)) errors.push('Den planlagte pause skal være et helt antal minutter, der er kortere end vagten.');
   if (shift.note !== undefined && typeof shift.note !== 'string' || shift.noteRich !== undefined && typeof shift.noteRich !== 'string') errors.push('Vagtens beskrivelse skal være tekst.');
   return errors;

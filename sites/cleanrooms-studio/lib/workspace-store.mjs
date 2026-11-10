@@ -3,6 +3,7 @@ import {StudioError,MAX_BODY_BYTES,readStudio,readRawStudio,readStudioWindow,pro
 import Departments from '../src/department-model.js';
 import {storedAccessScope,loadDepartmentAccess,isScoped,siteAllowed,departmentAllowed,assertSiteAccess,assertPersonAccess,assertDirectoryKeysAccess,validateGrantScope,assertTargetScope,grantScopeGuard,accessGuard,projectOrganization,projectStudioAccess,sitePredicate,personPredicate,jsonSitePredicate} from './department-access.mjs';
 import Data from '../src/studio-data.js';
+import Series from '../src/series-engine.js';
 import Checklist from '../src/checklist-progress.js';
 import Actions from '../src/schedule-actions.js';
 import PlanningScope from '../src/planning-scope.js';
@@ -143,13 +144,10 @@ function leaveDecisions(previous,next,actor,at){
   if(Object.keys(result).length||Object.hasOwn(previous,'leaveDecisions')||Object.hasOwn(next,'leaveDecisions'))next.leaveDecisions=result;
 }
 function publishedOverlap(studio,scopes) {
-  const selected=new Set(scopes.flatMap(scope=>scope.siteIds.map(site=>scope.from+'|'+site))),groups=new Map();
+  const selected=new Set(scopes.flatMap(scope=>scope.siteIds.map(site=>scope.from+'|'+site)));
   const keyFor=shift=>{const value=new Date(shift.date+'T12:00:00Z');value.setUTCDate(value.getUTCDate()-((value.getUTCDay()+6)%7));return value.toISOString().slice(0,10)+'|'+shift.site;};
-  for(const shift of Publication.publishedShifts(studio)){if(!shift.person)continue;const key=shift.person+'|'+shift.date;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(shift);}
-  for(const shifts of groups.values()){
-    shifts.sort((a,b)=>a.start.localeCompare(b.start));
-    for(let index=0;index<shifts.length;index++)for(let prior=0;prior<index;prior++)if(shifts[prior].end>shifts[index].start&&(selected.has(keyFor(shifts[prior]))||selected.has(keyFor(shifts[index]))))return [shifts[prior],shifts[index]];
-  }
+  const shifts=Publication.publishedShifts(studio);
+  for(const {shift,other}of Series.conflicts(shifts,shifts))if(selected.has(keyFor(shift))||selected.has(keyFor(other)))return [shift,other];
   return null;
 }
 
@@ -604,7 +602,7 @@ async function handleWorkspaceStudioRequestInternal(request,storage,onContext) {
       catch(error){return response({error:'invalid_publication',message:error.message,...(error.dependencies?{dependencies:error.dependencies}:{})},400);}
       const overlap=publishedOverlap(next,publication.scopes);
       if(overlap)fail(400,'publication_conflict','Udgivelsen giver overlappende vagter den '+overlap[0].date+'. Ret de berørte vagter, og udgiv de relevante arbejdssteder samlet.');
-      const selected=publication.scopes,selectedShifts=Publication.publishedShifts(next).filter(shift=>selected.some(scope=>shift.date>=scope.from&&shift.date<=scope.to&&scope.siteIds.includes(shift.site))),absent=selectedShifts.find(shift=>shift.person&&Data.leaveRequests(next).some(leave=>leave.p===shift.person&&leave.days.includes(shift.date)&&(next.requests?.[leave.id]||leave.status)==='approved'));
+      const selected=publication.scopes,selectedShifts=Publication.publishedShifts(next).filter(shift=>selected.some(scope=>shift.date>=scope.from&&shift.date<=scope.to&&scope.siteIds.includes(shift.site))),absent=selectedShifts.find(shift=>shift.person&&Data.leaveRequests(next).some(leave=>leave.p===shift.person&&Series.shiftDates(shift).some(day=>leave.days.includes(day))&&(next.requests?.[leave.id]||leave.status)==='approved'));
       if(absent)fail(400,'publication_leave','En medarbejder har godkendt fravær den '+absent.date+'. Ret vagten, før perioden udgives.');
       await assertNoPublishedAbsence(db,context.workspace.id,selectedShifts);
       const attendance=await ensureTimeEntries({db,workspaceId:context.workspace.id,context,helpers:{actorGuard,fail}});attendanceVersion=attendance.row?.version||0;

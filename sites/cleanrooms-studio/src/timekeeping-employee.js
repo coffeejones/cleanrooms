@@ -13,7 +13,7 @@
   const actorName=value=>typeof value==='string'?value:value&&typeof value.name==='string'?value.name:'';
   const plannedFacts=shift=>{
     const clock=value=>typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)?Number(value.slice(0,2))*60+Number(value.slice(3)):null;
-    const start=clock(shift.start),end=clock(shift.end),pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes,gross=start!==null&&end!==null?end-start+(end<=start?1440:0):null;
+    const start=clock(shift.start),end=clock(shift.end),pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes,gross=start!==null&&end!==null?end-start+(end<start?1440:0):null;
     return {pause:Number.isSafeInteger(pause)&&pause>=0&&gross!==null&&pause<gross?pause:null,net:Number.isSafeInteger(pause)&&pause>=0&&gross!==null&&pause<gross?gross-pause:null};
   };
 
@@ -34,7 +34,7 @@
     const header=node('div','cs-time-employee-head'),heading=node('h4','cs-time-employee-title','Tidsregistrering'),status=node('span','cs-time-employee-status',options.loading?'Henter registrering…':statusLabel(entry));status.dataset.state=entry?.status||'planned';header.append(heading,status);section.append(header);
     if(demo)section.append(node('p','cs-time-employee-demo','Stemplinger følger eksempelvagtens klokke.'));
     const planShift=approved?{start:entry.plannedStart||shift.start,end:entry.plannedEnd||shift.end,plannedBreakMinutes:entry.plannedBreakMinutes}:shift,plan=plannedFacts(planShift),values=node('dl','cs-time-employee-values');
-    for(const [label,value] of [['Planlagt',text(planShift.start)+'–'+text(planShift.end)],['Planlagt arbejdstid',minutesLabel(plan.net)],['Planlagt pause',plan.pause===null?'—':plan.pause+' min · ulønnet'],['Registreret',entry?.start?entry.start+'–'+(entry.end||'…')+(entry.endDate&&entry.endDate>shift.date?' (+1 dag)':''):'—'],['Arbejdstid',entry?(inProgress?'Beregnes ved afslutning':minutesLabel(entry.workedMinutes)):'—'],['Registreret pause',entry?minutesLabel(entry.breakMinutes):'—']]){const metric=node('div');metric.append(node('dt','',label),node('dd','',value));values.append(metric);}section.append(values);
+    for(const [label,value] of [['Planlagt',text(planShift.start)+'–'+text(planShift.end)+(planShift.end<planShift.start?' +1 dag':'')],['Planlagt arbejdstid',minutesLabel(plan.net)],['Planlagt pause',plan.pause===null?'—':plan.pause+' min · ulønnet'],['Registreret',entry?.start?entry.start+'–'+(entry.end||'…')+(entry.endDate&&entry.endDate>shift.date?' (+1 dag)':''):'—'],['Arbejdstid',entry?(inProgress?'Beregnes ved afslutning':minutesLabel(entry.workedMinutes)):'—'],['Registreret pause',entry?minutesLabel(entry.breakMinutes):'—']]){const metric=node('div');metric.append(node('dt','',label),node('dd','',value));values.append(metric);}section.append(values);
     if(plan.pause>0)section.append(node('p','cs-time-employee-help cs-time-employee-planned-pause','Den planlagte pause er ulønnet og fratrækkes kun de planlagte timer. Registrér den pause, du faktisk holder; den indsættes ikke automatisk.'));
     if(Number(entry?.breakMinutes)>0){
       const aggregate=entry.breakAllocation==='end-of-shift'||entry.breakAllocation==='end'||entry.pauseAllocation==='aggregate_end';

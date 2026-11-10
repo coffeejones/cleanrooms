@@ -86,22 +86,19 @@ export async function readPublicationBudget({db,context,payload,helpers:h}){
   if(frame.directoryRevision!==directory.version||frame.directoryToken!==directory.write_token)h.fail(409,'publication_budget_directory_changed','Virksomhedens timebudgetter er ændret. Prøv igen.');
   const periods=periodsFor(selected,budget);
   const ranges=Scope.mergeRanges(periods.map(({from,to})=>({
-    from:from<Data.minDate?Data.minDate:from,to:to>Data.maxDate?Data.maxDate:to
+    from:Scope.add(from,-1)<Data.minDate?Data.minDate:Scope.add(from,-1),to:to>Data.maxDate?Data.maxDate:to
   })));
   const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,ranges,{context});
   const {series,edits,deleted}=Scope.summaryStudio(summaries);
   const suppressed=new Set(deleted);
   const seeded=frame.demoSeed?await timekeepingPeople({db,context,personIds:Data.staff.map(({id})=>id)}):[];
-  const byDay=new Map();
-  for(const period of periods){
-    for(let day=period.from;day<=period.to;day=Scope.add(day,1))byDay.set(day,period);
-  }
   const add=shift=>{
-    const period=byDay.get(shift.date);
-    if(!period||suppressed.has(shift.id)||siteIndices&&!siteIndices.has(shift.site))return;
-    const minutes=Series.plannedMinutes(shift);
-    if(!Number.isFinite(minutes))h.fail(500,'publication_budget_shift_invalid','En planlagt vagts arbejdstid kunne ikke beregnes.');
-    period.plannedMinutes+=minutes;
+    if(suppressed.has(shift.id)||siteIndices&&!siteIndices.has(shift.site))return;
+    for(const period of periods){
+      const minutes=Series.plannedMinutesInRange(shift,period.from,period.to);
+      if(!Number.isFinite(minutes))h.fail(500,'publication_budget_shift_invalid','En planlagt vagts arbejdstid kunne ikke beregnes.');
+      period.plannedMinutes+=minutes;
+    }
   };
   const addOriginal=shift=>{if(!Object.hasOwn(edits,shift.id))add(shift);};
   // Retain only one recurrence's concrete shifts in memory. A moved exception

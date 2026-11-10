@@ -126,7 +126,7 @@ test('all supplied dates share expanded hour bounds while placement retains exac
 
 test('invalid times, dates and duplicate identities cannot silently hide part of a day',()=>{
   const good=shift('valid','07:00','15:00');
-  for(const bad of [null,shift('','07:00','15:00'),shift('bad','7:00','15:00'),shift('bad','15:00','07:00'),shift('bad','15:00','15:00'),shift('bad','07:00','24:00'),shift('bad','07:00','15:00',{date:'2026-02-30'}),{...good}]) {
+  for(const bad of [null,shift('','07:00','15:00'),shift('bad','7:00','15:00'),shift('bad','15:00','07:99'),shift('bad','15:00','15:00'),shift('bad','07:00','24:00'),shift('bad','07:00','15:00',{date:'2026-02-30'}),{...good}]) {
     const result=Calendar.layout([good,bad],'2026-10-27');
     assert.equal(result.valid,false);assert.ok(result.errors.length);assert.deepEqual(result.items,[]);
   }

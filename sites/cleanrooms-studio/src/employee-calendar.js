@@ -81,21 +81,21 @@
     const ids=new Set();
     for (const shift of shifts) {
       if (!shift || typeof shift !== 'object' || typeof shift.id !== 'string' || !shift.id.trim() || !validDate(shift.date)
-        || !time(shift.start) || !time(shift.end) || shift.end <= shift.start) errors.push('En vagt har ugyldig dato, tid eller identitet.');
+        || !time(shift.start) || !time(shift.end) || shift.end === shift.start) errors.push('En vagt har ugyldig dato, tid eller identitet.');
       else if (ids.has(shift.id)) errors.push('Vagt-id forekommer flere gange: '+shift.id);
       else ids.add(shift.id);
     }
     if (errors.length) return empty();
-    const startMinute=Math.min(360,...shifts.map(shift=>Math.floor(minutes(shift.start)/60)*60));
-    const endMinute=Math.max(1320,...shifts.map(shift=>Math.ceil(minutes(shift.end)/60)*60)),totalMinutes=endMinute-startMinute;
-    const ordered=shifts.filter(shift=>shift.date===day).slice().sort((a,b)=>a.start.localeCompare(b.start)||b.end.localeCompare(a.end)||(a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    const placed=shifts.map(shift=>{const offset=Math.round((parse(shift.date)-parse(day))/DAY)*1440,start=offset+minutes(shift.start),end=offset+minutes(shift.end)+(shift.end<shift.start?1440:0);return {shift,start:Math.max(0,start),end:Math.min(1440,end)};}).filter(item=>item.end>item.start);
+    const startMinute=Math.min(360,...shifts.map(shift=>Math.floor(minutes(shift.start)/60)*60),...placed.map(item=>Math.floor(item.start/60)*60));
+    const endMinute=Math.max(1320,...shifts.map(shift=>shift.end<shift.start?1440:Math.ceil(minutes(shift.end)/60)*60),...placed.map(item=>Math.ceil(item.end/60)*60)),totalMinutes=endMinute-startMinute;
+    const ordered=placed.sort((a,b)=>a.start-b.start||b.end-a.end||(a.shift.id<b.shift.id?-1:a.shift.id>b.shift.id?1:0));
     const items=[];let cluster=[],laneEnds=[],clusterEnd=-1;
     function finish() {
       for (const item of cluster) { item.laneCount=laneEnds.length;item.left=item.lane/item.laneCount;item.width=1/item.laneCount; }
       cluster=[];laneEnds=[];clusterEnd=-1;
     }
-    for (const shift of ordered) {
-      const start=minutes(shift.start),end=minutes(shift.end);
+    for (const {shift,start,end} of ordered) {
       if (cluster.length && start >= clusterEnd) finish();
       let lane=laneEnds.findIndex(value=>value<=start);if (lane<0) lane=laneEnds.length;
       laneEnds[lane]=end;clusterEnd=Math.max(clusterEnd,end);

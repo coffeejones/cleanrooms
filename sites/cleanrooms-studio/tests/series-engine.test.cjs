@@ -43,10 +43,10 @@ test('dates are inclusive, Monday is zero, and duplicate weekdays do not duplica
   assert.throws(() => engine.enumerate(series(), {from:'2026-02-30'}), TypeError);
 });
 
-test('validation requires fields, accepts numeric site zero, and checks same-day time boundaries', () => {
+test('validation requires fields, accepts numeric site zero, and checks distinct sub-24-hour time boundaries', () => {
   assert.deepEqual(engine.validate(series()), []);
   for (const field of ['id','person','site','startDate','endDate','start','end']) assert.ok(engine.validate(series({[field]:''})).length, field);
-  for (const times of [{start:'15:00',end:'15:00'},{start:'23:00',end:'06:00'},{start:'7:00'},{end:'24:00'},{start:'08:60'}]) assert.ok(engine.validate(series(times)).length);
+  for (const times of [{start:'15:00',end:'15:00'},{start:'7:00'},{end:'24:00'},{start:'08:60'}]) assert.ok(engine.validate(series(times)).length);
   assert.deepEqual(engine.validate(series({start:'00:00',end:'23:59'})), []);
 });
 
@@ -155,9 +155,9 @@ test('selected weekdays can use different times while missing overrides retain t
   assert.deepEqual(engine.enumerate({...input,dayTimes:{}}),engine.enumerate({...input,dayTimes:undefined}));
 });
 
-test('weekday time overrides strictly validate selected canonical day keys, exact fields and same-day clocks',()=>{
+test('weekday time overrides strictly validate selected canonical day keys, exact fields and distinct valid clocks',()=>{
   class Times {constructor(){this.start='09:00';this.end='13:00';}}
-  for(const dayTimes of [null,[],new Map(),new Date(),{'01':{start:'07:00',end:'15:00'}},{'0':{start:'07:00',end:'15:00'}},{'7':{start:'07:00',end:'15:00'}},{'3':{start:'09:00'}},{'3':{start:'09:00',end:'13:00',extra:true}},{'3':{start:'9:00',end:'13:00'}},{'3':{start:'23:00',end:'06:00'}},{'3':{start:'13:00',end:'13:00'}},{'3':new Times()}]){
+  for(const dayTimes of [null,[],new Map(),new Date(),{'01':{start:'07:00',end:'15:00'}},{'0':{start:'07:00',end:'15:00'}},{'7':{start:'07:00',end:'15:00'}},{'3':{start:'09:00'}},{'3':{start:'09:00',end:'13:00',extra:true}},{'3':{start:'9:00',end:'13:00'}},{'3':{start:'13:00',end:'13:00'}},{'3':new Times()}]){
     assert.ok(engine.validate(series({dayTimes})).length,String(dayTimes));assert.throws(()=>engine.enumerate(series({dayTimes})),RangeError);
   }
   assert.ok(engine.validate(series({start:'invalid',dayTimes:{'1':{start:'07:00',end:'15:00'},'3':{start:'09:00',end:'13:00'}}})).length,'Legacy fallback remains valid even when every selected day has an override.');

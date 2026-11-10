@@ -7,9 +7,8 @@
   const TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   const validId = value => (typeof value === 'string' && value.trim() !== '') || (typeof value === 'number' && Number.isFinite(value));
   const timeMinutes = time => Number(time.slice(0, 2)) * 60 + Number(time.slice(3));
-  const duration = shift => Engine.plannedMinutes(shift);
   const validShift = shift => Boolean(shift && typeof shift === 'object' && validId(shift.id) && Actions.validDate(shift.date)
-    && typeof shift.start === 'string' && TIME.test(shift.start) && typeof shift.end === 'string' && TIME.test(shift.end) && shift.end > shift.start&&Engine.validPlannedBreak(shift));
+    && typeof shift.start === 'string' && TIME.test(shift.start) && typeof shift.end === 'string' && TIME.test(shift.end) && shift.end !== shift.start&&Engine.validPlannedBreak(shift));
 
   function addDays(value, count) {
     const date = new Date(value + 'T12:00:00Z');
@@ -53,8 +52,8 @@
     const excluded = new Set([...removedIds, ...proposalIds]);
     const remaining = original.filter(shift => !excluded.has(shift.id));
     const projected = [...remaining, ...proposed];
-    const total = (shifts, from, to) => shifts.filter(shift => shift.date >= from && shift.date <= to).reduce((sum, shift) => sum + duration(shift), 0);
-    const weeks = [...new Set(proposed.map(shift => monday(shift.date)))].sort();
+    const total = (shifts, from, to) => shifts.reduce((sum,shift)=>sum+Engine.plannedMinutesInRange(shift,from,to),0);
+    const weeks = [...new Set(proposed.flatMap(shift=>Engine.shiftDates(shift).map(monday)))].sort();
     if (weeks.some(first => !Actions.validDate(first) || !Actions.validDate(addDays(first, 6)))) return base;
     const conflicts = [], seen = new Set();
     Engine.conflicts(proposed, remaining).forEach(({shift, other}) => {
@@ -67,12 +66,12 @@
       if (!seen.has(key)) { seen.add(key); conflicts.push({type:'internal',date:shift.date,shift:{...shift},other:{...other}}); }
     });
     proposed.forEach(shift => {
-      if (blockedDates.some(block => block.person === person.id && block.date === shift.date)) {
+      if (blockedDates.some(block => block.person === person.id && Engine.shiftDates(shift).includes(block.date))) {
         conflicts.push({type:'leave',date:shift.date,shift:{...shift}});
       }
     });
     conflicts.sort((a,b) => a.date.localeCompare(b.date) || a.shift.start.localeCompare(b.shift.start) || String(a.shift.id).localeCompare(String(b.shift.id)) || a.type.localeCompare(b.type));
-    const candidateDays = new Set(proposed.map(shift => shift.date));
+    const candidateDays = new Set(proposed.flatMap(Engine.shiftDates));
     const advisories = pendingRequests.filter(request => request && request.person === person.id && candidateDays.has(request.date)).map(request => ({...request}));
     const overTargetWeeks = weeks.map(first => ({weekStart:first,projectedMinutes:total(projected,first,addDays(first,6)),targetMinutes})).filter(week => week.projectedMinutes > targetMinutes);
     const available = proposed.length > 0 && conflicts.length === 0;

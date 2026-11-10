@@ -9,7 +9,7 @@
   const compare=(left,right)=>left<right?-1:left>right?1:0;
   const order=(left,right)=>compare(left.date,right.date)||compare(left.start,right.start)||compare(left.end,right.end)||compare(left.id,right.id);
   const validTime=value=>typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
-  const minutes=value=>Number(value.slice(0,2))*60+Number(value.slice(3));
+  const engine=()=>globalThis.CleanRoomsSeries||(typeof require==='function'?require('./series-engine.js'):null);
 
   function parseDate(value){
     if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
@@ -46,22 +46,22 @@
     const from=iso(gridFirst),to=iso(gridLast),occurrences=new Map();
     for(const shift of shifts){
       if(!record(shift)||typeof shift.id!=='string'||!shift.id||shift.id!==shift.id.trim()||typeof shift.person!=='string'
-        ||!parseDate(shift.date)||!Number.isInteger(shift.site)||shift.site<0||!validTime(shift.start)||!validTime(shift.end)||shift.end<=shift.start
-        ||shift.plannedBreakMinutes!==undefined&&(!Number.isSafeInteger(shift.plannedBreakMinutes)||shift.plannedBreakMinutes<0||shift.plannedBreakMinutes>=minutes(shift.end)-minutes(shift.start))
+        ||!parseDate(shift.date)||!Number.isInteger(shift.site)||shift.site<0||!validTime(shift.start)||!validTime(shift.end)||shift.end===shift.start
+        ||!engine().validPlannedBreak(shift)
         ||['note','noteRich','seriesId'].some(key=>shift[key]!=null&&typeof shift[key]!=='string'))throw new TypeError('En vagt har ugyldigt id, medarbejder, arbejdssted, dato, klokkeslæt, planlagt pause eller beskrivelse.');
       const previous=occurrences.get(shift.id);
       if(previous&&!same(previous,shift))throw new TypeError('Samme vagt-id forekommer med forskellige oplysninger. Hent planen igen.');
       if(!previous)occurrences.set(shift.id,shift);
     }
-    const selected=[...occurrences.values()].filter(shift=>shift.person===person.id&&shift.date>=from&&shift.date<=to).sort(order).map(clone);
+    const selected=[...occurrences.values()].filter(shift=>shift.person===person.id&&engine().shiftDates(shift).some(day=>day>=from&&day<=to)).sort(order).map(clone);
     const dates=[];
     for(let day=gridFirst;day<=gridLast;day=addDays(day,1)){
       const date=iso(day);dates.push({date,inMonth:date.slice(0,7)===month,isToday:date===today,shifts:[],minutes:0});
     }
     const byDate=Object.fromEntries(dates.map(day=>[day.date,day]));
-    for(const shift of selected){const day=byDate[shift.date];day.shifts.push(shift);day.minutes+=minutes(shift.end)-minutes(shift.start)-(shift.plannedBreakMinutes||0);}
+    for(const shift of selected)for(const workedDay of engine().shiftDates(shift)){const day=byDate[workedDay];if(day){day.shifts.push(shift);day.minutes+=engine().plannedMinutesInRange(shift,workedDay,workedDay);}}
     const weeks=[];for(let index=0;index<dates.length;index+=7)weeks.push(dates.slice(index,index+7));
-    const monthly=selected.filter(shift=>shift.date.slice(0,7)===month),monthDays=dates.filter(day=>day.inMonth);
+    const monthly=selected.filter(shift=>engine().shiftDates(shift).some(day=>day.slice(0,7)===month)),monthDays=dates.filter(day=>day.inMonth);
     return {month,from,to,label:MONTHS[first.getUTCMonth()]+' '+first.getUTCFullYear(),weeks,shifts:monthly,
       totalMinutes:monthDays.reduce((total,day)=>total+day.minutes,0),shiftCount:monthly.length,workingDays:monthDays.filter(day=>day.shifts.length).length,
       byDate,previousMonth:adjacentMonth(first,-1),nextMonth:adjacentMonth(first,1)};

@@ -343,7 +343,7 @@
     const horizonEnd=addDays(today,27),nowTime=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Copenhagen',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
     let planning=null,planningError='';
     if(persistence?.isPartial&&!planningRangeLoaded(anchor,addDays(today,27)))return {planning,planningError};
-    try{planning=RosterPlanning?.build({staff,weekStart:anchor,today,nowTime,horizonEnd,weeklyShifts:shiftsInRange(anchor,addDays(anchor,6)),upcomingShifts:shiftsInRange(today,horizonEnd)})||null;}
+    try{planning=RosterPlanning?.build({staff,weekStart:anchor,today,nowTime,horizonEnd,weeklyShifts:conflictShiftsForWeeks([anchor]),upcomingShifts:conflictShiftsInRange(addDays(today,-1),horizonEnd)})||null;}
     catch{planningError='Ugens plan kunne ikke beregnes. Medarbejderoplysningerne er stadig tilgængelige.';}
     return {planning,planningError};
   }
@@ -432,7 +432,7 @@
     }
     if(!employeeProfileElement?.isConnected)q('#cs-page-content').replaceChildren(employeeProfileElement);
     let calendar=null,error='';const {planning,planningError}=rosterPlanningModel();
-    try{const range=EmployeeCalendar.range('month',employeeProfileMonth+'-01');calendar=ProfileCalendar.build({person,month:employeeProfileMonth,today,shifts:shiftsInRange(range.from,range.to),sites});}
+    try{const range=EmployeeCalendar.range('month',employeeProfileMonth+'-01');calendar=ProfileCalendar.build({person,month:employeeProfileMonth,today,shifts:conflictShiftsInRange(addDays(range.from,-1),range.to),sites});}
     catch{error='Månedens vagter kunne ikke indlæses. Medarbejderens oplysninger er stadig tilgængelige.';}
     const payElement=payrollPane(person);
     const appLogin=canManageProfileAppLogin(person.id)?profileAppLogin||{status:'loading'}:null;
@@ -471,7 +471,7 @@
         const range=EmployeeCalendar.range('month',payrollMonth+'-01');
         resolved=PayrollGroups.resolve({policy:payrollState.policy,personId:person.id,payroll:payrollState.payroll,from:range.periodFrom,to:range.periodTo});
         if(payrollState.payroll||resolved.periods.some(period=>period.group)){
-          estimate=Payroll.estimate({config:resolved.payroll,personId:person.id,month:payrollMonth,shifts:shiftsInRange(range.periodFrom,range.periodTo)});
+          estimate=Payroll.estimate({config:resolved.payroll,personId:person.id,month:payrollMonth,shifts:conflictShiftsInRange(addDays(range.periodFrom,-1),range.periodTo)});
           if(resolved.missingBasePeriods.length){estimate.complete=false;estimate.missingBasePeriods=resolved.missingBasePeriods;}
         }
       }catch{error='Den planlagte løn kunne ikke beregnes. Lønaftalen er stadig gemt.';}
@@ -744,9 +744,9 @@
     if(field==='leaveDecisions')return value?({approved:'Godkendt',rejected:'Afvist',pending:'Afventer'}[value.status]||value.status)+(value.reason?' · '+value.reason:''):'Intet svar';
     if(field==='requests')return {approved:'Godkendt',rejected:'Afvist',pending:'Afventer'}[value]||String(value);
     if(field==='roster')return value.name+' · '+value.target+' t/uge · '+(sites[value.site]?.name||'Arbejdssted')+' · '+(value.active===false?'Arkiveret':'Aktiv');
-    if(field==='edits')return personName(value.person)+' · '+shortDate(value.date)+' · '+value.start+'–'+value.end+' · '+(sites[value.site]?.name||'Arbejdssted')+' · '+(value.plannedBreakMinutes??0)+' min pause';
-    if(field==='series')return personName(value.person)+' · '+shortDate(value.startDate)+(Engine.isOpenEnded(value)?' · uden slutdato':'–'+shortDate(value.endDate))+' · '+value.start+'–'+value.end+' · '+(sites[value.site]?.name||'Arbejdssted')+' · '+(value.plannedBreakMinutes??0)+' min pause';
-    if(field==='coverageRules')return (sites[value.site]?.name||'Arbejdssted')+' · '+value.start+'–'+value.end+' · '+value.required+' medarbejdere';
+    if(field==='edits')return personName(value.person)+' · '+shortDate(value.date)+' · '+clockLabel(value)+' · '+(sites[value.site]?.name||'Arbejdssted')+' · '+(value.plannedBreakMinutes??0)+' min pause';
+    if(field==='series')return personName(value.person)+' · '+shortDate(value.startDate)+(Engine.isOpenEnded(value)?' · uden slutdato':'–'+shortDate(value.endDate))+' · '+clockLabel(value)+' · '+(sites[value.site]?.name||'Arbejdssted')+' · '+(value.plannedBreakMinutes??0)+' min pause';
+    if(field==='coverageRules')return (sites[value.site]?.name||'Arbejdssted')+' · '+clockLabel(value)+' · '+value.required+' medarbejdere';
     if(field==='workspaceSettings'){
       const budget=value.workHoursBudget;
       const hours=Roster.validWorkHoursBudget(budget)?'Timebudget '+budget.hours.toLocaleString('da-DK')+' t pr. '+(budget.period==='month'?'måned':'uge'):'';
@@ -786,8 +786,8 @@
   }
   function shortDate(value) { return date(value).toLocaleDateString('da-DK', {day:'numeric',month:'short',timeZone:'UTC'}); }
   function fullDate(value) { return date(value).toLocaleDateString('da-DK', {weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}); }
-  function timeHours(value) { const [h, m] = value.split(':').map(Number); return h + m / 60; }
-  function duration(shift) { return Math.max(0,timeHours(shift.end) - timeHours(shift.start) - (shift.plannedBreakMinutes??0)/60); }
+  function clockLabel(shift,separator='–'){return shift.start+separator+shift.end+(shift.end<shift.start?' +1 dag':'');}
+  function duration(shift){const minutes=Engine.plannedMinutes(shift);return Number.isFinite(minutes)?minutes/60:0;}
   function niceHours(value) { return Number(value.toFixed(2)).toLocaleString('da-DK'); }
   function personFor(id) { return staffById.get(id); }
   function personName(id) { return personFor(id)?.name || 'Ledig vagt'; }
@@ -1024,10 +1024,10 @@
       const previous=ranges.at(-1);
       // Merge only requested adjacent weeks. A moved exception can be years
       // away, and each materialization must stay within the 366-day limit.
-      if(previous&&first===addDays(previous.to,1)&&(date(first)-date(previous.from))/86400000<364)previous.to=addDays(first,6);
+      if(previous&&first===addDays(previous.to,1)&&(date(first)-date(previous.from))/86400000<357)previous.to=addDays(first,6);
       else ranges.push({from:first,to:addDays(first,6)});
     }
-    const existing=new Map();for(const range of ranges)for(const shift of conflictShiftsInRange(range.from,range.to,data))existing.set(shift.id,shift);
+    const existing=new Map();for(const range of ranges)for(const shift of conflictShiftsInRange([PlanData?.minDate||'2000-01-01',addDays(range.from,-1)].sort().at(-1),[PlanData?.maxDate||Engine.OPEN_END,addDays(range.to,1)].sort()[0],data))existing.set(shift.id,shift);
     return [...existing.values()];
   }
   function publicationNeighbors(scopes){
@@ -1307,7 +1307,7 @@
     const shift=(workflowBundle?.demoShifts||[]).find(item=>item.id===id)||summary;if(!shift)return;
     const dialog=node('dialog','cs-workflow-demo-detail');dialog.setAttribute('aria-label','Eksempelvagt');
     const title=node('h3',null,'Eksempelvagt'),close=node('button','cs-button','Luk');close.type='button';close.addEventListener('click',()=>dialog.close());
-    dialog.append(title,node('p','cs-workflow-muted','Isolerede eksempeldata'),node('strong','cs-workflow-shift-time',shift.start+'–'+shift.end),node('p',null,shift.date+' · '+(shift.siteName||workflowBundle?.demoSites?.[shift.site]?.name||'Arbejdssted')));
+    dialog.append(title,node('p','cs-workflow-muted','Isolerede eksempeldata'),node('strong','cs-workflow-shift-time',clockLabel(shift)),node('p',null,shift.date+' · '+(shift.siteName||workflowBundle?.demoSites?.[shift.site]?.name||'Arbejdssted')));
     const name=workflowBundle?.demoPeople?.find(person=>person.id===shift.person)?.name;dialog.append(node('p',null,name||'Ledig vagt'));if(shift.plannedBreakMinutes)dialog.append(node('p',null,shift.plannedBreakMinutes+' min planlagt pause'));if(shift.note)dialog.append(node('p',null,shift.note));dialog.append(close);root.append(dialog);dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();close.focus();
   }
   function toggleWorkflowDemo(){
@@ -1356,7 +1356,7 @@
     const range = EmployeeCalendar?.range(view,focusDate) || {from:state.employeeWeek,to:addDays(state.employeeWeek,6)};
     if(scopedEmployee())loadEmployeeRead();
     const from = [range.from,minDate].sort().at(-1), to = [range.to,planningEnd].sort()[0];
-    const shifts = !scopedEmployee()&&from <= to ? shiftsInRange(from,to) : [], upcoming = !scopedEmployee()&&employeeToday <= planningEnd ? shiftsInRange(employeeToday,[addDays(employeeToday,365),planningEnd].sort()[0]) : [];
+    const shifts = !scopedEmployee()&&from <= to ? shiftsInRange(addDays(from,-1),to) : [], upcoming = !scopedEmployee()&&employeeToday <= planningEnd ? shiftsInRange(addDays(employeeToday,-1),[addDays(employeeToday,365),planningEnd].sort()[0]) : [];
     const all = timeDemoEmployee?timeState.shifts.filter(shift=>shift.demo&&shift.person===person.id):scopedEmployee()?[...new Map([...(employeeData?.person?.id===person.id?employeeData.shifts||[]:[]),...timeState.shifts.filter(shift=>shift.recovered&&shift.person===person.id)].map(shift=>[shift.id,shift])).values()]:realEmployee()?[...new Map([...employeeData.shifts,...timeState.shifts.filter(shift=>shift.recovered&&shift.person===person.id)].map(shift=>[shift.id,shift])).values()]:[...new Map([...shifts,...upcoming].map(shift => [shift.id,shift])).values()];
     loadTimekeeping();
     q('#cs-employee-person').value = person.id;
@@ -1589,7 +1589,7 @@
   }
   function proposalError(proposed, data) {
     if (!proposed.length) return 'Perioden og ugedagene giver ingen vagter.';
-    const blocked = approvedLeaveDates(), leave = proposed.find(shift => blocked.some(item => item.person === shift.person && item.date === shift.date));
+    const blocked = approvedLeaveDates(), leave = proposed.find(shift => blocked.some(item => item.person === shift.person && Engine.shiftDates(shift).includes(item.date)));
     if (leave) return personName(leave.person) + ' har godkendt fravær den ' + shortDate(leave.date) + '. Ingen vagter er gemt.';
     const existing=conflictShiftsForWeeks(proposed.map(shift=>staffingMonday(shift.date)),data);
     const overlaps = [...Engine.conflicts(proposed, existing, proposed.map(shift => shift.id)),...Engine.conflicts(proposed,proposed)];
@@ -1714,7 +1714,7 @@
     copy.append(node('div', 'cs-person-hours' + (showHours && hours > person.target ? ' cs-hour-over' : ''), showHours ? niceHours(hours) + ' / ' + person.target + ' t' : person.role));
     line.append(copy); return line;
   }
-  function describeShift(shift) { return personName(shift.person) + ', ' + fullDate(shift.date) + ', ' + shift.start + ' til ' + shift.end + ', ' + sites[shift.site].name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : ''); }
+  function describeShift(shift) { return personName(shift.person) + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift,' til ') + ', ' + sites[shift.site].name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : ''); }
   function descriptionIndicator() {
     const marker = node('span','cs-description-indicator'); marker.append(icon('file-text'));
     marker.setAttribute('aria-hidden','true'); marker.title = 'Har beskrivelse'; return marker;
@@ -1726,7 +1726,7 @@
   }
   function shiftCard(shift) {
     const button = prepareShiftButton(node('button', 'cs-shift cursor-interaction' + (!shift.person ? ' cs-open-shift' : '')), shift);
-    button.append(node('span', 'cs-shift-time', shift.start + '–' + shift.end));
+    button.append(node('span', 'cs-shift-time', clockLabel(shift)));
     const meta = node('span', 'cs-shift-site', !shift.person ? 'Ledig vagt' : state.group === 'sites' ? personName(shift.person).split(' ')[0] : sites[shift.site].name);
     if (shift.seriesId) { const marker = node('span', 'cs-series-indicator'); marker.append(icon('repeat-2')); marker.setAttribute('aria-label', 'Del af en vagtserie'); meta.append(marker); }
     if (shift.note || shift.noteRich || shift._instructions?.hasDescription) meta.append(descriptionIndicator());
@@ -1742,28 +1742,30 @@
   function scheduleIssues(all) {
     const issues = new Map();
     Engine.conflicts(all,all).forEach(({shift,other}) => {
-      if (!issues.has(shift.id)) issues.set(shift.id,{kind:'overlap',label:'Overlap',detail:personName(shift.person) + ' har også en vagt ' + other.start + '–' + other.end + ' på ' + (sites[other.site]?.name || 'et andet arbejdssted') + ' den ' + shortDate(shift.date)});
+      if (!issues.has(shift.id)) issues.set(shift.id,{kind:'overlap',label:'Overlap',detail:personName(shift.person) + ' har også en vagt ' + clockLabel(other) + ' på ' + (sites[other.site]?.name || 'et andet arbejdssted') + ' den ' + shortDate(shift.date)});
     });
     const blocked = leaveDateIndex();
-    all.forEach(shift => { if (shift.person && blocked.get(shift.person)?.has(shift.date)) issues.set(shift.id,{kind:'leave',label:'Godkendt fravær',detail:personName(shift.person) + ' har godkendt fravær den ' + shortDate(shift.date)}); });
+    all.forEach(shift => { if (shift.person && Engine.shiftDates(shift).some(day=>blocked.get(shift.person)?.has(day))) issues.set(shift.id,{kind:'leave',label:'Godkendt fravær',detail:personName(shift.person) + ' har godkendt fravær den ' + shortDate(shift.date)}); });
     const reader=availabilityReader();
     all.forEach(shift=>{const unavailable=shift.person&&planningWorkedDays(shift).find(day=>reader?.isUnavailable(shift.person,day));if(!issues.has(shift.id)&&unavailable)issues.set(shift.id,{kind:'unavailable',label:'Utilgængelig',detail:personName(shift.person)+' har markeret sig utilgængelig den '+shortDate(unavailable)});});
     return issues;
   }
   function renderWeek() {
-    const [from] = calendarRange(), term = searchTerm(), complete = loadedCalendarWeeks().flatMap(day=>shiftsInRange(day,addDays(day,6))), issues = scheduleIssues(complete);
+    const [from] = calendarRange(), term = searchTerm(), complete = loadedCalendarWeeks().flatMap(day=>shiftsInRange(day,addDays(day,6)));
+    const issueContext=new Map((persistence?.availability?.draft||[]).map(shift=>[shift.id,shift]));for(const shift of complete)issueContext.set(shift.id,shift);for(const shift of Object.values(state.edits||{}))if(issueContext.has(shift.id))issueContext.set(shift.id,shift);for(const id of state.deleted||[])issueContext.delete(id);const issues=scheduleIssues([...issueContext.values()]);
     requestPlanningAvailability(complete,complete.map(shift=>shift.person),true);
-    const plannedByWeek=new Map();
-    for(const shift of complete.filter(shift=>visibleSite(shift.site))){
-      const week=staffingMonday(shift.date);
-      plannedByWeek.set(week,(plannedByWeek.get(week)??0)+Engine.plannedMinutes(shift));
+    const plannedByWeek=new Map(),plannedByDay=new Map(),planningPool=new Map((persistence?.availability?.draft||[]).map(shift=>[shift.id,shift]));
+    for(const shift of complete)planningPool.set(shift.id,shift);for(const shift of Object.values(state.edits||{}))if(planningPool.has(shift.id))planningPool.set(shift.id,shift);for(const id of state.deleted||[])planningPool.delete(id);
+    for(const shift of [...planningPool.values()].filter(shift=>visibleSite(shift.site))){
+      for(const week of new Set(Engine.shiftDates(shift).map(staffingMonday)))plannedByWeek.set(week,(plannedByWeek.get(week)??0)+Engine.plannedMinutesInRange(shift,week,addDays(week,6)));
+      if(shift.person)for(const day of Engine.shiftDates(shift))plannedByDay.set(day,(plannedByDay.get(day)??0)+Engine.plannedMinutesInRange(shift,day,day));
     }
     const {budget:configuredBudget,label:scopeLabel}=calendarBudgetArea();
     const weeklyMaximum=Roster.validWorkHoursBudget(configuredBudget)&&configuredBudget.period==='week'?configuredBudget.hours:null;
     const all = complete.filter(shift => visibleSite(shift.site)
       && (!term || personName(shift.person).toLocaleLowerCase('da-DK').includes(term)) && (!state.onlyOpen || !shift.person));
     const options = {from,weeks:calendarWeeks(),zoom:state.zoom,today,selectedDate:selectedDate(),shifts:all,personName,sites,
-      weekHours:week=>({plannedMinutes:plannedByWeek.get(week)??0,budgetHours:weeklyMaximum,scopeLabel}),
+      weekHours:week=>({plannedMinutes:plannedByWeek.get(week)??0,budgetHours:weeklyMaximum,scopeLabel}),dayHours:day=>plannedByDay.get(day)??0,
       weekCost:planningWeekCost,onOpenWeekCost:openPlanningWeekCost,
       onOpen:(shift,button) => openEditor(shift,button),
       onCreate:(day,button) => { const site = defaultShiftSite(); if (site === undefined) { departmentView?.openManager(state.departmentId); return; } openEditor({person:'',date:day,site,start:'07:00',end:'14:00',note:''},button); },
@@ -1784,7 +1786,7 @@
   function previewMove(shift, targetDate) {
     const min = addDays(anchor,-364), max = addDays(anchor,370);
     const current = Actions.validDate(shift?.date) ? shiftsInRange(shift.date,shift.date).find(item => item.id === shift.id) : null;
-    const existing = Actions.validDate(targetDate) && targetDate >= min && targetDate <= max ? shiftsInRange(targetDate,targetDate) : [];
+    const existing = Actions.validDate(targetDate) && targetDate >= min && targetDate <= max ? conflictShiftsForWeeks([staffingMonday(targetDate)]) : [];
     const result=Actions.planMove({shift,current,targetDate,existing,minDate:min,maxDate:max,blockedDates:approvedLeaveDates(),personName});
     if(result.allowed&&result.proposed?.person){requestPlanningAvailability([result.proposed],[result.proposed.person]);const unavailable=unavailableDatesFor(result.proposed.person,[result.proposed]);if(unavailable.length)return {...result,reason:personName(result.proposed.person)+' er utilgængelig den '+shortDate(unavailable[0])+'. Flyt alligevel.'};}
     return result;
@@ -1798,7 +1800,7 @@
     const next = proposal.proposed, data = snapshot(); data.edits[next.id] = next;
     const [from,to] = calendarRange();
     if (targetDate < from || targetDate > to) state.week = Math.floor((date(targetDate) - date(anchor)) / 604800000);
-    commit(data,personName(next.person) + ' er flyttet til ' + shortDate(targetDate) + ' · ' + next.start + '–' + next.end + (next.seriesId ? '. Kun denne vagt er ændret.' : '.'),[[shift.date,shift.date],[next.date,next.date]]);
+    commit(data,personName(next.person) + ' er flyttet til ' + shortDate(targetDate) + ' · ' + clockLabel(next) + (next.seriesId ? '. Kun denne vagt er ændret.' : '.'),[[shift.date,shift.date],[next.date,next.date]]);
     return true;
   }
   function agendaRow(shift) {
@@ -1810,7 +1812,7 @@
     if (shift.seriesId) { const marker = node('span', 'cs-series-indicator'); marker.append(icon('repeat-2')); marker.setAttribute('aria-label', 'Del af en vagtserie'); site.append(marker); }
     if (shift.note || shift.noteRich || shift._instructions?.hasDescription) site.append(descriptionIndicator());
     copy.append(node('span', 'cs-agenda-name', personName(shift.person)), site);
-    button.append(avatar, copy, node('span', 'cs-agenda-time', shift.start + '–' + shift.end)); return button;
+    button.append(avatar, copy, node('span', 'cs-agenda-time', clockLabel(shift))); return button;
   }
   function renderDay() {
     const all = filteredShifts(true).sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end) || personName(a.person).localeCompare(personName(b.person), 'da-DK'));
@@ -2213,7 +2215,7 @@
   }
   function coverageReport(from = dates()[0], to = dates()[6]) {
     if (!Coverage) return {valid:false,slots:[],errors:['Bemandingskontrollen er ikke tilgængelig.']};
-    return Coverage.coverage({rules:state.coverageRules,from,to,shifts:shiftsInRange(from,to),blockedDates:approvedLeaveDates()});
+    return Coverage.coverage({rules:state.coverageRules,from,to,shifts:conflictShiftsInRange(addDays(from,-1),addDays(to,1)),blockedDates:approvedLeaveDates()});
   }
   function coverageItemId(slot, segment) { return slot.id + '/' + segment.start + '/' + segment.end; }
   function operationsModel(from=dates()[0],to=dates()[6]) {
@@ -2223,11 +2225,11 @@
       title:sites[slot.site].name,detail:segment.filled + ' af ' + slot.required + ' medarbejdere · ' + segment.missing + ' mangler'
     })));
     const leave = leaveDateIndex();
-    all.filter(shift => shift.person && leave.get(shift.person)?.has(shift.date)).forEach(shift => items.push({id:'leave/' + shift.id,kind:'leave',date:shift.date,site:shift.site,start:shift.start,end:shift.end,shift,title:personName(shift.person),detail:'Godkendt fravær · ' + sites[shift.site].name}));
+    all.filter(shift => shift.person && Engine.shiftDates(shift).some(day=>leave.get(shift.person)?.has(day))).forEach(shift => items.push({id:'leave/' + shift.id,kind:'leave',date:shift.date,site:shift.site,start:shift.start,end:shift.end,shift,title:personName(shift.person),detail:'Godkendt fravær · ' + sites[shift.site].name}));
     const seen = new Set();
-    Engine.conflicts(all,all).forEach(({shift,other}) => {
+    Engine.conflicts(all,conflictShiftsInRange(addDays(from,-1),addDays(to,1))).forEach(({shift,other}) => {
       const key = [shift.id,other.id].sort().join('|'); if (seen.has(key)) return; seen.add(key);
-      items.push({id:'overlap/' + key,kind:'overlap',date:shift.date,site:shift.site,start:shift.start,end:shift.end,shift,other,title:personName(shift.person),detail:sites[shift.site].name + ' ' + shift.start + '–' + shift.end + ' / ' + sites[other.site].name + ' ' + other.start + '–' + other.end});
+      items.push({id:'overlap/' + key,kind:'overlap',date:shift.date,site:shift.site,start:shift.start,end:shift.end,shift,other,title:personName(shift.person),detail:sites[shift.site].name + ' ' + clockLabel(shift) + ' / ' + sites[other.site].name + ' ' + clockLabel(other)});
     });
     all.filter(shift => !shift.person).forEach(shift => items.push({id:'open/' + shift.id,kind:'open',date:shift.date,site:shift.site,start:shift.start,end:shift.end,shift,title:sites[shift.site].name,detail:'Ledig vagt · ingen medarbejder tildelt'}));
     leaveRequests.filter(request => (state.requests[request.id] || request.status) === 'pending' && request.days.some(day => day >= from && day <= to)).forEach(request => items.push({id:'request/' + request.id,kind:'request',date:request.days.find(day => day >= from && day <= to),request,title:personName(request.p),detail:request.type + ' · ' + request.dates + ' · afventer svar'}));
@@ -2249,7 +2251,7 @@
     if (!items.length && model.report.valid) list.append(node('p','cs-ops-empty',model.total ? 'Ingen punkter i denne kategori i den valgte uge.' : state.coverageRules.length ? 'Alle opsatte bemandingsbehov er dækket. Ingen uløste punkter i denne uge.' : 'Ingen uløste punkter. Opret bemandingsbehov for at kontrollere dækningen.'));
     items.forEach(item => {
       const row = node('section','cs-ops-item'); row.dataset.kind = item.kind; row.dataset.issueId = item.id;
-      const meta = node('div','cs-ops-meta'); meta.append(node('span',null,labels[item.kind]),node('span',null,shortDate(item.date) + (item.start ? ' · ' + item.start + '–' + item.end : '')));
+      const meta = node('div','cs-ops-meta'); meta.append(node('span',null,labels[item.kind]),node('span',null,shortDate(item.date) + (item.start ? ' · ' + clockLabel(item) : '')));
       row.append(meta,node('h4','cs-ops-title',item.title),node('p','cs-ops-detail',item.detail));
       const actions = node('div','cs-ops-actions');
       if (item.kind === 'request') {
@@ -2318,7 +2320,7 @@
     if (!Coverage) return 'Bemandingskontrollen er ikke tilgængelig.';
     const errors = Coverage.validateRule(rule); if (errors.length) return errors[0];
     if (!state.coverageRules.some(item => item.id === rule.id) && state.coverageRules.length >= 60) return 'Du kan oprette højst 60 bemandingsbehov.';
-    if (state.coverageRules.some(other => other.id !== rule.id && other.site === rule.site && other.start < rule.end && rule.start < other.end && other.weekdays.some(day => rule.weekdays.includes(day)))) return 'Tidsrummet overlapper et andet bemandingsbehov på samme arbejdssted og ugedag. Ret det eksisterende behov, eller vælg et andet tidsrum.';
+    const checked=Coverage.expand({rules:[...state.coverageRules.filter(other=>other.id!==rule.id),rule],from:today,to:today});if(!checked.valid)return checked.errors[0];
     return null;
   }
   function applyNeedRule(rule) {
@@ -2395,7 +2397,7 @@
     if (!person) return {ok:false,reason:'Vælg en medarbejder.'};
     if (context.current?.person === person.id) return {ok:false,reason:'Medarbejderen har allerede denne vagt.'};
     const shift = {...context.shift,person:person.id}, weekStart = staffingMonday(shift.date);
-    const assessment = withAvailability(Staffing.assess({person,proposed:[shift],existing:shiftsInRange(weekStart,addDays(weekStart,6)),removedIds:context.current ? [context.current.id] : [],weekStart,blockedDates:approvedLeaveDates(),pendingRequests:pendingLeaveDates()}),person.id,[shift]);
+    const assessment = withAvailability(Staffing.assess({person,proposed:[shift],existing:conflictShiftsForWeeks([weekStart]),removedIds:context.current ? [context.current.id] : [],weekStart,blockedDates:approvedLeaveDates(),pendingRequests:pendingLeaveDates()}),person.id,[shift]);
     return {ok:assessment.available,reason:assessment.available ? '' : staffingReason(assessment) || 'Tildelingen kunne ikke kontrolleres.',shift,assessment,context};
   }
   function replacementCandidates(target, expectedContext = null) {
@@ -2409,7 +2411,7 @@
   function applyReplacement(target, personId, expectedContext = null) {
     const result = replacementProposal(target,personId,expectedContext); if (!result.ok) return result;
     const data = snapshot(); data.edits[result.shift.id] = result.shift; data.deleted = data.deleted.filter(id => id !== result.shift.id);
-    commit(data,personName(personId) + ' er tildelt ' + result.shift.start + '–' + result.shift.end + ' på ' + sites[result.shift.site].name + '. Kun denne vagt er ændret.',[[result.shift.date,result.shift.date]]);
+    commit(data,personName(personId) + ' er tildelt ' + clockLabel(result.shift) + ' på ' + sites[result.shift.site].name + '. Kun denne vagt er ændret.',[[result.shift.date,result.shift.date]]);
     return {ok:true,shift:result.shift};
   }
   function renderReplacement() {
@@ -2442,18 +2444,18 @@
     if(needsPlannerDetails(selection))return withPlannerDetails(selection,()=>{const current=context.current&&shiftById(context.current.id);return openReplacement(target.kind==='shift'?{...target,shift:current||target.shift}:target,trigger);});
     closeOperationsSheets(); closeEditor(); closeGroupEditor(false); closeBulkEditor(false); closeChanges(false); closeReview();
     activeReplacement = {target:clone(target),context:clone(context),person:null,trigger};
-    const shift = context.shift; q('#cs-replacement-context').textContent = target.sickness?personName(context.current.person)+' · '+shortDate(shift.date)+' · '+shift.start+'–'+shift.end+' · '+sites[shift.site].name:sites[shift.site].name + ' · ' + shortDate(shift.date) + ' · ' + shift.start + '–' + shift.end + '. '
+    const shift = context.shift; q('#cs-replacement-context').textContent = target.sickness?personName(context.current.person)+' · '+shortDate(shift.date)+' · '+clockLabel(shift)+' · '+sites[shift.site].name:sites[shift.site].name + ' · ' + shortDate(shift.date) + ' · ' + clockLabel(shift) + '. '
       + (context.mode === 'create' ? 'Opretter én vagt til dette bemandingshul.' : context.mode === 'replace' ? 'Erstatter ' + personName(context.current.person) + ' på denne ene vagt.' : 'Bruger den eksisterende ledige vagt.')
       + ' Alle arbejdssteder og godkendt fravær kontrolleres.';
     q('#cs-replacement-search').value = ''; q('#cs-replacement-error').hidden = true; renderReplacement(); q('#cs-replacement-layer').hidden = false; q('.cs-replacement-body').scrollTop = 0; q('#cs-replacement-close').focus({preventScroll:true});
   }
 
   function weekReview() {
-    const all = shifts(), open = all.filter(shift => !shift.person), pairs = new Map();
-    Engine.conflicts(all,all).forEach(conflict => { const key = [conflict.shift.id,conflict.other.id].sort().join('|'); if (!pairs.has(key)) pairs.set(key,conflict); });
-    const hoursByPerson=new Map();for(const shift of all)hoursByPerson.set(shift.person,(hoursByPerson.get(shift.person)||0)+duration(shift));
+    const all = shifts(), open = all.filter(shift => !shift.person), pairs = new Map(), context=conflictShiftsForWeeks([dates()[0]]);
+    Engine.conflicts(all,context).forEach(conflict => { const key = [conflict.shift.id,conflict.other.id].sort().join('|'); if (!pairs.has(key)) pairs.set(key,conflict); });
+    const hoursByPerson=new Map();for(const shift of context)hoursByPerson.set(shift.person,(hoursByPerson.get(shift.person)||0)+Engine.plannedMinutesInRange(shift,dates()[0],dates()[6])/60);
     const hours = staff.map(person => ({person,hours:hoursByPerson.get(person.id)||0})).filter(item => item.hours > item.person.target);
-    const leave = leaveDateIndex(), absences = all.filter(shift => shift.person && leave.get(shift.person)?.has(shift.date));
+    const leave = leaveDateIndex(), absences = all.filter(shift => shift.person && Engine.shiftDates(shift).some(day=>leave.get(shift.person)?.has(day)));
     return {all,open,overlaps:[...pairs.values()],hours,absences};
   }
   function renderReview() {
@@ -2462,11 +2464,11 @@
     function section(title, empty) { const area = node('section','cs-review-section'); area.append(node('h3',null,title)); if (empty) area.append(node('p','cs-review-ok',empty)); body.append(area); return area; }
     function item(area, shift, title, detail) { const button = node('button','cs-review-item cursor-interaction'); button.type = 'button'; button.append(node('span',null,title),node('span','cs-review-detail',detail)); button.addEventListener('click',() => { closeReview(); openEditor(shift,q('#cs-review')); }); area.append(button); }
     const open = section('Ledige vagter · ' + review.open.length,review.open.length ? null : 'Alle ugens vagter er bemandet.');
-    review.open.forEach(shift => item(open,shift,sites[shift.site].name + ' · ' + shortDate(shift.date),shift.start + '–' + shift.end + ' · Vælg en medarbejder'));
+    review.open.forEach(shift => item(open,shift,sites[shift.site].name + ' · ' + shortDate(shift.date),clockLabel(shift) + ' · Vælg en medarbejder'));
     const overlap = section('Overlap · ' + review.overlaps.length,review.overlaps.length ? null : 'Ingen medarbejdere har overlappende vagter.');
-    review.overlaps.forEach(conflict => item(overlap,conflict.shift,personName(conflict.shift.person) + ' · ' + shortDate(conflict.shift.date),conflict.shift.start + '–' + conflict.shift.end + ' og ' + conflict.other.start + '–' + conflict.other.end));
+    review.overlaps.forEach(conflict => item(overlap,conflict.shift,personName(conflict.shift.person) + ' · ' + shortDate(conflict.shift.date),clockLabel(conflict.shift) + ' og ' + clockLabel(conflict.other)));
     const absence = section('Vagter med godkendt fravær · ' + review.absences.length,review.absences.length ? null : 'Ingen vagter er tildelt medarbejdere med godkendt fravær.');
-    review.absences.forEach(shift => item(absence,shift,personName(shift.person) + ' · ' + shortDate(shift.date),shift.start + '–' + shift.end + ' · Find en afløser før udgivelse'));
+    review.absences.forEach(shift => item(absence,shift,personName(shift.person) + ' · ' + shortDate(shift.date),clockLabel(shift) + ' · Find en afløser før udgivelse'));
     const hours = section('Planlægningsinfo · ugentlige timer',review.hours.length ? null : 'Ingen medarbejdere er planlagt over deres aftalte ugentlige timetal.');
     hours.append(node('p','cs-review-detail','Sammenligning med medarbejderens aftalte timetal.'));
     review.hours.forEach(entry => { const shift = review.all.find(shift => shift.person === entry.person.id); if (shift) item(hours,shift,entry.person.name,niceHours(entry.hours) + ' af ' + entry.person.target + ' timer · +' + niceHours(entry.hours - entry.person.target) + ' timer'); });
@@ -2644,7 +2646,8 @@
     q('#cs-day-times-toggle').hidden=!repeating;q('#cs-uniform-times').hidden=custom;q('#cs-uniform-break').hidden=custom;q('#cs-day-break-help').hidden=!custom;container.hidden=!custom;
     q('#cs-edit-start').required=!custom;q('#cs-edit-end').required=!custom;
     q('#cs-edit-break').disabled=custom;q('#cs-edit-break').required=!custom;
-    const gross=Math.round((timeHours(q('#cs-edit-end').value)-timeHours(q('#cs-edit-start').value))*60),pause=readPlannedBreak();
+    const start=q('#cs-edit-start').value,end=q('#cs-edit-end').value,overnight=Boolean(start&&end&&end<start),gross=Engine.plannedMinutes({start,end,plannedBreakMinutes:0}),pause=readPlannedBreak();
+    q('#cs-edit-overnight').hidden=!overnight;q('#cs-edit-overnight').title=overnight?'Slutter '+shortDate(addDays(q('#cs-edit-date').value||today,1)):'';
     q('#cs-edit-break').max=String(Math.max(0,gross-1));q('#cs-edit-net-time').textContent=Number.isSafeInteger(pause)&&pause>=0&&pause<gross?workTime(gross-pause)+' planlagt arbejdstid':'Kontrollér tid og pause';
     if(!custom){root.querySelectorAll('[data-series-time]').forEach(input=>{input.disabled=true;input.required=false;});return;}
     if(container.dataset.days!==key){
@@ -2657,6 +2660,7 @@
       });
     }
     root.querySelectorAll('[data-series-time]').forEach(input=>{input.disabled=!custom;input.required=custom;});
+    for(const row of container.querySelectorAll('.cs-day-time-row')){const end=row.querySelector('[data-series-time="end"]'),day=end?Number(end.dataset.seriesDay):null,times=editorDayTimes[day],label=row.querySelector('.cs-day-time-name');if(label&&times)label.textContent=dayNames[day]+(times.end<times.start?' · +1 dag':'');}
   }
   function seriesDraftError(draft,source,scope) {
     if(!SeriesLifecycle)return '';
@@ -2710,7 +2714,7 @@
     const result=SeriesPlanner.preview({draft,source:source||null,scope:source?scope:'all',cutoff:editorCutoff(source,scope),edits:state.edits,deleted:state.deleted,preserve:q('#cs-preserve-exceptions').checked,today});
     const person=personName(draft.person),site=sites[draft.site]?.name||'det valgte arbejdssted',days=draft.weekdays.map(day=>dayNames[day].toLocaleLowerCase('da-DK'));
     const pattern=days.length>1?days.slice(0,-1).join(', ')+' og '+days.at(-1):days[0]||'de valgte dage';
-    q('#cs-series-sentence').textContent=(draft.person?person:'Medarbejderen')+' arbejder '+pattern+(Object.keys(draft.dayTimes||{}).length?' med tider pr. dag':' kl. '+draft.start+'–'+draft.end)+' hos '+site+'.';
+    q('#cs-series-sentence').textContent=(draft.person?person:'Medarbejderen')+' arbejder '+pattern+(Object.keys(draft.dayTimes||{}).length?' med tider pr. dag':' kl. '+clockLabel(draft))+' hos '+site+'.';
     const previewValid=result.valid&&result.attached.length>0,summary=q('#cs-series-preview');summary.replaceChildren();summary.dataset.valid=String(previewValid);
     if(!previewValid)summary.append(node('p','cs-series-preview-error',result.errors[0]||'Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.'));
     else{
@@ -2722,7 +2726,7 @@
     }
     const dates=previewValid?result.shifts.filter(shift=>shift.date>=today):[],next=dates.length?dates:previewValid?result.shifts:[];
     q('#cs-series-next-title').textContent=dates.length?'De næste vagter':'Vagter i perioden';const list=q('#cs-series-next-dates');list.replaceChildren();
-    next.slice(0,4).forEach(shift=>{const row=node('li');row.append(node('time',null,shortDate(shift.date)),node('span',null,shift.start+'–'+shift.end));list.append(row);});
+    next.slice(0,4).forEach(shift=>{const row=node('li');row.append(node('time',null,shortDate(shift.date)),node('span',null,clockLabel(shift)));list.append(row);});
     if(!next.length)list.append(node('li','cs-series-no-dates','Vælg medarbejder, dage og periode.'));
     const calendar=q('#cs-series-calendar');calendar.replaceChildren();const focus=next[0]?.date||draft.startDate;
     const calendarAssessment=seriesCalendarAssessment(draft,result,source,scope);seriesCalendarPreview={draft,result,assessment:calendarAssessment};
@@ -2735,7 +2739,7 @@
       for(let day=first;day.slice(0,7)===first.slice(0,7);day=addDays(day,1)){const cell=node('span','cs-series-calendar-date'+(marked.has(day)?' has-shift':''),String(Number(day.slice(-2))));if(marked.has(day))cell.setAttribute('aria-label',fullDate(day)+' · vagt');grid.append(cell);}calendar.append(grid);
     }
     const exceptions=result.exceptions;q('#cs-series-exceptions').hidden=!exceptions.count;q('#cs-series-exceptions-title').textContent=exceptions.count+(exceptions.count===1?' manuel ændring':' manuelle ændringer');
-    const exceptionList=q('#cs-series-exception-list');exceptionList.replaceChildren();exceptions.ids.slice(0,10).forEach(id=>{const shift=state.edits[id],removed=state.deleted.includes(id),day=shift?.date||occurrenceAnchor(id,source?.id);exceptionList.append(node('li',null,(day?shortDate(day):'Vagt')+' · '+(removed?'Aflyst':shift?shift.start+'–'+shift.end:'Manuelt ændret')));});
+    const exceptionList=q('#cs-series-exception-list');exceptionList.replaceChildren();exceptions.ids.slice(0,10).forEach(id=>{const shift=state.edits[id],removed=state.deleted.includes(id),day=shift?.date||occurrenceAnchor(id,source?.id);exceptionList.append(node('li',null,(day?shortDate(day):'Vagt')+' · '+(removed?'Aflyst':shift?clockLabel(shift):'Manuelt ændret')));});
     if(exceptions.ids.length>10)exceptionList.append(node('li',null,'Og '+(exceptions.ids.length-10)+' flere.'));
     const lifecycleError=previewValid?seriesDraftError(draft,source,scope):'';
     if(lifecycleError)summary.append(node('p','cs-series-preview-error',lifecycleError));
@@ -2804,7 +2808,7 @@
     if (conflict) {
       const other = conflict.other;
       return conflict.type === 'leave' ? staffingSentence('Godkendt fravær den ' + shortDate(conflict.date))
-        : (conflict.type === 'internal' ? 'De nye vagter overlapper hinanden' : 'Har allerede en vagt') + ' den ' + shortDate(conflict.date) + (other ? ' · ' + other.start + '–' + other.end + ' · ' + (sites[other.site]?.name || 'Ukendt arbejdssted') : '') + '.';
+        : (conflict.type === 'internal' ? 'De nye vagter overlapper hinanden' : 'Har allerede en vagt') + ' den ' + shortDate(conflict.date) + (other ? ' · ' + clockLabel(other) + ' · ' + (sites[other.site]?.name || 'Ukendt arbejdssted') : '') + '.';
     }
     if(result.unavailableDates?.length)return 'Utilgængelig den '+shortDate(result.unavailableDates[0])+(result.unavailableDates.length>1?' · '+result.unavailableDates.length+' datoer':'')+'.';
     const request = result.pendingRequests[0];
@@ -3055,7 +3059,7 @@
   }
   function groupProposal() {
     if (!activeGroup) return null;
-    return Actions.planGroup({members:activeGroup.members,existing:shiftsInRange(activeGroup.date,activeGroup.date),
+    return Actions.planGroup({members:activeGroup.members,existing:conflictShiftsForWeeks([staffingMonday(activeGroup.date)]),
       start:q('#cs-group-start').value,end:q('#cs-group-end').value,blockedDates:approvedLeaveDates(),personName});
   }
   function updateGroupPreview() {
@@ -3126,7 +3130,7 @@
     result.proposed.forEach(shift => { data.edits[shift.id] = shift; });
     activeGroup.nextStart = q('#cs-group-start').value; activeGroup.nextEnd = q('#cs-group-end').value; activeGroup.saved = true;
     globalThis.CleanRoomsCalendar.revealDay(day);
-    commit(data,count + (count === 1 ? ' vagt er opdateret den ' : ' vagter er opdateret den ') + shortDate(day) + ' · ' + activeGroup.nextStart + '–' + activeGroup.nextEnd + '.',[[day,day]]);
+    commit(data,count + (count === 1 ? ' vagt er opdateret den ' : ' vagter er opdateret den ') + shortDate(day) + ' · ' + clockLabel({start:activeGroup.nextStart,end:activeGroup.nextEnd}) + '.',[[day,day]]);
   }
   function clearSelection(rerender = true) {
     selectedIds.clear(); selectionMode = false;
@@ -3183,7 +3187,7 @@
     const target = q('#cs-bulk-date').value, offsetDays = Actions.validDate(target) ? Math.round((date(target) - date(activeBulk.firstDate)) / 86400000) : NaN;
     const minDate = addDays(anchor,-364), maxDate = addDays(anchor,370), days = new Set(activeBulk.members.map(shift => shift.date));
     if (activeBulk.operation !== 'time' && Number.isFinite(offsetDays)) activeBulk.members.forEach(shift => { const day = addDays(shift.date,offsetDays); if (day >= minDate && day <= maxDate) days.add(day); });
-    const existing = new Map(); days.forEach(day => shiftsInRange(day,day).forEach(shift => existing.set(shift.id,shift)));
+    const existing = new Map(); days.forEach(day => conflictShiftsForWeeks([staffingMonday(day)]).forEach(shift => existing.set(shift.id,shift)));
     return Bulk.plan({members:activeBulk.members,existing:[...existing.values()],operation:activeBulk.operation,start:q('#cs-bulk-start').value,end:q('#cs-bulk-end').value,offsetDays,minDate,maxDate,blockedDates:approvedLeaveDates(),personName,copyIds:activeBulk.copyIds});
   }
   function updateBulkPreview() {
@@ -3253,7 +3257,7 @@
     if(!Actions.validDate(day))return;
     const from=staffingMonday(day),to=addDays(from,6);
     const siteIds=scope.kind==='site'?[sites.findIndex(site=>site.id===scope.id)]:scope.kind==='department'?selectedDepartment()?.siteIds: null;
-    const model=calculator.preview({budget,from,to,siteIds,loaded:!persistence?.isPartial||planningRangeLoaded(from,to),shifts:shiftsInRange(from,to),before:activeEdit.id?activeEdit:null,after:{id:activeEdit.id||'budget-preview',date:day,site:Number(q('#cs-edit-site').value),start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak()}});
+    const model=calculator.preview({budget,from,to,siteIds,loaded:!persistence?.isPartial||planningRangeLoaded(from,to),shifts:conflictShiftsInRange(addDays(from,-1),to),before:activeEdit.id?activeEdit:null,after:{id:activeEdit.id||'budget-preview',date:day,site:Number(q('#cs-edit-site').value),start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak()}});
     if(!model)return;
     const format=minutes=>(Math.abs(minutes)/60).toLocaleString('da-DK',{maximumFractionDigits:2})+' t';
     element.textContent=(model.deltaMinutes?(model.deltaMinutes>0?'+':'−')+format(model.deltaMinutes)+' · ':'')+format(model.remainingMinutes)+(model.remainingMinutes<0?' over budget':' tilbage');
@@ -3422,7 +3426,7 @@
       affected.get(week).add(shift.id);
     };
     for(const issue of Engine.conflicts(shifts,publicationNeighbors(scopes)))mark(issue.shift);
-    for(const shift of shifts)if(leave.get(shift.person)?.has(shift.date))mark(shift);
+    for(const shift of shifts)if(Engine.shiftDates(shift).some(day=>leave.get(shift.person)?.has(day)))mark(shift);
     return affected;
   }
   function showPublicationLoading(message,retry=false) {
@@ -3662,6 +3666,7 @@
     if(selectedStaffing?.status==='blocked')return editorError(staffingReason(selectedStaffing));
     if (!q('#cs-edit-form').reportValidity()) return;
     const next = {id:activeEdit.id || 'new-' + Date.now(),person:q('#cs-edit-person').value,site:Number(q('#cs-edit-site').value),date:q('#cs-edit-date').value,start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak(),...readDescriptionData(),...(source ? {seriesId:source.id} : {})};
+    if(activeEdit.endDate!==undefined)next.endDate=Engine.shiftEndDate(next);
     const errors = Engine.validate({id:next.id,person:next.person || 'unassigned',site:next.site,startDate:next.date,endDate:next.date,weekdays:[0],start:next.start,end:next.end,plannedBreakMinutes:next.plannedBreakMinutes});
     if (errors.length) return editorError(errors[0]);
     const data = snapshot(); data.edits[next.id] = next; data.deleted = data.deleted.filter(id => id !== next.id);

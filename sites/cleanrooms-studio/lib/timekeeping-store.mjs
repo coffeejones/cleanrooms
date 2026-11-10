@@ -1,10 +1,11 @@
 /* Attendance has its own guarded ledger; a plan save cannot replace it. */
 import {isScoped,assertPersonAccess,assertSiteAccess} from './department-access.mjs';
 import Time from '../src/timekeeping-model.js';
+import Series from '../src/series-engine.js';
 import Groups from '../src/payroll-groups-model.js';
 import Directory from '../src/directory-records.js';
 import {readDirectorySite} from './directory-store.mjs';
-import {ensureTimeEntries,findTimeEntry,readTimeEntries,entryInterval,TIME_ENTRY_BYTES} from './time-entry-store.mjs';
+import {ensureTimeEntries,findTimeEntry,readTimeEntries,entryInterval,TIME_ENTRY_BYTES,TIME_WORK_DATE_LOOKAROUND_DAYS} from './time-entry-store.mjs';
 import {readPublishedTimeShifts} from './publication-time-store.mjs';
 import {readPlannerTimePage} from './timekeeping-page.mjs';
 import {closedPayrollPeriod,payrollPeriodWriteGuard} from './payroll-period-store.mjs';
@@ -91,8 +92,8 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
     row=await h.first(db,'SELECT * FROM workspace_timekeeping WHERE workspace_id = ?',workspaceId);
     if((beforeHeader?.version||0)!==(row?.version||0))h.fail(409,'time_conflict','Registreringerne ændrede sig, mens de blev hentet. Prøv igen.');
     if(row)document=JSON.parse(row.config);
-    const firstPage=!payload.cursor;if(firstPage)published=await readPublishedTimeShifts({db,workspaceId,context:manager?context:undefined,...range,...(scopedPerson?{personId:scopedPerson}:{})});
-    const shifts=[...published,...(firstPage&&manager&&!isScoped(context)?document.demo?.shifts||[]:[])].filter(s=>(manager||s.person===personId)&&(!payload.personId||s.person===payload.personId)&&s.date>=range.from&&s.date<=range.to);
+    const firstPage=!payload.cursor;if(firstPage)published=await readPublishedTimeShifts({db,workspaceId,context:manager?context:undefined,...range,overlap:!manager,...(scopedPerson?{personId:scopedPerson}:{})});
+    const shifts=[...published,...(firstPage&&manager&&!isScoped(context)?document.demo?.shifts||[]:[])].filter(s=>(manager||s.person===personId)&&(!payload.personId||s.person===payload.personId)&&(manager?s.date>=range.from&&s.date<=range.to:Series.shiftDates(s).some(date=>date>=range.from&&date<=range.to)));
     if(!manager){const missing=page.entries.filter(historical=>!shifts.some(shift=>shift.id===historical.shiftId)),current=await readPublishedTimeShifts({db,workspaceId,ids:[...new Set(missing.map(entry=>entry.shiftId))]});for(const historical of missing){const live=current.find(shift=>shift.id===historical.shiftId);if(!firstPage&&live?.person===personId&&live.date>=range.from&&live.date<=range.to)continue;const frozen=historical.frozenShift||{id:historical.shiftId,person:historical.personId,date:historical.date,site:historical.site,start:historical.plannedStart,end:historical.plannedEnd,plannedBreakMinutes:historical.plannedBreakMinutes||0};shifts.push({...clone(frozen),recovered:true,cancelled:!live,note:frozen.note||''});}}
     salaryPeople=page.entries.map(entry=>entry.personId);bundlePromise=null;
     const planned=firstPage&&manager?await timekeepingPlannedRows({db,context,frame,...range,personId:scopedPerson}):null;
@@ -118,7 +119,7 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
     let condition='('+guard.sql+') AND ('+payrollLock.sql+')',values=[...guard.values,...payrollLock.values];
     if(interval&&['submitted','approved'].includes(entry.status)){
       condition+=` AND NOT EXISTS (SELECT 1 FROM workspace_time_entries other WHERE other.workspace_id = ? AND other.person_id = ? AND other.demo = ? AND other.work_date >= ? AND other.work_date <= ? AND other.id <> ? AND other.interval_start < ? AND other.interval_end > ?)`;
-      values.push(workspaceId,entry.personId,entry.demo?1:0,Time.addDays(entry.date,-2),Time.addDays(entry.date,2),entry.id,interval.end,interval.start);
+      values.push(workspaceId,entry.personId,entry.demo?1:0,Time.addDays(entry.date,-TIME_WORK_DATE_LOOKAROUND_DAYS),Time.addDays(entry.date,TIME_WORK_DATE_LOOKAROUND_DAYS),entry.id,interval.end,interval.start);
     }
     const fields=[entry.shiftId,entry.personId,entry.date,entry.endDate||entry.date,entry.status,entry.demo?1:0,entry.version,serialized,token,stamp,interval?.start??null,interval?.end??null];
     const query=current?h.statement(db,`UPDATE workspace_time_entries SET shift_id = ?,person_id = ?,work_date = ?,end_date = ?,status = ?,demo = ?,version = ?,config = ?,write_token = ?,updated_at = ?,interval_start = ?,interval_end = ? WHERE workspace_id = ? AND id = ? AND version = ? AND ${condition}`,...fields,workspaceId,entry.id,current.version,...values):h.statement(db,`INSERT INTO workspace_time_entries (workspace_id,id,shift_id,person_id,work_date,end_date,status,demo,version,config,write_token,updated_at,interval_start,interval_end) SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE ${condition} ON CONFLICT(workspace_id,id) DO NOTHING`,workspaceId,entry.id,...fields,...values);
@@ -198,7 +199,8 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   if(payload.comment!==undefined&&!['finish','comment','correct'].includes(operation))h.fail(400,'time_note_operation','Kommentarer kan kun tilføjes ved afslutning eller som en supplerende kommentar.');
   if(operation==='start'){
     if(current)h.fail(409,'time_already_started','Vagten har allerede en tidsregistrering.');
-    if(!isDemo&&shift.date!==local.date)h.fail(400,'time_start_date','Start vagten på dens dato. Kontakt planlæggeren, hvis en tidligere vagt mangler registrering.');
+    const overnightStillOpen=shift.end<shift.start&&Time.addDays(shift.date,1)===local.date&&local.time<shift.end;
+    if(!isDemo&&shift.date!==local.date&&!overnightStillOpen)h.fail(400,'time_start_date','Start vagten på dens dato eller mens dens nattevagt stadig er i gang. Kontakt planlæggeren, hvis en tidligere vagt mangler registrering.');
     if(await h.first(db,"SELECT id FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND status IN ('running','paused') LIMIT 1",workspaceId,entry.personId,isDemo?1:0))h.fail(409,'time_running_exists','Afslut eller ret medarbejderens igangværende vagt først.');
     if(!isDemo){
       // Read the live workplace policy. The write also checks the captured directory generation.
@@ -219,12 +221,25 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   }else if(operation==='correct'){
     if(!isDemo&&shift.date>local.date)h.fail(400,'time_future_entry','Fremtidige vagter kan ikke registreres endnu.');
     if(payload.date!==undefined&&payload.date!==entry.date)h.fail(400,'time_date_invalid','Registreringen skal blive på vagtens dato.');
-    entry.start=payload.start;entry.end=payload.end||null;entry.endDate=payload.endDate||entry.date;entry.breakMinutes=payload.breakMinutes;entry.breaks=[];entry.breakAllocation='end-of-shift';entry.status=entry.end?'submitted':'rejected';entry.correctionReason=payload.reason.trim();delete entry.pauseAt;delete entry.pauseOffset;delete entry.payroll;
+    // The work date owns payroll, but a forgotten night check-in can have an
+    // actual start on the following day. Never turn a small correction into an
+    // extra day by discarding that already-known precise start.
+    const knownStart=current?.timingResolved?current.resolvedStartAt:current?.breakAllocation==='clocked'?current.clockStartAt:null,knownEnd=current?.timingResolved?current.resolvedEndAt:current?.breakAllocation==='clocked'?current.clockEndAt:null;
+    const knownStartDate=Time.validInstant(knownStart)?Time.localNow(new Date(knownStart)).date:entry.date,hasPreciseInput=payload.actualStartAt!==undefined||payload.actualEndAt!==undefined,preserveLateStart=!isDemo&&!hasPreciseInput&&knownStartDate!==entry.date;
+    if(preserveLateStart&&payload.start!==current.start)h.fail(400,'time_instants_required','Vælg den faktiske startdato og præcise tidspunkter, når en indstempling efter midnat ændres.');
+    const inferredStartDate=preserveLateStart?knownStartDate:Time.validInstant(payload.actualStartAt)?Time.localNow(new Date(payload.actualStartAt)).date:entry.date;
+    entry.start=payload.start;entry.end=payload.end||null;entry.endDate=payload.endDate||(entry.end&&entry.end<entry.start?Time.addDays(inferredStartDate,1):inferredStartDate);entry.breakMinutes=payload.breakMinutes;entry.breaks=[];entry.breakAllocation='end-of-shift';entry.status=entry.end?'submitted':'rejected';entry.correctionReason=payload.reason.trim();delete entry.pauseAt;delete entry.pauseOffset;delete entry.payroll;
     delete entry.resolvedStartAt;delete entry.resolvedEndAt;delete entry.timingResolved;delete entry.dstUnresolved;
-    if(payload.actualStartAt!==undefined||payload.actualEndAt!==undefined){
+    if(preserveLateStart){
+      const unchangedEnd=entry.end===current.end&&entry.endDate===(current.endDate||current.date)&&Time.validInstant(knownEnd),endInstant=entry.end?(unchangedEnd?Date.parse(knownEnd):Time.instantForLocal(entry.endDate,entry.end)):null;
+      if(entry.end&&(endInstant===null||Time.crossesOffsetChange(knownStart,new Date(endInstant).toISOString())&&!(current.timingResolved&&unchangedEnd)))h.fail(400,'time_instants_required','Vagten krydser et skift mellem sommer- og vintertid. Angiv de præcise UTC-tidspunkter.');
+      entry.resolvedStartAt=new Date(knownStart).toISOString();if(entry.end)entry.resolvedEndAt=new Date(endInstant).toISOString();entry.timingResolved=true;entry.timeZone='Europe/Copenhagen';
+    }
+    if(hasPreciseInput){
       if(!Time.validInstant(payload.actualStartAt)||!Time.validInstant(payload.actualEndAt))h.fail(400,'time_instants_required','Angiv både start og slut som præcise UTC-tidspunkter, fx 2026-10-25T00:30:00.000Z.');
       const actualStart=Time.localNow(new Date(payload.actualStartAt)),actualEnd=Time.localNow(new Date(payload.actualEndAt));
-      if(actualStart.date!==entry.date||actualStart.time!==entry.start||actualEnd.date!==entry.endDate||actualEnd.time!==entry.end||Date.parse(payload.actualEndAt)>Date.parse(stamp))h.fail(400,'time_instants_mismatch','UTC-tidspunkterne skal passe til vagtens lokale dato og tider og må ikke ligge i fremtiden.');
+      const nextDayStart=shift.end<shift.start&&actualStart.date===Time.addDays(entry.date,1);
+      if(actualStart.date!==entry.date&&!nextDayStart||actualStart.time!==entry.start||actualEnd.date!==entry.endDate||actualEnd.time!==entry.end||Date.parse(payload.actualEndAt)>Date.parse(stamp))h.fail(400,'time_instants_mismatch','UTC-tidspunkterne skal passe til vagtens lokale dato og tider og må ikke ligge i fremtiden.');
       entry.resolvedStartAt=new Date(payload.actualStartAt).toISOString();entry.resolvedEndAt=new Date(payload.actualEndAt).toISOString();entry.timingResolved=true;entry.timeZone='Europe/Copenhagen';
       if(current?.breakAllocation==='clocked'&&current.breakMinutes===entry.breakMinutes&&Math.floor(Date.parse(current.clockStartAt)/60000)===Math.floor(Date.parse(entry.resolvedStartAt)/60000)&&Math.floor(Date.parse(current.clockEndAt)/60000)===Math.floor(Date.parse(entry.resolvedEndAt)/60000)){
         entry.breakAllocation='clocked';entry.breaks=clone(current.breaks||[]);
@@ -253,7 +268,7 @@ export async function handleTimekeepingAction({db,context,payload,principal,help
   const errors=Time.validate(entry,{allowOpen:['running','paused','rejected'].includes(entry.status)});if(errors.length)h.fail(400,'time_validation',errors[0]);
   if(!isDemo&&['correct','approve'].includes(operation)&&hasFutureAttendance(entry,Date.parse(stamp)))h.fail(400,'time_future_entry','Registrerede start- og sluttider må ikke ligge i fremtiden.');
   const interval=entryInterval(entry);
-  if(interval&&['submitted','approved'].includes(entry.status)&&await h.first(db,'SELECT id FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND work_date >= ? AND work_date <= ? AND id <> ? AND interval_start < ? AND interval_end > ? LIMIT 1',workspaceId,entry.personId,isDemo?1:0,Time.addDays(entry.date,-2),Time.addDays(entry.date,2),entry.id,interval.end,interval.start))h.fail(409,'time_overlap','Registreringen overlapper en anden registrering for medarbejderen.');
+  if(interval&&['submitted','approved'].includes(entry.status)&&await h.first(db,'SELECT id FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND work_date >= ? AND work_date <= ? AND id <> ? AND interval_start < ? AND interval_end > ? LIMIT 1',workspaceId,entry.personId,isDemo?1:0,Time.addDays(entry.date,-TIME_WORK_DATE_LOOKAROUND_DAYS),Time.addDays(entry.date,TIME_WORK_DATE_LOOKAROUND_DAYS),entry.id,interval.end,interval.start))h.fail(409,'time_overlap','Registreringen overlapper en anden registrering for medarbejderen.');
   let rateBundle=null;if(operation==='approve'){const salaryResult=await salary(entry);entry.payroll=salaryResult.snapshot;entry.approvalHistory=[...(entry.approvalHistory||[]),{at:stamp,actor:clone(entry.approvedBy),snapshot:clone(entry.payroll)}];rateBundle=salaryResult.bundle;}
   entry.version++;entry.updatedAt=stamp;entry.audit.push({id:'time-event-'+crypto.randomUUID(),at:stamp,actor:{userId:principal.userId,name:principal.name},operation,reason:payload.reason?.trim()||'',before,after:summaryFields(entry)});entry.audit=entry.audit.slice(-200);
   await commitEntry(entry,current,rateBundle);const header=await h.first(db,'SELECT version FROM workspace_timekeeping WHERE workspace_id=?',workspaceId);return {entry:await dto(entry),from:range.from,to:range.to,ledgerVersion:header?.version||0,planRevision:frame.planRevision,directoryRevision:frame.directoryRevision,canManage:manager,canViewPayroll:caps.viewPayroll===true,serverNow:stamp};

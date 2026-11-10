@@ -61,8 +61,8 @@ test('minute boundaries remain exact instead of rounding to hours',()=>{
   assert.equal(slot.deficitMinutes,35);assert.deepEqual(slot.deficits,[{start:'07:10',end:'07:20',missing:1,filled:0},{start:'08:00',end:'08:25',missing:1,filled:0}]);
 });
 
-test('rule validation enforces head limits, valid sites, unique weekdays and same-day times',()=>{
-  for(const changes of[{id:''},{site:2000},{site:'0'},{weekdays:[]},{weekdays:[0,0]},{weekdays:[7]},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'07:00'},{required:0},{required:31},{required:1.5}])assert.ok(Coverage.validateRule(rule(changes)).length,JSON.stringify(changes));
+test('rule validation enforces head limits, valid sites, unique weekdays and distinct valid times',()=>{
+  for(const changes of[{id:''},{site:2000},{site:'0'},{weekdays:[]},{weekdays:[0,0]},{weekdays:[7]},{start:'7:00'},{end:'24:00'},{required:0},{required:31},{required:1.5}])assert.ok(Coverage.validateRule(rule(changes)).length,JSON.stringify(changes));
 });
 
 test('duplicate rule IDs and same-site overlapping demand fail closed while touching rules are allowed',()=>{

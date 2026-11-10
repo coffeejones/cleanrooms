@@ -12,8 +12,8 @@ const from = '2090-01-09', to = '2090-01-22', day = '2090-01-10';
 const rich = JSON.stringify({ type: 'doc', content: [{ type: 'taskList', content: [{ type: 'taskItem', attrs: { checked: false }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Lås døren efter arbejdet' }] }] }] }] });
 const pay = amount => ({ currency: 'DKK', agreements: [{ id: 'hourly-rate', from: day, type: 'hourly', amountCents: amount }],
   supplements: [{ id: 'service', name: 'Servicetillæg', type: 'hourly', amountCents: 1200, from: day, to: null, weekdays: [0, 1, 2, 3, 4, 5, 6], start: null, end: null }] });
-async function setup(t) {
-  t.mock.timers.enable({ apis: ['Date'], now: Date.parse(day + 'T06:00:00Z') });
+async function setup(t,{now=Date.parse(day+'T06:00:00Z')}={}) {
+  t.mock.timers.enable({ apis: ['Date'], now });
   const sqlite = new DatabaseSync(':memory:'); t.after(() => sqlite.close()); sqlite.exec('PRAGMA foreign_keys=ON');
   for (const file of fs.readdirSync(path.join(__dirname, '../drizzle')).filter(file => file.endsWith('.sql')).sort()) sqlite.exec(fs.readFileSync(path.join(__dirname, '../drizzle', file), 'utf8'));
   const db = { beforeBatch: null, prepare: sql => ({ bind: (...values) => ({ sql, values }) }) };

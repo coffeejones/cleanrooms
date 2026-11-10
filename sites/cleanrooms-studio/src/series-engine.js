@@ -8,7 +8,7 @@
   const OPEN_END = '2100-12-31';
   const validTime = value => typeof value === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
   const plannedBreakMinutes = shift => shift?.plannedBreakMinutes === undefined ? 0 : shift.plannedBreakMinutes;
-  const grossMinutes = shift => validTime(shift?.start)&&validTime(shift?.end)?Number(shift.end.slice(0,2))*60+Number(shift.end.slice(3))-Number(shift.start.slice(0,2))*60-Number(shift.start.slice(3)):NaN;
+  const grossMinutes = shift => {if(!validTime(shift?.start)||!validTime(shift?.end))return NaN;const difference=Number(shift.end.slice(0,2))*60+Number(shift.end.slice(3))-Number(shift.start.slice(0,2))*60-Number(shift.start.slice(3));return difference<0?difference+1440:difference;};
   const validPlannedBreak = shift => Number.isSafeInteger(plannedBreakMinutes(shift))&&plannedBreakMinutes(shift)>=0&&plannedBreakMinutes(shift)<grossMinutes(shift);
   const plannedMinutes = shift => validPlannedBreak(shift)?grossMinutes(shift)-plannedBreakMinutes(shift):NaN;
   const present = value => value !== null && value !== undefined && String(value).trim() !== '';
@@ -65,7 +65,7 @@
     else if (series.weekdays.some(day => !Number.isInteger(day) || day < 0 || day > 6)) errors.push('Ugedage skal være heltal fra 0 (mandag) til 6 (søndag).');
     if (!validTime(series.start)) errors.push('Vælg et gyldigt starttidspunkt i formatet TT:MM.');
     if (!validTime(series.end)) errors.push('Vælg et gyldigt sluttidspunkt i formatet TT:MM.');
-    if (validTime(series.start) && validTime(series.end) && series.end <= series.start) errors.push('Sluttidspunktet skal være efter starttidspunktet samme dag.');
+    if (validTime(series.start) && validTime(series.end) && series.end === series.start) errors.push('Start og slut skal være forskellige; vagten må være kortere end 24 timer.');
     if(validTime(series.start)&&validTime(series.end)&&!validPlannedBreak(series))errors.push('Den planlagte pause skal være et helt antal minutter fra 0 og kortere end vagten.');
     if(series.dayTimes!==undefined){
       if(!plainObject(series.dayTimes)||Object.getOwnPropertySymbols(series.dayTimes).length)errors.push('Ugedagenes tider skal være en gyldig liste over valgte ugedage.');
@@ -75,7 +75,7 @@
           if(!/^[0-6]$/.test(key)||!selected.has(Number(key)))errors.push('Særlige tider må kun angives for valgte ugedage fra 0 til 6.');
           if(!plainObject(times)||Object.keys(times).some(key=>!['start','end','plannedBreakMinutes'].includes(key))||!Object.hasOwn(times,'start')||!Object.hasOwn(times,'end')||Object.getOwnPropertySymbols(times).length){errors.push('Hver ugedag skal have start, slut og eventuelt en planlagt pause.');continue;}
           if(!validTime(times.start)||!validTime(times.end))errors.push('Ugedagens tider skal være gyldige tidspunkter i formatet TT:MM.');
-          else if(times.end<=times.start)errors.push('Ugedagens sluttidspunkt skal være efter starttidspunktet samme dag.');
+          else if(times.end===times.start)errors.push('Ugedagens start og slut skal være forskellige; vagten må være kortere end 24 timer.');
           if(validTime(times.start)&&validTime(times.end)&&!validPlannedBreak({...times,plannedBreakMinutes:times.plannedBreakMinutes===undefined?plannedBreakMinutes(series):times.plannedBreakMinutes}))errors.push('Ugedagens planlagte pause skal være et helt antal minutter fra 0 og kortere end vagten.');
         }
       }
@@ -126,6 +126,26 @@
     return shifts;
   }
 
+  // Planning intervals use Copenhagen wall-clock dates. Actual attendance keeps
+  // its separately resolved UTC instants, including DST transitions.
+  function shiftInterval(shift){
+    const day=parseDate(shift?.date),gross=grossMinutes(shift);
+    if(!day||!Number.isFinite(gross)||gross<=0||gross>=1440)return null;
+    const start=day.getTime()+(Number(shift.start.slice(0,2))*60+Number(shift.start.slice(3)))*60000;
+    const end=start+gross*60000;
+    if(!parseDate(iso(new Date(end))))return null;
+    return {start,end};
+  }
+  function shiftEndDate(shift){const interval=shiftInterval(shift);return interval?iso(new Date(interval.end)):null;}
+  function shiftDates(shift){
+    const interval=shiftInterval(shift);if(!interval)return [];
+    const result=[shift.date],last=iso(new Date(interval.end-1));if(last!==shift.date)result.push(last);return result;
+  }
+  function plannedMinutesInRange(shift,from,to){
+    const interval=shiftInterval(shift),first=parseDate(from),last=parseDate(to);
+    if(!interval||!first||!last||from>to||!validPlannedBreak(shift))return NaN;
+    return Math.max(0,Math.min(interval.end-plannedBreakMinutes(shift)*60000,last.getTime()+DAY)-Math.max(interval.start,first.getTime()))/60000;
+  }
   function conflicts(proposed, existing, excludeIds = []) {
     const excluded = new Set(excludeIds);
     const order = (a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)) || String(a.id).localeCompare(String(b.id));
@@ -133,19 +153,18 @@
     const others = (Array.isArray(existing) ? existing : []).filter(shift => shift && !excluded.has(shift.id)).slice().sort(order);
     const byPerson = new Map();
     for (const other of others) {
-      let byDate = byPerson.get(other.person);
-      if (!byDate) byPerson.set(other.person, byDate = new Map());
-      let day = byDate.get(other.date);
-      if (!day) byDate.set(other.date, day = []);
-      day.push(other);
+      if(!present(other.person)||!shiftInterval(other))continue;
+      let byDate=byPerson.get(other.person);if(!byDate)byPerson.set(other.person,byDate=new Map());
+      for(const date of shiftDates(other)){let day=byDate.get(date);if(!day)byDate.set(date,day=[]);day.push(other);}
     }
     const result = [];
     for (const shift of candidates) {
-      if (!present(shift.person) || !parseDate(shift.date) || !validTime(shift.start) || !validTime(shift.end) || shift.end <= shift.start) continue;
-      for (const other of byPerson.get(shift.person)?.get(shift.date) || []) {
-        if ((present(shift.id) && shift.id === other.id) || other.person !== shift.person || other.date !== shift.date) continue;
-        if (!validTime(other.start) || !validTime(other.end) || other.end <= other.start) continue;
-        if (shift.start < other.end && other.start < shift.end) result.push({shift, other, type: 'overlap'});
+      const interval=shiftInterval(shift);if(!present(shift.person)||!interval)continue;
+      const checked=new Set();
+      for(const date of shiftDates(shift))for(const other of byPerson.get(shift.person)?.get(date)||[]){
+        if(checked.has(other)||other.person!==shift.person||(present(shift.id)&&shift.id===other.id))continue;checked.add(other);
+        const span=shiftInterval(other);
+        if(interval.start<span.end&&span.start<interval.end)result.push({shift,other,type:'overlap'});
       }
     }
     return result;
@@ -187,7 +206,7 @@
     return {edits:nextEdits,deleted:[...nextDeleted],preservedIds,detachedIds,removedIds,remappedIds,preview};
   }
 
-  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes});
+  const api = Object.freeze({addMonths, enumerate, validate, conflicts,isOpenEnded,requiresRange,operationRange,occursOn,OPEN_END,occurrenceAnchor,exceptionPreview,preserveExceptions,plannedBreakMinutes,validPlannedBreak,plannedMinutes,shiftEndDate,shiftInterval,shiftDates,plannedMinutesInRange});
   globalThis.CleanRoomsSeries = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })();

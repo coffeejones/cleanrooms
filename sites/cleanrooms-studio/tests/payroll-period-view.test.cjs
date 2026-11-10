@@ -43,6 +43,26 @@ test('a completely missing registration requires a reason and a separate explici
  await flush();app.key('missing:forgotten').click();assert.equal(app.key('manual:save').disabled,true);const reason=app.key('manual:reason');reason.value='Bekræftet af teamleder';reason.fire('input');assert.equal(app.key('manual:save').disabled,false);app.key('manual:save').click();await flush();assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,1);assert.match(app.host.textContent,/Kontrollér registreringen/);assert.equal(app.key('finish').disabled,true);app.key('manual:approve').click();await flush();assert.equal(approved,true);assert.equal(app.key('finish').disabled,false);assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,2);app.panel.destroy();
 });
 
+test('missing overnight hours default to the next month and require a separate reviewed approval',async()=>{
+ let saved=false,approved=false;const shift={shiftId:'forgotten-night',personId:'person-A',personName:'Freja',date:'2026-10-31',start:'22:00',end:'06:00',plannedBreakMinutes:30,siteName:'Kontor'},entry={id:'entry-night',shiftId:shift.shiftId,personId:shift.personId,version:1,status:'submitted',date:shift.date,start:shift.start,end:shift.end,endDate:'2026-11-01',breakMinutes:30,correctionReason:'Nattevagt bekræftet'};
+ const app=setup((action,payload)=>{
+  if(action==='timeWrite'&&payload.operation==='correct'){assert.deepEqual(payload,{operation:'correct',shiftId:shift.shiftId,personId:shift.personId,version:0,start:'22:00',end:'06:00',endDate:'2026-11-01',breakMinutes:30,reason:'Nattevagt bekræftet'});saved=true;return{ok:true,entry};}
+  if(action==='timeWrite'&&payload.operation==='approve'){assert.deepEqual(payload,{operation:'approve',entryId:entry.id,version:1});approved=true;return{ok:true,entry:{...entry,status:'approved',version:2}};}
+  return frame({from:'2026-10-26',to:'2026-11-25',canClose:approved,blockers:approved?[]:[{code:saved?'unapproved':'missing_registration',count:1,message:saved?'Afventer godkendelse':'Vagt mangler registrering'}],missingRegistrations:saved?[]:[shift],missingRegistrationCount:saved?0:1});
+ });
+ await flush();assert.match(app.host.textContent,/22:00–06:00 · \+1 dag/);app.key('missing:'+shift.shiftId).click();assert.equal(app.key('manual:endDate').value,'2026-11-01');
+ const end=app.key('manual:end');end.value='23:00';end.fire('input');assert.equal(app.key('manual:endDate').value,'2026-10-31');end.value='06:00';end.fire('input');assert.equal(app.key('manual:endDate').value,'2026-11-01');
+ const reason=app.key('manual:reason');reason.value='Nattevagt bekræftet';reason.fire('input');app.key('manual:save').click();await flush();assert.match(app.host.textContent,/slut 1\. nov\. 2026/);assert.equal(app.calls.filter(call=>call.action==='timeWrite').length,1);assert.equal(app.key('finish').disabled,true);app.key('manual:approve').click();await flush();assert.equal(approved,true);assert.equal(app.key('finish').disabled,false);app.panel.destroy();
+});
+
+test('manual hours preserve an explicitly selected 36-hour end date across edits and year rollover',async()=>{
+ const shift={shiftId:'long-night',personId:'person-A',personName:'Freja',date:'2026-12-31',start:'22:00',end:'06:00',siteName:'Kontor'},app=setup((action,payload)=>{
+  if(action==='timeWrite'){assert.equal(payload.endDate,'2027-01-02');assert.equal(payload.end,'10:00');return {ok:false,message:'Kontrollér de aftalte timer.'};}
+  return frame({from:'2026-12-26',to:'2027-01-25',canClose:false,blockers:[],missingRegistrations:[shift],missingRegistrationCount:1});
+ });
+ await flush();app.key('missing:'+shift.shiftId).click();assert.equal(app.key('manual:endDate').value,'2027-01-01');const date=app.key('manual:endDate');date.value='2027-01-02';date.fire('input');const end=app.key('manual:end');end.value='10:00';end.fire('input');assert.equal(date.value,'2027-01-02');const reason=app.key('manual:reason');reason.value='Ekstra vagt aftalt';reason.fire('input');app.key('manual:save').click();await flush();assert.equal(app.key('manual:endDate').value,'2027-01-02');assert.equal(app.key('manual:approve'),undefined);app.panel.destroy();
+});
+
 test('missing registration forms are not available to payroll readers without management rights',async()=>{
  const app=setup(()=>frame({canManage:false,canClose:false,missingRegistrationCount:1,missingRegistrations:[{shiftId:'forgotten',personId:'person-A',personName:'Freja',date:'2026-10-05',start:'07:00',end:'08:00'}]}));await flush();assert.equal(app.key('missing:forgotten'),undefined);assert.equal(app.calls.some(call=>call.action==='timeWrite'),false);app.panel.destroy();
 });

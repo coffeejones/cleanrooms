@@ -4,6 +4,9 @@ import Time from '../src/timekeeping-model.js';
 import {legacyTimeActivityStatements} from './activity-store.mjs';
 
 export const TIME_ENTRY_BYTES=512*1024;
+// A late night check-in can start on work_date+1; a permitted 36h actual
+// registration can then reach work_date+3. Keep every overlap read symmetric.
+export const TIME_WORK_DATE_LOOKAROUND_DAYS=3;
 const PAGE_BYTES=1536*1024;
 const empty=()=>({schema:2,entries:[],demo:null});
 const statement=(db,sql,...values)=>db.prepare(sql).bind(...values);
@@ -76,7 +79,7 @@ export async function readTimeEntries({db,workspaceId,from,to,personId,includeDe
   if(metadata.length&&!selected.length)throw new RangeError('En ældre tidsregistrering er for stor. Kontakt administratoren for sikker arkivering.');
   const data=selected.length?await rows(db,`SELECT attendance.*,EXISTS (SELECT 1 FROM workspace_time_entries other
     WHERE other.workspace_id = attendance.workspace_id AND other.person_id = attendance.person_id AND other.demo = attendance.demo
-      AND other.work_date >= date(attendance.work_date,'-2 days') AND other.work_date <= date(attendance.work_date,'+2 days')
+      AND other.work_date >= date(attendance.work_date,'-${TIME_WORK_DATE_LOOKAROUND_DAYS} days') AND other.work_date <= date(attendance.work_date,'+${TIME_WORK_DATE_LOOKAROUND_DAYS} days')
       AND other.id <> attendance.id AND other.interval_start < attendance.interval_end AND other.interval_end > attendance.interval_start) AS has_overlap
     FROM json_each(?) chosen CROSS JOIN workspace_time_entries attendance WHERE attendance.workspace_id = ? AND attendance.id=json_extract(chosen.value,'$.id') AND attendance.version=json_extract(chosen.value,'$.version') AND length(CAST(attendance.config AS BLOB))<=json_extract(chosen.value,'$.bytes') ORDER BY attendance.work_date,attendance.id`,JSON.stringify(selected.map(({id,version,bytes})=>({id,version,bytes}))),workspaceId):[];
   if(data.length!==selected.length)throw new TimeEntryReadError(409,'time_conflict','Registreringerne ændrede sig under indlæsningen. Hent timerne igen.');
@@ -84,7 +87,7 @@ export async function readTimeEntries({db,workspaceId,from,to,personId,includeDe
 }
 
 export async function relatedTimeEntries({db,workspaceId,personId,date,demo}){
-  const data=await rows(db,`SELECT * FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND work_date >= ? AND work_date <= ? ORDER BY work_date,id LIMIT 5001`,workspaceId,personId,demo?1:0,Time.addDays(date,-2),Time.addDays(date,2));
+  const data=await rows(db,`SELECT * FROM workspace_time_entries WHERE workspace_id = ? AND person_id = ? AND demo = ? AND work_date >= ? AND work_date <= ? ORDER BY work_date,id LIMIT 5001`,workspaceId,personId,demo?1:0,Time.addDays(date,-TIME_WORK_DATE_LOOKAROUND_DAYS),Time.addDays(date,TIME_WORK_DATE_LOOKAROUND_DAYS));
   if(data.length>5000)throw new RangeError('Der er for mange registreringer for denne medarbejder og periode. Kontakt administratoren.');
   return data.map(decode);
 }

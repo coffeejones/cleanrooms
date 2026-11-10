@@ -1,6 +1,7 @@
 /* Continuous calendar presentation. Mutations remain in the application. */
 (() => {
   'use strict';
+  const clockLabel=shift=>shift.start+' – '+shift.end+(shift.end<shift.start?' +1 dag':'');
 
   const DAY = 86400000;
   const TRANSFER_TYPE = 'application/x-cleanrooms-shift';
@@ -189,7 +190,7 @@
       element.querySelectorAll('.is-drop-target, .is-drop-invalid, .is-drop-same').forEach(item => item.classList.remove('is-drop-target', 'is-drop-invalid', 'is-drop-same'));
       cell.classList.add(result.status === 'allowed' ? 'is-drop-target' : result.status === 'same' ? 'is-drop-same' : 'is-drop-invalid');
       dragStatus.dataset.state = result.status;
-      dragName.textContent = nameFor(shift) + ' · ' + shift.start + ' – ' + shift.end;
+      dragName.textContent = nameFor(shift) + ' · ' + clockLabel(shift);
       dragTarget.textContent = 'Til ' + fullDate(day);
       dragReason.textContent = result.reason;
       dragStatus.hidden = false;
@@ -214,7 +215,7 @@
       const issue = issueFor(shift);
       const button = node('button', 'cs-event' + (!shift.person ? ' is-open' : '') + (selected ? ' is-multi-selected' : '') + (changed ? ' is-changed' : '') + (issue ? ' has-issue' : ''));
       const name = nameFor(shift), site = siteFor(shift);
-      const description = name + ', ' + fullDate(shift.date) + ', ' + shift.start + ' – ' + shift.end + ', ' + site.name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : '') + (changed ? '. Ændret siden seneste udgivelse' : '') + (issue ? '. ' + issue.label + (issue.detail ? ' · ' + issue.detail : '') : '');
+      const description = name + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift) + ', ' + site.name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : '') + (changed ? '. Ændret siden seneste udgivelse' : '') + (issue ? '. ' + issue.label + (issue.detail ? ' · ' + issue.detail : '') : '');
       button.type = 'button';
       button.id = 'cs-calendar-event-' + encodeURIComponent(String(shift.id));
       button.dataset.shift = String(shift.id);
@@ -430,11 +431,11 @@
             header.type = 'button';
             header.dataset.groupDate = day; header.dataset.groupStart = timeGroup.start; header.dataset.groupEnd = timeGroup.end;
             header.setAttribute('aria-haspopup', 'dialog'); header.setAttribute('aria-expanded', 'false');
-            const label = 'Rediger tidsgruppe ' + timeGroup.start + ' – ' + timeGroup.end + ', ' + fullGroup.length + (fullGroup.length === 1 ? ' vagt, ' : ' vagter, ') + fullDate(day);
+            const label = 'Rediger tidsgruppe ' + clockLabel(timeGroup) + ', ' + fullGroup.length + (fullGroup.length === 1 ? ' vagt, ' : ' vagter, ') + fullDate(day);
             header.setAttribute('aria-label', label); header.title = label;
             header.addEventListener('click', event => { event.stopPropagation();if(available(day,header)){const current=(byDay.get(day)||[]).filter(shift=>shift.start===timeGroup.start&&shift.end===timeGroup.end);if(current.length)options.onEditGroup?.({date:day,start:timeGroup.start,end:timeGroup.end,shifts:current},header);} });
           } else { header.setAttribute('role', 'heading'); header.setAttribute('aria-level', '4'); }
-          header.append(node('span', 'cs-time-group-label', timeGroup.start + ' – ' + timeGroup.end));
+          header.append(node('span', 'cs-time-group-label', clockLabel(timeGroup)));
           const groupCount = node('span', 'cs-time-group-count', String(fullGroup.length));
           groupCount.setAttribute('aria-label', fullGroup.length + (fullGroup.length === 1 ? ' vagt' : ' vagter') + ' i tidsgruppen');
           header.append(groupCount);
@@ -481,12 +482,7 @@
         add.setAttribute('aria-label', 'Opret vagt ' + fullDate(day));
         add.addEventListener('click', () => {if(available(day,add))options.onCreate?.(day, add);});
         footer.append(add);
-        const hours = items.filter(shift => shift.person).reduce((sum, shift) => {
-          const [startHour, startMinute] = String(shift.start).split(':').map(Number);
-          const [endHour, endMinute] = String(shift.end).split(':').map(Number);
-          const duration = endHour + endMinute / 60 - startHour - startMinute / 60 - (shift.plannedBreakMinutes??0)/60;
-          return sum + (Number.isFinite(duration) ? Math.max(0, duration) : 0);
-        }, 0);
+        const hours=typeof options.dayHours==='function'?options.dayHours(day)/60:items.filter(shift=>shift.person).reduce((sum,shift)=>{const start=Number(shift.start.slice(0,2))*60+Number(shift.start.slice(3)),end=Number(shift.end.slice(0,2))*60+Number(shift.end.slice(3)),gross=end-start+(end<start?1440:0);return sum+Math.max(0,gross-(shift.plannedBreakMinutes??0))/60;},0);
         footer.append(node('div', 'cs-board-hours', Number(hours.toFixed(2)).toLocaleString('da-DK') + ' timer'));
         cell.append(footer);
         if (canMove) {
@@ -521,7 +517,7 @@
     const mountedKey=contextKey(options);
     function presentation(index){
       const date=addDays(options.from,index*7),state=stateFor(date),items=[],expansion=[];
-      for(let offset=0;offset<7;offset++){const day=addDays(date,offset);expansion.push(expandedDays.has(day));items.push([day,expandedDays.has(day),(byDay.get(day)||[]).map(shift=>{const site=siteFor(shift);return [String(shift.id),shift.person,shift.site,shift.date,shift.start,shift.end,shift.plannedBreakMinutes,shift.seriesId,shift.note,shift.noteRich,shift._instructions?{token:shift._instructions.token,hasDescription:shift._instructions.hasDescription}:null,nameFor(shift),site.name,site.color,selectedIds.has(String(shift.id)),changedIds.has(String(shift.id)),issueFor(shift)?{...issueFor(shift)}:null];})]);}
+      for(let offset=0;offset<7;offset++){const day=addDays(date,offset);expansion.push(expandedDays.has(day));items.push([day,expandedDays.has(day),typeof options.dayHours==='function'?options.dayHours(day):null,(byDay.get(day)||[]).map(shift=>{const site=siteFor(shift);return [String(shift.id),shift.person,shift.site,shift.date,shift.start,shift.end,shift.plannedBreakMinutes,shift.seriesId,shift.note,shift.noteRich,shift._instructions?{token:shift._instructions.token,hasDescription:shift._instructions.hasDescription}:null,nameFor(shift),site.name,site.color,selectedIds.has(String(shift.id)),changedIds.has(String(shift.id)),issueFor(shift)?{...issueFor(shift)}:null];})]);}
       return {body:[state.loaded===true,options.today>=date&&options.today<=addDays(date,6)?options.today:null,options.selectedDate>=date&&options.selectedDate<=addDays(date,6)?options.selectedDate:null,selectionMode,canSelect,canMove,typeof options.onEditGroup==='function',items],expansion,status:[state.loaded===true,state.loaded!==true&&state.loading===true,state.loaded!==true?state.error||'':'',state.loaded!==true&&Boolean(state.error)&&typeof options.onWeekRetry==='function',state.loaded===true?weekHours(date):null,state.loaded===true?weekCost(date):null,typeof options.onOpenWeekCost==='function']};
     }
     for(let index=0;index<weeks;index++){const section=buildWeek(index);element.append(section);weekEntries.set(index,{section,model:presentation(index)});}

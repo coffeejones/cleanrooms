@@ -85,7 +85,8 @@
   }
   function summary(entry){
     const range=span(entry),planned=plannedMinutes(entry)??0,plannedPause=plannedBreak(entry),workedMinutes=range?Math.max(0,range.minutes-entry.breakMinutes):0,flags=[];
-    if(minute(entry.start)!==null&&minute(entry.plannedStart)!==null&&minute(entry.start)>minute(entry.plannedStart))flags.push('late_start');
+    const actualStart=entry.timingResolved?entry.resolvedStartAt:entry.breakAllocation==='clocked'?entry.clockStartAt:null,actualStartDate=validInstant(actualStart)?localNow(new Date(actualStart)).date:entry.date;
+    if(minute(entry.start)!==null&&minute(entry.plannedStart)!==null&&actualStartDate+'T'+entry.start>entry.date+'T'+entry.plannedStart)flags.push('late_start');
     if(!entry.end)flags.push('missing_end');
     if(range&&workedMinutes>planned)flags.push('overtime');
     if(entry.breakMinutes>Math.max(30,plannedPause??0))flags.push('long_break');
@@ -99,7 +100,8 @@
     if(entry.status==='approved')return {bucket:'approved',reasons:[],priority:0};
     const flags=Array.isArray(entry.flags)?entry.flags:summary(entry).flags,knownFlags=new Set(['late_start','overtime','long_break','missing_end','corrected','overlap','dst_transition','employee_comment']);
     const currentDate=validDate(today)?today:localNow().date;
-    const active=['running','paused'].includes(entry.status)&&!entry.end&&validDate(entry.date)&&entry.date>=currentDate&&minute(entry.start)!==null;
+    const plannedEndDate=validDate(entry.date)&&minute(entry.plannedStart)!==null&&minute(entry.plannedEnd)!==null&&entry.plannedEnd<entry.plannedStart?addDays(entry.date,1):entry.date;
+    const active=['running','paused'].includes(entry.status)&&!entry.end&&validDate(entry.date)&&plannedEndDate>=currentDate&&minute(entry.start)!==null;
     if(active&&!flags.some(flag=>flag==='overlap'||flag==='dst_transition'||!knownFlags.has(flag)))return {bucket:'progress',reasons:[],priority:5};
     const reasons=[],weights=new Map();let priority=10;
     const add=(code,label,weight)=>{if(!reasons.some(reason=>reason.code===code))reasons.push({code,label});weights.set(code,Math.max(weights.get(code)||0,weight));priority=Math.max(priority,weight);};
@@ -153,7 +155,7 @@
     function matches(s,day,m){if(s.start===null)return available(s,day);const from=minute(s.start),to=minute(s.end);return to>from?available(s,day)&&m>=from&&m<to:(available(s,day)&&m>=from)||(available(s,addDays(day,-1))&&m<to);}
     function add(id,label,type,rateCents){const key=type+':'+id;let line=groups.get(key);if(!line){line={id:key,label,type,calculation:'hourly',rateCents,minutes:0,amountCents:0};groups.set(key,line);}line.minutes++;}
     let missing=false;
-    const exact=entry.timingResolved?exactInstants(entry):null;
+    const exact=exactInstants(entry);
     for(let offset=range.start;offset<range.end;offset++){
       if(pauses.some(p=>offset>=p.start&&offset<p.end))continue;
       const instantLocal=exact?localNow(new Date(exact.start+(offset-range.start)*60000)):null;

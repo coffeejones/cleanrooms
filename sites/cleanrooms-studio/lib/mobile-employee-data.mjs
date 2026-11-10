@@ -2,7 +2,7 @@
 import { StudioError } from './studio-store.mjs';
 import {readEmployeeMonthlyPay} from './employee-monthly-pay.mjs';
 import { readPublishedTimeShifts } from './publication-time-store.mjs';
-import { readTimeEntries } from './time-entry-store.mjs';
+import { readTimeEntries, TIME_WORK_DATE_LOOKAROUND_DAYS } from './time-entry-store.mjs';
 import Time from '../src/timekeeping-model.js';
 import Payroll from '../src/payroll-model.js';
 import Groups from '../src/payroll-groups-model.js';
@@ -100,7 +100,7 @@ export async function readMobileHours(db, employee, { from, to }) {
     fail(400, 'mobile_hours_period_invalid', 'Vælg en periode på højst 366 dage.');
   }
   const { workspaceId, personId } = employee;
-  const before = await frame(db, employee, {from,to}), lower = Time.addDays(from, -2);
+  const before = await frame(db, employee, {from,to}), lower = Time.addDays(from, -TIME_WORK_DATE_LOOKAROUND_DAYS);
   const counted = await first(db, `SELECT COUNT(*) AS n FROM workspace_published_shifts
     WHERE workspace_id=? AND person_id=? AND deleted=0 AND work_date>=? AND work_date<=?`, workspaceId, personId, lower, to);
   if ((counted?.n ?? 0) > maximumRows) fail(413, 'mobile_hours_period_full', 'Vælg en kortere periode for at se timerne.');

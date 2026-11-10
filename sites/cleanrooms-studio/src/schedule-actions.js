@@ -35,7 +35,7 @@
   }
 
   function onLeave(shift, blockedDates) {
-    return hasPerson(shift.person) && blockedDates.some(block => block && block.person === shift.person && block.date === shift.date);
+    return hasPerson(shift.person)?blockedDates.find(block=>block&&block.person===shift.person&&Engine.shiftDates(shift).includes(block.date))?.date||null:null;
   }
 
   function overlapMessage(shift, other, personName, internal = false) {
@@ -64,8 +64,8 @@
     if (!validTime(start) || !validTime(end)) {
       addIssue(null, 'time', 'Vælg gyldige tidspunkter i formatet TT:MM.'); return finish();
     }
-    if (end <= start) {
-      addIssue(null, 'time', 'Sluttidspunktet skal være efter starttidspunktet samme dag.'); return finish();
+    if (end === start) {
+      addIssue(null, 'time', 'Start og slut skal være forskellige; vagten må være kortere end 24 timer.'); return finish();
     }
     const currentById = new Map(existing.filter(Boolean).map(shift => [shift.id, shift]));
     const memberIds = new Set();
@@ -86,14 +86,14 @@
         const subject = hasPerson(member.person) ? 'Vagten for ' + personLabel(member.person, personName) : 'Den ledige vagt';
         addIssue(id, 'stale', subject + ' er ændret eller slettet. Åbn tidsgruppen igen.');
       }
-      const next={...member,start,end};
+      const next={...member,start,end};if(Object.hasOwn(member,'endDate'))next.endDate=Engine.shiftEndDate(next);
       if(!Engine.validPlannedBreak(next))addIssue(id,'break','Den planlagte pause skal være kortere end det nye tidsrum og et ikke-negativt helt antal minutter.');
       proposed.push(next);
     });
     const changed = members.some(member => member && typeof member === 'object' && (member.start !== start || member.end !== end));
     if (issues.length) return finish(proposed, changed);
     proposed.forEach(shift => {
-      if (onLeave(shift, blockedDates)) addIssue(shift.id, 'leave', personLabel(shift.person, personName) + ' har godkendt fravær den ' + dayLabel(shift.date) + '.');
+      if (onLeave(shift, blockedDates)) addIssue(shift.id, 'leave', personLabel(shift.person, personName) + ' har godkendt fravær den ' + dayLabel(onLeave(shift,blockedDates)) + '.');
     });
     Engine.conflicts(proposed, existing, [...memberIds]).forEach(({shift, other}) => {
       addIssue(shift.id, 'overlap', overlapMessage(shift, other, personName), other.id);
@@ -113,11 +113,11 @@
     if ((shift?.noteRich != null && typeof shift.noteRich !== 'string') || (current?.noteRich != null && typeof current.noteRich !== 'string')) return blocked('Den formaterede beskrivelse er ugyldig. Åbn vagten igen.');
     if (!sameSnapshot(shift, current)) return blocked('Vagten er ændret eller slettet. Vælg den igen i kalenderen.');
     if (targetDate === current.date) return {allowed:false, status:'same', reason:'Vagten ligger allerede på denne dato.', proposed:null};
-    if (!validTime(current.start) || !validTime(current.end) || current.end <= current.start) return blocked('Vagten har ugyldige tidspunkter. Åbn vagten igen.');
+    if (!validTime(current.start) || !validTime(current.end) || current.end === current.start) return blocked('Vagten har ugyldige tidspunkter. Åbn vagten igen.');
     if(!Engine.validPlannedBreak(current))return blocked('Vagtens planlagte pause er ugyldig. Åbn vagten igen.');
-    const proposed = {...current, date:targetDate};
+    const proposed = {...current, date:targetDate};if(Object.hasOwn(current,'endDate'))proposed.endDate=Engine.shiftEndDate(proposed);
     const blockedDates = Array.isArray(options.blockedDates) ? options.blockedDates : [];
-    if (onLeave(proposed, blockedDates)) return blocked(personLabel(proposed.person, personName) + ' har godkendt fravær den ' + dayLabel(targetDate) + '.');
+    if (onLeave(proposed, blockedDates)) return blocked(personLabel(proposed.person, personName) + ' har godkendt fravær den ' + dayLabel(onLeave(proposed,blockedDates)) + '.');
     const existing = Array.isArray(options.existing) ? options.existing : [];
     const conflicts = Engine.conflicts([proposed], existing, [proposed.id]);
     if (conflicts.length) return blocked(overlapMessage(proposed, conflicts[0].other, personName));

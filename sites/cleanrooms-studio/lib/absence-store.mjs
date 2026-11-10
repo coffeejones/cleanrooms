@@ -2,6 +2,7 @@
 import {isScoped,personPredicate,assertPersonAccess} from './department-access.mjs';
 import Data from '../src/studio-data.js';
 import Time from '../src/timekeeping-model.js';
+import Series from '../src/series-engine.js';
 import {StudioError} from './studio-store.mjs';
 import {archiveStatements} from './activity-store.mjs';
 import {employeeReferenceGuard} from './directory-references.mjs';
@@ -104,7 +105,7 @@ export function absencePlanStatements({db,context,before,next,condition}){
 
 export async function assertNoPublishedAbsence(db,workspaceId,shifts){
   for(let offset=0;offset<shifts.length;offset+=1000){
-    const selected=shifts.slice(offset,offset+1000).filter(shift=>shift.person).map(shift=>({person:shift.person,date:shift.date}));
+    const selected=shifts.slice(offset,offset+1000).filter(shift=>shift.person).flatMap(shift=>Series.shiftDates(shift).map(date=>({person:shift.person,date})));
     if(!selected.length)continue;
     const conflict=await first(db,`SELECT a.id,a.from_date FROM workspace_absences a JOIN json_each(?) s
       ON a.person_id=json_extract(s.value,'$.person') AND json_extract(s.value,'$.date') BETWEEN a.from_date AND a.to_date

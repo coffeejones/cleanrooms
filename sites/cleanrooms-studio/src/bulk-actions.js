@@ -44,8 +44,8 @@
     if (!['time', 'move', 'copy'].includes(operation)) {
       addIssue(null, 'operation', 'Vælg en gyldig handling for de markerede vagter.'); return finish();
     }
-    if (operation === 'time' && (!validTime(start) || !validTime(end) || end <= start)) {
-      addIssue(null, 'time', 'Vælg gyldige tidspunkter; sluttidspunktet skal være efter starttidspunktet samme dag.'); return finish();
+    if (operation === 'time' && (!validTime(start) || !validTime(end) || end === start)) {
+      addIssue(null, 'time', 'Vælg gyldige tidspunkter; start og slut skal være forskellige, og vagten skal være kortere end 24 timer.'); return finish();
     }
     if (operation !== 'time' && !Number.isSafeInteger(offset)) {
       addIssue(null, 'offset', 'Antallet af dage skal være et helt tal.'); return finish();
@@ -71,7 +71,7 @@
       if (!sameSnapshot(member, currentById.get(id))) {
         addIssue(id, 'stale', (assigned(member.person) ? 'Vagten for ' + person(member.person) : 'Den ledige vagt') + ' er ændret eller slettet. Vælg vagterne igen.');
       }
-      if (!validTime(member.start) || !validTime(member.end) || member.end <= member.start) {
+      if (!validTime(member.start) || !validTime(member.end) || member.end === member.start) {
         addIssue(id, 'time', 'En markeret vagt har ugyldige tidspunkter. Åbn vagten igen.'); return;
       }
       const date = operation === 'time' ? member.date : addDays(member.date, offset);
@@ -79,6 +79,7 @@
         addIssue(id, 'bounds', 'Vagten for ' + person(member.person) + ' ligger uden for kalenderens planlægningsperiode.'); return;
       }
       const next = {...member, date, ...(operation === 'time' ? {start, end} : {})};
+      if(Object.hasOwn(member,'endDate'))next.endDate=Engine.shiftEndDate(next);
       if(!Engine.validPlannedBreak(next)){addIssue(id,'break','Den planlagte pause skal være et ikke-negativt helt antal minutter og kortere end vagten.');return;}
       if (operation === 'copy') {
         const nextId = copyIds && Object.hasOwn(copyIds, id) ? copyIds[id] : null;
@@ -94,8 +95,9 @@
     if (issues.length) return finish(proposed, changed);
     if (operation === 'move' && offset === 0) return finish(proposed, false);
     proposed.forEach(shift => {
-      if (assigned(shift.person) && blockedDates.some(block => block && block.person === shift.person && block.date === shift.date)) {
-        addIssue(originById.get(shift.id), 'leave', person(shift.person) + ' har godkendt fravær den ' + dayLabel(shift.date) + '.');
+      const leave=assigned(shift.person)&&blockedDates.find(block=>block&&block.person===shift.person&&Engine.shiftDates(shift).includes(block.date));
+      if(leave){
+        addIssue(originById.get(shift.id),'leave',person(shift.person)+' har godkendt fravær den '+dayLabel(leave.date)+'.');
       }
     });
     const overlaps = (candidates, internal) => Engine.conflicts(proposed, candidates, internal || operation === 'copy' ? [] : [...memberIds]).forEach(({shift, other}) => {

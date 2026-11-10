@@ -18,6 +18,16 @@ test('legacy draft flags and entire unpublised plans never become employee shift
   assert.equal(Publication.scopeStatus(saved,{...week,siteIds:[0,1]}).published,false);
 });
 
+test('overnight shifts publish in their starting week while equal-time shifts remain invalid',()=>{
+  const night=shift('night',{date:'2026-11-01',start:'22:00',end:'06:00',plannedBreakMinutes:30}),saved=publish(studio({edits:{night}}));
+  assert.deepEqual(Publication.publishedShifts(saved,'p0'),[night]);
+  assert.deepEqual(Publication.validate(saved.publications),[]);
+  assert.equal(saved.publications.slots['2026-10-26|0'].shifts[0].date,'2026-11-01');
+  assert.equal(saved.publications.slots['2026-11-02|0'],undefined);
+  assert.equal(Publication.scopeStatus(saved,week).published,true);
+  for(const end of ['22:00','bad'])assert.throws(()=>publish(studio({edits:{night:{...night,end}}})),TypeError);
+});
+
 test('draft assignment, instructions, movement and deletion leave published occurrences unchanged',()=>{
   const original=publish(studio()),draft=structuredClone(original);
   draft.edits.one={...draft.edits.one,person:'p1',date:'2026-10-28',start:'08:00',note:'DRAFT SECRET'};draft.deleted=['one'];

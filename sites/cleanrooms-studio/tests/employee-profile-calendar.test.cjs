@@ -46,7 +46,7 @@ test('leap years, DST days and year navigation retain exact calendar days withou
 
 test('invalid identity, month, exact date, clocks and malformed lists throw rather than showing fabricated hours',()=>{
   for(const patch of [{person:null},{person:{id:''}},{person:{id:' p0'}},{month:'2026-2'},{month:'2026-13'},{month:'0000-01'},{month:'2026-02-01'},{today:'2026-02-29'},{today:'2026-04-31'},{shifts:null},{sites:{}}])assert.throws(()=>Calendar.build(options(patch)),TypeError,JSON.stringify(patch));
-  for(const patch of [{id:''},{id:' x'},{person:null},{date:'2026-02-30'},{date:'2026-10-1'},{site:-1},{site:'0'},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'07:00'},{start:'15:00',end:'15:00'},{note:{}},{noteRich:[]}])assert.throws(()=>Calendar.build(options({shifts:[shift('invalid','2026-10-31',patch)]})),TypeError,JSON.stringify(patch));
+  for(const patch of [{id:''},{id:' x'},{person:null},{date:'2026-02-30'},{date:'2026-10-1'},{site:-1},{site:'0'},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'07:99'},{start:'15:00',end:'15:00'},{note:{}},{noteRich:[]}])assert.throws(()=>Calendar.build(options({shifts:[shift('invalid','2026-10-31',patch)]})),TypeError,JSON.stringify(patch));
   assert.throws(()=>Calendar.build(options({month:'9999-12'})),RangeError);
 });
 

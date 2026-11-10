@@ -16,6 +16,6 @@ test('moving into another week preserves all its existing shifts and removes no 
  const result=Impact.preview(input({before:shift('a',0,{date:'2026-10-27'}),shifts:[shift('destination')]}));assert.equal(result.currentMinutes,480);assert.equal(result.deltaMinutes,480);
 });
 test('missing coverage, monthly budgets, malformed times and duplicate identities produce no misleading total',()=>{
- for(const extra of [{loaded:false},{budget:null},{budget:{period:'month',hours:100}},{after:shift('bad',0,{end:'07:00'})},{shifts:[shift('a'),shift('a')]}])assert.equal(Impact.preview(input(extra)),null);
+ for(const extra of [{loaded:false},{budget:null},{budget:{period:'month',hours:100}},{after:shift('bad',0,{end:'08:00'})},{shifts:[shift('a'),shift('a')]}])assert.equal(Impact.preview(input(extra)),null);
  const zero=Impact.preview(input({budget:{period:'week',hours:0},shifts:[]}));assert.equal(zero.remainingMinutes,-480);
 });

@@ -6,7 +6,7 @@
   const list=value=>Array.isArray(value)?value:[];
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(new Date(value+'T12:00:00Z').getTime())&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
   const dateLabel=value=>validDate(value)?new Date(value+'T12:00:00Z').toLocaleDateString('da-DK',{day:'numeric',month:'short',timeZone:'UTC'}):'Dato mangler';
-  const clock=shift=>typeof shift?.start==='string'&&typeof shift?.end==='string'?shift.start+'–'+shift.end:'Tid mangler';
+  const clock=shift=>typeof shift?.start==='string'&&typeof shift?.end==='string'?shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':''):'Tid mangler';
   const queueFor=request=>READY.has(request.status)?'ready':request.status==='awaiting_colleague'?'colleague':'closed';
   const beneficiary=request=>request.kind==='offer'?request.toName||'Medarbejder':request.fromName||'Medarbejder';
   const blocked=request=>Boolean(request.blockedReason||request.shiftCurrent===false||request.canApprove===false||list(request.conflicts).length);

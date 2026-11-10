@@ -252,7 +252,7 @@ test('per-weekday times and logical agreement ids survive exact durable roundtri
 test('malformed weekday maps and agreement ids fail before storage access',async()=>{
   let accessed=0;const db=()=>{accessed++;throw new Error('Invalid series must not open storage.');};
   const clock={start:'08:00',end:'16:00'};
-  const invalidTimes=[null,[],false,{'7':clock},{'01':clock},{'0':clock},{'1':null},{'1':[]},{'1':{start:'08:00'}},{'1':{start:'8:00',end:'16:00'}},{'1':{start:'16:00',end:'08:00'}},{'1':{...clock,timezone:'UTC'}}];
+  const invalidTimes=[null,[],false,{'7':clock},{'01':clock},{'0':clock},{'1':null},{'1':[]},{'1':{start:'08:00'}},{'1':{start:'8:00',end:'16:00'}},{'1':{start:'16:00',end:'16:00'}},{'1':{...clock,timezone:'UTC'}}];
   for(const dayTimes of invalidTimes){const response=await route(db,'PUT',{revision:0,studio:studio({series:[recurring({dayTimes})]})});assert.equal(response.status,400,JSON.stringify(dayTimes));assert.equal((await response.json()).error,'invalid_studio');}
   for(const groupId of [null,0,'',' invalid','invalid ','invalid/group','x'.repeat(161)])assert.equal((await route(db,'PUT',{revision:0,studio:studio({series:[recurring({groupId})]})})).status,400,JSON.stringify(groupId));
   assert.equal(accessed,0);

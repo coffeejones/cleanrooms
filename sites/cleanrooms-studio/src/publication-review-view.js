@@ -9,7 +9,7 @@
   const personOrder=new Intl.Collator('da-DK');
   const dateLabel=value=>validDate(value)?dateFormat.format(new Date(value+'T12:00:00Z')):'Dato mangler';
   const weekNumber=value=>{if(!validDate(value))return null;const date=new Date(value+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+3-((date.getUTCDay()+6)%7));const year=date.getUTCFullYear(),first=new Date(Date.UTC(year,0,4,12));first.setUTCDate(first.getUTCDate()+3-((first.getUTCDay()+6)%7));return 1+Math.round((date-first)/604800000);};
-  const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end:'Tid mangler';
+  const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':''):'Tid mangler';
   const valueFor=(shift,key)=>key==='plannedBreakMinutes'?shift?.[key]??0:key==='note'||key==='noteRich'?shift?.[key]??'':key==='site'&&shift?.[key]!==undefined?String(shift[key]):shift?.[key];
   const changed=(entry,key)=>valueFor(entry.before,key)!==valueFor(entry.after,key);
   const instructionChange=entry=>changed(entry,'note')||changed(entry,'noteRich');

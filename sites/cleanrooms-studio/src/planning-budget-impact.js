@@ -7,12 +7,12 @@
   function preview({budget,from,to,shifts,before,after,siteIds=null,loaded=false}={}) {
     if(!loaded||!Roster.validWorkHoursBudget(budget)||budget.period!=='week'||!validDate(from)||!validDate(to)||!validDate(after?.date)||after.date<from||after.date>to||!Array.isArray(shifts))return null;
     const sites=siteIds===null?null:new Set(siteIds);
-    const included=shift=>shift?.date>=from&&shift.date<=to&&(!sites||sites.has(shift.site));
+    const included=shift=>Series.shiftDates(shift).some(day=>day>=from&&day<=to)&&(!sites||sites.has(shift.site));
     const minutes=shift=>{
       if(shift?.plannedBreakMinutes!==undefined&&(!Number.isSafeInteger(shift.plannedBreakMinutes)||shift.plannedBreakMinutes<0))return null;
-      if(typeof shift?.start!=='string'||typeof shift?.end!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(shift.start)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(shift.end)||shift.end<=shift.start)return null;
-      const value=Series.plannedMinutes(shift);
-      return Number.isInteger(value)&&value>0?value:null;
+      if(typeof shift?.start!=='string'||typeof shift?.end!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(shift.start)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(shift.end)||shift.end===shift.start)return null;
+      const value=Series.plannedMinutesInRange(shift,from,to);
+      return Number.isInteger(value)&&value>=0?value:null;
     };
     if(minutes(after)===null)return null;
     const unique=new Map();

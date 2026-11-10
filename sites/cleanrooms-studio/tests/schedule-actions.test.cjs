@@ -36,7 +36,7 @@ test('same times produce a valid unchanged plan', () => {
 
 test('empty and invalid bulk times never create a committable plan', () => {
   assert.equal(Actions.planGroup(group({members:[]})).issues[0].code,'empty');
-  for (const times of [{start:''},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'15:00'},{start:'16:00',end:'08:00'}]) {
+  for (const times of [{start:''},{start:'7:00'},{end:'24:00'},{start:'15:00',end:'15:00'}]) {
     const result=Actions.planGroup(group(times)); assert.equal(result.ok,false); assert.equal(result.issues[0].code,'time'); assert.ok(result.error);
   }
 });

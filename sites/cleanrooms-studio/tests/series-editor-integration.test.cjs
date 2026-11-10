@@ -34,6 +34,8 @@ function application() {
     setAttribute(name,value){this.attributes.set(name,String(value));}
     removeAttribute(name){this.attributes.delete(name);}
     getAttribute(name){return this.attributes.get(name)??null;}
+    querySelectorAll(selector){const descendants=this.children.flatMap(child=>child instanceof Element?[child,...child.querySelectorAll('*')]:[]);return descendants.filter(child=>selector==='*'||selector.startsWith('.')?selector==='*'||String(child.className||'').split(' ').includes(selector.slice(1)):(()=>{const match=selector.match(/^\[data-([\w-]+)(?:="([^"]*)")?\]$/);if(!match)return child.tagName===selector.toUpperCase();const key=match[1].replace(/-([a-z])/g,(_all,letter)=>letter.toUpperCase());return Object.hasOwn(child.dataset,key)&&(match[2]===undefined||child.dataset[key]===match[2]);})());}
+    querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
     focus(){this.focused=true;}
     scrollIntoView(){}
     reportValidity(){return true;}
@@ -585,14 +587,14 @@ test('the first group upgrade still rejects a real peer change to an already obs
 
 const conflictFixtureAdd=(day,count)=>{const value=new Date(day+'T12:00:00Z');value.setUTCDate(value.getUTCDate()+count);return value.toISOString().slice(0,10);};
 const conflictFixtureSort=shifts=>plain(shifts).sort((left,right)=>left.id.localeCompare(right.id));
-function priorWeeklyConflicts(app,weeks,data){const result=new Map();for(const first of new Set(weeks))for(const shift of app.conflictShiftsInRange(first,conflictFixtureAdd(first,6),data))result.set(shift.id,shift);return [...result.values()];}
+function priorWeeklyConflicts(app,weeks,data){const result=new Map();for(const first of new Set(weeks))for(const shift of app.conflictShiftsInRange(conflictFixtureAdd(first,-1),conflictFixtureAdd(first,7),data))result.set(shift.id,shift);return [...result.values()];}
 
 test('coalesced conflict reads preserve exactly the requested week union, moved exceptions and suppressions',()=>{
  const app=application(),Engine=require('../src/series-engine.js'),first='2026-10-26',source={id:'coalesced-source',person:'p0',site:0,startDate:first,endDate:'2027-04-25',weekdays:[0,2],start:'07:00',end:'15:00',note:''},regular=Engine.enumerate(source),moved={...regular[0],date:'2028-05-03',person:'p1',site:2,note:'Moved outside the source period'};
  const neighboring={id:'coalesced-neighbor',person:'p0',site:1,startDate:first,endDate:'2027-04-25',weekdays:[0],start:'10:00',end:'12:00',note:''},gap={id:'gap-only',person:'p0',site:0,date:'2027-08-02',start:'07:00',end:'15:00',note:''};
  Object.assign(app.state,{demoSeed:false,series:[source,neighboring],edits:{[moved.id]:moved,[gap.id]:gap},deleted:[regular[1].id]});
  const weeks=[...Array.from({length:26},(_,index)=>conflictFixtureAdd(first,index*7)),'2028-05-01',first],before=plain(app.state),expected=priorWeeklyConflicts(app,weeks,app.state),reads=app.traceConflictReads(),actual=app.conflictShiftsForWeeks(weeks,app.state);
- assert.deepEqual(conflictFixtureSort(actual),conflictFixtureSort(expected));assert.equal(actual.some(shift=>shift.id===moved.id&&shift.date===moved.date),true);assert.equal(actual.some(shift=>shift.id===regular[1].id||shift.id===gap.id),false);assert.deepEqual(plain(reads),[{from:first,to:'2027-04-25'},{from:'2028-05-01',to:'2028-05-07'}]);assert.deepEqual(plain(app.state),before);
+ assert.deepEqual(conflictFixtureSort(actual),conflictFixtureSort(expected));assert.equal(actual.some(shift=>shift.id===moved.id&&shift.date===moved.date),true);assert.equal(actual.some(shift=>shift.id===regular[1].id||shift.id===gap.id),false);assert.deepEqual(plain(reads),[{from:'2026-10-25',to:'2027-04-26'},{from:'2028-04-30',to:'2028-05-08'}]);assert.deepEqual(plain(app.state),before);
 });
 
 test('annual and sparse conflict ranges stay within the day limit without loading intervening unrequested weeks',()=>{
@@ -600,7 +602,7 @@ test('annual and sparse conflict ranges stay within the day limit without loadin
   const app=application(),first='2026-10-26';Object.assign(app.state,{demoSeed:false,series:[],edits:{},deleted:[]});
   const weeks=indexes.map(index=>conflictFixtureAdd(first,index*7)),reads=app.traceConflictReads();assert.deepEqual(plain(app.conflictShiftsForWeeks(weeks)),[]);
   assert.ok(reads.every(range=>(Date.parse(range.to)-Date.parse(range.from))/86400000+1<=364));
-  const covered=[];for(const range of reads)for(let day=range.from;day<=range.to;day=conflictFixtureAdd(day,7))covered.push(day);
+  const covered=[];for(const range of reads)for(let day=conflictFixtureAdd(range.from,1);day<range.to;day=conflictFixtureAdd(day,7))covered.push(day);
   assert.deepEqual(covered,[...new Set(weeks)].sort());assert.equal(reads.length,indexes.length===53?2:4);const count=reads.length;assert.deepEqual(plain(app.conflictShiftsForWeeks([])),[]);assert.equal(reads.length,count);
  }
 });
@@ -608,6 +610,6 @@ test('annual and sparse conflict ranges stay within the day limit without loadin
 test('a six-month editor preview materializes conflict context twice while preserving actual overlap and save rules',()=>{
  const app=application(),first='2026-10-26',source={id:'preview-source',person:'p0',site:0,startDate:first,endDate:'2027-04-25',weekdays:[0,2],start:'07:00',end:'15:00',note:''};
  Object.assign(app.state,{demoSeed:false,series:[source],edits:{},deleted:[]});app.openSeriesEditor(source);app.scope('all');app.control('#cs-edit-start').value='08:00';app.control('#cs-edit-end').value='16:00';
- const reads=app.traceConflictReads();app.updatePreview();assert.equal(reads.length,2,'Staffing and the calendar each materialize one combined range, instead of 26 weekly ranges');assert.ok(reads.every(range=>range.from===first&&range.to==='2027-04-25'));assert.equal(app.control('#cs-save').disabled,false);assert.equal(app.persisted(),0);
+ const reads=app.traceConflictReads();app.updatePreview();assert.equal(reads.length,2,'Staffing and the calendar each materialize one combined range, instead of 26 weekly ranges');assert.ok(reads.every(range=>range.from==='2026-10-25'&&range.to==='2027-04-26'));assert.equal(app.control('#cs-save').disabled,false);assert.equal(app.persisted(),0);
  const collision={id:'preserved-peer',person:'p0',site:1,date:'2027-02-01',start:'10:00',end:'12:00',note:''};app.state.edits[collision.id]=collision;reads.length=0;app.updatePreview();assert.equal(reads.length,2);assert.equal(app.control('#cs-save').disabled,true);assert.match(app.control('#cs-series-calendar').textContent,/Overlap|konflikt/);app.save();assert.equal(app.persisted(),0);assert.equal(app.state.series[0].start,'07:00');
 });

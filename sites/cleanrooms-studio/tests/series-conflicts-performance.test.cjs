@@ -19,15 +19,9 @@ function brute(proposed, existing, excludeIds = []) {
   const order = (a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)) || String(a.id).localeCompare(String(b.id));
   const candidates = (Array.isArray(proposed) ? proposed : [proposed]).filter(Boolean).slice().sort(order);
   const others = (Array.isArray(existing) ? existing : []).filter(shift => shift && !excluded.has(shift.id)).slice().sort(order);
-  const result = [];
-  for (const shift of candidates) {
-    if (!present(shift.person) || !validDate(shift.date) || !validTime(shift.start) || !validTime(shift.end) || shift.end <= shift.start) continue;
-    for (const other of others) {
-      if ((present(shift.id) && shift.id === other.id) || other.person !== shift.person || other.date !== shift.date) continue;
-      if (!validTime(other.start) || !validTime(other.end) || other.end <= other.start) continue;
-      if (shift.start < other.end && other.start < shift.end) result.push({shift, other, type: 'overlap'});
-    }
-  }
+  const interval=shift=>{if(!validDate(shift.date)||!validTime(shift.start)||!validTime(shift.end)||shift.start===shift.end)return null;const base=Date.parse(shift.date+'T00:00:00Z'),start=base+(Number(shift.start.slice(0,2))*60+Number(shift.start.slice(3)))*60000;return {start,end:base+(Number(shift.end.slice(0,2))*60+Number(shift.end.slice(3))+(shift.end<shift.start?1440:0))*60000};};
+  const result=[];
+  for(const shift of candidates){const left=interval(shift);if(!present(shift.person)||!left)continue;for(const other of others){if((present(shift.id)&&shift.id===other.id)||other.person!==shift.person)continue;const right=interval(other);if(right&&left.start<right.end&&right.start<left.end)result.push({shift,other,type:'overlap'});}}
   return result;
 }
 

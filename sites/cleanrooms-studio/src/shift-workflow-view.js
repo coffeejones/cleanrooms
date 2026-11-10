@@ -7,7 +7,7 @@
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(new Date(value+'T12:00:00Z').getTime())&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
   const dateLabel=(value,full=false)=>validDate(value)?new Date(value+'T12:00:00Z').toLocaleDateString('da-DK',{weekday:full?'long':'short',day:'numeric',month:'short',timeZone:'UTC'}):'Dato mangler';
   const stamp=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?d.toLocaleString('da-DK',{dateStyle:'short',timeStyle:'short'}):'';};
-  const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end:'—';
+  const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':''):'—';
   const sortNewest=(a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))||String(b.id||'').localeCompare(String(a.id||''));
   const list=value=>Array.isArray(value)?value:[];
   const titleFor=item=>KIND[item.kind]||item.summary||'Besked om din vagt';

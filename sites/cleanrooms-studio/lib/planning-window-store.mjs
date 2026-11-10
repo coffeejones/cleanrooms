@@ -1,9 +1,11 @@
 /* Period-scoped planner reads. Full authoritative writes continue through studio-store. */
 import Planning from '../src/planning-records.js';
+import Data from '../src/studio-data.js';
+import Scope from '../src/planning-scope.js';
 import Window from '../src/planning-window.js';
 import {currentCalendarSummary,packCalendarSummary,unpackCalendarSummary,calendarSummaryChunks} from './planning-calendar-summary.mjs';
 import {decodePlanningRecord,planWindowFields,trimPlanningSnapshot,PlanningStoreError} from './planning-store.mjs';
-import {publicationWindowPage,projectPublicationWindow} from './publication-store.mjs';
+import {publicationWindowPage,projectPublicationWindow,publicationAvailabilityPage,publicationAvailabilityQuery} from './publication-store.mjs';
 import {projectStudioAccess} from './department-access.mjs';
 import {planningRecordPredicate,planningScopeStamp,filterPlanningRows} from './department-planning-access.mjs';
 import {storedScheduleErrors} from './planning-validation.mjs';
@@ -29,10 +31,10 @@ export function decodeWindowCursor(value){
   try{
     if(typeof value!=='string'||value.length>16384||!/^[A-Za-z0-9_-]+$/.test(value))throw Error('cursor');
     const parsed=JSON.parse(decode.decode(Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')),letter=>letter.charCodeAt(0))));
-    if(parsed.v!==1||typeof parsed.workspace!=='string'||!Number.isSafeInteger(parsed.revision)||typeof parsed.token!=='string'||!Number.isSafeInteger(parsed.absenceVersion)||!['draft','publication'].includes(parsed.phase))throw Error('cursor');
+    if(parsed.v!==1||typeof parsed.workspace!=='string'||!Number.isSafeInteger(parsed.revision)||typeof parsed.token!=='string'||!Number.isSafeInteger(parsed.absenceVersion)||!['draft','publication','availability','published-availability'].includes(parsed.phase))throw Error('cursor');
     Window.normalize({mode:'calendar',from:parsed.from,to:parsed.to});
     if(parsed.instructions!==undefined&&parsed.instructions!=='deferred')throw Error('cursor');
-    if(parsed.phase==='draft'&&parsed.after!==null&&(!parsed.after||!['series','shift','week'].includes(parsed.after.kind)||typeof parsed.after.id!=='string'||parsed.after.id.length>512))throw Error('cursor');
+    if(['draft','availability'].includes(parsed.phase)&&parsed.after!==null&&(!parsed.after||!['series','shift','week'].includes(parsed.after.kind)||typeof parsed.after.id!=='string'||parsed.after.id.length>512))throw Error('cursor');
     return parsed;
   }catch{fail(400,'planning_window_cursor_invalid','Kalenderens sidehenvisning er ugyldig. Hent perioden igen.');}
 }
@@ -113,7 +115,11 @@ export async function draftWindowPage({db,workspaceId,studio,projection,after=nu
 }
 
 export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor=null,instructions,context}){
-  const absence=(await first(db,'SELECT version FROM workspace_absence_imports WHERE workspace_id=?',workspaceId))?.version||0;
+  const neighborRanges=[add(projection.from,-1),add(projection.to,1)].filter(day=>day>=Data.minDate&&day<=Data.maxDate).map(day=>({from:day,to:day}));
+  const availabilityStore=await import('./planning-selection-store.mjs');
+  const draftQuery=availabilityStore.planningAvailabilityQuery({workspaceId,ranges:neighborRanges,context,after:cursor?.phase==='availability'?cursor.after:null}),publishedQuery=publicationAvailabilityQuery({workspaceId,ranges:neighborRanges,context,cursor:cursor?.phase==='published-availability'?cursor.after:null});
+  // Independent bounded neighbor headers share the existing generation read.
+  const initial=await db.batch([statement(db,'SELECT version FROM workspace_absence_imports WHERE workspace_id=?',workspaceId),statement(db,draftQuery.sql,...draftQuery.values),statement(db,publishedQuery.sql,...publishedQuery.values)]),absence=initial[0]?.results?.[0]?.version||0;
   if(cursor&&(cursor.workspace!==workspaceId||cursor.revision!==raw.revision||cursor.token!==raw.source.token||cursor.from!==projection.from||cursor.to!==projection.to||cursor.absenceVersion!==absence||cursor.instructions!==instructions||(cursor.access??null)!==planningScopeStamp(context)))fail(409,'planning_window_conflict','Planen eller fraværet er ændret. Hent kalenderperioden igen.');
   const records=[],publicationRows=[],auxRows=[],versions={},deferred=[],recordWindows={},pageRows=instructions==='deferred'?DEFERRED_PAGE_ROWS:PAGE_ROWS;let next=null;
   const base={v:1,workspace:workspaceId,revision:raw.revision,token:raw.source.token,absenceVersion:absence,from:projection.from,to:projection.to,...(instructions?{instructions}:{}),...(planningScopeStamp(context)?{access:planningScopeStamp(context)}:{})};
@@ -122,8 +128,22 @@ export async function readWindowPage({db,workspaceId,owner,raw,projection,cursor
     if(page.nextAfter)next={...base,phase:'draft',after:page.nextAfter};
     else if(records.length<pageRows&&page.bytes<=PAGE_BYTES-1024){const published=await publicationWindowPage({db,workspaceId,...projection,instructions,context,cursor:null,maxRows:pageRows-records.length,maxBytes:PAGE_BYTES-page.bytes});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};}
     else next={...base,phase:'publication',after:null};
-  }else{
+  }else if(cursor.phase==='publication'){
     const published=await publicationWindowPage({db,workspaceId,...projection,instructions,context,cursor:cursor.after||null,maxRows:pageRows,maxBytes:PAGE_BYTES});publicationRows.push(...published.rows);auxRows.push(...published.auxRows||[]);if(published.nextCursor)next={...base,phase:'publication',after:published.nextCursor};
+  }
+  // Only the two neighboring civil days are extra. They support spill-over
+  // minutes and cross-midnight conflict checks without widening writable rows.
+  if(!next){
+    let phase=['availability','published-availability'].includes(cursor?.phase)?cursor.phase:'availability',after=phase===cursor?.phase?cursor.after:null;
+    if(neighborRanges.length)for(let count=0;count<2;count++){
+      const remaining=pageRows-records.length-publicationRows.length-auxRows.length,bytes=PAGE_BYTES-encode.encode(JSON.stringify({records,publicationRows,auxRows})).length-1024;
+      if(remaining<1||bytes<1024){next={...base,phase,after};break;}
+      const options={db,workspaceId,ranges:neighborRanges,context,maxRows:Math.min(500,remaining),maxBytes:bytes,allowOversized:records.length+publicationRows.length+auxRows.length===0};
+      const page=phase==='availability'?await availabilityStore.planningAvailabilityPage({...options,after,preloadedHeaders:initial[1]?.results||[]}):await publicationAvailabilityPage({...options,cursor:after,preloadedHeaders:initial[2]?.results||[]});
+      auxRows.push(...page.auxRows);
+      if(page.blocked||page.nextCursor){next={...base,phase,after:page.nextCursor||after};break;}
+      if(phase==='published-availability')break;phase='published-availability';after=null;
+    }
   }
   for(const row of records){
     if(storedScheduleErrors(row.kind,row.id,row.value).length)fail(409,'planning_schedule_repair_required','Den gemte '+(row.kind==='series'?'vagtserie':'vagt')+' '+row.id+' har ugyldige tider eller datoer. Ret eller fjern posten, før kalenderperioden åbnes.');
@@ -145,6 +165,9 @@ export function projectStudioWindow(studio,planning,scope,touchedChanges=[]){
   for(const change of touchedChanges)if(!chosen.has(Planning.key(change.kind,change.id)))chosen.set(Planning.key(change.kind,change.id),{kind:change.kind,id:change.id,value:null,sortOrder:0});
   const versions={},records=[];for(const row of chosen.values()){const key=Planning.key(row.kind,row.id),version=planning.versions[key];if(!Number.isSafeInteger(version)||version<1)continue;versions[key]=version;records.push({...row,version});}
   const publicationRows=projectPublicationWindow(studio,projection),publishedKeys=new Set(publicationRows.filter(row=>row.kind==='shift').map(row=>JSON.stringify([row.id,row.value.shift.person]))),progress=Object.fromEntries(Object.entries(studio.checklistProgress||{}).filter(([key])=>publishedKeys.has(key)));
-  const collector=Window.collector(projection,{maxBytes:Infinity,maxRecords:Infinity});collector.add({revision:0,studio:windowMetadata(studio),planning:{schema:1,partial:true,projection,versions,metadataHash:planning.metadataHash},records,publicationRows,auxRows:[],progress,nextCursor:null});
-  const result=collector.finish();delete result.studio.absences;delete result.studio.requests;delete result.studio.leaveDecisions;return {studio:result.studio,planning:result.planning};
+  const days=[add(projection.from,-1),add(projection.to,1)].filter(day=>day>=Data.minDate&&day<=Data.maxDate),availability=all.filter(row=>{if(row.kind==='week')return false;const fields=planWindowFields(row,planning.versions[Planning.key(row.kind,row.id)]||0,studio.calendarAnchor);return days.some(day=>fields.from<=day&&fields.to>=day||fields.origin===day);}).map(row=>Scope.summary(row.kind,row.id,row.value)),parentsNeeded=new Set(availability.filter(row=>row.kind==='shift').map(row=>row.value?.edit?.seriesId||(row.id.at(-11)==='@'&&Scope.validDate(row.id.slice(-10))?row.id.slice(0,-11):null)).filter(Boolean));
+  for(const row of all)if(row.kind==='series'&&parentsNeeded.has(row.id)&&!availability.some(value=>value.kind==='series'&&value.id===row.id))availability.push(Scope.summary(row.kind,row.id,row.value));
+  const neighbors=Object.values(studio.publications?.slots||{}).flatMap(slot=>slot.shifts).filter(shift=>days.includes(shift.date)).map(shift=>({kind:'published',id:shift.id,value:Scope.compact('published',shift.id,shift)})),auxRows=[...availability,...neighbors].map(value=>({kind:'availability',id:Planning.key(value.kind,value.id),value}));
+  const collector=Window.collector(projection,{maxBytes:Infinity,maxRecords:Infinity});collector.add({revision:0,studio:windowMetadata(studio),planning:{schema:1,partial:true,projection,versions,metadataHash:planning.metadataHash},records,publicationRows,auxRows,progress,nextCursor:null});
+  const result=collector.finish();delete result.studio.absences;delete result.studio.requests;delete result.studio.leaveDecisions;return {studio:result.studio,planning:result.planning,...(result.availability?{availability:result.availability}:{})};
 }

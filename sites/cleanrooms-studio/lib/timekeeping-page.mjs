@@ -4,6 +4,7 @@ import Time from '../src/timekeeping-model.js';
 import Groups from '../src/payroll-groups-model.js';
 import {readPublishedTimeShifts} from './publication-time-store.mjs';
 import {classifyPayrollEntry,payrollProblemKeys} from './payroll-period-problems.mjs';
+import {TIME_WORK_DATE_LOOKAROUND_DAYS} from './time-entry-store.mjs';
 
 const BATCH=500,PAGE_BYTES=1536*1024,queues=new Set(['all','attention','ready','progress','approved']);
 const query=(db,sql,...values)=>db.prepare(sql).bind(...values);
@@ -19,7 +20,7 @@ const compactFields=['id','version','shiftId','personId','date','site','plannedS
 const whitespace='char('+[9,10,11,12,13,32,160,5760,...Array.from({length:11},(_,i)=>8192+i),8232,8233,8239,8287,12288,65279].join(',')+')';
 const fieldSql=key=>{const value="json_extract(attendance.config,'$."+key+"')";return ['demo','timingResolved','dstUnresolved'].includes(key)?"CASE json_type(attendance.config,'$."+key+"') WHEN 'true' THEN json('true') WHEN 'false' THEN json('false') ELSE "+value+" END":value;};
 const compact=`json_object(${compactFields.flatMap(key=>["'"+key+"'",fieldSql(key)]).join(',')},'comment',CASE WHEN trim(COALESCE(json_extract(attendance.config,'$.comment'),''),${whitespace})<>'' THEN 'Kommentar' ELSE '' END,'correctionReason',CASE WHEN trim(COALESCE(json_extract(attendance.config,'$.correctionReason'),''),${whitespace})<>'' THEN 'Rettet' ELSE '' END,'payroll',CASE WHEN json_type(attendance.config,'$.payroll')='object' THEN json_object('totalCents',json_extract(attendance.config,'$.payroll.totalCents'),'baseCents',json_extract(attendance.config,'$.payroll.baseCents'),'supplementCents',json_extract(attendance.config,'$.payroll.supplementCents'),'unavailableReason',json_extract(attendance.config,'$.payroll.unavailableReason')) ELSE NULL END)`;
-const overlap=`EXISTS (SELECT 1 FROM workspace_time_entries other WHERE other.workspace_id=attendance.workspace_id AND other.person_id=attendance.person_id AND other.demo=attendance.demo AND other.work_date>=date(attendance.work_date,'-2 days') AND other.work_date<=date(attendance.work_date,'+2 days') AND other.id<>attendance.id AND other.interval_start<attendance.interval_end AND other.interval_end>attendance.interval_start)`;
+const overlap=`EXISTS (SELECT 1 FROM workspace_time_entries other WHERE other.workspace_id=attendance.workspace_id AND other.person_id=attendance.person_id AND other.demo=attendance.demo AND other.work_date>=date(attendance.work_date,'-${TIME_WORK_DATE_LOOKAROUND_DAYS} days') AND other.work_date<=date(attendance.work_date,'+${TIME_WORK_DATE_LOOKAROUND_DAYS} days') AND other.id<>attendance.id AND other.interval_start<attendance.interval_end AND other.interval_end>attendance.interval_start)`;
 
 // Checking rate coverage does not need minute-by-minute wage lines. Pause-only
 // dates do not require a rate, exactly as in Time.payroll's paid-minute loop.
@@ -31,10 +32,11 @@ export function payrollCoverage(entry,resolved){
     // Rare resolved DST crossings need the existing exact-instant arithmetic.
     return !Time.payroll(entry,resolved).unavailableReason;
   }
+  const startDate=Time.validInstant(exact)?Time.localNow(new Date(exact)).date:entry.date;
   for(let day=Math.floor(range.start/1440);day<=Math.floor((range.end-1)/1440);day++){
     const from=Math.max(range.start,day*1440),to=Math.min(range.end,(day+1)*1440),paused=pauses.reduce((sum,pause)=>sum+Math.max(0,Math.min(to,pause.end)-Math.max(from,pause.start)),0);
     if(to-from<=paused)continue;
-    const date=Time.addDays(entry.date,day);
+    const date=Time.addDays(startDate,day);
     if(!agreements.some(agreement=>agreement.from<=date)||resolved.missingBasePeriods?.some(period=>date>=period.from&&date<=period.to))return false;
   }
   return true;

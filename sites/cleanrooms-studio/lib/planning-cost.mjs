@@ -32,15 +32,16 @@ export async function readPlanningCost({db,context,payload,helpers:h}){
     siteIndices=new Set(scope.kind==='site'?[record.siteIndex]:record.value.siteIds);
     if(isScoped(context))for(const site of siteIndices)assertSiteAccess(context,site);
   }
-  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,[range],{maxRecords:20000,maxBytes:8*1024*1024,context}),draft=Scope.summaryStudio(summaries),suppressed=new Set(draft.deleted),rows=[];
+  const readRange={from:Scope.add(range.from,-1)<Data.minDate?Data.minDate:Scope.add(range.from,-1),to:range.to};
+  const summaries=await readPlanningScheduleSummaries(db,context.workspace.id,[readRange],{maxRecords:20000,maxBytes:8*1024*1024,context}),draft=Scope.summaryStudio(summaries),suppressed=new Set(draft.deleted),rows=[];
   const add=shift=>{
-    if(shift.date<range.from||shift.date>range.to||suppressed.has(shift.id)||siteIndices&&!siteIndices.has(shift.site))return;
+    if(!(Series.plannedMinutesInRange(shift,range.from,range.to)>0)||suppressed.has(shift.id)||siteIndices&&!siteIndices.has(shift.site))return;
     if(rows.length>=Cost.MAX_SHIFTS)h.fail(413,'planning_cost_too_large','Vælg et mindre område til lønestimatet.');
     rows.push(Object.fromEntries(['id','person','site','date','start','end','plannedBreakMinutes'].filter(key=>shift[key]!==undefined).map(key=>[key,shift[key]])));
   };
   const original=shift=>{if(!Object.hasOwn(draft.edits,shift.id))add(shift);};
-  if(frame.demoSeed){const people=await timekeepingPeople({db,context,personIds:Data.staff.map(person=>person.id)});for(const shift of Data.seededShifts(range.from,range.to,{roster:people,demoSeed:true}))original(shift);}
-  for(const series of draft.series)if(series.startDate<=range.to&&series.endDate>=range.from)for(const shift of Series.enumerate(series,range))original(shift);
+  if(frame.demoSeed){const people=await timekeepingPeople({db,context,personIds:Data.staff.map(person=>person.id)});for(const shift of Data.seededShifts(readRange.from,readRange.to,{roster:people,demoSeed:true}))original(shift);}
+  for(const series of draft.series)if(series.startDate<=range.to&&series.endDate>=readRange.from)for(const shift of Series.enumerate(series,readRange))original(shift);
   for(const shift of Object.values(draft.edits))add(shift);
   const ids=[...new Set(rows.map(shift=>shift.person).filter(Boolean))];
   if(ids.length>Cost.MAX_PEOPLE)h.fail(413,'planning_cost_too_large','Vælg et mindre område til lønestimatet.');

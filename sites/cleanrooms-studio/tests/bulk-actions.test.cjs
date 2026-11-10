@@ -52,9 +52,9 @@ test('copy IDs must be supplied, unique and absent from source and target schedu
   }
 });
 
-test('invalid operations, times and reversed time ranges cannot be committed',()=>{
+test('invalid operations, times and equal start and end times cannot be committed',()=>{
   assert.equal(Bulk.plan(options({operation:'delete'})).issues[0].code,'operation');
-  for(const times of [{start:'7:00',end:'15:00'},{start:'07:00',end:'24:00'},{start:'15:00',end:'07:00'},{start:'15:00',end:'15:00'}])assert.equal(Bulk.plan(options({operation:'time',...times})).issues[0].code,'time');
+  for(const times of [{start:'7:00',end:'15:00'},{start:'07:00',end:'24:00'},{start:'15:00',end:'15:00'}])assert.equal(Bulk.plan(options({operation:'time',...times})).issues[0].code,'time');
   const member=shift('a',{start:'7:00'});assert.ok(Bulk.plan(options({members:[member],existing:[member]})).issues.some(issue=>issue.code==='time'));
 });
 

@@ -7,7 +7,9 @@
   const format = (value,options) => date(value).toLocaleDateString('da-DK',{timeZone:'UTC',...options});
   const shortDate = value => format(value,{day:'numeric',month:'short'});
   const fullDate = value => format(value,{weekday:'long',day:'numeric',month:'long'});
-  const duration = shift => {const gross=Number(shift.end.slice(0,2))*60+Number(shift.end.slice(3))-Number(shift.start.slice(0,2))*60-Number(shift.start.slice(3)),pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes;return Number.isSafeInteger(pause)&&pause>=0&&pause<gross?gross-pause:0;};
+  const engine=()=>globalThis.CleanRoomsSeries||(typeof require==='function'?require('./series-engine.js'):null);
+  const duration=shift=>engine().plannedMinutes(shift);
+  const clockLabel=shift=>shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':'');
   const hours = minutes => Math.floor(minutes/60) + (minutes%60 ? ' t ' + minutes%60 + ' min' : ' timer');
   const compactTime = time => time.endsWith(':00') ? time.slice(0,2) : time;
   const focusKey = element => element?.dataset?.taskKey ? {task:element.dataset.taskKey} : element?.dataset?.employeeShift ? {shift:element.dataset.employeeShift} : element?.dataset?.employeeView ? {view:element.dataset.employeeView} : element?.dataset?.employeeDate ? {day:element.dataset.employeeDate} : element?.id ? {id:element.id} : null;
@@ -22,9 +24,9 @@
     const min=Calendar.validDate(options.minDate)?options.minDate:Calendar.MIN_DATE,max=Calendar.validDate(options.maxDate)?options.maxDate:Calendar.MAX_DATE;
     const focusDate=Calendar.clamp(Calendar.validDate(options.focusDate)?options.focusDate:Calendar.validDate(options.weekStart)?options.weekStart:today,min,max),period=Calendar.range(viewName,focusDate);
     const personal=(Array.isArray(options.shifts)?options.shifts:[]).filter(shift=>shift&&shift.person===person.id&&Calendar.validDate(shift.date)&&typeof shift.start==='string'&&typeof shift.end==='string').slice().sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start)||String(a.id).localeCompare(String(b.id)));
-    const visible=personal.filter(shift=>shift.date>=period.from&&shift.date<=period.to),periodShifts=visible.filter(shift=>shift.date>=period.periodFrom&&shift.date<=period.periodTo);
+    const visible=personal.filter(shift=>engine().shiftDates(shift).some(day=>day>=period.from&&day<=period.to)),periodShifts=visible.filter(shift=>engine().shiftDates(shift).some(day=>day>=period.periodFrom&&day<=period.periodTo));
     const active=personal.find(shift=>['running','paused'].includes(Timekeeping?.entryFor(options.timekeeping?.entries,shift)?.status));
-    const next=active||personal.find(shift=>shift.date>=today),selected=personal.find(shift=>String(shift.id)===String(options.selectedShiftId));
+    const next=active||personal.find(shift=>engine().shiftDates(shift).some(day=>day>=today)),selected=personal.find(shift=>String(shift.id)===String(options.selectedShiftId));
     const previous=memory.get(host),hadSelected=previous?.selectedId,samePerson=previous?.person===person.id,sameShift=samePerson&&previous?.selectedId===selected?.id;
     const state=samePerson?previous:{person:person.id,calendarTop:0,detailTop:0,focus:null,returnFocus:null};
     if (previous?.page?.isConnected) {
@@ -54,7 +56,7 @@
     const upcoming=node('section','cs-employee-next');upcoming.setAttribute('aria-label',active?'Din igangværende vagt':'Din næste vagt');
     const nextCopy=node('div','cs-employee-next-copy');nextCopy.append(node('span','cs-employee-eyebrow',active?'Igangværende vagt':'Næste vagt'));
     if(next){
-      const site=siteFor(next),title=node('h3','cs-employee-next-time',next.start+'–'+next.end);
+      const site=siteFor(next),title=node('h3','cs-employee-next-time',clockLabel(next));
       title.append(node('span','cs-employee-next-date',fullDate(next.date)));nextCopy.append(title,node('p','cs-employee-next-site',site.name));
       if(addressFor(site))nextCopy.append(node('p','cs-employee-address',addressFor(site)));
       const nextRecord=timeFor(next);if(nextRecord){const registration=node('span','cs-employee-time-status',Timekeeping.statusLabel(nextRecord));registration.dataset.state=nextRecord.status;nextCopy.append(registration);}
@@ -67,7 +69,7 @@
     const title=viewName==='month'?format(focusDate,{month:'long',year:'numeric'}):viewName==='week'?'Uge '+period.isoWeek.week:fullDate(focusDate);
     const periodTitle=node('h3','cs-employee-period-title',title);periodTitle.id='cs-employee-calendar-title';
     const periodDescription=viewName==='week'?shortDate(period.periodFrom)+' – '+shortDate(period.periodTo)+' · ':'';
-    periodCopy.append(periodTitle,node('span','cs-employee-period-total',periodDescription+periodShifts.length+(periodShifts.length===1?' vagt':' vagter')+' · '+hours(periodShifts.reduce((sum,shift)=>sum+duration(shift),0))));
+    periodCopy.append(periodTitle,node('span','cs-employee-period-total',periodDescription+periodShifts.length+(periodShifts.length===1?' vagt':' vagter')+' · '+hours(periodShifts.reduce((sum,shift)=>sum+engine().plannedMinutesInRange(shift,period.periodFrom,period.periodTo),0))));
     const tools=node('div','cs-employee-calendar-tools'),pair=node('div','cs-nav-pair'),periodLabel={month:'måned',week:'uge',day:'dag'}[viewName];
     const prev=button('Forrige '+periodLabel,'cs-icon-button',()=>changeDate(Calendar.navigate(viewName,focusDate,-1)),icon('left'));prev.id='cs-employee-prev-period';prev.disabled=!Calendar.canNavigate(viewName,focusDate,-1,min,max);
     const nextPeriod=button('Næste '+periodLabel,'cs-icon-button',()=>changeDate(Calendar.navigate(viewName,focusDate,1)),icon('right'));nextPeriod.id='cs-employee-next-period';nextPeriod.disabled=!Calendar.canNavigate(viewName,focusDate,1,min,max);pair.append(prev,nextPeriod);
@@ -81,9 +83,9 @@
     const calendar=node('section','cs-employee-calendar');calendar.setAttribute('aria-labelledby','cs-employee-calendar-title');calendar.dataset.view=viewName;
     const scroll=node('div','cs-employee-calendar-scroll');scroll.id='cs-employee-calendar-scroll';calendar.append(scroll);
     const shiftCard=(shift,mode)=>{
-      const site=siteFor(shift),progress=readFor(shift),label=fullDate(shift.date)+', '+shift.start+'–'+shift.end+', '+site.name+(progress.total?', '+progress.checked+' af '+progress.total+' opgaver':'');
+      const site=siteFor(shift),progress=readFor(shift),label=fullDate(shift.date)+', '+clockLabel(shift)+', '+site.name+(progress.total?', '+progress.checked+' af '+progress.total+' opgaver':'');
       const row=button(label,'cs-employee-shift cs-employee-shift-'+mode,event=>openShift(shift,event.currentTarget),'');row.dataset.employeeShift=String(shift.id);row.setAttribute('aria-pressed',String(selected?.id===shift.id));row.title=label;
-      const time=node('strong','cs-employee-shift-time');time.append(node('span','cs-employee-time-full',shift.start+'–'+shift.end),node('span','cs-employee-time-short',compactTime(shift.start)+'–'+compactTime(shift.end)));
+      const time=node('strong','cs-employee-shift-time');time.append(node('span','cs-employee-time-full',clockLabel(shift)),node('span','cs-employee-time-short',compactTime(shift.start)+'–'+compactTime(shift.end)+(shift.end<shift.start?' +1':'')));
       row.append(time,node('span','cs-employee-shift-site',site.name));
       if(progress.total){const count=node('span','cs-employee-shift-progress',progress.checked+'/'+progress.total);count.append(node('span','cs-employee-progress-label',' opgaver'));row.append(count);}
       const registration=timeFor(shift);if(registration){const label=Timekeeping.statusLabel(registration),status=node('span','cs-employee-time-status',label);status.dataset.state=registration.status;row.append(status);row.setAttribute('aria-label',row.getAttribute('aria-label')+' · '+label);}
@@ -93,7 +95,7 @@
       const dayHead=node('div','cs-employee-timeline-head');dayHead.append(node('span','',fullDate(focusDate)),node('span','cs-employee-muted',periodShifts.length?periodShifts.length+(periodShifts.length===1?' vagt':' vagter'):'Ingen vagter'));scroll.append(dayHead);
       const layout=Calendar.layout(visible,focusDate),timeline=node('div','cs-employee-timeline'),axis=node('div','cs-employee-time-axis'),canvas=node('div','cs-employee-time-canvas');
       const height=layout.totalMinutes/60*48;timeline.style.height=height+'px';
-      for(let minute=layout.startMinute;minute<=layout.endMinute;minute+=60){const top=(minute-layout.startMinute)/layout.totalMinutes*100,label=node('span','cs-employee-hour',String(Math.floor(minute/60)).padStart(2,'0')+':00'),line=node('div','cs-employee-hour-line');label.style.top=top+'%';line.style.top=top+'%';axis.append(label);canvas.append(line);}
+      for(let minute=layout.startMinute;minute<=layout.endMinute;minute+=60){const top=(minute-layout.startMinute)/layout.totalMinutes*100,label=node('span','cs-employee-hour',String(Math.floor(minute/60)%24).padStart(2,'0')+':00'),line=node('div','cs-employee-hour-line');label.style.top=top+'%';line.style.top=top+'%';axis.append(label);canvas.append(line);}
       for(const item of layout.items){const card=shiftCard(item.shift,'day');card.style.top=item.top*100+'%';card.style.height=item.height*100+'%';card.style.left='calc('+item.left*100+'% + 4px)';card.style.width='calc('+item.width*100+'% - 8px)';canvas.append(card);}
       timeline.append(axis,canvas);scroll.append(timeline);
       if(!layout.valid)scroll.prepend(node('p','cs-employee-calendar-empty','Vagterne kunne ikke vises i tidskalenderen.'));
@@ -109,7 +111,7 @@
         dayButton.append(node('span','cs-employee-day-number',String(Number(day.slice(-2)))));
         if(day===today)dayButton.setAttribute('aria-current','date');
         if(viewName==='week')dayButton.append(node('span','cs-employee-day-month',format(day,{month:'short'})));
-        const items=visible.filter(shift=>shift.date===day),cards=node('div','cs-employee-day-shifts');items.forEach(shift=>cards.append(shiftCard(shift,viewName)));
+        const items=visible.filter(shift=>engine().shiftDates(shift).includes(day)),cards=node('div','cs-employee-day-shifts');items.forEach(shift=>cards.append(shiftCard(shift,viewName)));
         section.append(dayButton,cards);grid.append(section);
       }
       scroll.append(grid);
@@ -125,7 +127,7 @@
       const site=siteFor(selected),view=readFor(selected),taskViews=Array.isArray(view.tasks)?view.tasks:[],status=options.saveStatus||{};
       const head=node('header','cs-employee-detail-head'),headTop=node('div','cs-employee-detail-head-top');
       const heading=node('h3','cs-employee-detail-title','Vagtdetaljer');heading.id='cs-employee-detail-title';close=button('Luk vagtdetaljer','cs-icon-button',closeShift,icon('close'));close.id='cs-employee-close';headTop.append(heading,close);head.append(headTop);
-      head.append(node('p','cs-employee-detail-date',fullDate(selected.date)),node('p','cs-employee-detail-time',selected.start+'–'+selected.end),node('p','cs-employee-detail-site',site.name));
+      head.append(node('p','cs-employee-detail-date',fullDate(selected.date)),node('p','cs-employee-detail-time',clockLabel(selected)),node('p','cs-employee-detail-site',site.name));
       if(Number.isSafeInteger(selected.plannedBreakMinutes)&&selected.plannedBreakMinutes>0)head.append(node('p','cs-employee-muted cs-employee-detail-planned-pause',selected.plannedBreakMinutes+' min ulønnet pause · '+hours(duration(selected))+' arbejdstid'));
       if(addressFor(site))head.append(node('p','cs-employee-address',addressFor(site)));detail.append(head);detailBody=node('div','cs-employee-detail-body');
       if(typeof options.onOfferShift==='function'&&selected.date>=today)detailBody.append(button('Tilbyd vagt til en kollega','cs-button cs-employee-offer',()=>options.onOfferShift(selected),'Tilbyd vagten til en kollega'));

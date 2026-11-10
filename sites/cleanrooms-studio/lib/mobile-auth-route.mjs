@@ -72,7 +72,7 @@ async function readSchedule(db, employee, { from, to, cursor }) {
     throw new StudioError(400, 'employee_period_invalid', 'Vælg højst 56 gyldige kalenderdage.');
   }
   const result = await readPublishedEmployeePage({
-    db, workspaceId: employee.workspaceId, personId: employee.personId, from, to, cursor, limit: 200,
+    db, workspaceId: employee.workspaceId, personId: employee.personId, from, to, cursor, limit: 200, overlap: true,
   });
   const entries = await readMobileTimeEntries(db, employee, result.shifts.map(shift => shift.id));
   return { shifts: result.shifts.map(shift => ({ ...mobileShift(shift), entry: entries[shift.id] ?? null })), nextCursor: result.nextCursor };

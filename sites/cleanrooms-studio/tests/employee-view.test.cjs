@@ -228,3 +228,11 @@ test('personal period totals and shift details show planned work after the agree
   assert.match(target.querySelector('.cs-employee-detail-planned-pause').textContent,/30 min ulønnet pause · 7 t 30 min arbejdstid/);
   assert.equal(current.plannedBreakMinutes,undefined);
 });
+
+test('overnight employee views retain next-day work and readable time labels with clipped month totals',()=>{
+ const target=host(),night={...current,id:'night',date:'2026-10-31',start:'22:00',end:'06:00',plannedBreakMinutes:30};
+ render(target,{shifts:[night],today:'2026-11-01',focusDate:'2026-11-01',view:'month'});
+ assert.match(target.querySelectorAll('.cs-employee-next-time')[0].textContent,/22:00–06:00 \+1 dag/);assert.match(target.querySelectorAll('.cs-employee-period-total')[0].textContent,/5 t 30 min/);
+ const carry=target.querySelectorAll('.cs-employee-calendar-day').find(day=>day.dataset.date==='2026-11-01');assert.equal(carry.querySelectorAll('.cs-employee-shift').length,1);
+ render(target,{shifts:[night],today:'2026-11-01',focusDate:'2026-11-01',view:'day'});assert.equal(target.querySelectorAll('.cs-employee-shift-day').length,1);assert.equal(target.querySelectorAll('.cs-employee-time-canvas')[0].children.filter(el=>el.className.includes('cs-employee-shift-day'))[0].style.height,'25%');
+});

@@ -7,12 +7,21 @@ import { useReduceMotionPreference } from './motion-preference';
 
 type FlowLayer = {
   id: string; base: number; amplitude: number; skew: number; strands: number;
-  speed: number; start: number; lineOpacity: number; fillOpacity: number; strokeWidth: number;
+  strandSpacing: number; speed: number; start: number;
+  lineOpacity: number; fillOpacity: number; strokeWidth: number;
 };
 
 const layers: FlowLayer[] = [
-  { id: 'home-flow-silk', base: 114, amplitude: 28, skew: -10, strands: 18, speed: 6, start: 0, lineOpacity: .10, fillOpacity: .03, strokeWidth: .42 },
-  { id: 'home-flow-mist', base: 122, amplitude: 18, skew: -4, strands: 12, speed: 4.5, start: .08, lineOpacity: .085, fillOpacity: .02, strokeWidth: .36 },
+  {
+    id: 'home-flow-silk', base: 88, amplitude: 42, skew: -10, strands: 12,
+    strandSpacing: 1.7, speed: 10, start: 0,
+    lineOpacity: .14, fillOpacity: .04, strokeWidth: .75,
+  },
+  {
+    id: 'home-flow-mist', base: 128, amplitude: 24, skew: -5, strands: 10,
+    strandSpacing: 1.9, speed: 7.5, start: .08,
+    lineOpacity: .115, fillOpacity: .025, strokeWidth: .65,
+  },
 ];
 
 function flowCurve(base: number, amplitude: number, skew: number, period: number, reverse = false) {
@@ -42,9 +51,9 @@ function TravellingRibbon({ layer, period, active, reduceMotion }: {
   const motion = useAnimatedStyle(() => ({ transform: [{ translateX: -(phase.get() % period) }] }));
   const paths = useMemo(() => {
     const curve = (offset: number, reverse = false) => flowCurve(
-      layer.base + offset * .62,
-      layer.amplitude + offset * .24,
-      layer.skew + offset * .05,
+      layer.base + offset * layer.strandSpacing,
+      layer.amplitude + offset * .35,
+      layer.skew + offset * .08,
       period,
       reverse,
     );

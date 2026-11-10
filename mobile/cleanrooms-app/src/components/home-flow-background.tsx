@@ -6,37 +6,43 @@ import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { useReduceMotionPreference } from './motion-preference';
 
 type FlowLayer = {
-  id: string; base: number; amplitude: number; skew: number; strands: number;
-  strandSpacing: number; speed: number; start: number;
+  id: string;
+  heights: readonly [number, number, number, number];
+  spreads: readonly [number, number, number, number];
+  strands: number; speed: number; start: number;
   lineOpacity: number; fillOpacity: number; strokeWidth: number;
 };
 
 const layers: FlowLayer[] = [
   {
-    id: 'home-flow-silk', base: 88, amplitude: 42, skew: -10, strands: 12,
-    strandSpacing: 1.7, speed: 10, start: 0,
-    lineOpacity: .14, fillOpacity: .04, strokeWidth: .75,
+    id: 'home-flow-silk', heights: [84, 130, 60, 106], spreads: [16, 17, 48, 24],
+    strands: 20, speed: 10, start: 0,
+    lineOpacity: .13, fillOpacity: .032, strokeWidth: .75,
   },
   {
-    id: 'home-flow-mist', base: 128, amplitude: 24, skew: -5, strands: 10,
-    strandSpacing: 1.9, speed: 7.5, start: .08,
-    lineOpacity: .115, fillOpacity: .025, strokeWidth: .65,
+    id: 'home-flow-mist', heights: [108, 138, 96, 118], spreads: [11, 12, 25, 17],
+    strands: 12, speed: 7.5, start: .08,
+    lineOpacity: .10, fillOpacity: .022, strokeWidth: .65,
   },
 ];
 
-function flowCurve(base: number, amplitude: number, skew: number, period: number, reverse = false) {
+function flowCurve(layer: FlowLayer, fraction: number, period: number, reverse = false) {
   const p = (value: number) => Number(value.toFixed(3));
-  let path = `M ${reverse ? p(period * 2) : 0} ${p(base)}`;
-  // Each period has matching endpoint heights and tangents for seamless travel.
-  for (const tile of reverse ? [1, 0] : [0, 1]) {
-    const x = tile * period;
-    if (reverse) {
-      path += ` C ${p(x + period * .88)} ${p(base - amplitude)} ${p(x + period * .65)} ${p(base - amplitude + skew)} ${p(x + period * .5)} ${p(base + skew)}`;
-      path += ` C ${p(x + period * .35)} ${p(base + amplitude + skew)} ${p(x + period * .12)} ${p(base + amplitude)} ${p(x)} ${p(base)}`;
-    } else {
-      path += ` C ${p(x + period * .12)} ${p(base + amplitude)} ${p(x + period * .35)} ${p(base + amplitude + skew)} ${p(x + period * .5)} ${p(base + skew)}`;
-      path += ` C ${p(x + period * .65)} ${p(base - amplitude + skew)} ${p(x + period * .88)} ${p(base - amplitude)} ${p(x + period)} ${p(base)}`;
-    }
+  const heights = layer.heights.map((height, index) => height + layer.spreads[index] * fraction);
+  const heightAt = (index: number) => heights[(index + heights.length) % heights.length];
+  const step = period / heights.length;
+  let path = `M ${reverse ? p(period * 2) : 0} ${p(heights[0])}`;
+  // A periodic spline keeps the fanned edges and their tangents continuous at every join.
+  for (let segment = 0; segment < heights.length * 2; segment++) {
+    const index = reverse ? heights.length * 2 - segment - 1 : segment;
+    const x = index * step;
+    const start = heightAt(index);
+    const end = heightAt(index + 1);
+    const c1 = start + (end - heightAt(index - 1)) / 6;
+    const c2 = end - (heightAt(index + 2) - start) / 6;
+    path += reverse
+      ? ` C ${p(x + step * 2 / 3)} ${p(c2)} ${p(x + step / 3)} ${p(c1)} ${p(x)} ${p(start)}`
+      : ` C ${p(x + step / 3)} ${p(c1)} ${p(x + step * 2 / 3)} ${p(c2)} ${p(x + step)} ${p(end)}`;
   }
   return path;
 }
@@ -50,18 +56,11 @@ function TravellingRibbon({ layer, period, active, reduceMotion }: {
   const phase = useSharedValue(period * layer.start);
   const motion = useAnimatedStyle(() => ({ transform: [{ translateX: -(phase.get() % period) }] }));
   const paths = useMemo(() => {
-    const curve = (offset: number, reverse = false) => flowCurve(
-      layer.base + offset * layer.strandSpacing,
-      layer.amplitude + offset * .35,
-      layer.skew + offset * .08,
-      period,
-      reverse,
-    );
-    const edge = (layer.strands - 1) / 2 + 1.5;
+    const curve = (fraction: number, reverse = false) => flowCurve(layer, fraction, period, reverse);
     return {
-      band: `${curve(-edge)} ${curve(edge, true).replace(/^M /, 'L ')} Z`,
+      band: `${curve(-1)} ${curve(1, true).replace(/^M /, 'L ')} Z`,
       strands: Array.from({ length: layer.strands }, (_, index) => ({
-        path: curve(index - (layer.strands - 1) / 2),
+        path: curve((index + .5) / layer.strands * 2 - 1),
         opacity: layer.lineOpacity * (.4 + .6 * Math.sin(Math.PI * (index + .5) / layer.strands)),
       })),
     };

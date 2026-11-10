@@ -14,38 +14,50 @@ function driftSteps(center: number, range: number, minimumDuration: number): Dri
   }));
 }
 
-const contours = [
-  'M -40 10 C 90 112 250 112 440 -10',
-  'M -40 26 C 104 126 252 126 440 10',
-  'M -40 42 C 108 139 253 139 440 30',
-  'M -40 58 C 110 151 250 151 440 50',
-  'M -40 74 C 100 163 245 163 440 70',
+type Ribbon = { id: string; curve: string; band: string; opacity: number; fillOpacity: number };
+
+const ribbons: Ribbon[] = [
+  {
+    id: 'home-flow-ripple',
+    curve: 'M -40 104 C 24 148 80 148 146 114 S 286 52 440 98',
+    band: 'M -40 104 C 24 148 80 148 146 114 S 286 52 440 98 L 440 106 C 286 60 212 90 146 122 C 80 158 24 156 -40 111 Z',
+    opacity: .78, fillOpacity: .11,
+  },
+  {
+    id: 'home-flow-bend',
+    curve: 'M -40 80 C 58 38 120 130 214 137 S 350 126 440 58',
+    band: 'M -40 80 C 58 38 120 130 214 137 S 350 126 440 58 L 440 64 C 350 133 308 153 214 145 C 120 138 58 44 -40 87 Z',
+    opacity: .72, fillOpacity: .08,
+  },
+  {
+    id: 'home-flow-sweep',
+    curve: 'M -40 148 C 94 150 184 106 440 86',
+    band: 'M -40 148 C 94 150 184 106 440 86 L 440 92 C 184 112 94 156 -40 153 Z',
+    opacity: .62, fillOpacity: .06,
+  },
 ];
 
-function FlowRibbon({ id, opacity }: { id: string; opacity: number }) {
-  const paint = `url(#${id})`;
+function FlowRibbon({ ribbon }: { ribbon: Ribbon }) {
+  const paint = `url(#${ribbon.id})`;
   return (
     <Svg width="100%" height="100%" viewBox="0 0 400 160" preserveAspectRatio="none">
       <Defs>
-        <LinearGradient id={id} x1="0%" y1="0%" x2="100%" y2="0%">
+        <LinearGradient id={ribbon.id} x1="0%" y1="0%" x2="100%" y2="0%">
           <Stop offset="0%" stopColor="#77a7df" />
           <Stop offset="52%" stopColor="#8ec6e0" />
           <Stop offset="100%" stopColor="#70c8bb" />
         </LinearGradient>
       </Defs>
-      <G opacity={opacity}>
-        <Path d="M -40 10 C 90 112 250 112 440 -10 L 440 -1 C 250 121 90 121 -40 19 Z" fill={paint} opacity={.11} />
-        <Path d="M -40 42 C 108 139 253 139 440 30 L 440 39 C 253 148 108 148 -40 51 Z" fill={paint} opacity={.08} />
-        <Path d="M -40 74 C 100 163 245 163 440 70 L 440 79 C 245 172 100 172 -40 83 Z" fill={paint} opacity={.05} />
-        {contours.map(path => <Path key={path} d={path} fill="none" stroke={paint} strokeWidth={.65} opacity={.15} />)}
+      <G opacity={ribbon.opacity}>
+        <Path d={ribbon.band} fill={paint} opacity={ribbon.fillOpacity} />
+        <Path d={ribbon.curve} fill="none" stroke={paint} strokeWidth={.65} opacity={.15} />
       </G>
     </Svg>
   );
 }
 
-function DriftingRibbon({ id, opacity, active, reduceMotion, style }: {
-  id: string;
-  opacity: number;
+function DriftingRibbon({ ribbon, active, reduceMotion, style }: {
+  ribbon: Ribbon;
   active: boolean;
   reduceMotion: boolean;
   style: StyleProp<ViewStyle>;
@@ -90,7 +102,7 @@ function DriftingRibbon({ id, opacity, active, reduceMotion, style }: {
     return stop;
   }, [active, reduceMotion, scaleX, scaleY, x, y]);
 
-  return <Animated.View style={[style, motion]}><FlowRibbon id={id} opacity={opacity} /></Animated.View>;
+  return <Animated.View style={[style, motion]}><FlowRibbon ribbon={ribbon} /></Animated.View>;
 }
 
 export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) {
@@ -105,7 +117,9 @@ export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) 
 
   return (
     <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.frame, style]}>
-      <DriftingRibbon id="home-flow-lower" opacity={.78} active={active} reduceMotion={reduceMotion} style={styles.lower} />
+      {ribbons.map(ribbon => (
+        <DriftingRibbon key={ribbon.id} ribbon={ribbon} active={active} reduceMotion={reduceMotion} style={styles.lower} />
+      ))}
     </View>
   );
 }

@@ -5,7 +5,7 @@ import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
 import { HomeShiftDock } from '@/components/home-shift-dock';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
@@ -21,35 +21,6 @@ import { usePublishedSchedule } from '@/state/published-schedule';
 import { useEmployeeActiveTime } from '@/state/employee-data';
 
 const { ink, accent, muted } = colors;
-
-function WeekProgress({ completion }: { completion: boolean[] }) {
-  const total = completion.length;
-  const completed = completion.filter(Boolean).length;
-  if (!total) return <Txt size={12} color={muted}>0 vagter</Txt>;
-
-  return (
-    <View
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel="Ugens vagter"
-      accessibilityValue={{ min: 0, max: total, now: completed, text: `${completed} af ${total} ${total === 1 ? 'vagt' : 'vagter'} afsluttet` }}
-      style={styles.weekProgress}
-    >
-      <Txt size={11} color={muted} selectable={false}>{completed} af {total} afsluttet</Txt>
-      <View
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        style={[styles.progressTrack, total > 10 && styles.progressContinuous]}
-      >
-        {total <= 10 ? completion.map((done, index) => (
-          <View key={index} style={[styles.progressSegment, done && styles.progressCompleted]} />
-        )) : (
-          <View style={[styles.progressCompleted, { height: '100%', width: `${completed / total * 100}%` }]} />
-        )}
-      </View>
-    </View>
-  );
-}
 
 function entryView(shiftId: string, entry?: ShiftTimeEntry | null): TimeEntry | undefined {
   if (!entry?.clockIn) return undefined;
@@ -148,16 +119,14 @@ export default function HomeScreen() {
       contentContainerStyle={styles.content}
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
     >
-      <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.backgroundWash}>
+      <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.backgroundTexture}>
         <Svg width="100%" height="100%">
           <Defs>
-            <LinearGradient id="home-week-wash" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor={cardColors.canvas} />
-              <Stop offset="25%" stopColor={colors.accentSoft} />
-              <Stop offset="100%" stopColor={cardColors.canvas} />
-            </LinearGradient>
+            <Pattern id="home-background-dots" width={24} height={24} patternUnits="userSpaceOnUse">
+              <Circle cx={12} cy={12} r={.55} fill={colors.line} opacity={.35} />
+            </Pattern>
           </Defs>
-          <Rect width="100%" height="100%" fill="url(#home-week-wash)" />
+          <Rect width="100%" height="100%" fill="url(#home-background-dots)" />
         </Svg>
       </View>
       {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
@@ -168,7 +137,7 @@ export default function HomeScreen() {
             <Row gap={8} style={styles.weekHeading}>
               <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
               {weekShiftCount !== null && (
-                <WeekProgress completion={weekShifts.map(({ entry }) => Boolean(entry?.clockOut))} />
+                <Txt size={12} color={muted}>{weekShiftCount} {weekShiftCount === 1 ? 'vagt' : 'vagter'}</Txt>
               )}
             </Row>
             <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
@@ -234,8 +203,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
-  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
-  backgroundWash: { position: 'absolute', top: 0, left: 0, right: 0, height: 220 },
+  content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
+  backgroundTexture: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
   brandName: { letterSpacing: -.4, lineHeight: 22 },
@@ -245,12 +214,7 @@ const styles = StyleSheet.create({
   agendaDivider: { marginHorizontal: 16 },
   sectionHead: { justifyContent: 'space-between', paddingTop: 4 },
   sectionIntro: { flex: 1, minWidth: 0, gap: 3 },
-  weekHeading: { alignItems: 'center', flexWrap: 'wrap', rowGap: 4 },
-  weekProgress: { gap: 4, alignItems: 'flex-start', maxWidth: '100%' },
-  progressTrack: { width: 80, height: 3, flexDirection: 'row', gap: 3 },
-  progressSegment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.line },
-  progressCompleted: { backgroundColor: accent },
-  progressContinuous: { borderRadius: 2, overflow: 'hidden', backgroundColor: colors.line },
+  weekHeading: { alignItems: 'baseline', flexWrap: 'wrap', rowGap: 0 },
   sectionTitle: { letterSpacing: -.55, lineHeight: 28 },
   weekDates: { lineHeight: 17 },
   todayButton: { minHeight: 44, justifyContent: 'center', borderRadius: 8, paddingHorizontal: 8 },

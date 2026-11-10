@@ -2,14 +2,15 @@ import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import { HomeShiftDock } from '@/components/home-shift-dock';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
-import { Row, Txt } from '@/components/ui';
+import { EmptyState, Row, Txt } from '@/components/ui';
 import { ShiftRow } from '@/components/shift-row';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { cardColors, cardStyles } from '@/constants/card-styles';
@@ -137,7 +138,7 @@ export default function HomeScreen() {
               <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
             </View>
             <Row gap={6}>
-              <Pressable
+              <PressFeedback haptic="selection"
                 accessibilityRole="button"
                 accessibilityLabel="Gå til denne uge"
                 accessibilityState={{ disabled: showingCurrentWeek }}
@@ -146,7 +147,7 @@ export default function HomeScreen() {
                 style={({ pressed }) => [styles.todayButton, pressed && styles.softPressed]}
               >
                 <Txt size={13} weight="500" color={showingCurrentWeek ? muted : accent} selectable={false}>I dag</Txt>
-              </Pressable>
+              </PressFeedback>
               <PeriodArrows
                 previousLabel="Forrige uge"
                 nextLabel="Næste uge"
@@ -167,9 +168,10 @@ export default function HomeScreen() {
                 </View>
               ))}
               {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
-                <Txt size={13} color={muted} style={styles.emptyAgenda}>
-                  {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
-                </Txt>
+                <EmptyState compact
+                  title={weekShifts.length ? 'Ingen andre vagter i denne uge' : 'Ingen vagter i denne uge'}
+                  body={weekShifts.length ? 'Din vagt ligger i kortet nedenfor.' : 'Prøv en anden uge med pilene ovenfor.'}
+                />
               )}
             </Animated.View>
           </View>
@@ -216,6 +218,5 @@ const styles = StyleSheet.create({
   sectionTitle: { letterSpacing: -.55, lineHeight: 28 },
   weekDates: { lineHeight: 17 },
   todayButton: { minHeight: 44, justifyContent: 'center', borderRadius: 8, paddingHorizontal: 8 },
-  emptyAgenda: { paddingVertical: 24, paddingHorizontal: 16 },
   softPressed: { backgroundColor: colors.paper },
 });

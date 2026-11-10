@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -111,14 +112,14 @@ export default function LiveNotificationsScreen() {
           </View>}
         </View>}
         ListEmptyComponent={resource.loading ? <View style={styles.loading}><ActivityIndicator color={colors.accent} /><Txt size={13} color={colors.muted}>Henter beskeder…</Txt></View>
-          : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View> : null}
+          : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Her er stille lige nu" body="Her får du besked, når der er nyt om dine vagter." /></View> : null}
         ListFooterComponent={cursor ? <Button label={busy === 'more' ? 'Henter flere…' : 'Vis flere beskeder'} compact variant="ghost" disabled={busy !== null} onPress={() => { void loadMore(); }} style={styles.more} /> : null}
         renderItem={({ item, index }) => {
           const seen = Boolean(item.readAt || readIds.includes(item.id));
           const after = item.after, before = item.before;
           const changedTime = Boolean(before && (!after || shiftLabel(before) !== shiftLabel(after)));
           const changedSite = before && after && before.siteName !== after.siteName;
-          return <Pressable accessibilityRole="button" disabled={busy !== null}
+          return <PressFeedback haptic="light" accessibilityRole="button" disabled={busy !== null}
             accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
             accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
             onPress={() => { void open(item); }}
@@ -139,7 +140,7 @@ export default function LiveNotificationsScreen() {
               <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
             </View>
             {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
-          </Pressable>;
+          </PressFeedback>;
         }}
       />
     </FlowScreen>

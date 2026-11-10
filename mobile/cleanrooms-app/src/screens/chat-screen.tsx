@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import LiveChatScreen from '@/screens/live-chat-screen';
 
 import { FlowScreen } from '@/components/flow-screen';
-import { Avatar, EmptyState, Icon, Row } from '@/components/ui';
+import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
+import { PressFeedback } from '@/components/press-feedback';
+import { Avatar, EmptyState, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
 import { useAppData } from '@/state/app-store';
@@ -24,6 +27,7 @@ export default function ChatScreen() {
 function DemoChatScreen() {
   const { state } = useAppData();
   const [query, setQuery] = useState('');
+  const searchMotion = useChatSearchMotion(query);
   const rooms = useMemo(() => state.rooms
     .filter((room) => room.memberIds.includes(state.selfId))
     .filter((room) => `${room.name} ${room.subtitle}`.toLocaleLowerCase('da-DK').includes(query.toLocaleLowerCase('da-DK'))), [query, state.rooms, state.selfId]);
@@ -37,27 +41,13 @@ function DemoChatScreen() {
         data={rooms}
         keyExtractor={(room) => room.id}
         keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={
-          <View style={[cardStyles.raisedFrame, styles.searchFrame]}>
-            <Row gap={10} style={[cardStyles.raisedSurface, styles.search]}>
-              <Icon name="search" size={17} color={c.muted} />
-              <TextInput
-                accessibilityLabel="Søg efter chatrum"
-                placeholder="Søg i samtaler"
-                placeholderTextColor={c.muted}
-                value={query}
-                onChangeText={setQuery}
-                autoCorrect={false}
-                returnKeyType="search"
-                style={styles.searchInput}
-              />
-            </Row>
-          </View>
-        }
+        ListHeaderComponent={<ChatSearchField value={query} onChangeText={setQuery} />}
         ListEmptyComponent={
-          <View style={cardStyles.listSurface}>
-            <EmptyState icon="chat" title={query ? 'Ingen samtaler matcher' : 'Ingen samtaler'} />
-          </View>
+          <Animated.View style={[cardStyles.listSurface, searchMotion]}>
+            <EmptyState icon="chat" compact={Boolean(query)}
+              title={query ? 'Ingen samtaler fundet' : 'Her begynder samtalen'}
+              body={query ? 'Prøv et andet navn eller en anden afdeling.' : 'Dine samtaler med teamet samles her.'} />
+          </Animated.View>
         }
         renderItem={({ item: room, index }) => {
           const messages = state.messages.filter((message) => message.roomId === room.id).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -66,30 +56,33 @@ function DemoChatScreen() {
           const unread = messages.filter((message) => message.personId !== state.selfId && !message.read).length;
           const initials = room.name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
           return (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}`}
-              onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
-              style={({ pressed }) => [
-                styles.room,
-                index === 0 ? styles.firstRoom : cardStyles.divider,
-                index === rooms.length - 1 && styles.lastRoom,
-                pressed && styles.roomPressed,
-              ]}>
-              <Avatar initials={initials} size={40} />
-              <View style={styles.roomDetails}>
-                <Row gap={10}>
-                  <Text numberOfLines={1} style={styles.roomName}>{room.name}</Text>
-                  <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(last?.createdAt)}</Text>
-                </Row>
-                <Row gap={10}>
-                  <Text numberOfLines={2} style={[styles.preview, unread > 0 && styles.unreadPreview]}>
-                    {last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle}
-                  </Text>
-                  {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>}
-                </Row>
-              </View>
-            </Pressable>
+            <Animated.View style={searchMotion}>
+              <PressFeedback
+                accessibilityRole="button"
+                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}`}
+                haptic="light"
+                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
+                style={({ pressed }) => [
+                  styles.room,
+                  index === 0 ? styles.firstRoom : cardStyles.divider,
+                  index === rooms.length - 1 && styles.lastRoom,
+                  pressed && styles.roomPressed,
+                ]}>
+                <Avatar initials={initials} size={40} />
+                <View style={styles.roomDetails}>
+                  <Row gap={10}>
+                    <Text numberOfLines={1} style={styles.roomName}>{room.name}</Text>
+                    <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(last?.createdAt)}</Text>
+                  </Row>
+                  <Row gap={10}>
+                    <Text numberOfLines={2} style={[styles.preview, unread > 0 && styles.unreadPreview]}>
+                      {last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle}
+                    </Text>
+                    {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>}
+                  </Row>
+                </View>
+              </PressFeedback>
+            </Animated.View>
           );
         }}
       />
@@ -100,9 +93,6 @@ function DemoChatScreen() {
 const styles = StyleSheet.create({
   canvas: { flex: 1 },
   content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32 },
-  searchFrame: { marginBottom: 16 },
-  search: { paddingHorizontal: 13 },
-  searchInput: { flex: 1, minHeight: 46, paddingVertical: 10, color: c.ink, fontSize: 16 },
   room: {
     flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 68,
     paddingVertical: 13, paddingHorizontal: 14,

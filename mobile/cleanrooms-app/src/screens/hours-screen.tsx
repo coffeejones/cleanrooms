@@ -1,13 +1,14 @@
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import type { NavigationProp } from 'expo-router/react-navigation';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import LiveHoursScreen from '@/screens/live-hours-screen';
 
 import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import { PeriodArrows } from '@/components/period-arrows';
 import { PeriodPicker } from '@/components/period-picker';
 import { PeriodProgress } from '@/components/period-progress';
@@ -107,7 +108,7 @@ function DemoHoursScreen() {
               <View style={cardStyles.listSurface}>
                 <View>
                   <Row gap={8} style={styles.periodHeader}>
-                    <Pressable
+                    <PressFeedback haptic="selection"
                       accessibilityRole="button"
                       accessibilityLabel={`Vælg periode, ${periodLabel}`}
                       onPress={() => setPickerVisible(true)}
@@ -117,7 +118,7 @@ function DemoHoursScreen() {
                         <Txt size={15} weight="600" style={styles.periodTitle}>{periodLabel}</Txt>
                         <Icon name="chevron-down" size={11} color={colors.muted} />
                       </Row>
-                    </Pressable>
+                    </PressFeedback>
                     <PeriodArrows
                       previousLabel="Forrige lønperiode"
                       nextLabel="Næste lønperiode"
@@ -126,7 +127,7 @@ function DemoHoursScreen() {
                     />
                   </Row>
                   {!showCurrentPeriod && (custom || offset !== 0) && (
-                    <Pressable
+                    <PressFeedback haptic="selection"
                       accessibilityRole="button"
                       onPress={() => {
                         setCustom(null);
@@ -135,12 +136,12 @@ function DemoHoursScreen() {
                       }}
                       style={({ pressed }) => [styles.resetPeriod, pressed && styles.pressed]}>
                       <Txt size={13} color={colors.accent} weight="600">Denne lønperiode</Txt>
-                    </Pressable>
+                    </PressFeedback>
                   )}
                   <View style={styles.summary}>
                     <PeriodProgress summary={summary} future={future} />
                   </View>
-                  <Pressable
+                  <PressFeedback haptic="selection"
                     accessibilityRole="button"
                     accessibilityLabel={approvedLabel ? `Lønberegning, ${approvedLabel}` : 'Lønberegning'}
                     accessibilityState={{ expanded: calculationOpen }}
@@ -155,7 +156,7 @@ function DemoHoursScreen() {
                         <Icon name="chevron-down" size={12} color={colors.muted} />
                       </View>
                     </Row>
-                  </Pressable>
+                  </PressFeedback>
                   {calculationOpen && (
                     <Animated.View entering={calculationEnter} style={styles.calculation}>
                       <AmountRow label="Grundløn" amount={basePay} />
@@ -181,11 +182,11 @@ function DemoHoursScreen() {
           }
           ListEmptyComponent={
             <View style={[cardStyles.listSurface, styles.empty]}>
-              <EmptyState title="Ingen vagter i perioden" icon="calendar" />
+              <EmptyState title="Ingen vagter i perioden" body="Dine vagter og registrerede timer samles her." icon="calendar" />
             </View>
           }
           ListFooterComponent={hasMore ? (
-            <Pressable
+            <PressFeedback haptic="selection"
               accessibilityRole="button"
               accessibilityState={{ expanded: showAll }}
               onPress={() => {
@@ -198,7 +199,7 @@ function DemoHoursScreen() {
               <View style={showAll && styles.chevronUp}>
                 <Icon name="chevron-down" size={12} color={colors.accent} />
               </View>
-            </Pressable>
+            </PressFeedback>
           ) : null}
           renderItem={({ item, index }) => (
             <HoursRecord
@@ -254,7 +255,7 @@ function HoursRecord({ shift, state, from, to, last }: {
   const payCaption = registered ? `${minutesLabel(pay.minutes)} registreret`
     : active || missing ? 'Forventet' : `Forventet · ${minutesLabel(pay.minutes)}`;
   return (
-    <Pressable
+    <PressFeedback haptic="light"
       accessibilityRole="button"
       accessibilityLabel={`${date}, ${worksite}, planlagt ${plannedTime}, ${status}, ${amount} før skat, ${payCaption}`}
       onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
@@ -284,7 +285,7 @@ function HoursRecord({ shift, state, from, to, last }: {
         </Txt>
       </View>
       <Icon name="chevron-right" size={12} color={colors.muted} />
-    </Pressable>
+    </PressFeedback>
   );
 }
 

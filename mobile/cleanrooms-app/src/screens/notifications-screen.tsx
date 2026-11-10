@@ -1,7 +1,8 @@
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import LiveNotificationsScreen from '@/screens/live-notifications-screen';
 
 import { EmptyState, Icon, Row, Txt } from '@/components/ui';
@@ -44,21 +45,21 @@ function DemoNotificationsScreen() {
             <Txt size={14} weight="600" style={styles.headerLabel}>
               {unread.length ? `${unread.length} ulæste` : 'Du er opdateret'}
             </Txt>
-            <Pressable
+            <PressFeedback haptic="selection"
               accessibilityRole="button"
               disabled={unread.length === 0}
               onPress={() => unread.forEach((item) => actions.markNotificationRead(item.id))}
               style={({ pressed }) => [styles.markAll, pressed && styles.pressed]}
             >
               <Txt size={13} weight="600" color={unread.length ? colors.accent : colors.muted}>Markér alle som læst</Txt>
-            </Pressable>
+            </PressFeedback>
           </Row>
         ) : null}
         ListEmptyComponent={
-          <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View>
+          <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Her er stille lige nu" body="Her får du besked, når der er nyt om dine vagter." /></View>
         }
         renderItem={({ item, index }) => (
-          <Pressable
+          <PressFeedback haptic="light"
             accessibilityRole="button"
             accessibilityLabel={`${!item.read ? 'Ulæst. ' : ''}${item.title}. ${item.body}`}
             onPress={() => open(item)}
@@ -80,7 +81,7 @@ function DemoNotificationsScreen() {
             {(item.shiftId || item.roomId) && (
               <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>
             )}
-          </Pressable>
+          </PressFeedback>
         )}
       />
     </FlowScreen>

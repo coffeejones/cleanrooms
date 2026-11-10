@@ -1,17 +1,19 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useIsFocused } from 'expo-router/react-navigation';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { CalendarMonthPicker } from '@/components/calendar-month-picker';
 import { CalendarOpenShifts } from '@/components/calendar-open-shifts';
 import { FlowScreen } from '@/components/flow-screen';
 import { LiveOpenShifts } from '@/components/live-open-shifts';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
+import { PressFeedback } from '@/components/press-feedback';
 import { ShiftRow } from '@/components/shift-row';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
-import { Icon, Row, Txt } from '@/components/ui';
+import { EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { addDays, copenhagenDate, dateLabel, mondayOfWeek, type Shift } from '@/domain/model';
@@ -46,6 +48,36 @@ function capitalize(text: string) {
   return text.charAt(0).toLocaleUpperCase('da-DK') + text.slice(1);
 }
 
+function DaySelectionIndicator({ selected, focused, reduceMotion }: {
+  selected: boolean;
+  focused: boolean;
+  reduceMotion: boolean;
+}) {
+  const previousSelected = useRef(selected);
+  const settle = useSharedValue(1);
+  const motion = useAnimatedStyle(() => ({
+    opacity: .9 + .1 * settle.get(),
+    transform: [{ scale: .96 + .04 * settle.get() }],
+  }));
+
+  useLayoutEffect(() => {
+    const becameSelected = selected && !previousSelected.current;
+    previousSelected.current = selected;
+    cancelAnimation(settle);
+    if (becameSelected && focused && !reduceMotion) {
+      settle.set(0);
+      settle.set(withTiming(1, { duration: 170, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never }));
+    } else {
+      settle.set(1);
+    }
+    return () => cancelAnimation(settle);
+  }, [focused, reduceMotion, selected, settle]);
+
+  return selected ? (
+    <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.daySelection, motion]} />
+  ) : null;
+}
+
 export default function CalendarScreen() {
   const { state, actions } = useAppData();
   const { state: auth, employeeRequest } = useMobileAuth();
@@ -66,6 +98,7 @@ export default function CalendarScreen() {
   const ownPreferences = savedAvailability?.key === preferenceKey && savedAvailability.preferences.version >= (preferences.data?.version ?? 0)
     ? savedAvailability.preferences : preferences.data;
   const reduceMotion = useReduceMotionPreference();
+  const focused = useIsFocused();
   const previousSelection = useRef(selection);
   const slideX = useSharedValue(0);
   const slideStyle = useAnimatedStyle(() => {
@@ -76,15 +109,37 @@ export default function CalendarScreen() {
   useLayoutEffect(() => {
     const dateChanged = previousSelection.current !== selection;
     previousSelection.current = selection;
-    if (reduceMotion || !swipeDirection) {
+    cancelAnimation(slideX);
+    if (reduceMotion || !focused || !swipeDirection) {
       slideX.set(0);
     } else if (dateChanged) {
       slideX.set(swipeDirection * monthSlideDistance);
       slideX.set(withTiming(0, monthSlideTiming));
     }
-  }, [reduceMotion, selection, slideX, swipeDirection]);
+    return () => cancelAnimation(slideX);
+  }, [focused, reduceMotion, selection, slideX, swipeDirection]);
 
   const open = view === 'open';
+  const previousAgenda = useRef({ selection, focused, open });
+  const agendaSettle = useSharedValue(1);
+  const agendaMotion = useAnimatedStyle(() => ({
+    opacity: .88 + .12 * agendaSettle.get(),
+    transform: [{ translateY: 3 * (1 - agendaSettle.get()) }],
+  }));
+
+  useLayoutEffect(() => {
+    const previous = previousAgenda.current;
+    previousAgenda.current = { selection, focused, open };
+    cancelAnimation(agendaSettle);
+    if (!reduceMotion && focused && previous.focused && !open && !previous.open && previous.selection !== selection) {
+      agendaSettle.set(0);
+      agendaSettle.set(withTiming(1, { duration: 170, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never }));
+    } else {
+      agendaSettle.set(1);
+    }
+    return () => cancelAnimation(agendaSettle);
+  }, [agendaSettle, focused, open, reduceMotion, selection]);
+
   const isTodaySelected = selection === today;
   const monthKey = selection.slice(0, 7);
   const year = Number(monthKey.slice(0, 4));
@@ -178,10 +233,11 @@ export default function CalendarScreen() {
         {scopes.map((scope) => {
           const selected = scope.view === (open ? 'open' : 'mine');
           return (
-            <Pressable
+            <PressFeedback
               key={scope.view}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
+              haptic={selected ? false : 'selection'}
               onPress={() => router.setParams({ view: scope.view })}
               style={({ pressed }) => [
                 styles.scopeTab, selected && styles.selectedScope, pressed && styles.pressed,
@@ -190,7 +246,7 @@ export default function CalendarScreen() {
               <Txt size={14} weight={selected ? '700' : '500'} color={selected ? colors.ink : colors.muted} style={styles.centered}>
                 {scope.label}
               </Txt>
-            </Pressable>
+            </PressFeedback>
           );
         })}
       </Row>
@@ -200,7 +256,7 @@ export default function CalendarScreen() {
           <GestureHandlerRootView style={cardStyles.raisedFrame}>
             <View style={[cardStyles.raisedSurface, styles.calendarPanel]}>
               <Row gap={8} style={styles.periodHeader}>
-                <Pressable
+                <PressFeedback
                   accessibilityRole="button"
                   accessibilityLabel={`Vælg måned, ${periodTitle} ${year}`}
                   accessibilityState={{ expanded: picker.visible }}
@@ -212,18 +268,19 @@ export default function CalendarScreen() {
                     <Icon name="chevron-down" size={13} color={colors.accent} />
                   </Row>
                   <Txt size={12} color={colors.muted} selectable={false}>{year}</Txt>
-                </Pressable>
+                </PressFeedback>
                 <Row gap={6}>
-                  <Pressable
+                  <PressFeedback
                     accessibilityRole="button"
                     accessibilityLabel="Gå til i dag"
                     accessibilityState={{ disabled: isTodaySelected }}
                     disabled={isTodaySelected}
+                    haptic="selection"
                     onPress={() => setSelection({ date: today, swipeDirection: 0 })}
                     style={({ pressed }) => [styles.todayButton, pressed && styles.pressed]}
                   >
                     <Txt size={13} weight="600" color={isTodaySelected ? colors.muted : colors.accent} selectable={false}>I dag</Txt>
-                  </Pressable>
+                  </PressFeedback>
                   <PeriodArrows
                     previousLabel="Forrige måned"
                     nextLabel="Næste måned"
@@ -255,17 +312,19 @@ export default function CalendarScreen() {
                           const label = `${dateLabel(date, { weekday: 'long' })}, ${shiftCount}${unavailable ? ', utilgængelig hele dagen' : ''}`;
                           const dateColor = selected ? colors.white : isToday ? colors.accent : outsideMonth ? colors.muted : colors.ink;
                           return (
-                            <Pressable
+                            <PressFeedback
                               key={date}
                               accessibilityRole="button"
                               accessibilityLabel={isToday ? 'I dag, ' + label : label}
                               accessibilityState={{ selected }}
+                              haptic={selected ? false : 'selection'}
                               onPress={() => setSelection({ date, swipeDirection: 0 })}
                               style={({ pressed }) => [
                                 styles.day, unavailable && styles.unavailableDay, isToday && styles.todayCell,
                                 selected && styles.selectedDay, pressed && !selected && styles.pressed,
                               ]}
                             >
+                              <DaySelectionIndicator selected={selected} focused={focused} reduceMotion={reduceMotion} />
                               <Txt size={16} weight={selected || isToday ? '700' : '500'} color={dateColor} maxFontSizeMultiplier={1.6}>
                                 {dateNumber(date)}
                               </Txt>
@@ -275,7 +334,7 @@ export default function CalendarScreen() {
                                 ))}
                                 {unavailable && <View style={[styles.unavailableMarker, selected && styles.selectedUnavailableMarker]} />}
                               </Row>
-                            </Pressable>
+                            </PressFeedback>
                           );
                         })}
                       </Row>
@@ -286,7 +345,7 @@ export default function CalendarScreen() {
             </View>
           </GestureHandlerRootView>
 
-          <View style={cardStyles.listSurface}>
+          <Animated.View style={[cardStyles.listSurface, agendaMotion]}>
             <Row gap={12} style={styles.agendaHeading}>
               <Txt size={16} weight="700" accessibilityRole="header" style={styles.agendaTitle}>
                 {isTodaySelected ? 'Dagens vagter' : capitalize(dateLabel(selection, { weekday: 'long', month: 'long' }))}
@@ -337,13 +396,10 @@ export default function CalendarScreen() {
                 </View>
               ))}
               {selectedShifts.length === 0 && (!live || (schedule.data && !schedule.error)) && (
-                <Row gap={10} style={styles.emptyAgenda}>
-                  <Icon name="calendar" size={18} color={colors.muted} />
-                  <Txt size={14} color={colors.muted}>Ingen vagter den dag</Txt>
-                </Row>
+                <EmptyState compact icon="calendar" title="Ingen vagter den dag" />
               )}
             </View>
-          </View>
+          </Animated.View>
         </>
       )}
     </ScrollView>
@@ -396,7 +452,8 @@ const styles = StyleSheet.create({
   },
   todayCell: { borderColor: '#a5b6af' },
   unavailableDay: { backgroundColor: colors.warningSoft },
-  selectedDay: { borderColor: colors.ink, backgroundColor: colors.ink },
+  selectedDay: { borderColor: colors.ink },
+  daySelection: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 7, borderCurve: 'continuous', backgroundColor: colors.ink },
   markers: { height: 8, justifyContent: 'center' },
   marker: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.accent },
   selectedMarker: { backgroundColor: colors.white },
@@ -413,5 +470,4 @@ const styles = StyleSheet.create({
   availabilityLabel: { flexShrink: 1 },
   availabilityButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 5, borderRadius: 7 },
   availabilityNote: { paddingBottom: 8, paddingRight: 5 },
-  emptyAgenda: { minHeight: 56, paddingHorizontal: 14, paddingVertical: 10 },
 });

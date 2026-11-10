@@ -1,13 +1,10 @@
 import { router } from 'expo-router';
-import { useIsFocused } from 'expo-router/react-navigation';
-import { useEffect } from 'react';
-import { Pressable, View } from 'react-native';
-import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { View } from 'react-native';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
 import { dateLabel, type Shift } from '@/domain/model';
 import { useAppData } from '@/state/app-store';
-import { useReduceMotionPreference } from './motion-preference';
+import { PressFeedback } from './press-feedback';
 import { Icon, LiveClock, Row, Txt } from './ui';
 
 export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday, showDate = true, dateTile = false, endedWithoutEntry = false }: {
@@ -20,30 +17,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   endedWithoutEntry?: boolean;
 }) {
   const { state } = useAppData();
-  const focused = useIsFocused();
-  const reduceMotion = useReduceMotionPreference();
   const homeTile = dateTile && showDate;
-  const pressScale = useSharedValue(1);
-  const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: pressScale.get() }] }));
-
-  useEffect(() => {
-    cancelAnimation(pressScale);
-    pressScale.set(1);
-    return () => cancelAnimation(pressScale);
-  }, [focused, homeTile, pressScale, reduceMotion, shift.id]);
-
-  function animatePress(pressed: boolean) {
-    if (!homeTile || reduceMotion || !focused) {
-      cancelAnimation(pressScale);
-      pressScale.set(1);
-      return;
-    }
-    pressScale.set(withTiming(pressed ? 0.99 : 1, {
-      duration: pressed ? 90 : 160,
-      easing: Easing.out(Easing.cubic),
-      reduceMotion: ReduceMotion.Never,
-    }));
-  }
 
   const site = publishedSite ?? state.sites.find(place => place.id === shift.siteId);
   const entry = publishedSite ? publishedEntry : state.entries.find(record => record.shiftId === shift.id);
@@ -72,11 +46,10 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   ].filter(Boolean).join(', ');
 
   return (
-    <Pressable
+    <PressFeedback
       accessibilityRole="button"
       accessibilityLabel={label}
-      onPressIn={() => animatePress(true)}
-      onPressOut={() => animatePress(false)}
+      haptic="light"
       onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
       style={({ pressed }) => ({
         paddingVertical: dateTile ? 16 : 9,
@@ -87,7 +60,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
         backgroundColor: pressed && dateTile ? colors.paper : undefined,
       })}
     >
-      <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }, pressStyle]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }}>
         {showDate && dateTile && (
           <View style={{ flexBasis: 52, flexShrink: 0 }}>
             <Txt size={11} weight="500" color={today ? colors.accent : colors.muted} style={{ lineHeight: 15 }}>
@@ -142,7 +115,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
             <Icon name="chevron-right" size={dateTile ? 12 : 14} color={colors.muted} />
           </View>
         </Row>
-      </Animated.View>
-    </Pressable>
+      </View>
+    </PressFeedback>
   );
 }

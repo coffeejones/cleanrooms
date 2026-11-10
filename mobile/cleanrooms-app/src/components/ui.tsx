@@ -2,10 +2,11 @@ import { Button as NativeButton, Host, Text as NativeText } from '@expo/ui';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, Text, View, useWindowDimensions, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Text, View, useWindowDimensions, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colors } from '@/constants/palette';
 import { buttonContentModifiers } from './button-content-shape';
+import { PressFeedback } from './press-feedback';
 
 export function Txt({ size = 15, weight = '400', color = colors.ink, style, ...props }: TextProps & { size?: number; weight?: TextStyle['fontWeight']; color?: string }) {
   return <Text selectable {...props} style={[{ fontSize: size, fontWeight: weight, color, lineHeight: size * 1.4, fontVariant: ['tabular-nums'] }, style]} />;
@@ -80,16 +81,33 @@ export function Button({ label, onPress, variant = 'primary', disabled, style, c
   </View>;
 }
 export function IconButton({ name, label, onPress, badge, style }: { name: string; label: string; onPress: () => void; badge?: boolean; style?: ViewStyle }) {
-  return <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4} style={({ pressed }) => [{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 14, opacity: pressed ? .5 : 1 }, style]}>
+  return <PressFeedback haptic="light" onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4} style={({ pressed }) => [{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 14, opacity: pressed ? .5 : 1 }, style]}>
     <Icon name={name} />{badge && <View style={{ position: 'absolute', right: 9, top: 8, width: 7, height: 7, borderRadius: 4, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white }} />}
-  </Pressable>;
+  </PressFeedback>;
 }
 export function Progress({ value, color = colors.accent, label = 'Registrerede timer' }: { value: number; color?: string; label?: string }) {
   const v = Math.max(0, Math.min(1, value || 0));
   return <View accessibilityRole="progressbar" accessibilityLabel={label} accessibilityValue={{ min: 0, max: 100, now: Math.round(v * 100) }} style={{ height: 4, backgroundColor: colors.line, borderRadius: 2, overflow: 'hidden' }}><View style={{ width: `${v * 100}%`, height: '100%', backgroundColor: color, borderRadius: 2 }} /></View>;
 }
-export function EmptyState({ title, body, icon = 'calendar' }: { title: string; body?: string; icon?: string }) {
-  return <View style={{ paddingVertical: 36, alignItems: 'center', gap: 10 }}><Icon name={icon} color={colors.muted} size={30} /><Txt weight="600">{title}</Txt>{body && <Txt size={13} color={colors.muted} style={{ textAlign: 'center', maxWidth: 300 }}>{body}</Txt>}</View>;
+export function EmptyState({ title, body, icon = 'calendar', compact = false }: { title: string; body?: string; icon?: string; compact?: boolean }) {
+  return <View style={{
+    minHeight: compact ? 56 : undefined,
+    paddingVertical: compact ? 10 : 32, paddingHorizontal: compact ? 14 : 24,
+    flexDirection: compact ? 'row' : 'column', alignItems: 'center', gap: compact ? 12 : 14,
+  }}>
+    <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{
+      width: compact ? 28 : 48, height: compact ? 28 : 48,
+      borderRadius: compact ? 9 : 16, borderCurve: 'continuous',
+      alignItems: 'center', justifyContent: 'center',
+      backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line,
+    }}>
+      <Icon name={icon} color={colors.muted} size={compact ? 16 : 23} />
+    </View>
+    <View style={{ flex: compact ? 1 : undefined, minWidth: 0, maxWidth: compact ? undefined : 280, gap: compact ? 3 : 5 }}>
+      <Txt size={compact ? 14 : 15} weight={compact ? '500' : '600'} style={{ textAlign: compact ? 'left' : 'center', letterSpacing: -.15 }}>{title}</Txt>
+      {!!body && <Txt size={compact ? 12 : 13} color={colors.muted} style={{ textAlign: compact ? 'left' : 'center', lineHeight: compact ? 18 : 20 }}>{body}</Txt>}
+    </View>
+  </View>;
 }
 export function Avatar({ initials, size = 36, dark = false }: { initials: string; size?: number; dark?: boolean }) { return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: dark ? colors.ink : '#e8edeb', alignItems: 'center', justifyContent: 'center' }}><Txt size={size * .33} weight="600" color={dark ? colors.white : colors.text}>{initials}</Txt></View>; }
 export function LiveClock({ size = 17, color = colors.accent }: { size?: number; color?: string }) {

@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import { PeriodArrows } from '@/components/period-arrows';
 import { PeriodPicker } from '@/components/period-picker';
 import { PeriodProgress } from '@/components/period-progress';
@@ -55,13 +56,13 @@ function CompanyHoursScreen({ startDay, companyError, refreshCompany, companyRef
           {companyError && <ScheduleFeedback error={companyError} onRetry={refreshCompany} />}
           <View style={cardStyles.listSurface}>
             <Row gap={8} style={styles.period}>
-              <Pressable accessibilityRole="button" accessibilityLabel={'Vælg periode, ' + label} onPress={() => setPicker(true)} style={styles.periodButton}>
+              <PressFeedback haptic="selection" accessibilityRole="button" accessibilityLabel={'Vælg periode, ' + label} onPress={() => setPicker(true)} style={styles.periodButton}>
                 <Txt size={12} weight="600" color={colors.muted}>{custom ? 'Valgt periode' : 'Lønperiode'}</Txt>
                 <Row gap={5}><Txt size={15} weight="600" style={{ flexShrink: 1 }}>{label}</Txt><Icon name="chevron-down" size={11} color={colors.muted} /></Row>
-              </Pressable>
+              </PressFeedback>
               <PeriodArrows previousLabel="Forrige lønperiode" nextLabel="Næste lønperiode" onPrevious={() => change(-1)} onNext={() => change(1)} />
             </Row>
-            {(offset !== 0 || custom) && <Pressable accessibilityRole="button" onPress={() => { setCustom(null); setOffset(0); }} style={styles.reset}><Txt size={13} weight="600" color={colors.accent}>Denne lønperiode</Txt></Pressable>}
+            {(offset !== 0 || custom) && <PressFeedback haptic="selection" accessibilityRole="button" onPress={() => { setCustom(null); setOffset(0); }} style={styles.reset}><Txt size={13} weight="600" color={colors.accent}>Denne lønperiode</Txt></PressFeedback>}
             <ScheduleFeedback loading={hours.loading && !data} loadingLabel="Henter timer…" error={hours.error} onRetry={hours.refresh} />
             {data && <>
               <View style={styles.summary}>
@@ -69,9 +70,9 @@ function CompanyHoursScreen({ startDay, companyError, refreshCompany, companyRef
                 {data.summary.monthlyCents > 0 && <Row style={{ justifyContent: 'space-between', marginTop: 14 }}><Txt size={12} color={colors.muted}>Fast løn i perioden</Txt><Txt size={14} weight="600">{currency(data.summary.monthlyCents)}</Txt></Row>}
                 {data.warnings.map((warning, i) => <Txt key={i} size={12} color={colors.muted} style={{ marginTop: 8 }}>{warning}</Txt>)}
               </View>
-              <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpanded(value => !value)} style={styles.calculation}>
+              <PressFeedback haptic="selection" accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpanded(value => !value)} style={styles.calculation}>
                 <Row><Txt size={13} weight="600" style={{ flex: 1 }}>Lønberegning</Txt><Txt size={12} color={colors.muted}>{minutesLabel(data.summary.approvedMinutes)} godkendt</Txt><Icon name={expanded ? 'chevron-left' : 'chevron-down'} size={12} color={colors.muted} /></Row>
-              </Pressable>
+              </PressFeedback>
               {expanded && <View style={[styles.summary, { gap: 9 }]}>
                 <Amount label="Grundløn" cents={future ? data.summary.baseEstimatedCents : data.summary.baseEarnedCents} />
                 <Amount label="Tillæg" cents={future ? data.summary.allowanceEstimatedCents : data.summary.allowanceEarnedCents} />
@@ -81,8 +82,8 @@ function CompanyHoursScreen({ startDay, companyError, refreshCompany, companyRef
           </View>
           {rows.length > 0 && <Row style={styles.listTitle}><Txt size={15} weight="600" style={{ flex: 1 }}>Vagter i perioden <Txt size={12} color={colors.muted}>{rows.length}</Txt></Txt><Txt size={12} color={colors.muted}>Før skat</Txt></Row>}
         </>}
-        ListEmptyComponent={data && !hours.error ? <View style={{ marginTop: 16 }}><EmptyState title="Ingen vagter i perioden" /></View> : null}
-        ListFooterComponent={rows.length > 4 ? <Pressable accessibilityRole="button" onPress={() => setAll(value => !value)} style={styles.more}><Txt size={13} weight="600" color={colors.accent}>{all ? 'Vis færre vagter' : `Vis alle ${rows.length} vagter`}</Txt></Pressable> : null}
+        ListEmptyComponent={data && !hours.error ? <View style={{ marginTop: 16 }}><EmptyState title="Ingen vagter i perioden" body="Dine vagter og registrerede timer samles her." /></View> : null}
+        ListFooterComponent={rows.length > 4 ? <PressFeedback haptic="selection" accessibilityRole="button" onPress={() => setAll(value => !value)} style={styles.more}><Txt size={13} weight="600" color={colors.accent}>{all ? 'Vis færre vagter' : `Vis alle ${rows.length} vagter`}</Txt></PressFeedback> : null}
         renderItem={({ item }) => <LiveHourRow row={item} />}
       />
     </FlowScreen>
@@ -100,12 +101,12 @@ function LiveHourRow({ row: { shift, site, entry, pay, sourceLabel } }: { row: E
   const rowDate = registeredInterval ? copenhagenDate(registeredStart) : shift.date;
   const rowTime = registeredInterval ? `${clockTimeLabel(registeredStart)}–${clockTimeLabel(registeredEnd)}` : `${shift.start}–${shift.end}`;
   const status = entry?.status === 'approved' ? 'Godkendt' : entry?.status === 'running' ? 'I gang' : entry?.status === 'paused' ? 'På pause' : entry?.status === 'rejected' ? 'Sendt retur' : entry?.clockOut ? 'Til godkendelse' : 'Planlagt';
-  return <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })} style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.paper }]}>
+  return <PressFeedback haptic="light" accessibilityRole="button" onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })} style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.paper }]}>
     <View style={styles.day}><Txt size={18} weight="700">{Number(rowDate.slice(-2))}.</Txt><Txt size={11} color={colors.muted}>{dateLabel(rowDate, { day: undefined, month: 'short' })}</Txt></View>
     <View style={{ flex: 1, minWidth: 0, gap: 2 }}><Txt size={15} weight="600">{rowTime}</Txt><Txt size={13} color={colors.muted} numberOfLines={2}>{site.name}</Txt><Txt size={11} color={colors.muted}>{status}</Txt></View>
     <View style={{ alignItems: 'flex-end', maxWidth: '42%', gap: 2 }}><Txt size={15} weight="600">{pay.unavailableReason ? '—' : currency(pay.totalCents)}</Txt><Txt size={12} color={colors.muted}>{pay.kind === 'registered' ? minutesLabel(pay.minutes) : 'Forventet'}</Txt>{sourceLabel && entry?.status === 'approved' && <Txt size={10} color={colors.muted}>{sourceLabel}</Txt>}</View>
     <Icon name="chevron-right" size={12} color={colors.muted} />
-  </Pressable>;
+  </PressFeedback>;
 }
 const styles = StyleSheet.create({
   screen: { flex: 1 }, content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28 },

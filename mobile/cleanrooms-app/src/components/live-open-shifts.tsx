@@ -74,7 +74,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
       <Pressable accessibilityRole="button" onPress={resource.refresh} style={styles.retry}><Txt size={13} weight="600" color={colors.accent}>Prøv igen</Txt></Pressable>
     </Row>}
     {resource.loading && !resource.data ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter ledige vagter" /></View>
-      : shifts.length === 0 && !resource.error ? <EmptyState title="Ingen ledige vagter" /> : shifts.map((shift, index) => {
+      : shifts.length === 0 && !resource.error ? <EmptyState title="Ingen ledige vagter" body="Nye ledige vagter vises her. Kig gerne forbi igen senere." /> : shifts.map((shift, index) => {
         const sent = requested.has(shift.id);
         const unavailable = unavailableDates.has(shift.date) || shift.end < shift.start && shift.end !== '00:00' && unavailableDates.has(addDays(shift.date, 1));
         return <View key={shift.id} style={[styles.shift, index > 0 && cardStyles.divider]}>

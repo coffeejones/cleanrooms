@@ -1,5 +1,18 @@
-import { StyleSheet, View } from 'react-native';
+import { useIsFocused } from 'expo-router/react-navigation';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Defs, G, LinearGradient, Path, Stop } from 'react-native-svg';
+import { useReduceMotionPreference } from './motion-preference';
+
+type DriftStep = { target: number; duration: number };
+
+function driftSteps(center: number, range: number, minimumDuration: number): DriftStep[] {
+  return Array.from({ length: 5 }, () => ({
+    target: center + (Math.random() * 2 - 1) * range,
+    duration: minimumDuration + Math.random() * 12_000,
+  }));
+}
 
 const contours = [
   'M -40 28 C 90 140 250 132 440 -10',
@@ -30,21 +43,76 @@ function FlowRibbon({ id, opacity }: { id: string; opacity: number }) {
   );
 }
 
+function DriftingRibbon({ id, opacity, active, reduceMotion, style }: {
+  id: string;
+  opacity: number;
+  active: boolean;
+  reduceMotion: boolean;
+  style: StyleProp<ViewStyle>;
+}) {
+  const x = useSharedValue(0);
+  const y = useSharedValue(0);
+  const scaleX = useSharedValue(1.02);
+  const scaleY = useSharedValue(1);
+  const plan = useRef<DriftStep[][] | null>(null);
+  const motion = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: x.get() }, { translateY: y.get() },
+      { scaleX: scaleX.get() }, { scaleY: scaleY.get() },
+    ],
+  }));
+
+  useEffect(() => {
+    const values = [x, y, scaleX, scaleY];
+    const stop = () => values.forEach(value => cancelAnimation(value));
+    stop();
+    if (reduceMotion) {
+      x.set(0);
+      y.set(0);
+      scaleX.set(1.02);
+      scaleY.set(1);
+    } else if (active) {
+      // Generate once per layer, independently of the home screen's clock ticks.
+      const layerPlans = plan.current ??= [
+        driftSteps(0, 6, 16_000), driftSteps(0, 3.5, 18_000),
+        driftSteps(1.02, .012, 22_000), driftSteps(1, .022, 20_000),
+      ];
+      const timing = { easing: Easing.inOut(Easing.sin), reduceMotion: ReduceMotion.Never };
+      values.forEach((value, index) => {
+        const origin = value.get();
+        const steps = layerPlans[index];
+        const sequence = steps.map(step => withTiming(step.target, { ...timing, duration: step.duration }));
+        // Return to this run's origin so repetition and focus resumes stay seamless.
+        sequence.push(withTiming(origin, { ...timing, duration: steps[0].duration }));
+        value.set(withRepeat(withSequence(ReduceMotion.Never, ...sequence), -1, false, undefined, ReduceMotion.Never));
+      });
+    }
+    return stop;
+  }, [active, reduceMotion, scaleX, scaleY, x, y]);
+
+  return <Animated.View style={[style, motion]}><FlowRibbon id={id} opacity={opacity} /></Animated.View>;
+}
+
 export function HomeFlowBackground() {
+  const focused = useIsFocused();
+  const reduceMotion = useReduceMotionPreference();
+  const [foreground, setForeground] = useState(AppState.currentState === 'active');
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', status => setForeground(status === 'active'));
+    return () => subscription.remove();
+  }, []);
+  const active = focused && foreground;
+
   return (
     <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.frame}>
-      <View style={styles.upper}>
-        <FlowRibbon id="home-flow-upper" opacity={.75} />
-      </View>
-      <View style={styles.lower}>
-        <FlowRibbon id="home-flow-lower" opacity={1} />
-      </View>
+      <DriftingRibbon id="home-flow-upper" opacity={.55} active={active} reduceMotion={reduceMotion} style={styles.upper} />
+      <DriftingRibbon id="home-flow-lower" opacity={.78} active={active} reduceMotion={reduceMotion} style={styles.lower} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   frame: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' },
-  upper: { position: 'absolute', top: -45, left: 0, right: 0, height: 132 },
-  lower: { position: 'absolute', bottom: -8, left: 0, right: 0, height: 160 },
+  upper: { position: 'absolute', top: -45, left: -14, right: -14, height: 132 },
+  lower: { position: 'absolute', bottom: -8, left: -14, right: -14, height: 160 },
 });

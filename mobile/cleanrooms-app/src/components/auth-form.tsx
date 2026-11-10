@@ -5,9 +5,9 @@ import { Txt } from '@/components/ui';
 import { cardColors } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 
-export function AuthForm({ children, centered = false }: { children: ReactNode; centered?: boolean }) {
+export function AuthForm({ children, centered = false, transparent = false }: { children: ReactNode; centered?: boolean; transparent?: boolean }) {
   return (
-    <KeyboardAvoidingView behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined} style={styles.screen}>
+    <KeyboardAvoidingView behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined} style={[styles.screen, transparent && styles.transparent]}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
@@ -38,6 +38,7 @@ export function CredentialField({ label, ...props }: TextInputProps & { label: s
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: cardColors.canvas },
+  transparent: { backgroundColor: 'transparent' },
   scroll: { flexGrow: 1, paddingHorizontal: 22, paddingVertical: 24 },
   centered: { justifyContent: 'center' },
   form: { width: '100%', maxWidth: 460, alignSelf: 'center', gap: 18 },

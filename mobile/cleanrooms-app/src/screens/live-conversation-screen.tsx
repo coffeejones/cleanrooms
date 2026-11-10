@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View, type ViewToken } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -72,32 +73,34 @@ export default function LiveConversationScreen() {
       <Text selectable style={styles.error}>{conversation.error || conversation.draftError}</Text>
       <Pressable accessibilityRole="button" onPress={() => { conversation.refresh(); if (conversation.draftError) conversation.retryDraft(); }} style={styles.retry}><Text style={styles.link}>Prøv igen</Text></Pressable>
     </Row>}
-    {conversation.loading && !detail ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter beskeder" /></View> : <FlatList
-      ref={list} inverted data={messages} keyExtractor={item => item.id}
-      maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
-      contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.messages}
-      keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
-      onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
-      scrollEventThrottle={32} onScroll={event => { atBottom.current = event.nativeEvent.contentOffset.y < 72; }}
-      ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
-      ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
-        onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
-      renderItem={({ item, index }) => {
-        const mine = item.authorId === detail?.viewer.userId;
-        const older = messages[index + 1];
-        const newDay = !older || new Date(older.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
-        return <View style={styles.message}>
-          {newDay && <Text selectable style={styles.date}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
-          <View style={[styles.messageBody, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>
-            {!mine && <Text selectable style={styles.author}>{item.authorName}</Text>}
-            <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
-              <Text selectable style={[styles.messageText, mine && styles.sentText]}>{item.text}</Text>
+    <FlowScreen>
+      {conversation.loading && !detail ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter beskeder" /></View> : <FlatList
+        ref={list} inverted data={messages} keyExtractor={item => item.id}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+        contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.messages}
+        keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
+        onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
+        scrollEventThrottle={32} onScroll={event => { atBottom.current = event.nativeEvent.contentOffset.y < 72; }}
+        ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
+        ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
+          onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
+        renderItem={({ item, index }) => {
+          const mine = item.authorId === detail?.viewer.userId;
+          const older = messages[index + 1];
+          const newDay = !older || new Date(older.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
+          return <View style={styles.message}>
+            {newDay && <Text selectable style={styles.date}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
+            <View style={[styles.messageBody, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>
+              {!mine && <Text selectable style={styles.author}>{item.authorName}</Text>}
+              <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
+                <Text selectable style={[styles.messageText, mine && styles.sentText]}>{item.text}</Text>
+              </View>
+              <Text style={[styles.time, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>{time(item.createdAt)}</Text>
             </View>
-            <Text style={[styles.time, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>{time(item.createdAt)}</Text>
-          </View>
-        </View>;
-      }}
-    />}
+          </View>;
+        }}
+      />}
+    </FlowScreen>
     {detail && <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
       <View style={styles.composerRow}>
         <View style={[cardStyles.raisedFrame, styles.inputFrame]}>

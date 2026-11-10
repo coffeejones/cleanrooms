@@ -7,6 +7,7 @@ import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import LiveHoursScreen from '@/screens/live-hours-screen';
 
+import { FlowScreen } from '@/components/flow-screen';
 import { PeriodArrows } from '@/components/period-arrows';
 import { PeriodPicker } from '@/components/period-picker';
 import { PeriodProgress } from '@/components/period-progress';
@@ -90,121 +91,123 @@ function DemoHoursScreen() {
 
   return (
     <>
-      <FlatList
-        ref={listRef}
-        data={visibleShifts}
-        keyExtractor={(shift) => shift.id}
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-        windowSize={5}
-        style={styles.canvas}
-        contentContainerStyle={styles.content}
-        ListHeaderComponent={
-          <>
-            <View style={cardStyles.listSurface}>
-              <View>
-                <Row gap={8} style={styles.periodHeader}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Vælg periode, ${periodLabel}`}
-                    onPress={() => setPickerVisible(true)}
-                    style={({ pressed }) => [styles.periodButton, pressed && styles.pressed]}>
-                    <Txt size={12} weight="600" color={colors.muted}>{custom && !showCurrentPeriod ? 'Valgt periode' : 'Lønperiode'}</Txt>
-                    <Row gap={6}>
-                      <Txt size={15} weight="600" style={styles.periodTitle}>{periodLabel}</Txt>
-                      <Icon name="chevron-down" size={11} color={colors.muted} />
-                    </Row>
-                  </Pressable>
-                  <PeriodArrows
-                    previousLabel="Forrige lønperiode"
-                    nextLabel="Næste lønperiode"
-                    onPrevious={() => navigate(-1)}
-                    onNext={() => navigate(1)}
-                  />
-                </Row>
-                {!showCurrentPeriod && (custom || offset !== 0) && (
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => {
-                      setCustom(null);
-                      setOffset(0);
-                      setShowAll(false);
-                    }}
-                    style={({ pressed }) => [styles.resetPeriod, pressed && styles.pressed]}>
-                    <Txt size={13} color={colors.accent} weight="600">Denne lønperiode</Txt>
-                  </Pressable>
-                )}
-                <View style={styles.summary}>
-                  <PeriodProgress summary={summary} future={future} />
-                </View>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={approvedLabel ? `Lønberegning, ${approvedLabel}` : 'Lønberegning'}
-                  accessibilityState={{ expanded: calculationOpen }}
-                  onPress={() => setCalculationOpen(value => !value)}
-                  style={({ pressed }) => [styles.calculationButton, !calculationOpen && styles.calculationEnd, pressed && styles.pressed]}>
-                  <Row gap={10} style={styles.calculationLabel}>
-                    <Txt size={13} weight="600" style={{ flex: 1 }}>Lønberegning</Txt>
-                    {approvedLabel && (
-                      <Txt size={12} color={colors.muted} style={{ textAlign: 'right', flexShrink: 1 }}>{approvedLabel}</Txt>
-                    )}
-                    <View style={{ transform: [{ rotate: calculationOpen ? '180deg' : '0deg' }] }}>
-                      <Icon name="chevron-down" size={12} color={colors.muted} />
-                    </View>
+      <FlowScreen>
+        <FlatList
+          ref={listRef}
+          data={visibleShifts}
+          keyExtractor={(shift) => shift.id}
+          contentInsetAdjustmentBehavior="automatic"
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          windowSize={5}
+          style={styles.canvas}
+          contentContainerStyle={styles.content}
+          ListHeaderComponent={
+            <>
+              <View style={cardStyles.listSurface}>
+                <View>
+                  <Row gap={8} style={styles.periodHeader}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Vælg periode, ${periodLabel}`}
+                      onPress={() => setPickerVisible(true)}
+                      style={({ pressed }) => [styles.periodButton, pressed && styles.pressed]}>
+                      <Txt size={12} weight="600" color={colors.muted}>{custom && !showCurrentPeriod ? 'Valgt periode' : 'Lønperiode'}</Txt>
+                      <Row gap={6}>
+                        <Txt size={15} weight="600" style={styles.periodTitle}>{periodLabel}</Txt>
+                        <Icon name="chevron-down" size={11} color={colors.muted} />
+                      </Row>
+                    </Pressable>
+                    <PeriodArrows
+                      previousLabel="Forrige lønperiode"
+                      nextLabel="Næste lønperiode"
+                      onPrevious={() => navigate(-1)}
+                      onNext={() => navigate(1)}
+                    />
                   </Row>
-                </Pressable>
-                {calculationOpen && (
-                  <Animated.View entering={calculationEnter} style={styles.calculation}>
-                    <AmountRow label="Grundløn" amount={basePay} />
-                    <AmountRow label="Aften- og weekendtillæg" amount={allowances} />
-                    <Row gap={12} style={styles.total}>
-                      <Txt size={13} weight="600" style={{ flex: 1 }}>{future ? 'Forventet i alt før skat' : 'I alt før skat'}</Txt>
-                      <Txt size={14} weight="600" style={styles.amount}>{currency(totalPay)}</Txt>
+                  {!showCurrentPeriod && (custom || offset !== 0) && (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => {
+                        setCustom(null);
+                        setOffset(0);
+                        setShowAll(false);
+                      }}
+                      style={({ pressed }) => [styles.resetPeriod, pressed && styles.pressed]}>
+                      <Txt size={13} color={colors.accent} weight="600">Denne lønperiode</Txt>
+                    </Pressable>
+                  )}
+                  <View style={styles.summary}>
+                    <PeriodProgress summary={summary} future={future} />
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={approvedLabel ? `Lønberegning, ${approvedLabel}` : 'Lønberegning'}
+                    accessibilityState={{ expanded: calculationOpen }}
+                    onPress={() => setCalculationOpen(value => !value)}
+                    style={({ pressed }) => [styles.calculationButton, !calculationOpen && styles.calculationEnd, pressed && styles.pressed]}>
+                    <Row gap={10} style={styles.calculationLabel}>
+                      <Txt size={13} weight="600" style={{ flex: 1 }}>Lønberegning</Txt>
+                      {approvedLabel && (
+                        <Txt size={12} color={colors.muted} style={{ textAlign: 'right', flexShrink: 1 }}>{approvedLabel}</Txt>
+                      )}
+                      <View style={{ transform: [{ rotate: calculationOpen ? '180deg' : '0deg' }] }}>
+                        <Icon name="chevron-down" size={12} color={colors.muted} />
+                      </View>
                     </Row>
-                  </Animated.View>
-                )}
+                  </Pressable>
+                  {calculationOpen && (
+                    <Animated.View entering={calculationEnter} style={styles.calculation}>
+                      <AmountRow label="Grundløn" amount={basePay} />
+                      <AmountRow label="Aften- og weekendtillæg" amount={allowances} />
+                      <Row gap={12} style={styles.total}>
+                        <Txt size={13} weight="600" style={{ flex: 1 }}>{future ? 'Forventet i alt før skat' : 'I alt før skat'}</Txt>
+                        <Txt size={14} weight="600" style={styles.amount}>{currency(totalPay)}</Txt>
+                      </Row>
+                    </Animated.View>
+                  )}
+                </View>
               </View>
-            </View>
-            {shifts.length > 0 && (
-              <Row gap={10} style={styles.listHeader}>
-                <Row gap={7} style={styles.listTitle}>
-                  <Txt size={15} weight="600" accessibilityRole="header">Vagter i perioden</Txt>
-                  <Txt size={12} color={colors.muted}>{shifts.length}</Txt>
+              {shifts.length > 0 && (
+                <Row gap={10} style={styles.listHeader}>
+                  <Row gap={7} style={styles.listTitle}>
+                    <Txt size={15} weight="600" accessibilityRole="header">Vagter i perioden</Txt>
+                    <Txt size={12} color={colors.muted}>{shifts.length}</Txt>
+                  </Row>
+                  <Txt size={12} weight="500" color={colors.muted}>Før skat</Txt>
                 </Row>
-                <Txt size={12} weight="500" color={colors.muted}>Før skat</Txt>
-              </Row>
-            )}
-          </>
-        }
-        ListEmptyComponent={
-          <View style={[cardStyles.listSurface, styles.empty]}>
-            <EmptyState title="Ingen vagter i perioden" icon="calendar" />
-          </View>
-        }
-        ListFooterComponent={hasMore ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ expanded: showAll }}
-            onPress={() => {
-              if (showAll) listRef.current?.scrollToOffset({ offset: 0, animated: false });
-              setShowAll(!showAll);
-            }}
-            style={({ pressed }) => [styles.more, pressed && styles.pressed]}
-          >
-            <Txt size={13} weight="600" color={colors.accent}>{showAll ? 'Vis færre vagter' : `Vis alle ${shifts.length} vagter`}</Txt>
-            <View style={showAll && styles.chevronUp}>
-              <Icon name="chevron-down" size={12} color={colors.accent} />
+              )}
+            </>
+          }
+          ListEmptyComponent={
+            <View style={[cardStyles.listSurface, styles.empty]}>
+              <EmptyState title="Ingen vagter i perioden" icon="calendar" />
             </View>
-          </Pressable>
-        ) : null}
-        renderItem={({ item, index }) => (
-          <HoursRecord
-            shift={item} state={state} from={period.from} to={period.to}
-            last={!hasMore && index === visibleShifts.length - 1}
-          />
-        )}
-      />
+          }
+          ListFooterComponent={hasMore ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: showAll }}
+              onPress={() => {
+                if (showAll) listRef.current?.scrollToOffset({ offset: 0, animated: false });
+                setShowAll(!showAll);
+              }}
+              style={({ pressed }) => [styles.more, pressed && styles.pressed]}
+            >
+              <Txt size={13} weight="600" color={colors.accent}>{showAll ? 'Vis færre vagter' : `Vis alle ${shifts.length} vagter`}</Txt>
+              <View style={showAll && styles.chevronUp}>
+                <Icon name="chevron-down" size={12} color={colors.accent} />
+              </View>
+            </Pressable>
+          ) : null}
+          renderItem={({ item, index }) => (
+            <HoursRecord
+              shift={item} state={state} from={period.from} to={period.to}
+              last={!hasMore && index === visibleShifts.length - 1}
+            />
+          )}
+        />
+      </FlowScreen>
       <PeriodPicker
         visible={pickerVisible}
         from={period.from}
@@ -286,7 +289,7 @@ function HoursRecord({ shift, state, from, to, last }: {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: cardColors.canvas },
+  canvas: { flex: 1 },
   content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28 },
   periodHeader: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10 },
   periodButton: { flex: 1, minWidth: 0, minHeight: 44, justifyContent: 'center', gap: 2, borderRadius: 7 },

@@ -5,6 +5,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { CalendarMonthPicker } from '@/components/calendar-month-picker';
 import { CalendarOpenShifts } from '@/components/calendar-open-shifts';
+import { FlowScreen } from '@/components/flow-screen';
 import { LiveOpenShifts } from '@/components/live-open-shifts';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
@@ -56,6 +57,7 @@ export default function CalendarScreen() {
   const [picker, setPicker] = useState({ visible: false, year: Number(today.slice(0, 4)) });
   const [availabilityError, setAvailabilityError] = useState<{ date: string; message: string } | null>(null);
   const [availabilityBusy, setAvailabilityBusy] = useState(false);
+  const [backgroundTop, setBackgroundTop] = useState<number | null>(null);
   const availabilityPending = useRef(false);
   const preferences = useEmployeePreferences();
   const employee = auth.mode === 'signedIn' ? auth.session.employee : null;
@@ -168,11 +170,11 @@ export default function CalendarScreen() {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
-      style={styles.canvas}
+      style={styles.scroll}
       contentContainerStyle={styles.content}
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || preferences.refreshing} onRefresh={() => { schedule.refresh(); preferences.refresh(); }} /> : undefined}
     >
-      <Row gap={0} style={styles.scopeBar}>
+      <Row gap={0} style={styles.scopeBar} onLayout={event => setBackgroundTop(event.nativeEvent.layout.y + event.nativeEvent.layout.height + 16)}>
         {scopes.map((scope) => {
           const selected = scope.view === (open ? 'open' : 'mine');
           return (
@@ -349,7 +351,7 @@ export default function CalendarScreen() {
 
   return (
     <>
-      {calendar}
+      <FlowScreen backgroundTop={backgroundTop}>{calendar}</FlowScreen>
       {!open && (
         <CalendarMonthPicker
           year={picker.year}
@@ -368,7 +370,7 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { flex: 1, backgroundColor: cardColors.canvas },
+  scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 16 },
   scopeBar: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: cardColors.border },
   scopeTab: {

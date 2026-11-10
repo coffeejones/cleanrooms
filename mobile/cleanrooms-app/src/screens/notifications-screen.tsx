@@ -1,6 +1,7 @@
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMobileAuth } from '@/auth/mobile-auth';
+import { FlowScreen } from '@/components/flow-screen';
 import LiveNotificationsScreen from '@/screens/live-notifications-screen';
 
 import { EmptyState, Icon, Row, Txt } from '@/components/ui';
@@ -31,61 +32,63 @@ function DemoNotificationsScreen() {
   }
 
   return (
-    <FlatList
-      contentInsetAdjustmentBehavior="automatic"
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      data={items}
-      keyExtractor={(item) => item.id}
-      ListHeaderComponent={items.length > 0 ? (
-        <Row gap={10} style={styles.listHeader}>
-          <Txt size={14} weight="600" style={styles.headerLabel}>
-            {unread.length ? `${unread.length} ulæste` : 'Du er opdateret'}
-          </Txt>
+    <FlowScreen>
+      <FlatList
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.screen}
+        contentContainerStyle={styles.content}
+        data={items}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={items.length > 0 ? (
+          <Row gap={10} style={styles.listHeader}>
+            <Txt size={14} weight="600" style={styles.headerLabel}>
+              {unread.length ? `${unread.length} ulæste` : 'Du er opdateret'}
+            </Txt>
+            <Pressable
+              accessibilityRole="button"
+              disabled={unread.length === 0}
+              onPress={() => unread.forEach((item) => actions.markNotificationRead(item.id))}
+              style={({ pressed }) => [styles.markAll, pressed && styles.pressed]}
+            >
+              <Txt size={13} weight="600" color={unread.length ? colors.accent : colors.muted}>Markér alle som læst</Txt>
+            </Pressable>
+          </Row>
+        ) : null}
+        ListEmptyComponent={
+          <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View>
+        }
+        renderItem={({ item, index }) => (
           <Pressable
             accessibilityRole="button"
-            disabled={unread.length === 0}
-            onPress={() => unread.forEach((item) => actions.markNotificationRead(item.id))}
-            style={({ pressed }) => [styles.markAll, pressed && styles.pressed]}
+            accessibilityLabel={`${!item.read ? 'Ulæst. ' : ''}${item.title}. ${item.body}`}
+            onPress={() => open(item)}
+            style={({ pressed }) => [
+              styles.record, cardStyles.divider, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed,
+            ]}
           >
-            <Txt size={13} weight="600" color={unread.length ? colors.accent : colors.muted}>Markér alle som læst</Txt>
+            <View style={styles.icon}>
+              <Icon name={icons[item.kind]} size={17} color={item.read ? colors.muted : colors.accent} />
+            </View>
+            <View style={styles.message}>
+              <Row gap={7}>
+                <Txt size={15} weight={item.read ? '600' : '700'} style={styles.messageTitle}>{item.title}</Txt>
+                {!item.read && <View style={styles.unreadDot} />}
+              </Row>
+              <Txt size={13} color={colors.muted}>{item.body}</Txt>
+              <Txt size={11} color={colors.muted}>{timestamp.format(new Date(item.createdAt))}</Txt>
+            </View>
+            {(item.shiftId || item.roomId) && (
+              <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>
+            )}
           </Pressable>
-        </Row>
-      ) : null}
-      ListEmptyComponent={
-        <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View>
-      }
-      renderItem={({ item, index }) => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${!item.read ? 'Ulæst. ' : ''}${item.title}. ${item.body}`}
-          onPress={() => open(item)}
-          style={({ pressed }) => [
-            styles.record, cardStyles.divider, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed,
-          ]}
-        >
-          <View style={styles.icon}>
-            <Icon name={icons[item.kind]} size={17} color={item.read ? colors.muted : colors.accent} />
-          </View>
-          <View style={styles.message}>
-            <Row gap={7}>
-              <Txt size={15} weight={item.read ? '600' : '700'} style={styles.messageTitle}>{item.title}</Txt>
-              {!item.read && <View style={styles.unreadDot} />}
-            </Row>
-            <Txt size={13} color={colors.muted}>{item.body}</Txt>
-            <Txt size={11} color={colors.muted}>{timestamp.format(new Date(item.createdAt))}</Txt>
-          </View>
-          {(item.shiftId || item.roomId) && (
-            <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>
-          )}
-        </Pressable>
-      )}
-    />
+        )}
+      />
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: cardColors.canvas },
+  screen: { flex: 1, backgroundColor: 'transparent' },
   content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28 },
   listHeader: {
     justifyContent: 'space-between', flexWrap: 'wrap', paddingHorizontal: 14, paddingVertical: 2,

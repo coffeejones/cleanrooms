@@ -1,5 +1,5 @@
 import { useIsFocused } from 'expo-router/react-navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { AppState, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
@@ -53,6 +53,7 @@ function TravellingRibbon({ layer, period, active, reduceMotion }: {
   active: boolean;
   reduceMotion: boolean;
 }) {
+  const gradientId = `${layer.id}-${useId().replace(/:/g, '')}`;
   const phase = useSharedValue(period * layer.start);
   const motion = useAnimatedStyle(() => ({ transform: [{ translateX: -(phase.get() % period) }] }));
   const paths = useMemo(() => {
@@ -80,12 +81,12 @@ function TravellingRibbon({ layer, period, active, reduceMotion }: {
     return () => cancelAnimation(phase);
   }, [active, layer.speed, period, phase, reduceMotion]);
 
-  const paint = `url(#${layer.id})`;
+  const paint = `url(#${gradientId})`;
   return (
     <Animated.View style={[styles.lower, { width: period * 2 }, motion]}>
       <Svg width="100%" height="100%" viewBox={`0 0 ${period * 2} 160`} preserveAspectRatio="none">
         <Defs>
-          <LinearGradient id={layer.id} x1="0%" y1="0%" x2="100%" y2="0%">
+          <LinearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             <Stop offset="0%" stopColor="#77a7df" />
             <Stop offset="25%" stopColor="#70c8bb" />
             <Stop offset="50%" stopColor="#77a7df" />
@@ -102,7 +103,7 @@ function TravellingRibbon({ layer, period, active, reduceMotion }: {
   );
 }
 
-export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) {
+export function FlowBackground({ style }: { style?: StyleProp<ViewStyle> }) {
   const focused = useIsFocused();
   const { width } = useWindowDimensions();
   const period = Math.max(width * 2, 640);

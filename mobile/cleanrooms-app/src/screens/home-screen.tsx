@@ -5,7 +5,7 @@ import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { HomeFlowBackground } from '@/components/home-flow-background';
+import { FlowScreen } from '@/components/flow-screen';
 import { HomeShiftDock } from '@/components/home-shift-dock';
 import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
@@ -115,10 +115,7 @@ export default function HomeScreen() {
 
   const content = <>
     <Stack.Screen options={headerOptions} />
-    <View style={styles.viewport}>
-      {agendaTop !== null && agendaBodyTop !== null && (
-        <HomeFlowBackground style={{ top: agendaTop + agendaBodyTop }} />
-      )}
+    <FlowScreen backgroundTop={agendaTop !== null && agendaBodyTop !== null ? agendaTop + agendaBodyTop : null}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
@@ -178,7 +175,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </FlowScreen>
     {next && nextStart !== undefined && (
       <View style={styles.dock}>
         <HomeShiftDock
@@ -203,7 +200,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
-  viewport: { flex: 1 },
   scroll: { flex: 1 },
   content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
   dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },

@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
+import { FlowScreen } from '@/components/flow-screen';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -94,57 +95,59 @@ export default function LiveNotificationsScreen() {
   }
 
   return (
-    <FlatList
-      ref={list}
-      contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}
-      style={styles.screen} contentContainerStyle={styles.content}
-      data={items} keyExtractor={item => item.id}
-      refreshing={resource.refreshing} onRefresh={resource.refresh}
-      ListHeaderComponent={<View style={styles.header}>
-        <EmployeeShiftRequests />
-        {resource.data && <Txt size={13} color={colors.muted}>{resource.data.unreadCount ? `${resource.data.unreadCount} ulæste` : 'Du er opdateret'}</Txt>}
-        {(resource.error || error) && <View style={styles.feedback}>
-          <Txt size={13} accessibilityRole="alert" color={colors.danger}>{error || resource.error}</Txt>
-          {!!resource.error && <Button label="Prøv igen" compact variant="ghost" onPress={resource.refresh} />}
+    <FlowScreen>
+      <FlatList
+        ref={list}
+        contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}
+        style={styles.screen} contentContainerStyle={styles.content}
+        data={items} keyExtractor={item => item.id}
+        refreshing={resource.refreshing} onRefresh={resource.refresh}
+        ListHeaderComponent={<View style={styles.header}>
+          <EmployeeShiftRequests />
+          {resource.data && <Txt size={13} color={colors.muted}>{resource.data.unreadCount ? `${resource.data.unreadCount} ulæste` : 'Du er opdateret'}</Txt>}
+          {(resource.error || error) && <View style={styles.feedback}>
+            <Txt size={13} accessibilityRole="alert" color={colors.danger}>{error || resource.error}</Txt>
+            {!!resource.error && <Button label="Prøv igen" compact variant="ghost" onPress={resource.refresh} />}
+          </View>}
         </View>}
-      </View>}
-      ListEmptyComponent={resource.loading ? <View style={styles.loading}><ActivityIndicator color={colors.accent} /><Txt size={13} color={colors.muted}>Henter beskeder…</Txt></View>
-        : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View> : null}
-      ListFooterComponent={cursor ? <Button label={busy === 'more' ? 'Henter flere…' : 'Vis flere beskeder'} compact variant="ghost" disabled={busy !== null} onPress={() => { void loadMore(); }} style={styles.more} /> : null}
-      renderItem={({ item, index }) => {
-        const seen = Boolean(item.readAt || readIds.includes(item.id));
-        const after = item.after, before = item.before;
-        const changedTime = Boolean(before && (!after || shiftLabel(before) !== shiftLabel(after)));
-        const changedSite = before && after && before.siteName !== after.siteName;
-        return <Pressable accessibilityRole="button" disabled={busy !== null}
-          accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
-          accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
-          onPress={() => { void open(item); }}
-          style={({ pressed }) => [styles.record, index === 0 && styles.firstRecord, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed]}>
-          <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
-            color={['changed', 'moved', 'cancelled'].includes(item.kind) ? colors.danger : seen ? colors.muted : colors.accent} /></View>
-          <View style={styles.message}>
-            <Row gap={8}><Txt size={15} weight={seen ? '600' : '700'} style={{ flex: 1 }}>{titles[item.kind] ?? 'Besked'}</Txt>
-              {!seen && <View style={styles.unreadDot} />}
-              {busy === item.id && <ActivityIndicator size="small" color={colors.accent} />}
-            </Row>
-            {item.kind === 'request' && <Txt size={13} color={colors.text}>{item.summary}</Txt>}
-            {before && changedTime && <Txt size={13} color={colors.muted} style={styles.struck}>{shiftLabel(before)}</Txt>}
-            {after && <Txt size={14} weight="500">{shiftLabel(after)}</Txt>}
-            {changedSite && before && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
-            {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
-            {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
-            <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
-          </View>
-          {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
-        </Pressable>;
-      }}
-    />
+        ListEmptyComponent={resource.loading ? <View style={styles.loading}><ActivityIndicator color={colors.accent} /><Txt size={13} color={colors.muted}>Henter beskeder…</Txt></View>
+          : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Ingen notifikationer" /></View> : null}
+        ListFooterComponent={cursor ? <Button label={busy === 'more' ? 'Henter flere…' : 'Vis flere beskeder'} compact variant="ghost" disabled={busy !== null} onPress={() => { void loadMore(); }} style={styles.more} /> : null}
+        renderItem={({ item, index }) => {
+          const seen = Boolean(item.readAt || readIds.includes(item.id));
+          const after = item.after, before = item.before;
+          const changedTime = Boolean(before && (!after || shiftLabel(before) !== shiftLabel(after)));
+          const changedSite = before && after && before.siteName !== after.siteName;
+          return <Pressable accessibilityRole="button" disabled={busy !== null}
+            accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
+            accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
+            onPress={() => { void open(item); }}
+            style={({ pressed }) => [styles.record, index === 0 && styles.firstRecord, index === items.length - 1 && styles.lastRecord, pressed && styles.pressed]}>
+            <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
+              color={['changed', 'moved', 'cancelled'].includes(item.kind) ? colors.danger : seen ? colors.muted : colors.accent} /></View>
+            <View style={styles.message}>
+              <Row gap={8}><Txt size={15} weight={seen ? '600' : '700'} style={{ flex: 1 }}>{titles[item.kind] ?? 'Besked'}</Txt>
+                {!seen && <View style={styles.unreadDot} />}
+                {busy === item.id && <ActivityIndicator size="small" color={colors.accent} />}
+              </Row>
+              {item.kind === 'request' && <Txt size={13} color={colors.text}>{item.summary}</Txt>}
+              {before && changedTime && <Txt size={13} color={colors.muted} style={styles.struck}>{shiftLabel(before)}</Txt>}
+              {after && <Txt size={14} weight="500">{shiftLabel(after)}</Txt>}
+              {changedSite && before && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
+              {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
+              {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
+              <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
+            </View>
+            {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
+          </Pressable>;
+        }}
+      />
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: cardColors.canvas },
+  screen: { flex: 1, backgroundColor: 'transparent' },
   content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 28 },
   header: { paddingBottom: 12, gap: 8 },
   feedback: { gap: 6 },

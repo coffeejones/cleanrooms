@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FlowScreen } from '@/components/flow-screen';
 import { Icon, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
@@ -62,35 +63,37 @@ export default function ConversationScreen() {
         <Text style={styles.pinnedLabel}>FASTGJORT</Text>
         <Text selectable style={styles.pinnedText}>{room.pinned}</Text>
       </View>}
-      <FlatList
-        ref={list}
-        data={messages}
-        keyExtractor={(message) => message.id}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={styles.messages}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        onContentSizeChange={onContentSizeChange}
-        scrollEventThrottle={32}
-        onScroll={(event) => { const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent; atBottom.current = contentSize.height - contentOffset.y - layoutMeasurement.height < 72; }}
-        ListEmptyComponent={<Text selectable style={{ color: c.muted, fontSize: 14 }}>Start samtalen med dit team.</Text>}
-        renderItem={({ item, index }) => {
-          const mine = item.personId === state.selfId;
-          const person = state.people.find((entry) => entry.id === item.personId);
-          const previous = messages[index - 1];
-          const newDay = !previous || new Date(previous.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
-          return <View style={{ gap: 12 }}>
-            {newDay && <Text selectable style={{ textAlign: 'center', color: c.muted, fontSize: 11, fontWeight: '500', paddingVertical: 6 }}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
-            <View style={{ maxWidth: '86%', alignSelf: mine ? 'flex-end' : 'flex-start', gap: 5 }}>
-              {!mine && <Text selectable style={{ color: c.muted, fontSize: 11, paddingLeft: 13 }}>{person?.name ?? 'Kollega'}</Text>}
-              <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
-                <Text selectable style={{ color: mine ? '#fff' : c.ink, fontSize: 15, lineHeight: 22 }}>{item.text}</Text>
+      <FlowScreen>
+        <FlatList
+          ref={list}
+          data={messages}
+          keyExtractor={(message) => message.id}
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={styles.messages}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          onContentSizeChange={onContentSizeChange}
+          scrollEventThrottle={32}
+          onScroll={(event) => { const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent; atBottom.current = contentSize.height - contentOffset.y - layoutMeasurement.height < 72; }}
+          ListEmptyComponent={<Text selectable style={{ color: c.muted, fontSize: 14 }}>Start samtalen med dit team.</Text>}
+          renderItem={({ item, index }) => {
+            const mine = item.personId === state.selfId;
+            const person = state.people.find((entry) => entry.id === item.personId);
+            const previous = messages[index - 1];
+            const newDay = !previous || new Date(previous.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
+            return <View style={{ gap: 12 }}>
+              {newDay && <Text selectable style={{ textAlign: 'center', color: c.muted, fontSize: 11, fontWeight: '500', paddingVertical: 6 }}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
+              <View style={{ maxWidth: '86%', alignSelf: mine ? 'flex-end' : 'flex-start', gap: 5 }}>
+                {!mine && <Text selectable style={{ color: c.muted, fontSize: 11, paddingLeft: 13 }}>{person?.name ?? 'Kollega'}</Text>}
+                <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
+                  <Text selectable style={{ color: mine ? '#fff' : c.ink, fontSize: 15, lineHeight: 22 }}>{item.text}</Text>
+                </View>
+                <Text style={{ alignSelf: mine ? 'flex-end' : 'flex-start', paddingHorizontal: 12, color: c.muted, fontSize: 10, fontVariant: ['tabular-nums'] }}>{time(item.createdAt)}</Text>
               </View>
-              <Text style={{ alignSelf: mine ? 'flex-end' : 'flex-start', paddingHorizontal: 12, color: c.muted, fontSize: 10, fontVariant: ['tabular-nums'] }}>{time(item.createdAt)}</Text>
-            </View>
-          </View>;
-        }}
-      />
+            </View>;
+          }}
+        />
+      </FlowScreen>
       <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
         {!!error && <Text selectable accessibilityRole="alert" style={{ color: '#a34f3c', fontSize: 13 }}>{error}</Text>}
         <View style={styles.composerRow}>

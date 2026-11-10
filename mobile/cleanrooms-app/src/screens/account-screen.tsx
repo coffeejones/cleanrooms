@@ -5,6 +5,7 @@ import { Column, Host, Picker, Row as NativeRow, Spacer, Switch, Text as NativeT
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { maximumPasswordLength, minimumPasswordLength } from '@/auth/mobile-auth-api';
 import { AuthForm, CredentialField } from '@/components/auth-form';
+import { FlowScreen } from '@/components/flow-screen';
 import { Avatar, Button, Row, Surface, Txt } from '@/components/ui';
 import { cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
@@ -77,38 +78,40 @@ export default function AccountScreen() {
   }
 
   return (
-    <AuthForm>
-      <Surface style={[cardStyles.listSurface, styles.card]}>
-        <Row gap={13}>
-          <Avatar initials={initials} size={45} />
-          <View style={styles.profile}>
-            <Txt size={21} weight="700" accessibilityRole="header">{employee.name}</Txt>
-            <Txt size={14} color={colors.muted}>{employee.email}</Txt>
-          </View>
-        </Row>
-      </Surface>
+    <FlowScreen>
+      <AuthForm transparent>
+        <Surface style={[cardStyles.listSurface, styles.card]}>
+          <Row gap={13}>
+            <Avatar initials={initials} size={45} />
+            <View style={styles.profile}>
+              <Txt size={21} weight="700" accessibilityRole="header">{employee.name}</Txt>
+              <Txt size={14} color={colors.muted}>{employee.email}</Txt>
+            </View>
+          </Row>
+        </Surface>
 
-      <NotificationPreferences disabled={Boolean(pending)} />
+        <NotificationPreferences disabled={Boolean(pending)} />
 
-      <Surface style={[cardStyles.listSurface, styles.card]}>
-        <Txt size={17} weight="700" accessibilityRole="header">Adgangskode</Txt>
-        {temporaryPassword && <Txt size={14} color={colors.muted}>Du bruger stadig startkoden. Du kan vælge din egen adgangskode her.</Txt>}
-        {changing ? (
-          <>
-            <CredentialField label="Nuværende adgangskode" value={current} onChangeText={setCurrent} autoComplete="current-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} testID="mobile-auth-current" />
-            <CredentialField label="Ny adgangskode" value={next} onChangeText={setNext} autoComplete="new-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} testID="mobile-auth-next" />
-            <CredentialField label="Gentag ny adgangskode" value={repeated} onChangeText={setRepeated} autoComplete="new-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} returnKeyType="done" onSubmitEditing={() => { void change(); }} testID="mobile-auth-repeat" />
-            <Txt size={13} color={colors.muted}>Brug mindst {minimumPasswordLength} tegn.</Txt>
-            <Button label={pending === 'change' ? 'Gemmer…' : 'Gem adgangskode'} onPress={() => { void change(); }} disabled={Boolean(pending)} />
-            <Button label="Annuller" onPress={closeChange} variant="ghost" disabled={Boolean(pending)} />
-          </>
-        ) : <Button label="Skift adgangskode" onPress={() => { setNotice(''); setChanging(true); }} variant="secondary" disabled={Boolean(pending)} />}
-        {!!notice && <Txt size={14} color={colors.success} accessibilityLiveRegion="polite">{notice}</Txt>}
-        {!!error && <Txt size={14} color={colors.danger} accessibilityRole="alert">{error}</Txt>}
-      </Surface>
+        <Surface style={[cardStyles.listSurface, styles.card]}>
+          <Txt size={17} weight="700" accessibilityRole="header">Adgangskode</Txt>
+          {temporaryPassword && <Txt size={14} color={colors.muted}>Du bruger stadig startkoden. Du kan vælge din egen adgangskode her.</Txt>}
+          {changing ? (
+            <>
+              <CredentialField label="Nuværende adgangskode" value={current} onChangeText={setCurrent} autoComplete="current-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} testID="mobile-auth-current" />
+              <CredentialField label="Ny adgangskode" value={next} onChangeText={setNext} autoComplete="new-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} testID="mobile-auth-next" />
+              <CredentialField label="Gentag ny adgangskode" value={repeated} onChangeText={setRepeated} autoComplete="new-password" secureTextEntry editable={!pending} maxLength={maximumPasswordLength * 2} returnKeyType="done" onSubmitEditing={() => { void change(); }} testID="mobile-auth-repeat" />
+              <Txt size={13} color={colors.muted}>Brug mindst {minimumPasswordLength} tegn.</Txt>
+              <Button label={pending === 'change' ? 'Gemmer…' : 'Gem adgangskode'} onPress={() => { void change(); }} disabled={Boolean(pending)} />
+              <Button label="Annuller" onPress={closeChange} variant="ghost" disabled={Boolean(pending)} />
+            </>
+          ) : <Button label="Skift adgangskode" onPress={() => { setNotice(''); setChanging(true); }} variant="secondary" disabled={Boolean(pending)} />}
+          {!!notice && <Txt size={14} color={colors.success} accessibilityLiveRegion="polite">{notice}</Txt>}
+          {!!error && <Txt size={14} color={colors.danger} accessibilityRole="alert">{error}</Txt>}
+        </Surface>
 
-      <Button label={pending === 'signOut' ? 'Logger ud…' : 'Log ud'} onPress={() => { void signOut(); }} variant="ghost" disabled={Boolean(pending)} />
-    </AuthForm>
+        <Button label={pending === 'signOut' ? 'Logger ud…' : 'Log ud'} onPress={() => { void signOut(); }} variant="ghost" disabled={Boolean(pending)} />
+      </AuthForm>
+    </FlowScreen>
   );
 }
 

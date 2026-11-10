@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useIsFocused } from 'expo-router/react-navigation';
 import { useEffect } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
@@ -22,9 +22,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   const { state } = useAppData();
   const focused = useIsFocused();
   const reduceMotion = useReduceMotionPreference();
-  const { fontScale } = useWindowDimensions();
   const homeTile = dateTile && showDate;
-  const stackedDate = fontScale > 1.05;
   const pressScale = useSharedValue(1);
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: pressScale.get() }] }));
 
@@ -90,15 +88,15 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
     >
       <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }, pressStyle]}>
         {showDate && dateTile && (
-          <View style={{ flexBasis: 52, flexShrink: 0, gap: 3 }}>
+          <View style={{ flexBasis: 52, flexShrink: 0 }}>
             <Txt size={11} weight="500" color={today ? colors.accent : colors.muted} style={{ lineHeight: 15 }}>
               {tileWeekday}
             </Txt>
-            <View style={{ flexDirection: stackedDate ? 'column' : 'row', alignItems: stackedDate ? 'flex-start' : 'baseline', gap: stackedDate ? 0 : 2 }}>
-              <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 25, letterSpacing: -.5 }}>
-                {dateNumber.replace(/\.$/, '')}
+            <View style={{ alignItems: 'flex-start' }}>
+              <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 24, letterSpacing: -.5 }}>
+                {dateNumber}
               </Txt>
-              <Txt size={11} color={colors.muted} style={{ flexShrink: 0 }}>
+              <Txt size={11} color={colors.muted} style={{ lineHeight: 13 }}>
                 {dateMonth}
               </Txt>
             </View>

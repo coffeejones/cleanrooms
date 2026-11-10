@@ -115,7 +115,7 @@ export default function HomeScreen() {
 
   const content = <>
     <Stack.Screen options={headerOptions} />
-    <FlowScreen backgroundTop={agendaTop !== null && agendaBodyTop !== null ? agendaTop + agendaBodyTop : null}>
+    <FlowScreen reference backgroundTop={agendaTop !== null && agendaBodyTop !== null ? agendaTop + agendaBodyTop : null}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}

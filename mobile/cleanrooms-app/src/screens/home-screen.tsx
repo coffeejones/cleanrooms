@@ -119,7 +119,6 @@ export default function HomeScreen() {
       contentContainerStyle={styles.content}
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
     >
-      <HomeFlowBackground />
       {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
       {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
       <View style={styles.agenda}>
@@ -152,22 +151,25 @@ export default function HomeScreen() {
             />
           </Row>
         </Row>
-        <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
-          <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
-          {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
-            <View key={shift.id}>
-              {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
-              <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
-                publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
-                dateTile endedWithoutEntry={!live && !entry && end <= now} />
-            </View>
-          ))}
-          {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
-            <Txt size={13} color={muted} style={styles.emptyAgenda}>
-              {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
-            </Txt>
-          )}
-        </Animated.View>
+        <View style={styles.agendaBody}>
+          <HomeFlowBackground style={styles.flowCanvas} />
+          <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
+            <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
+            {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
+              <View key={shift.id}>
+                {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
+                <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
+                  publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
+                  dateTile endedWithoutEntry={!live && !entry && end <= now} />
+              </View>
+            ))}
+            {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
+              <Txt size={13} color={muted} style={styles.emptyAgenda}>
+                {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
+              </Txt>
+            )}
+          </Animated.View>
+        </View>
       </View>
     </ScrollView>
     {next && nextStart !== undefined && (
@@ -199,7 +201,9 @@ const styles = StyleSheet.create({
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
   brandName: { letterSpacing: -.4, lineHeight: 22 },
   brandText: { flexShrink: 1 },
-  agenda: { gap: 16 },
+  agenda: { flexGrow: 1, gap: 16 },
+  agendaBody: { flexGrow: 1 },
+  flowCanvas: { left: -20, right: -20, bottom: -20 },
   agendaList: { overflow: 'hidden' },
   agendaDivider: { marginHorizontal: 16 },
   sectionHead: { justifyContent: 'space-between', paddingTop: 4 },

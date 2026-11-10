@@ -15,11 +15,11 @@ function driftSteps(center: number, range: number, minimumDuration: number): Dri
 }
 
 const contours = [
-  'M -40 28 C 90 140 250 132 440 -10',
-  'M -40 43 C 104 143 252 139 440 14',
-  'M -40 58 C 108 140 253 136 440 38',
-  'M -40 68 C 110 115 250 112 440 49',
-  'M -40 84 C 100 137 245 134 440 80',
+  'M -40 10 C 90 112 250 112 440 -10',
+  'M -40 26 C 104 126 252 126 440 10',
+  'M -40 42 C 108 139 253 139 440 30',
+  'M -40 58 C 110 151 250 151 440 50',
+  'M -40 74 C 100 163 245 163 440 70',
 ];
 
 function FlowRibbon({ id, opacity }: { id: string; opacity: number }) {
@@ -34,9 +34,9 @@ function FlowRibbon({ id, opacity }: { id: string; opacity: number }) {
         </LinearGradient>
       </Defs>
       <G opacity={opacity}>
-        <Path d="M -40 28 C 90 140 250 132 440 -10 L 440 28 C 250 160 88 158 -40 57 Z" fill={paint} opacity={.11} />
-        <Path d="M -40 66 C 110 115 250 112 440 49 L 440 80 C 245 134 100 137 -40 84 Z" fill={paint} opacity={.08} />
-        <Path d="M -40 74 C 90 166 246 177 440 57 L 440 89 C 254 185 94 175 -40 98 Z" fill={paint} opacity={.05} />
+        <Path d="M -40 10 C 90 112 250 112 440 -10 L 440 -1 C 250 121 90 121 -40 19 Z" fill={paint} opacity={.11} />
+        <Path d="M -40 42 C 108 139 253 139 440 30 L 440 39 C 253 148 108 148 -40 51 Z" fill={paint} opacity={.08} />
+        <Path d="M -40 74 C 100 163 245 163 440 70 L 440 79 C 245 172 100 172 -40 83 Z" fill={paint} opacity={.05} />
         {contours.map(path => <Path key={path} d={path} fill="none" stroke={paint} strokeWidth={.65} opacity={.15} />)}
       </G>
     </Svg>
@@ -74,8 +74,8 @@ function DriftingRibbon({ id, opacity, active, reduceMotion, style }: {
     } else if (active) {
       // Generate once per layer, independently of the home screen's clock ticks.
       const layerPlans = plan.current ??= [
-        driftSteps(0, 6, 16_000), driftSteps(0, 3.5, 18_000),
-        driftSteps(1.02, .012, 22_000), driftSteps(1, .022, 20_000),
+        driftSteps(0, 9, 16_000), driftSteps(0, 5, 18_000),
+        driftSteps(1.02, .018, 22_000), driftSteps(1, .035, 20_000),
       ];
       const timing = { easing: Easing.inOut(Easing.sin), reduceMotion: ReduceMotion.Never };
       values.forEach((value, index) => {
@@ -93,7 +93,7 @@ function DriftingRibbon({ id, opacity, active, reduceMotion, style }: {
   return <Animated.View style={[style, motion]}><FlowRibbon id={id} opacity={opacity} /></Animated.View>;
 }
 
-export function HomeFlowBackground() {
+export function HomeFlowBackground({ style }: { style?: StyleProp<ViewStyle> }) {
   const focused = useIsFocused();
   const reduceMotion = useReduceMotionPreference();
   const [foreground, setForeground] = useState(AppState.currentState === 'active');
@@ -104,8 +104,7 @@ export function HomeFlowBackground() {
   const active = focused && foreground;
 
   return (
-    <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.frame}>
-      <DriftingRibbon id="home-flow-upper" opacity={.55} active={active} reduceMotion={reduceMotion} style={styles.upper} />
+    <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.frame, style]}>
       <DriftingRibbon id="home-flow-lower" opacity={.78} active={active} reduceMotion={reduceMotion} style={styles.lower} />
     </View>
   );
@@ -113,6 +112,5 @@ export function HomeFlowBackground() {
 
 const styles = StyleSheet.create({
   frame: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' },
-  upper: { position: 'absolute', top: -45, left: -14, right: -14, height: 132 },
-  lower: { position: 'absolute', bottom: -8, left: -14, right: -14, height: 160 },
+  lower: { position: 'absolute', bottom: -8, left: -20, right: -20, height: 160 },
 });

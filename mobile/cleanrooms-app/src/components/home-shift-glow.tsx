@@ -5,12 +5,12 @@ import Svg, { Path } from 'react-native-svg';
 import { useReduceMotionPreference } from './motion-preference';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const padding = 6;
+const padding = 9;
 const glowLayers = [
-  { length: 80, strokeWidth: 10, opacity: .04 },
-  { length: 72, strokeWidth: 6, opacity: .07 },
-  { length: 64, strokeWidth: 3, opacity: .10 },
-  { length: 56, strokeWidth: 1.2, opacity: .22 },
+  { length: 140, strokeWidth: 14, opacity: .025 },
+  { length: 120, strokeWidth: 9, opacity: .045 },
+  { length: 100, strokeWidth: 4.5, opacity: .065 },
+  { length: 80, strokeWidth: 1, opacity: .13 },
 ];
 
 function GlowStroke({ path, perimeter, phase, length, strokeWidth, opacity }: {
@@ -59,7 +59,7 @@ export function HomeShiftGlow({ focused }: { focused: boolean }) {
     if (visible && perimeter > 0) {
       // The path runs clockwise; a positive dash offset moves the glow counterclockwise.
       phase.set(withRepeat(withTiming(perimeter, {
-        duration: 16_000,
+        duration: 26_000,
         easing: Easing.linear,
         reduceMotion: ReduceMotion.Never,
       }), -1, false, undefined, ReduceMotion.Never));
@@ -86,7 +86,7 @@ export function HomeShiftGlow({ focused }: { focused: boolean }) {
       ))}
       style={styles.frame}
     >
-      {visible && perimeter > 80 && (
+      {visible && perimeter > glowLayers[0].length && (
         <Svg width={size.width + padding * 2} height={size.height + padding * 2} style={styles.canvas}>
           {glowLayers.map(layer => <GlowStroke key={layer.strokeWidth} {...layer} path={path} perimeter={perimeter} phase={phase} />)}
         </Svg>

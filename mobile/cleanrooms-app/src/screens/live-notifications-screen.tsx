@@ -9,7 +9,7 @@ import { PressFeedback } from '@/components/press-feedback';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { copenhagenDate, dateLabel, TIME_ZONE } from '@/domain/model';
+import { copenhagenDate, dateLabel } from '@/domain/model';
 import { notificationDateGroups } from '@/notifications/notification-date-groups';
 import { useNow } from '@/state/app-store';
 import { useEmployeeInbox, type EmployeeInbox, type EmployeeWorkflowMessage, type EmployeeWorkflowShift } from '@/state/employee-data';
@@ -18,7 +18,6 @@ import { EmployeeShiftRequests } from '@/components/employee-shift-requests';
 import { useScopedState } from '@/state/scoped-state';
 import { parsePushTarget } from '@/notifications/push-wire';
 
-const timestamp = new Intl.DateTimeFormat('da-DK', { timeZone: TIME_ZONE, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const titles: Record<string, string> = { new: 'Ny vagt', changed: 'Vagt ændret', moved: 'Vagt flyttet', cancelled: 'Vagt aflyst', request: 'Vagtanmodning', reminder: 'Vagtpåmindelse', checkout_reminder: 'Husk at stemple ud' };
 
 function shiftLabel(shift: EmployeeWorkflowShift) {
@@ -120,7 +119,7 @@ export default function LiveNotificationsScreen() {
           : !resource.error ? <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Her er stille lige nu" body="Her får du besked, når der er nyt om dine vagter." /></View> : null}
         ListFooterComponent={cursor ? <Button label={busy === 'more' ? 'Henter flere…' : 'Vis flere beskeder'} compact variant="ghost" disabled={busy !== null} onPress={() => { void loadMore(); }} style={styles.more} /> : null}
         renderItem={({ item, index }) => {
-          const { heading, isLastInGroup } = groups[index];
+          const { heading, isLastInGroup, timestamp } = groups[index];
           const seen = Boolean(item.readAt || readIds.includes(item.id));
           const { before, after } = item;
           const change = (item.kind === 'changed' || item.kind === 'moved') && before && after ? notificationShiftChange(before, after) : null;
@@ -150,7 +149,7 @@ export default function LiveNotificationsScreen() {
                     {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
                     {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
                   </>}
-                  <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
+                  {!!timestamp && <Txt size={11} color={colors.muted}>{timestamp}</Txt>}
                 </View>
                 {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}
               </PressFeedback>

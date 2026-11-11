@@ -10,13 +10,10 @@ import LiveNotificationsScreen from '@/screens/live-notifications-screen';
 import { EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
-import { TIME_ZONE, type AppNotification } from '@/domain/model';
+import type { AppNotification } from '@/domain/model';
 import { notificationDateGroups } from '@/notifications/notification-date-groups';
 import { useAppData } from '@/state/app-store';
 
-const timestamp = new Intl.DateTimeFormat('da-DK', {
-  timeZone: TIME_ZONE, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-});
 const icons = { chat: 'chat', request: 'file', system: 'bell', shift: 'calendar' };
 
 export default function NotificationsScreen() {
@@ -63,7 +60,7 @@ function DemoNotificationsScreen() {
           <View style={cardStyles.listSurface}><EmptyState icon="bell" title="Her er stille lige nu" body="Her får du besked, når der er nyt om dine vagter." /></View>
         }
         renderItem={({ item, index }) => {
-          const { heading, isLastInGroup } = groups[index];
+          const { heading, isLastInGroup, timestamp } = groups[index];
           const change = item.shiftChange ? notificationShiftChange(item.shiftChange.before, item.shiftChange.after) : null;
           return (
             <View>
@@ -85,7 +82,7 @@ function DemoNotificationsScreen() {
                     {!item.read && <View style={styles.unreadDot} />}
                   </Row>
                   {change ? <NotificationShiftChange change={change} /> : <Txt size={13} color={colors.muted}>{item.body}</Txt>}
-                  <Txt size={11} color={colors.muted}>{timestamp.format(new Date(item.createdAt))}</Txt>
+                  {!!timestamp && <Txt size={11} color={colors.muted}>{timestamp}</Txt>}
                 </View>
                 {(item.shiftId || item.roomId) && (
                   <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>

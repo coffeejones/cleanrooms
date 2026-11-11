@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConversationLatestButton, latestMessageThreshold } from '@/components/conversation-latest-button';
 import { ConversationMessage } from '@/components/conversation-message';
+import { ConversationSendError } from '@/components/conversation-send-error';
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
@@ -23,7 +24,7 @@ export default function LiveConversationScreen() {
   const detail = conversation.data;
   const { draft, setDraft } = conversation;
   const [selectedPin, setSelectedPin] = useState<LiveChatMessage | null>(null);
-  const [awayFromLatest, setAwayFromLatest] = useState(false);
+  const [latestWhenAway, setLatestWhenAway] = useState<number | null>(null);
   const list = useRef<FlatList<LiveChatMessage>>(null);
   const atBottom = useRef(true);
   const previousLatest = useRef(0);
@@ -43,6 +44,8 @@ export default function LiveConversationScreen() {
   const unreadMessageId = useMemo(() => unreadAtOpen && firstUnreadLiveMessageId(detail?.messages ?? [], unreadAtOpen), [detail?.messages, unreadAtOpen]);
   const messages = useMemo(() => [...(detail?.messages ?? [])].reverse(), [detail?.messages]);
   const latest = detail?.messages.at(-1)?.seq ?? 0;
+  const hasNewMessages = latestWhenAway !== null &&
+    (messages.find(message => message.authorId !== detail?.viewer.userId)?.seq ?? 0) > latestWhenAway;
   useEffect(() => {
     if (latest > previousLatest.current && atBottom.current) {
       const first = previousLatest.current === 0;
@@ -63,6 +66,8 @@ export default function LiveConversationScreen() {
       requestAnimationFrame(() => list.current?.scrollToOffset({ offset: 0, animated: true }));
     }
   }
+
+  const canSend = Boolean(draft.trim()) && !conversation.sending && conversation.draftReady && conversation.sendRetryReady;
 
   return <KeyboardAvoidingView style={styles.screen} behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
     keyboardVerticalOffset={process.env.EXPO_OS === 'ios' ? headerHeight : 0}>
@@ -93,8 +98,9 @@ export default function LiveConversationScreen() {
         onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
         scrollEventThrottle={32}
         onScroll={({ nativeEvent: { contentOffset } }) => {
-          atBottom.current = contentOffset.y < latestMessageThreshold;
-          setAwayFromLatest(!atBottom.current);
+          const nearLatest = contentOffset.y < latestMessageThreshold;
+          atBottom.current = nearLatest;
+          setLatestWhenAway(previous => nearLatest ? null : previous ?? latest);
         }}
         ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
         ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
@@ -110,11 +116,13 @@ export default function LiveConversationScreen() {
           />
         )}
       />}
-      {awayFromLatest && messages.length > 0 && (
-        <ConversationLatestButton onJump={animated => list.current?.scrollToOffset({ offset: 0, animated })} />
+      {latestWhenAway !== null && messages.length > 0 && (
+        <ConversationLatestButton hasNewMessages={hasNewMessages}
+          onJump={animated => list.current?.scrollToOffset({ offset: 0, animated })} />
       )}
     </FlowScreen>
     {detail && <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
+      {!!conversation.sendError && <ConversationSendError error={conversation.sendError} disabled={!canSend} onRetry={() => { void send(); }} />}
       <View style={styles.composerRow}>
         <View style={[cardStyles.raisedFrame, styles.inputFrame]}>
           <TextInput accessibilityLabel="Skriv besked" placeholder="Skriv til dit team…" placeholderTextColor={colors.muted}
@@ -122,10 +130,10 @@ export default function LiveConversationScreen() {
             style={[cardStyles.raisedSurface, styles.input]} />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={conversation.sending ? 'Sender besked' : 'Send besked'}
-          accessibilityState={{ disabled: !draft.trim() || conversation.sending || !conversation.draftReady, busy: conversation.sending }}
-          disabled={!draft.trim() || conversation.sending || !conversation.draftReady} onPress={() => { void send(); }}
-          style={({ pressed }) => [styles.send, Boolean(draft.trim()) && !conversation.sending && styles.sendReady, pressed && styles.pressed]}>
-          {conversation.sending ? <ActivityIndicator color={colors.muted} /> : <Icon name="send" size={20} color={draft.trim() ? colors.white : colors.muted} />}
+          accessibilityState={{ disabled: !canSend, busy: conversation.sending }}
+          disabled={!canSend} onPress={() => { void send(); }}
+          style={({ pressed }) => [styles.send, canSend && styles.sendReady, pressed && styles.pressed]}>
+          {conversation.sending ? <ActivityIndicator color={colors.muted} /> : <Icon name="send" size={20} color={canSend ? colors.white : colors.muted} />}
         </Pressable>
       </View>
     </View>}

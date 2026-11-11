@@ -291,10 +291,25 @@ export default function PublishedShiftScreen() {
               </Pressable>
               {descriptionOpen && <>
                 {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
-                {checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.has(task.id), disabled: taskPending || !detail.checklistToken }} disabled={taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
-                  <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.has(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.has(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
-                  <Txt size={14} color={completed.has(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
-                </Row></Pressable>)}
+                {checklist.map((task, index) => (
+                  <Pressable
+                    key={task.id}
+                    accessibilityRole="checkbox"
+                    accessibilityLabel={task.text}
+                    accessibilityState={{ checked: completed.has(task.id), disabled: taskPending || !detail.checklistToken }}
+                    disabled={taskPending || !detail.checklistToken}
+                    onPress={() => void toggleTask(task.id)}
+                    style={[
+                      { minHeight: 44, justifyContent: 'center', paddingVertical: 8 },
+                      index === 0 && !!detail.shift.description?.trim() && cardStyles.divider,
+                    ]}
+                  >
+                    <Row gap={10} style={{ alignItems: 'flex-start' }}>
+                      <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.has(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.has(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
+                      <Txt size={14} color={completed.has(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
+                    </Row>
+                  </Pressable>
+                ))}
                 {taskError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{taskError}</Txt>}
               </>}
             </Surface>}

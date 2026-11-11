@@ -236,7 +236,7 @@ export default function ShiftScreen() {
                   {descriptionOpen && (
                     <Animated.View entering={reduceMotion ? undefined : descriptionEnter} style={{ paddingTop: 2, paddingBottom: 18, gap: 10 }}>
                       {!!shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{shift.description}</Txt>}
-                      {tasks.map((task) => {
+                      {tasks.map((task, index) => {
                         const checked = completed.has(task.id);
                         return (
                           <Pressable
@@ -246,7 +246,10 @@ export default function ShiftScreen() {
                             accessibilityState={{ checked, disabled: !entry }}
                             disabled={!entry}
                             onPress={() => showResult(actions.toggleTask(id, task.id))}
-                            style={{ minHeight: 44, paddingVertical: 8, justifyContent: 'center' }}
+                            style={[
+                              { minHeight: 44, paddingVertical: 8, justifyContent: 'center' },
+                              index === 0 && !!shift.description?.trim() && cardStyles.divider,
+                            ]}
                           >
                             <Row gap={10}>
                               <View style={{

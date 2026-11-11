@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConversationLatestButton, latestMessageThreshold } from '@/components/conversation-latest-button';
 import { ConversationMessage } from '@/components/conversation-message';
+import { ConversationSendError } from '@/components/conversation-send-error';
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
@@ -103,7 +104,7 @@ export default function ConversationScreen() {
         )}
       </FlowScreen>
       <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
-        {!!error && <Text selectable accessibilityRole="alert" style={{ color: '#a34f3c', fontSize: 13 }}>{error}</Text>}
+        {!!error && <ConversationSendError error={error} disabled={!canSend} onRetry={send} />}
         <View style={styles.composerRow}>
           <View style={[cardStyles.raisedFrame, styles.inputFrame]}>
             <TextInput
@@ -111,7 +112,7 @@ export default function ConversationScreen() {
               placeholder="Skriv til dit team…"
               placeholderTextColor={c.muted}
               value={draft}
-              onChangeText={text => setDemoChatDraft(id, text)}
+              onChangeText={text => { setDemoChatDraft(id, text); setError(''); }}
               multiline
               style={[cardStyles.raisedSurface, styles.input]}
             />

@@ -13,6 +13,7 @@ export type { LiveChatMessage, LiveChatRoom } from './chat-wire';
 
 type RoomsState = { key: string; data?: RoomPage; loading: boolean; more: boolean; refreshing: boolean; error?: string };
 type ConversationState = { key: string; data?: Conversation; loading: boolean; more: boolean; sending: boolean; error?: string };
+type SendFeedback = { key: string; retryUntil: number; failure?: { draft: string; message: string } };
 
 const problem = (error: unknown) => error instanceof Error ? error.message : 'Kunne ikke hente samtalen. Prøv igen.';
 const forbidden = (error: unknown) => error instanceof MobileAuthError && (error.status === 401 || error.status === 403);
@@ -94,9 +95,14 @@ export function useLiveChatRooms() {
 export function useLiveConversation(roomId: string) {
   const { employeeRequest, key, epoch, persistentScope, expiresAt } = useChatScope(roomId);
   const composer = useEmployeeDraft(key, persistentScope, expiresAt);
+  const updateDraft = composer.setDraft;
   const active = useActiveScreen();
   const [resource, setResource] = useState<ConversationState>();
+  const [sendFeedback, setSendFeedback] = useState<SendFeedback>({ key, retryUntil: 0 });
+  if (sendFeedback.key !== key) setSendFeedback({ key, retryUntil: 0 });
   const current = resource?.key === key ? resource : undefined;
+  const { failure, retryUntil } = sendFeedback;
+  const sendError = sendFeedback.key === key && failure?.draft === composer.draft ? failure.message : undefined;
   const data = useRef<Conversation | undefined>(undefined);
   const stream = useRef({ afterSeq: 0, version: 1 });
   const reading = useRef(false);
@@ -116,15 +122,50 @@ export function useLiveConversation(roomId: string) {
     return () => { if (markTimer.current) clearTimeout(markTimer.current); };
   }, [key]);
 
-  const accept = useCallback((next: Conversation) => {
+  useEffect(() => {
+    if (!retryUntil) return;
+    const request = epoch.current;
+    const timer = setTimeout(() => {
+      if (epoch.current === request) {
+        setSendFeedback(previous => previous.key === key && previous.retryUntil === retryUntil ? { ...previous, retryUntil: 0 } : previous);
+      }
+    }, Math.max(0, Math.ceil(retryUntil - monotonicNow())));
+    return () => clearTimeout(timer);
+  }, [epoch, key, retryUntil]);
+
+  const setDraft = useCallback((draft: string) => {
+    updateDraft(draft);
+    setSendFeedback(previous => previous.key === key && previous.failure && previous.failure.draft !== draft
+      ? { ...previous, failure: undefined } : previous);
+  }, [key, updateDraft]);
+
+  const backOff = useCallback((error: unknown) => {
+    const now = monotonicNow();
+    const delay = retry.current.fail(now, error instanceof MobileAuthError ? error.retryAfterMs : undefined);
+    setSendFeedback(previous => previous.key === key ? { ...previous, retryUntil: now + delay } : previous);
+  }, [key]);
+
+  const accept = useCallback((next: Conversation, acknowledgedDraft?: string) => {
     data.current = next;
     setResource(previous => ({ key, data: next, loading: false, more: false, sending: previous?.key === key ? previous.sending : false }));
+    if (acknowledgedDraft !== undefined) {
+      setSendFeedback(previous => previous.key === key && previous.failure?.draft === acknowledgedDraft
+        ? { ...previous, failure: undefined } : previous);
+    }
   }, [key]);
-  const fail = useCallback((error: unknown) => {
-    retry.current.fail(monotonicNow(), error instanceof MobileAuthError ? error.retryAfterMs : undefined);
-    if (forbidden(error)) { data.current = undefined; denied.current = true; }
+  const fail = useCallback((error: unknown, attemptedDraft?: string) => {
+    backOff(error);
+    if (forbidden(error)) {
+      data.current = undefined;
+      denied.current = true;
+      setSendFeedback(previous => previous.key === key && previous.failure ? { ...previous, failure: undefined } : previous);
+    } else if (attemptedDraft !== undefined) {
+      const message = error instanceof MobileAuthError ? error.message : 'Beskeden kunne ikke sendes. Prøv igen.';
+      setSendFeedback(previous => previous.key === key ? { ...previous, failure: { draft: attemptedDraft, message } } : previous);
+      return;
+    }
     setResource(previous => ({ key, data: data.current, loading: false, more: false, sending: previous?.key === key ? previous.sending : false, error: problem(error) }));
-  }, [key]);
+  }, [backOff, key]);
 
   const read = useCallback(async (before: string | null = null) => {
     if (!key || !roomId || reading.current || denied.current || !retry.current.ready(monotonicNow())) return;
@@ -192,11 +233,19 @@ export function useLiveConversation(roomId: string) {
   }, [active, key, read, sync]);
 
   const send = useCallback(async (draft: string) => {
-    if (!key || !data.current || sending.current || !draft.trim() || draft.length > 10_000 || !retry.current.ready(monotonicNow())) return false;
+    if (!key || !data.current || sending.current || !draft.trim() || draft.length > 10_000) return false;
+    if (!retry.current.ready(monotonicNow())) {
+      setSendFeedback(previous => previous.key === key && previous.failure?.draft !== draft
+        ? { ...previous, failure: { draft, message: 'Vent et øjeblik, og prøv igen.' } } : previous);
+      return false;
+    }
     const request = epoch.current;
     const retryVersion = retry.current.version;
     sending.current = true;
-    setResource({ key, data: data.current, loading: false, more: false, sending: true, error: undefined });
+    setResource(previous => ({
+      ...(previous?.key === key ? previous : { key, data: data.current, loading: false, more: false }),
+      sending: true,
+    }));
     try {
       // Commit the idempotency key before HTTP. An explicit retry after reopening
       // then reuses the same command, even if the first server ACK was lost.
@@ -208,10 +257,10 @@ export function useLiveConversation(roomId: string) {
       const room = readRoom(result.room), message = readMessage(result.message), viewer = readViewer(result.viewer, data.current.viewer.userId);
       if (room.id !== roomId || message.authorId !== viewer.userId || message.text !== draft) return invalid();
       retry.current.success(retryVersion);
-      accept({ ...data.current, viewer, room, messages: mergeLiveMessages(data.current.messages, [message]) });
+      accept({ ...data.current, viewer, room, messages: mergeLiveMessages(data.current.messages, [message]) }, draft);
       await composer.acknowledge(command).catch(() => undefined);
       return epoch.current === request;
-    } catch (error) { if (epoch.current === request) fail(error); return false; }
+    } catch (error) { if (epoch.current === request) fail(error, draft); return false; }
     finally {
       if (epoch.current === request) {
         sending.current = false;
@@ -235,9 +284,9 @@ export function useLiveConversation(roomId: string) {
         if (throughSeq < marked.current) return;
         marked.current = Math.max(marked.current, throughSeq);
         accept({ ...data.current, room });
-      }).catch(error => { if (epoch.current === request) { if (forbidden(error)) fail(error); else retry.current.fail(monotonicNow(), error instanceof MobileAuthError ? error.retryAfterMs : undefined); } });
+      }).catch(error => { if (epoch.current === request) { if (forbidden(error)) fail(error); else backOff(error); } });
     }, 350);
-  }, [accept, employeeRequest, epoch, fail, roomId]);
+  }, [accept, backOff, employeeRequest, epoch, fail, roomId]);
 
   const [muting, setMuting] = useState(false);
   const mute = useCallback(async () => {
@@ -257,7 +306,8 @@ export function useLiveConversation(roomId: string) {
   }, [accept, employeeRequest, epoch, fail, key, muting, roomId]);
 
   return { ...current, data: current?.data, loading: current?.loading ?? Boolean(key), more: current?.more ?? false,
-    draft: composer.draft, setDraft: composer.setDraft, draftReady: composer.draftReady, draftError: composer.draftError,
+    draft: composer.draft, setDraft, draftReady: composer.draftReady, draftError: composer.draftError,
+    sendError, sendRetryReady: !sendError || !retryUntil,
     sending: current?.sending ?? false, send, markRead, mute, muting, refresh: () => { denied.current = false; void read(); },
     retryDraft: composer.restore,
     loadOlder: () => { if (data.current?.nextCursor) void read(data.current.nextCursor); } };

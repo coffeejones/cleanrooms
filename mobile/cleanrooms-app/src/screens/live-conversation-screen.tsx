@@ -5,18 +5,15 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View, type ViewToken } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConversationMessage } from '@/components/conversation-message';
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
-import { UnreadMessageDivider } from '@/components/unread-message-divider';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { firstUnreadLiveMessageId, type LiveUnreadSnapshot } from '@/state/chat-unread';
 import { useLiveConversation, type LiveChatMessage } from '@/state/live-chat';
 
 const viewability = { itemVisiblePercentThreshold: 60, minimumViewTime: 500 };
-function time(value: string) {
-  return new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
-}
 
 export default function LiveConversationScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -96,22 +93,16 @@ export default function LiveConversationScreen() {
         ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
         ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
           onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
-        renderItem={({ item, index }) => {
-          const mine = item.authorId === detail?.viewer.userId;
-          const older = messages[index + 1];
-          const newDay = !older || new Date(older.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
-          return <View style={styles.message}>
-            {newDay && <Text selectable style={styles.date}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
-            {item.id === unreadMessageId && <UnreadMessageDivider />}
-            <View style={[styles.messageBody, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>
-              {!mine && <Text selectable style={styles.author}>{item.authorName}</Text>}
-              <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
-                <Text selectable style={[styles.messageText, mine && styles.sentText]}>{item.text}</Text>
-              </View>
-              <Text style={[styles.time, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>{time(item.createdAt)}</Text>
-            </View>
-          </View>;
-        }}
+        renderItem={({ item, index }) => (
+          <ConversationMessage
+            message={item}
+            older={messages[index + 1]}
+            newer={messages[index - 1]}
+            unreadId={unreadMessageId}
+            mine={item.authorId === detail?.viewer.userId}
+            authorName={item.authorName}
+          />
+        )}
       />}
     </FlowScreen>
     {detail && <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
@@ -156,17 +147,7 @@ const styles = StyleSheet.create({
   pinned: { marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, gap: 3 },
   pinnedLabel: { color: colors.accent, fontSize: 10, letterSpacing: 0.8, fontWeight: '600' },
   pinnedText: { color: colors.ink, fontSize: 13, lineHeight: 19 },
-  messages: { paddingHorizontal: 16, paddingVertical: 16, gap: 14, flexGrow: 1 },
-  message: { gap: 12 },
-  date: { textAlign: 'center', color: colors.muted, fontSize: 11, fontWeight: '500', paddingVertical: 6 },
-  messageBody: { maxWidth: '86%', gap: 5 },
-  author: { color: colors.muted, fontSize: 11, paddingLeft: 13 },
-  bubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, borderCurve: 'continuous' },
-  sent: { backgroundColor: colors.accent, borderBottomRightRadius: 5 },
-  received: { backgroundColor: colors.white, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: cardColors.border },
-  messageText: { color: colors.ink, fontSize: 15, lineHeight: 22 },
-  sentText: { color: colors.white },
-  time: { paddingHorizontal: 12, color: colors.muted, fontSize: 10, fontVariant: ['tabular-nums'] },
+  messages: { paddingHorizontal: 16, paddingVertical: 16, flexGrow: 1 },
   composer: { backgroundColor: cardColors.section, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: cardColors.border,
     paddingHorizontal: 16, paddingTop: 10, gap: 8 },
   composerRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
@@ -182,5 +163,5 @@ const styles = StyleSheet.create({
   error: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 19 },
   retry: { minHeight: 44, paddingHorizontal: 8, justifyContent: 'center' },
   link: { color: colors.accent, fontSize: 13, fontWeight: '600' },
-  older: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginVertical: 8 },
+  older: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 8, marginBottom: 22 },
 });

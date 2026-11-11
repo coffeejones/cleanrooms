@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useIsFocused } from 'expo-router/react-navigation';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { I18nManager, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { CalendarMonthPicker } from '@/components/calendar-month-picker';
@@ -24,6 +24,7 @@ import { useEmployeePreferences, type EmployeePreferences } from '@/state/employ
 
 const weekdays = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
 const scopes = [{ label: 'Mine vagter', view: 'mine' }, { label: 'Ledige vagter', view: 'open' }] as const;
+const scopeSlideDirection = I18nManager.isRTL ? -1 : 1;
 const daysPerWeek = 7;
 const millisecondsPerDay = 86_400_000;
 const monthSlideDistance = 32;
@@ -120,6 +121,22 @@ export default function CalendarScreen() {
   }, [focused, reduceMotion, selection, slideX, swipeDirection]);
 
   const open = view === 'open';
+  const previousScope = useRef(open);
+  const scopePosition = useSharedValue(open ? 100 : 0);
+  const scopeIndicatorMotion = useAnimatedStyle(() => ({
+    transform: [{ translateX: `${scopeSlideDirection * scopePosition.get()}%` as const }],
+  }));
+
+  useLayoutEffect(() => {
+    const changed = previousScope.current !== open;
+    previousScope.current = open;
+    const position = open ? 100 : 0;
+    scopePosition.set(changed && focused && !reduceMotion
+      ? withTiming(position, { duration: 110, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never })
+      : position);
+    return () => cancelAnimation(scopePosition);
+  }, [focused, open, reduceMotion, scopePosition]);
+
   const previousAgenda = useRef({ selection, focused, open });
   const agendaSettle = useSharedValue(1);
   const agendaMotion = useAnimatedStyle(() => ({
@@ -239,9 +256,7 @@ export default function CalendarScreen() {
               accessibilityState={{ selected }}
               haptic={selected ? false : 'selection'}
               onPress={() => router.setParams({ view: scope.view })}
-              style={({ pressed }) => [
-                styles.scopeTab, selected && styles.selectedScope, pressed && styles.pressed,
-              ]}
+              style={({ pressed }) => [styles.scopeTab, pressed && styles.pressed]}
             >
               <Txt size={14} weight={selected ? '700' : '500'} color={selected ? colors.ink : colors.muted} style={styles.centered}>
                 {scope.label}
@@ -249,6 +264,7 @@ export default function CalendarScreen() {
             </PressFeedback>
           );
         })}
+        <Animated.View pointerEvents="none" aria-hidden style={[styles.scopeIndicator, scopeIndicatorMotion]} />
       </Row>
 
       {open ? live ? <LiveOpenShifts from={today} to={addDays(today, 55)} unavailableDates={unavailableDates} /> : <CalendarOpenShifts shifts={state.shifts} /> : (
@@ -433,7 +449,7 @@ const styles = StyleSheet.create({
     flex: 1, minWidth: 0, minHeight: 44, alignItems: 'center', justifyContent: 'center',
     paddingVertical: 8, paddingHorizontal: 6, borderBottomWidth: 2, borderBottomColor: 'transparent',
   },
-  selectedScope: { borderBottomColor: colors.accent },
+  scopeIndicator: { position: 'absolute', start: 0, bottom: 0, width: '50%', height: 2, backgroundColor: colors.accent },
   centered: { textAlign: 'center' },
   pressed: { backgroundColor: colors.paper },
   calendarPanel: { paddingHorizontal: 12, paddingTop: 11, paddingBottom: 12, gap: 9 },

@@ -65,8 +65,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
   }
 
   return <View style={cardStyles.listSurface}>
-    <View style={styles.heading}>
-      <Txt size={16} weight="600" accessibilityRole="header">Ledige vagter</Txt>
+    <View style={styles.period}>
       <Txt size={12} color={colors.muted}>{dateLabel(from)} – {dateLabel(to)}</Txt>
     </View>
     {!!(error || resource.error) && <Row gap={8} style={styles.feedback} accessibilityLiveRegion="polite">
@@ -102,7 +101,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
 }
 
 const styles = StyleSheet.create({
-  heading: { paddingHorizontal: 16, paddingVertical: 14, gap: 3, backgroundColor: cardColors.section },
+  period: { paddingHorizontal: 16, paddingVertical: 14, backgroundColor: cardColors.section },
   shift: { paddingHorizontal: 16, paddingVertical: 14, gap: 7 },
   feedback: { paddingHorizontal: 16, paddingVertical: 8 },
   retry: { minHeight: 44, paddingHorizontal: 8, justifyContent: 'center' },

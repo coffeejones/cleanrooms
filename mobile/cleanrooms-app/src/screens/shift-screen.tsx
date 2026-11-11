@@ -29,11 +29,12 @@ function registrationStatus(entry: TimeEntry | undefined, ended: boolean) {
   return entry.status === 'paused' ? 'På pause' : 'I gang';
 }
 
-function DetailRow({ icon, label, value, expanded, onPress }: {
+function DetailRow({ icon, label, value, expanded, complete = false, onPress }: {
   icon: string;
   label: string;
   value?: string;
   expanded?: boolean;
+  complete?: boolean;
   onPress: () => void;
 }) {
   const chevron = expanded === undefined ? 'chevron-right' : 'chevron-down';
@@ -47,7 +48,7 @@ function DetailRow({ icon, label, value, expanded, onPress }: {
     <Pressable
       accessibilityRole="button"
       accessibilityState={expanded === undefined ? undefined : { expanded }}
-      accessibilityLabel={value ? `${label}, ${value}` : label}
+      accessibilityLabel={value ? `${label}, ${value}${complete ? ' udført' : ''}` : label}
       onPress={onPress}
       style={({ pressed }) => ({
         minHeight: 56,
@@ -60,9 +61,12 @@ function DetailRow({ icon, label, value, expanded, onPress }: {
         <Icon name={icon} size={18} color={colors.muted} />
         <Txt size={15} weight="600" style={{ flex: 1 }}>{label}</Txt>
         {value && <Txt size={12} color={colors.muted} style={{ flexShrink: 1, textAlign: 'right' }}>{value}</Txt>}
-        <Animated.View style={chevronStyle}>
-          <Icon name={chevron} size={14} color={colors.muted} />
-        </Animated.View>
+        <Row gap={6}>
+          {complete && <Icon name="check" size={12} color={colors.success} />}
+          <Animated.View style={chevronStyle}>
+            <Icon name={chevron} size={14} color={colors.muted} />
+          </Animated.View>
+        </Row>
       </Row>
     </Pressable>
   );
@@ -110,7 +114,8 @@ export default function ShiftScreen() {
   const availability = clockInAvailability(state, shift, now);
   const canRequest = !pending && !entry && start > now;
   const tasks = mine ? shift.checklist : [];
-  const done = entry?.completedTaskIds.length ?? 0;
+  const completed = new Set(entry?.completedTaskIds);
+  const done = tasks.filter(task => completed.has(task.id)).length;
   const pay = shiftPay(shift, entry);
   const status = mine ? registrationStatus(entry, now >= end) : pending ? 'Anmodet' : 'Ledig';
   const paused = entry?.status === 'paused';
@@ -224,6 +229,7 @@ export default function ShiftScreen() {
                     icon="file"
                     label="Beskrivelse"
                     value={tasks.length ? `${done} af ${tasks.length} opgaver` : undefined}
+                    complete={tasks.length > 0 && done === tasks.length}
                     expanded={descriptionOpen}
                     onPress={() => setDescriptionOpen((open) => !open)}
                   />
@@ -231,7 +237,7 @@ export default function ShiftScreen() {
                     <Animated.View entering={reduceMotion ? undefined : descriptionEnter} style={{ paddingTop: 2, paddingBottom: 18, gap: 10 }}>
                       {!!shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{shift.description}</Txt>}
                       {tasks.map((task) => {
-                        const checked = Boolean(entry?.completedTaskIds.includes(task.id));
+                        const checked = completed.has(task.id);
                         return (
                           <Pressable
                             key={task.id}

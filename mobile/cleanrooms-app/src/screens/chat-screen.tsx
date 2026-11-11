@@ -7,6 +7,7 @@ import LiveChatScreen from '@/screens/live-chat-screen';
 
 import { FlowScreen } from '@/components/flow-screen';
 import { ChatRoomPreview } from '@/components/chat-room-preview';
+import { ChatRoomTitle, chatRoomSearchPattern } from '@/components/chat-room-title';
 import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
 import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Row } from '@/components/ui';
@@ -26,9 +27,10 @@ function DemoChatScreen() {
   const { state, demoChatDrafts } = useAppData();
   const [query, setQuery] = useState('');
   const searchMotion = useChatSearchMotion(query);
+  const pattern = useMemo(() => chatRoomSearchPattern(query), [query]);
   const rooms = useMemo(() => state.rooms
     .filter((room) => room.memberIds.includes(state.selfId))
-    .filter((room) => `${room.name} ${room.subtitle}`.toLocaleLowerCase('da-DK').includes(query.toLocaleLowerCase('da-DK'))), [query, state.rooms, state.selfId]);
+    .filter((room) => !pattern || pattern.test(`${room.name} ${room.subtitle}`)), [pattern, state.rooms, state.selfId]);
 
   return (
     <FlowScreen>
@@ -72,7 +74,7 @@ function DemoChatScreen() {
                 <Avatar initials={initials} size={40} />
                 <View style={styles.roomDetails}>
                   <Row gap={10}>
-                    <Text numberOfLines={1} style={styles.roomName}>{room.name}</Text>
+                    <ChatRoomTitle name={room.name} pattern={pattern} style={styles.roomName} />
                     {timestamp ? <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{timestamp}</Text> : null}
                   </Row>
                   <Row gap={10}>

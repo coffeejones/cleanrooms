@@ -65,8 +65,11 @@ export default function PublishedShiftScreen() {
   const coworkerPage = extraCoworkers?.shiftId === id && extraCoworkers.source === coworkers.data && extraCoworkers.generation === coworkers.generation
     ? extraCoworkers.page : coworkers.data;
   // A successful refresh is authoritative even if the checklist structure is unchanged.
-  const completed = taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
-    ? taskReceipt.completedTaskIds : detail?.completedTaskIds ?? [];
+  const completed = new Set(taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
+    ? taskReceipt.completedTaskIds : detail?.completedTaskIds);
+  const checklist = detail?.shift.checklist ?? [];
+  const done = checklist.filter(task => completed.has(task.id)).length;
+  const checklistComplete = checklist.length > 0 && done === checklist.length;
   const lastSaved = saved?.shiftId === id ? saved.entry : undefined;
   const entry = lastSaved && lastSaved.version > (detail?.entry?.version ?? 0) ? lastSaved : detail?.entry;
   useEffect(() => {
@@ -148,7 +151,7 @@ export default function PublishedShiftScreen() {
     if (taskLock.current || !detail?.checklistToken) return;
     taskLock.current = true; setTaskPending(true); setTaskError(undefined);
     try {
-      const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.includes(taskId), checklistToken: detail.checklistToken });
+      const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.has(taskId), checklistToken: detail.checklistToken });
       setTaskReceipt({ shiftId: id, checklistToken: detail.checklistToken, source: detail, completedTaskIds: result.completedTaskIds });
       resource.refresh();
     } catch (error) {
@@ -266,20 +269,31 @@ export default function PublishedShiftScreen() {
                 </Pressable>}
               </View>}
             </Surface>
-            {!!(detail.shift.description || detail.shift.checklist.length) && <Surface style={[cardStyles.listSurface, { gap: 14, padding: 18 }]}>
-              <Pressable accessibilityRole="button" accessibilityState={{ expanded: descriptionOpen }} onPress={() => setDescriptionOpen(value => !value)} style={{ minHeight: 44, justifyContent: 'center' }}><Row gap={10}>
-                <Icon name="file" size={18} color={colors.muted} />
-                <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
-                {!!detail.shift.checklist.length && <Txt size={12} color={colors.muted}>{completed.length} af {detail.shift.checklist.length}</Txt>}
-                <View style={{ transform: [{ rotate: descriptionOpen ? '180deg' : '0deg' }] }}>
-                  <Icon name="chevron-down" size={12} color={colors.muted} />
-                </View>
-              </Row></Pressable>
+            {!!(detail.shift.description || checklist.length) && <Surface style={[cardStyles.listSurface, { gap: 14, padding: 18 }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ expanded: descriptionOpen }}
+                accessibilityLabel={checklist.length ? `Beskrivelse, ${done} af ${checklist.length} opgaver udført` : 'Beskrivelse'}
+                onPress={() => setDescriptionOpen(value => !value)}
+                style={{ minHeight: 44, justifyContent: 'center' }}
+              >
+                <Row gap={10}>
+                  <Icon name="file" size={18} color={colors.muted} />
+                  <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
+                  {!!checklist.length && <Txt size={12} color={colors.muted}>{done} af {checklist.length}</Txt>}
+                  <Row gap={6}>
+                    {checklistComplete && <Icon name="check" size={12} color={colors.success} />}
+                    <View style={{ transform: [{ rotate: descriptionOpen ? '180deg' : '0deg' }] }}>
+                      <Icon name="chevron-down" size={12} color={colors.muted} />
+                    </View>
+                  </Row>
+                </Row>
+              </Pressable>
               {descriptionOpen && <>
                 {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
-                {detail.shift.checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.includes(task.id), disabled: taskPending || !detail.checklistToken }} disabled={taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
-                  <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.includes(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.includes(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
-                  <Txt size={14} color={completed.includes(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
+                {checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.has(task.id), disabled: taskPending || !detail.checklistToken }} disabled={taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
+                  <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.has(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.has(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
+                  <Txt size={14} color={completed.has(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
                 </Row></Pressable>)}
                 {taskError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{taskError}</Txt>}
               </>}

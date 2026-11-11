@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 
 import { FlowScreen } from '@/components/flow-screen';
 import { ChatRoomPreview } from '@/components/chat-room-preview';
+import { ChatRoomTitle, chatRoomSearchPattern } from '@/components/chat-room-title';
 import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
 import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Icon, Row } from '@/components/ui';
@@ -20,8 +21,9 @@ export default function LiveChatScreen() {
   const today = copenhagenDate(useNow());
   const [query, setQuery] = useState('');
   const searchMotion = useChatSearchMotion(query);
+  const pattern = useMemo(() => chatRoomSearchPattern(query.trim()), [query]);
   const rooms = useMemo(() => (resource.data?.rooms ?? []).filter(room =>
-    `${room.name} ${room.departmentName}`.toLocaleLowerCase('da-DK').includes(query.trim().toLocaleLowerCase('da-DK'))), [query, resource.data?.rooms]);
+    !pattern || pattern.test(`${room.name} ${room.departmentName}`)), [pattern, resource.data?.rooms]);
 
   return (
     <FlowScreen>
@@ -65,7 +67,7 @@ export default function LiveChatScreen() {
               <Avatar initials={initials} size={40} />
               <View style={styles.details}>
                 <Row gap={10}>
-                  <Text numberOfLines={1} style={styles.name}>{room.name}</Text>
+                  <ChatRoomTitle name={room.name} pattern={pattern} style={styles.name} />
                   {timestamp ? <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{timestamp}</Text> : null}
                 </Row>
                 <Row gap={10}>

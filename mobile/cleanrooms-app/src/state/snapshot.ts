@@ -8,6 +8,15 @@ const list = (value: unknown, max: number): value is unknown[] => Array.isArray(
 const stringList = (value: unknown, max: number) => list(value, max) && value.every(v => text(v));
 const distinct = (values: string[]) => new Set(values).size === values.length;
 
+function validNotificationShift(value: unknown) {
+  if (!record(value) || !validDate(value.date) || !text(value.start, 5) || !text(value.end, 5) || !text(value.siteName) ||
+    !Number.isInteger(value.plannedBreakMinutes) || (value.plannedBreakMinutes as number) < 0 || (value.plannedBreakMinutes as number) > 1440) return false;
+  try {
+    shiftInterval({ date: value.date, start: value.start, end: value.end });
+    return true;
+  } catch { return false; }
+}
+
 /** AsyncStorage contains only local demo state, never credentials or real employee records. */
 export function validateSnapshot(value: unknown): value is AppState {
   if (!record(value) || value.schemaVersion !== 1 || !validDate(value.today) || !text(value.selfId) || !instant(value.demoBaseAt) || typeof value.demoStartedAt !== 'number' || !Number.isFinite(value.demoStartedAt)) return false;
@@ -55,7 +64,14 @@ export function validateSnapshot(value: unknown): value is AppState {
   if (!list(value.rooms, 100) || !value.rooms.every(r => record(r) && text(r.id) && text(r.name) && text(r.subtitle) && stringList(r.memberIds, 500) && (r.memberIds as string[]).every(p => people.has(p)) && (r.pinned === undefined || text(r.pinned, 10_000)))) return false;
   const rooms = value.rooms as AppState['rooms'], roomIds = new Set(rooms.map(r => r.id));
   if (roomIds.size !== rooms.length || !list(value.messages, 5000) || !value.messages.every(m => record(m) && text(m.id) && text(m.roomId) && roomIds.has(m.roomId) && text(m.personId) && people.has(m.personId) && rooms.find(r => r.id === m.roomId)!.memberIds.includes(m.personId) && text(m.text, 10_000) && instant(m.createdAt) && (m.read === undefined || typeof m.read === 'boolean'))) return false;
-  if (!list(value.notifications, 1000) || !value.notifications.every(n => record(n) && text(n.id) && text(n.title) && text(n.body, 10_000) && instant(n.createdAt) && typeof n.read === 'boolean' && ['shift', 'request', 'chat', 'system'].includes(n.kind as string) && (n.shiftId === undefined || text(n.shiftId) && ids.has(n.shiftId)) && (n.roomId === undefined || text(n.roomId) && roomIds.has(n.roomId)))) return false;
+  if (!list(value.notifications, 1000) || !value.notifications.every(n =>
+    record(n) && text(n.id) && text(n.title) && text(n.body, 10_000) && instant(n.createdAt) && typeof n.read === 'boolean' &&
+    ['shift', 'request', 'chat', 'system'].includes(n.kind as string) &&
+    (n.shiftId === undefined || text(n.shiftId) && ids.has(n.shiftId)) &&
+    (n.roomId === undefined || text(n.roomId) && roomIds.has(n.roomId)) &&
+    (n.shiftChange === undefined || n.kind === 'shift' && record(n.shiftChange) &&
+      validNotificationShift(n.shiftChange.before) && validNotificationShift(n.shiftChange.after)),
+  )) return false;
   if (!record(value.preferences) || !['notifications', 'chatNotifications', 'biometricLock'].every(k => typeof value.preferences === 'object' && value.preferences && typeof (value.preferences as Record<string, unknown>)[k] === 'boolean')) return false;
   return distinct((value.requests as { id: string }[]).map(v => v.id)) && distinct((value.messages as { id: string }[]).map(v => v.id)) && distinct((value.notifications as { id: string }[]).map(v => v.id));
 }

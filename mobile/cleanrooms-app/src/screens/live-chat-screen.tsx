@@ -10,14 +10,14 @@ import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Icon, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
+import { chatListTimestamp } from '@/domain/chat-list-timestamp';
+import { copenhagenDate } from '@/domain/model';
+import { useNow } from '@/state/app-store';
 import { useLiveChatRooms } from '@/state/live-chat';
-
-function messageTime(value?: string) {
-  return value ? new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : '';
-}
 
 export default function LiveChatScreen() {
   const resource = useLiveChatRooms();
+  const today = copenhagenDate(useNow());
   const [query, setQuery] = useState('');
   const searchMotion = useChatSearchMotion(query);
   const rooms = useMemo(() => (resource.data?.rooms ?? []).filter(room =>
@@ -54,10 +54,11 @@ export default function LiveChatScreen() {
         renderItem={({ item: room, index }) => {
           const unread = room.unread;
           const draft = resource.draftPreviews.get(room.id);
+          const timestamp = chatListTimestamp(room.lastMessage?.createdAt, today);
           const preview = room.lastMessage ? `${room.lastMessage.authorName.split(' ')[0]}: ${room.lastMessage.text}` : room.departmentName;
           const initials = room.name.trim().split(/\s+/).slice(0, 2).map(part => [...part][0]).join('').toUpperCase();
           return <Animated.View style={searchMotion}>
-            <PressFeedback accessibilityRole="button" accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}`}
+            <PressFeedback accessibilityRole="button" accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}${timestamp ? `, seneste besked ${timestamp}` : ''}`}
               haptic="light"
               onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
               style={({ pressed }) => [styles.room, index === 0 ? styles.firstRoom : cardStyles.divider, index === rooms.length - 1 && styles.lastRoom, pressed && styles.pressed]}>
@@ -65,7 +66,7 @@ export default function LiveChatScreen() {
               <View style={styles.details}>
                 <Row gap={10}>
                   <Text numberOfLines={1} style={styles.name}>{room.name}</Text>
-                  <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(room.lastMessage?.createdAt)}</Text>
+                  {timestamp ? <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{timestamp}</Text> : null}
                 </Row>
                 <Row gap={10}>
                   <ChatRoomPreview draft={draft} text={preview} style={[styles.preview, !draft && unread > 0 && styles.unreadPreview]} />

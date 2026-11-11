@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FlowScreen } from '@/components/flow-screen';
 import { useReduceMotionPreference } from '@/components/motion-preference';
+import { ShiftAddressRow } from '@/components/shift-address-row';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { ShiftTimeChange } from '@/components/shift-time-change';
 import { EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
@@ -178,10 +179,7 @@ export default function ShiftScreen() {
             </View>
             <View style={{ gap: 7 }}>
               <Txt size={19} weight="600" accessibilityRole="header" style={{ letterSpacing: -0.35 }}>{site?.name ?? 'Arbejdssted'}</Txt>
-              {!!site?.address && <Row gap={7} style={{ alignItems: 'flex-start' }}>
-                <Icon name="map-pin" size={14} color={colors.muted} />
-                <Txt size={13} color={colors.muted} style={{ flex: 1 }}>{site.address}</Txt>
-              </Row>}
+              <ShiftAddressRow address={site?.address} />
               {!!shiftContext && <Txt size={13} color={colors.muted} style={{ lineHeight: 20 }}>{shiftContext}</Txt>}
             </View>
             <View style={[cardStyles.divider, { gap: 16, paddingTop: 18 }]}>

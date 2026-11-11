@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { FlowScreen } from '@/components/flow-screen';
+import { NotificationShiftChange, notificationShiftChange } from '@/components/notification-shift-change';
 import { PressFeedback } from '@/components/press-feedback';
 import { Button, EmptyState, Icon, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
@@ -121,15 +122,17 @@ export default function LiveNotificationsScreen() {
         renderItem={({ item, index }) => {
           const { heading, isLastInGroup } = groups[index];
           const seen = Boolean(item.readAt || readIds.includes(item.id));
-          const after = item.after, before = item.before;
-          const changedTime = Boolean(before && (!after || shiftLabel(before) !== shiftLabel(after)));
+          const { before, after } = item;
+          const change = (item.kind === 'changed' || item.kind === 'moved') && before && after ? notificationShiftChange(before, after) : null;
+          const priorTime = !change && before ? shiftLabel(before) : '';
+          const currentTime = !change && after ? shiftLabel(after) : '';
           const changedSite = before && after && before.siteName !== after.siteName;
           return (
             <View>
               {heading && <Txt accessibilityRole="header" size={13} weight="600" color={colors.muted} style={styles.groupHeading}>{heading}</Txt>}
               <PressFeedback haptic="light" accessibilityRole="button" disabled={busy !== null}
                 accessibilityState={{ disabled: busy !== null, busy: busy === item.id }}
-                accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${item.summary}`}
+                accessibilityLabel={`${seen ? '' : 'Ulæst. '}${titles[item.kind] ?? 'Besked'}. ${change?.spoken ?? item.summary}`}
                 onPress={() => { void open(item); }}
                 style={({ pressed }) => [styles.record, heading && styles.firstRecord, isLastInGroup && styles.lastRecord, pressed && styles.pressed]}>
                 <View style={styles.icon}><Icon name={item.kind === 'request' ? 'file' : ['reminder', 'checkout_reminder'].includes(item.kind) ? 'clock' : 'calendar'} size={18}
@@ -140,11 +143,13 @@ export default function LiveNotificationsScreen() {
                     {busy === item.id && <ActivityIndicator size="small" color={colors.accent} />}
                   </Row>
                   {item.kind === 'request' && <Txt size={13} color={colors.text}>{item.summary}</Txt>}
-                  {before && changedTime && <Txt size={13} color={colors.muted} style={styles.struck}>{shiftLabel(before)}</Txt>}
-                  {after && <Txt size={14} weight="500">{shiftLabel(after)}</Txt>}
-                  {changedSite && before && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
-                  {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
-                  {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
+                  {change ? <NotificationShiftChange change={change} /> : <>
+                    {!!priorTime && priorTime !== currentTime && <Txt size={13} color={colors.muted} style={styles.struck}>{priorTime}</Txt>}
+                    {after && <Txt size={14} weight="500">{currentTime}</Txt>}
+                    {changedSite && <Txt size={12} color={colors.muted} style={styles.struck}>{before.siteName}</Txt>}
+                    {(after || before) && <Txt size={13} color={colors.muted}>{(after ?? before)?.siteName}</Txt>}
+                    {!after && !before && item.kind !== 'request' && <Txt size={13} color={colors.muted}>{item.summary}</Txt>}
+                  </>}
                   <Txt size={11} color={colors.muted}>{Number.isFinite(Date.parse(item.createdAt)) ? timestamp.format(new Date(item.createdAt)) : ''}</Txt>
                 </View>
                 {(after || before) && <View style={styles.chevron}><Icon name="chevron-right" size={12} color={colors.muted} /></View>}

@@ -336,6 +336,26 @@ test('snapshot hydration validates version, entity references, clock consistency
   assert.equal(validateSnapshot({ ...state, shifts: state.shifts.map((s, i) => i === 0 ? { ...s, date: '2026-02-30' } : s) }), false);
 });
 
+test('the demo shift change notice is restored once and retains its read state and snapshots', () => {
+  const state = seed();
+  const notice = state.notifications.find(item => item.shiftChange);
+  assert.ok(notice);
+  const shift = state.shifts.find(item => item.id === notice.shiftId);
+  assert.deepEqual([notice.shiftChange.before.start, notice.shiftChange.before.end], [shift.previousTime.start, shift.previousTime.end]);
+  assert.deepEqual([notice.shiftChange.after.start, notice.shiftChange.after.end], [shift.start, shift.end]);
+
+  const legacy = { ...state, notifications: state.notifications.filter(item => item.id !== notice.id) };
+  assert.deepEqual(decodeSnapshot(JSON.stringify(legacy)), state);
+
+  const marked = applyAction(state, { type: 'markNotificationRead', id: notice.id }, at(state.today, '10:24')).state;
+  assert.deepEqual(decodeSnapshot(JSON.stringify(marked)), marked);
+  assert.equal(marked.notifications.find(item => item.id === notice.id).read, true);
+
+  const malformed = structuredClone(state);
+  malformed.notifications.find(item => item.id === notice.id).shiftChange.before.start = '99:00';
+  assert.equal(validateSnapshot(malformed), false);
+});
+
 test('unavailable days persist through older snapshots without changing existing shifts', () => {
   const legacy = seed();
   delete legacy.unavailableDates;

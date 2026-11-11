@@ -7,6 +7,7 @@ import { useMobileAuth } from '@/auth/mobile-auth';
 import { mobileAuthOrigin, MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
 import { FlowScreen } from '@/components/flow-screen';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
+import { ShiftAddressRow } from '@/components/shift-address-row';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
 import { ShiftOffer } from '@/components/shift-offer';
@@ -212,10 +213,7 @@ export default function PublishedShiftScreen() {
               {timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
               <View style={{ gap: 7 }}>
                 <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
-                {detail.site.address ? <Row gap={7} style={{ alignItems: 'flex-start' }}>
-                  <Icon name="map-pin" color={colors.muted} size={14} />
-                  <Txt size={13} color={colors.muted} style={{ flex: 1 }}>{detail.site.address}</Txt>
-                </Row> : null}
+                <ShiftAddressRow address={detail.site.address} />
                 {detail.shift.breakMinutes > 0 && <Txt size={13} color={colors.muted}>
                   Planlagt pause · {minutesLabel(detail.shift.breakMinutes)}
                 </Txt>}

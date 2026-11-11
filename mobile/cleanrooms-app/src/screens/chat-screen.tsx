@@ -12,13 +12,9 @@ import { PressFeedback } from '@/components/press-feedback';
 import { Avatar, EmptyState, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
+import { chatListTimestamp } from '@/domain/chat-list-timestamp';
 import { useAppData } from '@/state/app-store';
 import { chatDraftPreview } from '@/state/private-draft-store';
-
-function messageTime(value?: string) {
-  if (!value) return '';
-  return new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
-}
 
 export default function ChatScreen() {
   const { state } = useMobileAuth();
@@ -57,13 +53,14 @@ function DemoChatScreen() {
           const author = last ? state.people.find((person) => person.id === last.personId) : undefined;
           const unread = messages.filter((message) => message.personId !== state.selfId && !message.read).length;
           const draft = chatDraftPreview(demoChatDrafts.get(room.id) ?? '');
+          const timestamp = chatListTimestamp(last?.createdAt, state.today);
           const preview = last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle;
           const initials = room.name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
           return (
             <Animated.View style={searchMotion}>
               <PressFeedback
                 accessibilityRole="button"
-                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}`}
+                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}${timestamp ? `, seneste besked ${timestamp}` : ''}`}
                 haptic="light"
                 onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
                 style={({ pressed }) => [
@@ -76,7 +73,7 @@ function DemoChatScreen() {
                 <View style={styles.roomDetails}>
                   <Row gap={10}>
                     <Text numberOfLines={1} style={styles.roomName}>{room.name}</Text>
-                    <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(last?.createdAt)}</Text>
+                    {timestamp ? <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{timestamp}</Text> : null}
                   </Row>
                   <Row gap={10}>
                     <ChatRoomPreview draft={draft} text={preview} style={[styles.preview, !draft && unread > 0 && styles.unreadPreview]} />

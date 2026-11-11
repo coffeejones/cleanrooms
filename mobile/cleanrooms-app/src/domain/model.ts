@@ -21,9 +21,11 @@ export type Request = {
 };
 export type ChatRoom = { id: string; name: string; subtitle: string; memberIds: string[]; pinned?: string };
 export type Message = { id: string; roomId: string; personId: string; text: string; createdAt: string; read?: boolean };
+export type NotificationShiftSnapshot = Pick<Shift, 'date' | 'start' | 'end'> & { siteName: string; plannedBreakMinutes: number };
 export type AppNotification = {
   id: string; title: string; body: string; createdAt: string; read: boolean;
   shiftId?: string; roomId?: string; kind: 'shift' | 'request' | 'chat' | 'system';
+  shiftChange?: { before: NotificationShiftSnapshot; after: NotificationShiftSnapshot };
 };
 export type Preferences = { notifications: boolean; chatNotifications: boolean; biometricLock: boolean };
 export type AppState = {

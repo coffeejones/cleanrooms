@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { FlowScreen } from '@/components/flow-screen';
+import { NotificationShiftChange, notificationShiftChange } from '@/components/notification-shift-change';
 import { PressFeedback } from '@/components/press-feedback';
 import LiveNotificationsScreen from '@/screens/live-notifications-screen';
 
@@ -63,12 +64,13 @@ function DemoNotificationsScreen() {
         }
         renderItem={({ item, index }) => {
           const { heading, isLastInGroup } = groups[index];
+          const change = item.shiftChange ? notificationShiftChange(item.shiftChange.before, item.shiftChange.after) : null;
           return (
             <View>
               {heading && <Txt accessibilityRole="header" size={13} weight="600" color={colors.muted} style={styles.groupHeading}>{heading}</Txt>}
               <PressFeedback haptic="light"
                 accessibilityRole="button"
-                accessibilityLabel={`${!item.read ? 'Ulæst. ' : ''}${item.title}. ${item.body}`}
+                accessibilityLabel={`${!item.read ? 'Ulæst. ' : ''}${item.title}. ${change?.spoken ?? item.body}`}
                 onPress={() => open(item)}
                 style={({ pressed }) => [
                   styles.record, cardStyles.divider, heading && styles.firstRecord, isLastInGroup && styles.lastRecord, pressed && styles.pressed,
@@ -82,7 +84,7 @@ function DemoNotificationsScreen() {
                     <Txt size={15} weight={item.read ? '600' : '700'} style={styles.messageTitle}>{item.title}</Txt>
                     {!item.read && <View style={styles.unreadDot} />}
                   </Row>
-                  <Txt size={13} color={colors.muted}>{item.body}</Txt>
+                  {change ? <NotificationShiftChange change={change} /> : <Txt size={13} color={colors.muted}>{item.body}</Txt>}
                   <Txt size={11} color={colors.muted}>{timestamp.format(new Date(item.createdAt))}</Txt>
                 </View>
                 {(item.shiftId || item.roomId) && (

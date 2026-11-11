@@ -34,7 +34,9 @@ export function withDemoSiteGeofences(state: AppState): AppState {
 
 /** Add the sample to both fresh and earlier local demos without changing planned hours. */
 export function withDemoShiftChange(state: AppState): AppState {
-  if (state.selfId !== 'jonas' || state.shifts.some(shift => shift.previousTime)) return state;
+  if (state.selfId !== 'jonas') return state;
+  const existing = state.shifts.find(shift => shift.previousTime);
+  if (existing) return withDemoShiftChangeNotification(state, existing);
 
   const enteredShifts = new Set(state.entries.map(entry => entry.shiftId));
   const sample = upcoming(state, addDays(state.today, 1)).find(shift =>
@@ -45,7 +47,26 @@ export function withDemoShiftChange(state: AppState): AppState {
   if (!sample) return state;
 
   const previousTime = sample.start === '08:00' ? { start: '07:00', end: '15:00' } : { start: '08:00', end: '14:00' };
-  return { ...state, shifts: state.shifts.map(shift => shift === sample ? { ...shift, previousTime } : shift) };
+  const changed = { ...sample, previousTime };
+  return withDemoShiftChangeNotification({ ...state, shifts: state.shifts.map(shift => shift === sample ? changed : shift) }, changed);
+}
+
+function withDemoShiftChangeNotification(state: AppState, shift: Shift): AppState {
+  if (!shift.previousTime || shift.personId !== state.selfId || shift.id !== `own-${shift.date}`) return state;
+  const id = `demo-shift-change-${shift.id}`;
+  if (state.notifications.length >= 1000 || state.notifications.some(item => item.id === id)) return state;
+  const site = state.sites.find(item => item.id === shift.siteId);
+  if (!site) return state;
+
+  const after = { date: shift.date, start: shift.start, end: shift.end, siteName: site.name, plannedBreakMinutes: shift.breakMinutes };
+  return {
+    ...state,
+    notifications: [{
+      id, kind: 'shift', title: 'Vagt ændret', shiftId: shift.id, createdAt: iso(state.today, '10:15'), read: false,
+      body: `${site.name} · ${dateLabel(shift.date, { weekday: 'short' })} · ${shift.start}–${shift.end}`,
+      shiftChange: { before: { ...after, ...shift.previousTime }, after },
+    }, ...state.notifications],
+  };
 }
 
 /** Deterministic, local-only employee data. Never seeded into a real company's workspace. */

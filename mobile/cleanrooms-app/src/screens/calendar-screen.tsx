@@ -428,6 +428,7 @@ export default function CalendarScreen() {
         <CalendarMonthPicker
           year={picker.year}
           selectedMonth={monthKey}
+          currentMonth={today.slice(0, 7)}
           visible={picker.visible}
           onYearChange={offset => setPicker(previous => ({ ...previous, year: previous.year + offset }))}
           onSelect={targetMonth => {

@@ -67,11 +67,17 @@ function CompanyHoursScreen({ startDay, companyError, refreshCompany, companyRef
             {data && <>
               <View style={styles.summary}>
                 <PeriodProgress summary={data.summary} future={future} moneyUnavailable={(future ? data.summary.missingEstimatedPayCount : data.summary.missingEarnedPayCount) > 0} />
-                {data.summary.monthlyCents > 0 && <Row style={{ justifyContent: 'space-between', marginTop: 14 }}><Txt size={12} color={colors.muted}>Fast løn i perioden</Txt><Txt size={14} weight="600">{currency(data.summary.monthlyCents)}</Txt></Row>}
+                {data.summary.monthlyCents > 0 && <Row style={{ justifyContent: 'space-between', marginTop: 14 }}><Txt size={12} color={colors.muted}>Fast løn i perioden</Txt><Txt size={14} weight="600" style={styles.amount}>{currency(data.summary.monthlyCents)}</Txt></Row>}
                 {data.warnings.map((warning, i) => <Txt key={i} size={12} color={colors.muted} style={{ marginTop: 8 }}>{warning}</Txt>)}
               </View>
               <PressFeedback haptic="selection" accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpanded(value => !value)} style={styles.calculation}>
-                <Row><Txt size={13} weight="600" style={{ flex: 1 }}>Lønberegning</Txt><Txt size={12} color={colors.muted}>{minutesLabel(data.summary.approvedMinutes)} godkendt</Txt><Icon name={expanded ? 'chevron-left' : 'chevron-down'} size={12} color={colors.muted} /></Row>
+                <Row>
+                  <Txt size={13} weight="600" style={{ flex: 1 }}>Lønberegning</Txt>
+                  <Txt size={12} color={colors.muted} style={styles.amount}>{minutesLabel(data.summary.approvedMinutes)} godkendt</Txt>
+                  <View style={expanded && styles.chevronUp}>
+                    <Icon name="chevron-down" size={12} color={colors.muted} />
+                  </View>
+                </Row>
               </PressFeedback>
               {expanded && <View style={[styles.summary, { gap: 9 }]}>
                 <Amount label="Grundløn" cents={future ? data.summary.baseEstimatedCents : data.summary.baseEarnedCents} />
@@ -92,7 +98,7 @@ function CompanyHoursScreen({ startDay, companyError, refreshCompany, companyRef
 }
 
 function Amount({ label, cents }: { label: string; cents: number }) {
-  return <Row style={{ justifyContent: 'space-between' }}><Txt size={13} color={colors.muted} style={{ flex: 1 }}>{label}</Txt><Txt size={14} weight="500">{currency(cents)}</Txt></Row>;
+  return <Row style={{ justifyContent: 'space-between' }}><Txt size={13} color={colors.muted} style={{ flex: 1 }}>{label}</Txt><Txt size={14} weight="500" style={styles.amount}>{currency(cents)}</Txt></Row>;
 }
 function LiveHourRow({ row: { shift, site, entry, pay, sourceLabel } }: { row: EmployeeHoursRow }) {
   const registeredStart = pay.kind === 'registered' && pay.interval ? Date.parse(pay.interval.startAt) : NaN;
@@ -112,7 +118,11 @@ function LiveHourRow({ row: { shift, site, entry, pay, sourceLabel } }: { row: E
         <Txt size={11} color={colors.muted} style={{ flexShrink: 1 }}>{status}</Txt>
       </Row>
     </View>
-    <View style={{ alignItems: 'flex-end', maxWidth: '42%', gap: 2 }}><Txt size={15} weight="600">{pay.unavailableReason ? '—' : currency(pay.totalCents)}</Txt><Txt size={12} color={colors.muted}>{pay.kind === 'registered' ? minutesLabel(pay.minutes) : 'Forventet'}</Txt>{sourceLabel && entry?.status === 'approved' && <Txt size={10} color={colors.muted}>{sourceLabel}</Txt>}</View>
+    <View style={{ alignItems: 'flex-end', maxWidth: '42%', gap: 2 }}>
+      <Txt size={15} weight="600" style={styles.amount}>{pay.unavailableReason ? '—' : currency(pay.totalCents)}</Txt>
+      <Txt size={12} color={colors.muted} style={styles.amount}>{pay.kind === 'registered' ? minutesLabel(pay.minutes) : 'Forventet'}</Txt>
+      {sourceLabel && entry?.status === 'approved' && <Txt size={10} color={colors.muted} style={styles.amount}>{sourceLabel}</Txt>}
+    </View>
     <Icon name="chevron-right" size={12} color={colors.muted} />
   </ShiftDetailsButton>;
 }
@@ -121,6 +131,8 @@ const styles = StyleSheet.create({
   period: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10 }, periodButton: { flex: 1, minWidth: 0, minHeight: 44, justifyContent: 'center', gap: 2 },
   summary: { padding: 16, paddingTop: 6 }, reset: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 16 },
   calculation: { minHeight: 46, paddingHorizontal: 16, justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
+  chevronUp: { transform: [{ rotate: '180deg' }] },
+  amount: { textAlign: 'right' },
   listTitle: { paddingHorizontal: 14, paddingVertical: 12, marginTop: 20, backgroundColor: cardColors.section, borderWidth: 1, borderColor: colors.line, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 80, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: colors.white, borderWidth: 1, borderTopWidth: 0, borderColor: colors.line },
   day: { width: 38, alignItems: 'center', gap: 1 }, more: { minHeight: 46, justifyContent: 'center', alignItems: 'center', backgroundColor: cardColors.section, borderWidth: 1, borderColor: colors.line, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 },

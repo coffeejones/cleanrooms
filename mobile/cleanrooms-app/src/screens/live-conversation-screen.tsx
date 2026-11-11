@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View, type ViewToken } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConversationLatestButton, latestMessageThreshold } from '@/components/conversation-latest-button';
 import { ConversationMessage } from '@/components/conversation-message';
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
@@ -22,6 +23,7 @@ export default function LiveConversationScreen() {
   const detail = conversation.data;
   const { draft, setDraft } = conversation;
   const [selectedPin, setSelectedPin] = useState<LiveChatMessage | null>(null);
+  const [awayFromLatest, setAwayFromLatest] = useState(false);
   const list = useRef<FlatList<LiveChatMessage>>(null);
   const atBottom = useRef(true);
   const previousLatest = useRef(0);
@@ -89,7 +91,11 @@ export default function LiveConversationScreen() {
         contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.messages}
         keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
         onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
-        scrollEventThrottle={32} onScroll={event => { atBottom.current = event.nativeEvent.contentOffset.y < 72; }}
+        scrollEventThrottle={32}
+        onScroll={({ nativeEvent: { contentOffset } }) => {
+          atBottom.current = contentOffset.y < latestMessageThreshold;
+          setAwayFromLatest(!atBottom.current);
+        }}
         ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
         ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
           onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
@@ -104,6 +110,9 @@ export default function LiveConversationScreen() {
           />
         )}
       />}
+      {awayFromLatest && messages.length > 0 && (
+        <ConversationLatestButton onJump={animated => list.current?.scrollToOffset({ offset: 0, animated })} />
+      )}
     </FlowScreen>
     {detail && <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
       <View style={styles.composerRow}>

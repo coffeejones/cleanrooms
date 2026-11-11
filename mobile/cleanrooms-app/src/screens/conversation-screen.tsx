@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConversationLatestButton, latestMessageThreshold } from '@/components/conversation-latest-button';
 import { ConversationMessage } from '@/components/conversation-message';
 import { FlowScreen } from '@/components/flow-screen';
 import { Icon, Row } from '@/components/ui';
@@ -19,6 +20,7 @@ export default function ConversationScreen() {
   const room = state.rooms.find((item) => item.id === id && item.memberIds.includes(state.selfId));
   const draft = demoChatDrafts.get(id) ?? '';
   const [error, setError] = useState('');
+  const [awayFromLatest, setAwayFromLatest] = useState(false);
   const list = useRef<FlatList<Message>>(null);
   const atBottom = useRef(true);
   const shouldScroll = useRef(true);
@@ -79,7 +81,11 @@ export default function ConversationScreen() {
           keyboardDismissMode="interactive"
           onContentSizeChange={onContentSizeChange}
           scrollEventThrottle={32}
-          onScroll={(event) => { const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent; atBottom.current = contentSize.height - contentOffset.y - layoutMeasurement.height < 72; }}
+          onScroll={({ nativeEvent: { contentOffset, contentSize, layoutMeasurement } }) => {
+            const distance = contentSize.height - contentOffset.y - layoutMeasurement.height;
+            atBottom.current = distance < latestMessageThreshold;
+            setAwayFromLatest(!atBottom.current);
+          }}
           ListEmptyComponent={<Text selectable style={{ color: c.muted, fontSize: 14 }}>Start samtalen med dit team.</Text>}
           renderItem={({ item, index }) => (
             <ConversationMessage
@@ -92,6 +98,9 @@ export default function ConversationScreen() {
             />
           )}
         />
+        {awayFromLatest && messages.length > 0 && (
+          <ConversationLatestButton onJump={animated => list.current?.scrollToEnd({ animated })} />
+        )}
       </FlowScreen>
       <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
         {!!error && <Text selectable accessibilityRole="alert" style={{ color: '#a34f3c', fontSize: 13 }}>{error}</Text>}

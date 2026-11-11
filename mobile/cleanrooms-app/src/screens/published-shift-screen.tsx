@@ -271,7 +271,9 @@ export default function PublishedShiftScreen() {
                 <Icon name="file" size={18} color={colors.muted} />
                 <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
                 {!!detail.shift.checklist.length && <Txt size={12} color={colors.muted}>{completed.length} af {detail.shift.checklist.length}</Txt>}
-                <Icon name="chevron-down" size={12} color={colors.muted} />
+                <View style={{ transform: [{ rotate: descriptionOpen ? '180deg' : '0deg' }] }}>
+                  <Icon name="chevron-down" size={12} color={colors.muted} />
+                </View>
               </Row></Pressable>
               {descriptionOpen && <>
                 {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}

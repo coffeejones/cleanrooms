@@ -174,3 +174,168 @@
 @media(pointer:coarse) {
   #cleanrooms-studio[data-page="payroll"] .cs-paygroups-page {--cs-ui-height:44px}
 }
+
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin:14px 0 16px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:7px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics>div {min-width:0;padding:12px 16px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics>div+div {border-inline-start:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics strong {
+  display:block;
+  color:var(--cs-access-ink);
+  font-size:22px;
+  line-height:28px;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics span {
+  display:block;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools {
+  justify-content:flex-start;
+  gap:12px;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools>.cs-paygroups-field:last-child {width:160px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-count-cell .cs-paygroups-cell-detail>span {display:block}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-table .cs-paygroups-directory-actions {width:1%;text-align:right;white-space:nowrap}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-actions>.cs-button+.cs-button {margin-inline-start:8px}
+
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog {
+  --cs-ui-height:38px;
+  position:fixed;
+  inset:0;
+  box-sizing:border-box;
+  width:min(680px,calc(100% - 32px));
+  max-width:none;
+  max-height:calc(100dvh - 32px);
+  margin:auto;
+  padding:0;
+  overflow:hidden;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:12px;
+  background:#fff;
+  color:var(--cs-access-ink);
+  box-shadow:0 18px 56px #15272f36;
+  font:inherit;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog[open] {display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-wide {width:min(1000px,calc(100% - 32px))}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog::backdrop {background:#17283159}
+#cleanrooms-studio[data-page="payroll"] :is(.cs-paygroups-dialog-head,.cs-paygroups-dialog-footer) {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px 20px;
+  min-width:0;
+  padding:16px 22px;
+  background:#fff;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-head {border-bottom:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-head h2 {margin:0;font-size:20px;line-height:28px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-head p {margin-top:2px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-dialog-close {flex:0 0 auto;width:36px;min-width:36px;padding:0;font-size:23px;font-weight:400}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-body {min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-footer {border-top:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-footer>.cs-paygroups-inline-actions {justify-content:flex-end;flex:0 0 auto}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-status {min-width:0;color:var(--cs-access-muted);font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-status .cs-paygroups-error {padding:7px 10px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-status .cs-paygroups-error>.cs-button {margin-top:6px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-form {gap:16px;padding:20px 22px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-archive-copy {margin:0;padding:20px 22px;color:var(--cs-access-body);font-size:14px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-workflow {
+  grid-template-columns:minmax(0,1.25fr) minmax(280px,1fr);
+  border:0;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-single-assignment {grid-template-columns:minmax(0,1fr)}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-step {
+  gap:12px;
+  padding:20px 22px;
+  border-bottom:0;
+  border-inline-end:0;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-settings {
+  border-inline-start:1px solid var(--cs-compass-rule);
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-single-assignment>.cs-paygroups-assignment-settings {border:0;background:#fff}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-step>.cs-paygroups-assignment-tools {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:0;
+  gap:10px;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-tools>.cs-paygroups-field:first-child {grid-column:1/-1}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-paged-picker {max-height:240px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-person-choice {padding-block:8px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-selection-summary {padding:8px 12px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-selection-summary>strong {align-self:center}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-assignment-fields {display:grid;gap:12px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-single-assignment .cs-paygroups-assignment-fields {grid-template-columns:repeat(2,minmax(0,1fr))}
+#cleanrooms-studio[data-page="payroll"] :is(.cs-paygroups-fixed-destination,.cs-paygroups-transfer-person)>strong {display:block;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-transfer-person {
+  padding:10px 12px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-personal-options {
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:#fff;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-personal-options>summary {padding:8px 12px;cursor:pointer;font-size:13px;line-height:20px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-personal-options>:not(summary) {margin:0 12px 10px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-body>.cs-paygroups-dialog-review:not(:empty) {padding:0 22px 20px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview {
+  padding:0;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:#fff;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview>.cs-paygroups-section-head {padding:10px 12px;border:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview .cs-paygroups-section-title {font-size:14px;line-height:22px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-summary {padding:0 12px 10px;border:0;gap:4px 12px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-warning {margin:0 12px 10px;padding:8px 10px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :is(.cs-paygroups-preview-person,.cs-paygroups-preview-empty) {padding:10px 12px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-person {border-top:1px solid var(--cs-compass-rule);border-bottom:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-heading {margin-bottom:6px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-columns {gap:10px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-columns>div {gap:2px;padding:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-columns>div+div {padding-inline-start:10px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :is(.cs-paygroups-changed,.cs-paygroups-unchanged) {border-top:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :is(.cs-paygroups-changed,.cs-paygroups-unchanged)>summary {
+  min-height:0;
+  padding:8px 12px;
+  color:var(--cs-access-primary);
+  font-size:13px;
+  line-height:20px;
+  cursor:pointer;
+}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-pagination {padding:8px 12px;gap:6px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-step>.cs-paygroups-pagination {padding:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-unchanged>.cs-paygroups-pagination {margin:0}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :is(button,input,select,summary):focus-visible {outline:2px solid var(--cs-access-blue);outline-offset:2px}
+#cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :disabled {opacity:.55;cursor:default}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics>div {padding:10px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-metrics strong {font-size:18px;line-height:24px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-tools>.cs-paygroups-field {min-width:0}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-table .cs-paygroups-directory-actions {grid-column:1/-1;width:auto}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-workflow {grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-assignment-settings {border-inline-start:0;border-top:1px solid var(--cs-compass-rule)}
+  #cleanrooms-studio[data-page="payroll"] :is(.cs-paygroups-dialog-head,.cs-paygroups-dialog-footer) {padding:12px 16px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-footer {flex-wrap:wrap;gap:8px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-footer>.cs-paygroups-inline-actions {margin-inline-start:auto}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog :is(.cs-paygroups-assignment-step,.cs-paygroups-form,.cs-paygroups-archive-copy) {padding:16px}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog-body>.cs-paygroups-dialog-review:not(:empty) {padding-inline:16px}
+}
+@media(max-width:430px) {
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-single-assignment .cs-paygroups-assignment-fields {grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page="payroll"] .cs-paygroups-dialog .cs-paygroups-preview-columns>div+div {padding:8px 0 0;border-inline-start:0;border-top:1px solid var(--cs-compass-rule)}
+}

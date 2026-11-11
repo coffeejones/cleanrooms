@@ -1733,14 +1733,16 @@
     copy.append(node('div', 'cs-person-hours' + (showHours && hours > person.target ? ' cs-hour-over' : ''), showHours ? niceHours(hours) + ' / ' + person.target + ' t' : person.role));
     line.append(copy); return line;
   }
-  function describeShift(shift) { return personName(shift.person) + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift,' til ') + ', ' + sites[shift.site].name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : ''); }
+  function describeShift(shift) { return personName(shift.person) + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift,' til ') + ', ' + sites[shift.site].name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : '') + (shift.seriesId ? '. Del af en vagtserie' : ''); }
   function descriptionIndicator() {
     const marker = node('span','cs-description-indicator'); marker.append(icon('file-text'));
-    marker.setAttribute('aria-hidden','true'); marker.title = 'Har beskrivelse'; return marker;
+    marker.setAttribute('aria-hidden','true'); return marker;
   }
   function prepareShiftButton(button, shift) {
     button.type = 'button'; button.dataset.shift = shift.id; button.dataset.selected = String(activeEdit?.id === shift.id);
-    button.style.setProperty('--cs-shift-color', sites[shift.site].color); button.setAttribute('aria-label', describeShift(shift));
+    button.style.setProperty('--cs-shift-color', sites[shift.site].color);
+    const description=describeShift(shift);
+    button.setAttribute('aria-label', description); button.dataset.tooltip=description;
     button.addEventListener('click', () => openEditor(shift, button)); return button;
   }
   function shiftCard(shift) {
@@ -1750,7 +1752,7 @@
     if (shift.seriesId) { const marker = node('span', 'cs-series-indicator'); marker.append(icon('repeat-2')); marker.setAttribute('aria-label', 'Del af en vagtserie'); meta.append(marker); }
     if (shift.note || shift.noteRich || shift._instructions?.hasDescription) meta.append(descriptionIndicator());
     button.append(meta);
-    button.dataset.tooltip = sites[shift.site].name + ' · ' + personName(shift.person); return button;
+    return button;
   }
   function emptyCell(person, day, site) {
     const button = node('button', 'cs-empty-cell cursor-interaction'); button.type = 'button';

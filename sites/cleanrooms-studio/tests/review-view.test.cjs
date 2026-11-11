@@ -59,6 +59,17 @@ test('history details retain literal absence reasons and authoritative decision 
   const f=fixture(),reason='Der mangler en afløser.\n<script>Dette er tekst</script>',view=Review.mountHistory({element:f.host,onQuery:async()=>response([{...entry('leave-change'),changes:[{field:'requests',id:'leave-1',before:'pending',after:'rejected',decision:{status:'rejected',reason,decidedBy:{name:'Jonas Hansen'},decidedAt:'2026-11-02T08:00:00.000Z'}}]}])});view.render({people:[]});await settle();assert.ok(f.host.textContent.includes(reason));assert.match(f.host.textContent,/Jonas Hansen/);assert.match(f.host.textContent,/09\.00/);
 });
 
+test('history groups by Copenhagen date and retains an expanded entry when adding another page',async()=>{
+  const f=fixture(),newest={...entry('newest'),at:'2026-11-02T23:30:00.000Z',reason:'Kontrolleret'},older={...entry('older'),at:'2026-11-02T22:30:00.000Z'};
+  const view=Review.mountHistory({element:f.host,onQuery:async({cursor})=>cursor?response([older]):response([newest],{hasMore:true,nextCursor:'previous-day'})});
+  view.render({people:[]});await settle();
+  const detail=f.host.querySelector('.cs-history-event');
+  detail.open=true;await detail.fire('toggle');
+  await f.button('Vis flere').click();
+  assert.deepEqual(f.host.querySelectorAll('.cs-history-date').map(node=>node.textContent),['tirsdag den 3. november 2026','mandag den 2. november 2026']);
+  assert.equal(f.host.querySelector('.cs-history-event').open,true);
+});
+
 test('generic rejection supports forced cleanup during a save outside the leave page',async()=>{
   const f=fixture();let resolve;const modal=Review.rejection({element:f.host,request,onDecision:()=>new Promise(done=>resolve=done)});f.findLabel('Begrundelse for afvisning').value='Ingen afløser';const saving=f.button('Afvis anmodning').click();modal.close();assert.equal(modal.closed,false);modal.close({force:true,restoreFocus:false});assert.equal(modal.closed,true);assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);resolve({ok:false,error:'Forsinket fejl'});await saving;assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);
 });

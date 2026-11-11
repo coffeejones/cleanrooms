@@ -1,7 +1,8 @@
 (function(scope){
   const STATUS={pending:'Afventer',approved:'Godkendt',rejected:'Afvist'};
-  const KINDS={plan:'Planændring',publication:'Udgivelse',checklist:'Tjekliste',time:'Timer',leave:'Fravær',access:'Kontoadgang'};
-  const AREAS={planning:'Vagtplan og serier',people:'Medarbejdere',leave:'Fravær',time:'Timer',settings:'Indstillinger',departments:'Afdelinger',checklist:'Tjeklister',access:'Brugere og roller'};
+  const KINDS={plan:'Planændring',publication:'Udgivelse',checklist:'Tjekliste',time:'Timer',leave:'Fravær',access:'Kontoadgang',payroll:'Løn'};
+  const AREAS={planning:'Vagtplan og serier',people:'Medarbejdere',leave:'Fravær',time:'Timer',settings:'Indstillinger',departments:'Afdelinger',checklist:'Tjeklister',access:'Brugere og roller',payroll:'Løn og tillæg'};
+  const CHANGE_LABELS={series:'Vagtserie',edits:'Vagt',deleted:'Vagt',coverageRules:'Bemandingskrav',requests:'Fravær',leaveDecisions:'Svar på fravær',roster:'Medarbejder',workspaceSettings:'Indstillinger',organization:'Afdelinger',time:'Timer'};
   const text=value=>String(value??'').trim();
   const validDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value)&&!Number.isNaN(Date.parse(value+'T12:00:00Z'))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
   function filterLeave(requests,filters={}){
@@ -10,6 +11,8 @@
   }
   const dateLabel=value=>validDate(value)?new Date(value+'T12:00:00Z').toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):text(value);
   const stamp=value=>{const time=new Date(value);return Number.isNaN(time.getTime())?'Ukendt tidspunkt':time.toLocaleString('da-DK',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Copenhagen'});};
+  const historyDay=new Intl.DateTimeFormat('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Copenhagen'});
+  const historyTime=new Intl.DateTimeFormat('da-DK',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'Europe/Copenhagen'});
   function kit(doc){
     const node=(tag,cls='',copy)=>{const el=doc.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=String(copy);return el;};
     const button=(copy,action,cls='cs-button')=>{const el=node('button',cls,copy);el.type='button';el.addEventListener('click',action);return el;};
@@ -118,25 +121,89 @@
     },refresh(){return server()?load('reset'):draw();},destroy(){destroyed=true;generation++;resetQuery();closeModal();page.remove();}};
   }
   function mountHistory({element,onQuery,onRestore,formatValue=(_key,value)=>JSON.stringify(value),onBackup}){
-    const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-activity-page cs-history-review'),form=node('form','cs-review-tools cs-history-filters'),from=input('date','Historik fra dato'),to=input('date','Historik til dato'),actor=select('Udført af',[['all','Alle brugere']]),person=select('Berørt medarbejder',[['all','Alle medarbejdere']]),area=select('Område',[['all','Alle områder'],...Object.entries(AREAS)]),kind=select('Handlingstype',[['all','Alle handlinger'],...Object.entries(KINDS)]),search=input('search','Søg i historik'),feedback=node('p','cs-review-error'),notice=node('p','cs-review-muted cs-history-notice'),count=node('p','cs-review-muted'),list=node('ol','cs-activity-list'),more=button('Vis flere',()=>load(true)),refresh=button('Opdater',()=>load(false)),reset=button('Nulstil filtre',()=>{for(const control of [actor,person,area,kind])control.value='all';from.value=to.value=search.value='';load(false);},'cs-button cs-quiet');
-    page.setAttribute('aria-label','Aktivitetshistorik');feedback.hidden=true;feedback.setAttribute('role','alert');search.placeholder='Søg i handlinger';let data={people:[],canRestore:false},records=[],cursor=null,hasMore=false,busy=false,loaded=false,generation=0,destroyed=false;
+    const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-activity-page cs-history-review'),form=node('form','cs-review-tools cs-history-filters'),from=input('date','Historik fra dato'),to=input('date','Historik til dato'),actor=select('Udført af',[['all','Alle brugere']]),person=select('Berørt medarbejder',[['all','Alle medarbejdere']]),area=select('Område',[['all','Alle områder'],...Object.entries(AREAS)]),kind=select('Handlingstype',[['all','Alle handlinger'],...Object.entries(KINDS)]),search=input('search','Søg i historik'),feedback=node('p','cs-review-error'),notice=node('p','cs-review-muted cs-history-notice'),count=node('p','cs-review-muted cs-history-count'),list=node('div','cs-history-days'),more=button('Vis flere',()=>load(true)),refresh=button('Opdater',()=>load(false)),reset=button('Nulstil filtre',()=>{for(const control of [actor,person,area,kind])control.value='all';from.value=to.value=search.value='';load(false);},'cs-button cs-quiet');
+    page.setAttribute('aria-label','Aktivitetshistorik');feedback.hidden=true;feedback.setAttribute('role','alert');count.setAttribute('role','status');search.placeholder='Søg i handlinger';search.maxLength=300;
+    let data={people:[],canRestore:false},records=[],cursor=null,hasMore=false,busy=false,loaded=false,generation=0,destroyed=false,searchTimer=null;
+    const expanded=new Set(),restoring=new Set();
     const filters=()=>Object.fromEntries(Object.entries({from:from.value,to:to.value,actorId:actor.value,personId:person.value,area:area.value,kind:kind.value,q:search.value.trim()}).filter(([,value])=>value&&value!=='all'));
     function actors(items){const value=actor.value;actor.replaceChildren();for(const item of [{userId:'all',name:'Alle brugere'},...items]){const option=node('option','',item.name);option.value=item.userId;actor.append(option);}if([...actor.options].some(option=>option.value===value))actor.value=value;}
+    function changeDetails(change){
+      const item=node('li','cs-history-change');
+      item.append(node('strong','cs-history-change-type',CHANGE_LABELS[change.field]||change.field||'Ændring'));
+      const values=node('dl','cs-history-values');
+      for(const [key,label] of [['before','Før'],['after','Efter']]){
+        if(!Object.hasOwn(change,key))continue;
+        const part=node('div');part.append(node('dt','',label),node('dd','',formatValue(change.field,change[key])));values.append(part);
+      }
+      if(values.children.length)item.append(values);
+      if(change.decision){
+        const decision=node('div','cs-history-decision');
+        if(change.decision.reason)decision.append(node('p','cs-review-reason',change.decision.reason));
+        decision.append(node('p','cs-review-muted',(change.decision.decidedBy?.name||change.decision.decidedBy?.email||'Planlægger')+' · '+stamp(change.decision.decidedAt)));
+        item.append(decision);
+      }
+      return item;
+    }
+    function historyEntry(entry,time,namesById){
+      const item=node('li','cs-history-entry'),changes=Array.isArray(entry.changes)?entry.changes:[];
+      const canRestore=entry.recoverable&&data.canRestore&&onRestore,hasDetails=Boolean(changes.length||entry.reason||canRestore);
+      const row=node(hasDetails?'summary':'div','cs-history-row');
+      const when=node('time','cs-history-time',Number.isFinite(time)?historyTime.format(time):'—');
+      if(Number.isFinite(time)){when.dateTime=entry.at;when.setAttribute('aria-label',stamp(entry.at));}
+      const action=node('span','cs-history-action'),affected=[...new Set((entry.personIds||[entry.personId]).map(id=>namesById.get(id)).filter(Boolean))];
+      action.append(node('strong','',entry.summary||'Ændring gemt'));
+      if(affected.length)action.append(node('span','cs-history-affected',affected.join(', ')));
+      const who=node('span','cs-history-actor',entry.actor?.name||entry.actor?.email||'Planlægger'),type=node('span','cs-history-type',KINDS[entry.kind]||'Planændring');
+      row.append(when,action,who,type);
+      if(!hasDetails){item.append(row);return item;}
+      const arrow=node('span','cs-history-arrow');arrow.setAttribute('aria-hidden','true');row.append(arrow);
+      const details=node('details','cs-history-event'),body=node('div','cs-history-detail');
+      details.open=expanded.has(entry.id);
+      details.addEventListener('toggle',()=>{if(details.isConnected){if(details.open)expanded.add(entry.id);else expanded.delete(entry.id);}});
+      if(changes.length){const list=node('ul','cs-history-changes');for(const change of changes)list.append(changeDetails(change));body.append(list);}
+      if(entry.reason){const reason=node('div','cs-history-reason');reason.append(node('strong','','Begrundelse'),node('p','cs-review-reason',entry.reason));body.append(reason);}
+      if(canRestore){
+        const error=node('p','cs-review-error');error.hidden=true;error.setAttribute('role','alert');
+        const restore=button('Fortryd ændring',async()=>{
+          if(destroyed||restoring.has(entry.id)||!data.canRestore)return;
+          const token=generation;
+          restoring.add(entry.id);restore.disabled=true;error.hidden=true;
+          let result;
+          try{result=await onRestore(entry);}catch{result={ok:false,error:'Ændringen kunne ikke fortrydes. Kontrollér forbindelsen, og prøv igen.'};}
+          restoring.delete(entry.id);
+          if(destroyed||token!==generation)return;
+          if(result?.ok){await load(false);return;}
+          restore.disabled=false;
+          if(restore.isConnected){error.textContent=result?.error||result?.message||'Ændringen kunne ikke fortrydes.';error.hidden=false;}
+          else{feedback.textContent=result?.error||result?.message||'Ændringen kunne ikke fortrydes.';feedback.hidden=false;draw();}
+        },'cs-button');
+        restore.disabled=restoring.has(entry.id);body.append(restore,error);
+      }
+      details.append(row,body);item.append(details);return item;
+    }
     function draw(){
       syncFilterState();
-      list.replaceChildren();count.textContent=busy?'Indlæser historik…':records.length+(records.length===1?' handling vist':' handlinger vist');more.hidden=!hasMore;more.disabled=busy;refresh.disabled=busy;
-      if(!records.length&&!busy&&!feedback.textContent)list.append(node('li','cs-review-empty','Ingen handlinger matcher dine filtre.'));
+      list.replaceChildren();list.setAttribute('aria-busy',String(busy));count.textContent=busy?'Indlæser historik…':records.length+(records.length===1?' handling vist':' handlinger vist');more.hidden=!hasMore;more.disabled=busy;refresh.disabled=busy;
+      if(!records.length){if(!busy&&!feedback.textContent)list.append(node('p','cs-review-empty','Ingen handlinger matcher dine filtre.'));return;}
+      const columns=node('div','cs-history-row cs-history-columns');columns.setAttribute('aria-hidden','true');
+      for(const label of ['Tid','Handling','Udført af','Type'])columns.append(node('span','',label));
+      list.append(columns);
+      const namesById=new Map(data.people.map(person=>[person.id,person.name]));
+      let day=null,entries=null;
       for(const entry of records){
-        const row=node('li','cs-activity-entry'),meta=node('div','cs-activity-meta'),when=node('time','',stamp(entry.at));when.dateTime=entry.at;meta.append(node('span','cs-activity-kind',KINDS[entry.kind]||'Planændring'),when);
-        const who=entry.actor?.name||entry.actor?.email||'Planlægger',names=(entry.personIds||[entry.personId]).filter(Boolean).map(id=>data.people.find(item=>item.id===id)?.name).filter(Boolean);row.append(meta,node('h4','',entry.summary||'Ændring gemt'),node('p','cs-activity-actor',who+(names.length?' · '+[...new Set(names)].join(', '):'')));
-        if(entry.changes?.length){const details=node('details'),summary=node('summary','','Se detaljer'),changes=node('ul','cs-activity-changes');details.append(summary);for(const change of entry.changes){const item=node('li');item.append(node('strong','',({series:'Vagtserie',edits:'Vagt',requests:'Fravær',leaveDecisions:'Svar på fravær',roster:'Medarbejder',workspaceSettings:'Indstillinger',organization:'Afdelinger',time:'Timer'})[change.field]||change.field||'Ændring'));const values=node('span','cs-activity-values');if(Object.hasOwn(change,'before'))values.append(node('span','','Før: '+formatValue(change.field,change.before)));if(Object.hasOwn(change,'after'))values.append(node('span','','Efter: '+formatValue(change.field,change.after)));if(change.id&&!values.children.length)values.append(node('span','',change.id));item.append(values);if(change.decision){if(change.decision.reason)item.append(node('p','cs-review-reason',change.decision.reason));item.append(node('p','cs-review-muted',(change.decision.decidedBy?.name||change.decision.decidedBy?.email||'Planlægger')+' · '+stamp(change.decision.decidedAt)));}changes.append(item);}details.append(changes);row.append(details);}
-        if(entry.reason){const details=node('details');details.append(node('summary','','Se begrundelse'),node('p','cs-review-reason',entry.reason));row.append(details);}
-        if(entry.recoverable&&data.canRestore&&onRestore){const restore=button('Fortryd ændring',async()=>{if(destroyed||restore.disabled||!data.canRestore)return;const token=generation;restore.disabled=true;let result;try{result=await onRestore(entry);}catch{result={ok:false,error:'Ændringen kunne ikke fortrydes. Kontrollér forbindelsen, og prøv igen.'};}if(destroyed||token!==generation)return;if(result?.ok)await load(false);else{feedback.textContent=result?.error||result?.message||'Ændringen kunne ikke fortrydes.';feedback.hidden=false;restore.disabled=false;}},'cs-button cs-activity-restore');row.append(restore);}
-        list.append(row);
+        const time=Date.parse(entry.at),label=Number.isFinite(time)?historyDay.format(time):'Ukendt dato';
+        if(label!==day){
+          day=label;
+          const group=node('section','cs-history-day'),heading=node('h3','cs-history-date',label);
+          entries=node('ol','cs-history-entries');entries.setAttribute('aria-label',label);group.append(heading,entries);list.append(group);
+        }
+        entries.append(historyEntry(entry,time,namesById));
       }
     }
     async function load(append=false){
-      if(destroyed||append&&(!hasMore||busy||!cursor))return;const token=++generation,currentFilters=filters();if(!append){records=[];cursor=null;hasMore=false;}if(currentFilters.from&&currentFilters.to&&currentFilters.from>currentFilters.to){busy=false;loaded=true;feedback.textContent='Fra-dato skal være før til-dato.';feedback.hidden=false;draw();return;}
+      if(destroyed||append&&(!hasMore||busy||!cursor))return;
+      clearTimeout(searchTimer);searchTimer=null;
+      const token=++generation,currentFilters=filters();if(!append){records=[];cursor=null;hasMore=false;expanded.clear();}if(currentFilters.from&&currentFilters.to&&currentFilters.from>currentFilters.to){busy=false;loaded=true;feedback.textContent='Fra-dato skal være før til-dato.';feedback.hidden=false;draw();return;}
       busy=true;loaded=true;feedback.hidden=true;feedback.textContent='';draw();let result;try{result=await onQuery({filters:currentFilters,cursor:append?cursor:null,limit:50});}catch{result={ok:false,message:'Historikken kunne ikke indlæses.'};}
       if(destroyed||token!==generation)return;busy=false;
       if(!result?.ok){feedback.textContent=result?.message||'Historikken kunne ikke indlæses. Prøv igen.';feedback.hidden=false;draw();return;}
@@ -153,11 +220,15 @@
     const filterRail=node('div','cs-filter-rail cs-review-filter-rail');filterRail.setAttribute('role','group');filterRail.setAttribute('aria-label','Filtrér historik');filterRail.append(field('Søg',search),field('Område',area));
     for(const control of [toggle,refresh,reset])control.className+=' cs-chrome-quiet';
     form.className='cs-review-tools cs-history-filters cs-review-compact-tools';form.append(filterRail,toggle,refresh,reset);form.addEventListener('submit',event=>{event.preventDefault();load(false);});search.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();load(false);}});for(const control of [from,to,actor,person,area,kind])control.addEventListener('change',()=>load(false));
+    search.addEventListener('input',()=>{
+      clearTimeout(searchTimer);generation++;cursor=null;hasMore=false;more.hidden=true;
+      searchTimer=setTimeout(()=>load(false),220);
+    });
     const archiveInfo=node('details','cs-history-archive-info');archiveInfo.append(node('summary','','Om historikken'),notice);
     page.append(form,extra,chips,feedback,count,list,more,archiveInfo);
     if(onBackup){const backup=node('details','cs-backup-export'),summary=node('summary','','Planbackup'),value=node('textarea');value.rows=6;value.readOnly=true;value.setAttribute('aria-label','Planbackup som JSON');backup.append(summary,node('p','','Backup indeholder medarbejder- og plandata. Opbevar den sikkert.'),value,button('Markér backup',()=>{value.focus();value.select();}));backup.addEventListener('toggle',()=>{if(backup.open)value.value=JSON.stringify(onBackup(),null,2);});page.append(backup);}
     element.replaceChildren(page);
-    return {render(options){if(destroyed)return;data={...data,...options};const selected=person.value;person.replaceChildren();for(const item of [{id:'all',name:'Alle medarbejdere'},...data.people]){const option=node('option','',item.name);option.value=item.id;person.append(option);}person.value=[...person.options].some(option=>option.value===selected)?selected:'all';if(!loaded)load();else draw();},reload:()=>load(false),destroy(){destroyed=true;generation++;page.remove();}};
+    return {render(options){if(destroyed)return;data={...data,...options};const selected=person.value;person.replaceChildren();for(const item of [{id:'all',name:'Alle medarbejdere'},...data.people]){const option=node('option','',item.name);option.value=item.id;person.append(option);}person.value=[...person.options].some(option=>option.value===selected)?selected:'all';if(!loaded)load();else draw();},reload:()=>load(false),destroy(){destroyed=true;generation++;clearTimeout(searchTimer);page.remove();}};
   }
   const api={filterLeave,validDate,mountLeave,mountHistory,rejection,requestAbsence};if(typeof module==='object'&&module.exports)module.exports=api;scope.CleanRoomsReview=api;
 })(globalThis);

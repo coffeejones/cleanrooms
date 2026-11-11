@@ -22,7 +22,25 @@
   const actualDate=(instant,fallback)=>model()?.validInstant?.(instant)?model().localNow(new Date(instant)).date:fallback;
   const uniqueInstant=(date,clock,recorded)=>{if(model()?.validInstant?.(recorded)){const point=model().localNow(new Date(recorded));if(point.date===date&&point.time===clock)return recorded;}const value=model()?.instantForLocal?.(date,clock);return Number.isFinite(value)?new Date(value).toISOString():null;};
   const approvable=entry=>entry?.status==='submitted'&&time(entry.start)&&time(entry.end)&&!entry.flags?.some(flag=>['overlap','dst_transition'].includes(flag))&&Number.isFinite(entry.workedMinutes)&&entry.workedMinutes>0&&typeof model()?.validate==='function'&&model().validate(entry).length===0;
-  const QUEUES={attention:{label:'Kræver opmærksomhed',detail:'Afvigelser til gennemgang',help:'Gennemgå årsagen, og godkend eller send registreringen tilbage til medarbejderen.'},ready:{label:'Følger planen',detail:'Klar til samlet godkendelse',help:'Start, slut, arbejdssted og den registrerede pause følger den aktuelle vagt. Rettelser og andre afvigelser gennemgås særskilt.'},progress:{label:'I gang',detail:'Afventer afslutning',help:'Igangværende vagter kan først godkendes, når medarbejderen har afsluttet registreringen.'},approved:{label:'Godkendte',detail:'Låst efter godkendelse',help:'Godkendte timer er låst. En rettelse kræver genåbning med en begrundelse.'}};
+  const QUEUES={attention:'Kræver opmærksomhed',ready:'Følger planen',progress:'I gang',approved:'Godkendte'};
+  const REVIEW_REASON={
+    missing_end:'Mangler afslutning',
+    invalid_worked_time:'Arbejdstid skal kontrolleres',
+    shift_missing:'Vagten mangler i planen',
+    person_changed:'Medarbejder er ændret',
+    date_changed:'Datoen er ændret',
+    site_changed:'Arbejdsstedet er ændret',
+    plan_invalid:'Vagtplanen skal kontrolleres',
+    plan_changed:'Vagten er ændret i planen',
+    start_difference:'Afvigende starttid',
+    end_difference:'Afvigende sluttid',
+    end_date_difference:'Afvigende afslutningsdato',
+    pause:'Afvigende pause',
+    employee_comment:'Kommentar fra medarbejder',
+    corrected:'Rettet registrering',
+    payroll_missing:'Løngrundlag mangler',
+    rejected:'Afventer afklaring'
+  };
   const PERIOD_PROBLEMS={unapproved:'Afventer godkendelse',invalid_time:'Registreringer til rettelse',missing_payroll:'Mangler løngrundlag'};
 
   function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
@@ -52,7 +70,15 @@
     }
     const siteLabel=index=>options.sites?.[index]?.name||'Arbejdssted';
     const nameFor=entry=>entry.personName||person(entry.personId).name||'Medarbejder';
-    const statusNode=(entry,compact=false)=>{const label=compact&&entry.status==='submitted'?'Afventer':STATUS[entry.status]||'Ikke registreret';const el=node('span','cs-time-status',label);el.dataset.state=entry.status;return el;};
+    function statusNode(entry,result){
+      let label=STATUS[entry.status]||'Ikke registreret';
+      if(result?.bucket==='ready')label='Klar til godkendelse';
+      else if(result?.bucket==='attention'&&entry.status==='submitted')label='Skal gennemgås';
+      const el=node('span','cs-time-status',label);
+      el.dataset.state=entry.status;
+      if(result)el.dataset.review=result.bucket;
+      return el;
+    }
     const field=(name,label,type,value)=>{const holder=node('label','cs-time-field'),input=node(type==='textarea'?'textarea':'input','cs-time-input');if(type!=='textarea')input.type=type;else input.rows=3;input.dataset.timeFocus='field:'+name;input.value=value??'';input.disabled=blocked();holder.append(node('span','cs-time-label',label),input);return {holder,input};};
     function ensureReviews(){
       if(reviewOptions===options&&reviewScope===viewScope)return;
@@ -75,9 +101,12 @@
       else if(Number.isFinite(begin)&&Number.isFinite(finish)){const gross=finish>begin?finish-begin:finish<begin?finish+1440-begin:0;duration=pause!==null&&pause<gross?gross-pause:null;}
       return {start,end,breakMinutes:pause,minutes:duration};
     }
-    function filteredEntries(){
+    function matchingEntries(){
       const query=search.trim().toLocaleLowerCase('da-DK');
-      return scopedEntries().filter(entry=>{const result=review(entry);return (status==='all'||status==='issues'&&result.bucket==='attention'||status==='unfinished'&&!entry.end||status==='submitted'&&entry.status==='submitted'||status==='rejected'&&entry.status==='rejected'||result.bucket===status)&&(!query||(nameFor(entry)+' '+siteLabel(entry.site)+' '+dateLabel(entry.date)).toLocaleLowerCase('da-DK').includes(query));}).sort((a,b)=>(status==='attention'||status==='issues'?(review(b).priority||0)-(review(a).priority||0):0)||String(a.date).localeCompare(String(b.date))||nameFor(a).localeCompare(nameFor(b),'da-DK')||String(a.id).localeCompare(String(b.id)));
+      return scopedEntries().filter(entry=>!query||[nameFor(entry),siteLabel(entry.site),entry.date,dateLabel(entry.date)].join(' ').toLocaleLowerCase('da-DK').includes(query));
+    }
+    function filteredEntries(matching=matchingEntries()){
+      return matching.filter(entry=>{const result=review(entry);return status==='all'||status==='issues'&&result.bucket==='attention'||status==='unfinished'&&!entry.end||status==='submitted'&&entry.status==='submitted'||status==='rejected'&&entry.status==='rejected'||result.bucket===status;}).sort((a,b)=>(status==='attention'||status==='issues'?(review(b).priority||0)-(review(a).priority||0):0)||String(a.date).localeCompare(String(b.date))||nameFor(a).localeCompare(nameFor(b),'da-DK')||String(a.id).localeCompare(String(b.id)));
     }
     function filterChanged(){if(serverPaged()&&typeof onFilterChange==='function')onFilterChange({queue:status||'all',search,scope:viewScope});}
     function changeFilter(value,focus){status=value;pages.entries=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();message='';error='';const body=page.querySelector('.cs-timekeeping-body');if(body)body.scrollTop=0;paint(focus);filterChanged();}
@@ -162,6 +191,7 @@
     function paint(requestedFocus){
       if(disposed)return;
       const active=doc.activeElement,focus=requestedFocus||(element.contains?.(active)?active?.dataset?.timeFocus:null),oldScroll=page.querySelector?.('.cs-timekeeping-body')?.scrollTop||0;
+      const searchSelection=active?.dataset?.timeFocus==='field:search'&&Number.isInteger(active.selectionStart)?[active.selectionStart,active.selectionEnd]:null;
       page.replaceChildren();page.setAttribute('aria-busy',String(blocked()));
       if(!options.canViewPayroll&&tab==='payroll')tab='entries';
       const demo=options.demo||{};let demoBar=null;
@@ -186,7 +216,11 @@
       else if(tab==='payroll'&&options.canViewPayroll)paintPayroll(body);
       else paintEntries(body);
       page.append(body);body.scrollTop=oldScroll;
-      if(focus){const target=[...page.querySelectorAll('[data-time-focus]')].find(el=>el.dataset.timeFocus===focus);target?.focus?.({preventScroll:true});}
+      if(focus){
+        const target=[...page.querySelectorAll('[data-time-focus]')].find(el=>el.dataset.timeFocus===focus);
+        target?.focus?.({preventScroll:true});
+        if(focus==='field:search'&&searchSelection)target?.setSelectionRange?.(...searchSelection);
+      }
     }
     function metricStrip(items){const strip=node('dl','cs-time-metrics');for(const [label,value,detail] of items){const item=node('div');item.append(node('dt','',label),node('dd','',value));if(detail)item.append(node('span','cs-time-caption',detail));strip.append(item);}return strip;}
     function pageRows(items,key){if(serverPaged()&&key!=='week')return items.slice(0,PAGE_SIZE);pages[key]=Math.min(pages[key],Math.max(0,Math.ceil(items.length/PAGE_SIZE)-1));return items.slice(pages[key]*PAGE_SIZE,(pages[key]+1)*PAGE_SIZE);}
@@ -219,56 +253,219 @@
       const filter=options.serverFilter;if(filter&&((filter.search||'')!==search||(filter.scope||'real')!==viewScope))return null;
       return options.summary;
     }
-    function paintEntries(body){
-      const opened=currentEntry();if(opened){body.append(inspector(opened));return;}
-      chooseDefaultQueue();
-      const all=scopedEntries(),counts={attention:0,ready:0,progress:0,approved:0},summaryData=serverSummary();for(const entry of all)counts[review(entry).bucket]++;
-      const summary=node('div','cs-time-review-summary');summary.setAttribute('role','group');summary.setAttribute('aria-label','Prioritér tidsregistreringer');
-      for(const [key,queue] of Object.entries(QUEUES)){
-        const total=Number.isSafeInteger(summaryData?.counts?.[key])?summaryData.counts[key]:serverPaged()?(counts[key]?counts[key]+'+':'—'):counts[key],control=button('',()=>changeFilter(key,'queue:'+key),'cs-time-review-queue','queue:'+key);control.dataset.bucket=key;control.dataset.empty=String(total===0);control.setAttribute('aria-pressed',String(status===key));control.setAttribute('aria-label',queue.label+' · '+total);control.append(node('span','cs-time-review-title',queue.label),node('strong','cs-time-review-count',total));summary.append(control);
+    function paintReviewToolbar(body,all,counts){
+      const summaryData=serverSummary();
+      const filters=node('div','cs-time-review-summary');
+      filters.setAttribute('role','group');
+      filters.setAttribute('aria-label','Filtrér tidsregistreringer efter status');
+      for(const [key,label] of [['all','Alle'],...Object.entries(QUEUES)]){
+        const onPage=key==='all'?all.length:counts[key];
+        const authoritative=summaryData?.counts?.[key];
+        const total=Number.isSafeInteger(authoritative)?authoritative:serverPaged()?(onPage?onPage+'+':'—'):onPage;
+        const focus=key==='all'?'filter:status':'queue:'+key;
+        const control=button('',()=>changeFilter(key,focus),'cs-time-review-queue',focus);
+        control.dataset.bucket=key;
+        control.dataset.empty=String(total===0);
+        control.setAttribute('aria-pressed',String(status===key));
+        control.setAttribute('aria-label',label+' · '+total);
+        control.append(node('span','cs-time-review-title',label),node('strong','cs-time-review-count',total));
+        filters.append(control);
       }
-      const reviewTools=node('div','cs-time-review-toolbar');reviewTools.append(summary);
-      const tools=node('div','cs-time-tools'),searchField=field('search','Søg i registreringer','search',search);
-      searchField.holder.classList.add?.('cs-time-search');searchField.input.placeholder='Søg medarbejder…';searchField.input.addEventListener('input',()=>{search=searchField.input.value;pages.entries=0;selected.clear();bulkConfirm=null;selectedId=null;clearDraft();paint('field:search');filterChanged();});
-      const allFilter=button('Alle registreringer',()=>changeFilter('all','filter:status'),'cs-button cs-time-all-filter cs-chrome-quiet','filter:status');allFilter.setAttribute('aria-pressed',String(status==='all'));
-      const filters=node('div','cs-filter-rail cs-time-filter-rail');filters.append(searchField.holder,allFilter);tools.append(filters,button('Opdater',refresh,'cs-button cs-quiet cs-chrome-quiet','reload'));reviewTools.append(tools);body.append(reviewTools);
-      const visible=filteredEntries(),shown=pageRows(visible,'entries'),ready=(serverPaged()?shown:visible).filter(entry=>approvable(entry)&&review(entry).bucket==='ready');
-      const workspace=node('div','cs-time-workspace');if(selectedId)workspace.dataset.detail='true';
-      const main=node('section','cs-time-directory');main.setAttribute('aria-label','Tidsregistreringer');
-      if(options.canManage&&!bulkConfirm&&(ready.length||selected.size)){
-        const bar=node('div','cs-time-approval-bar');
-        if(selected.size){bar.append(node('span','cs-time-caption',selected.size+' valgt'+(selected.size===1?' registrering':'e registreringer')),button('Godkend '+selected.size+(selected.size===1?' valgt':' valgte'),()=>prepareApproval(false),'cs-button cs-primary','bulk:approve'),button('Ryd valg',()=>{selected.clear();bulkConfirm=null;paint();},'cs-button cs-quiet','bulk:clear'));}
-        else if(ready.length){bar.append(node('span','cs-time-caption',ready.length+' følger planen · '+minutes(ready.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0))+(serverPaged()?' · viste registreringer':'')),button(serverPaged()?'Godkend viste der følger planen':'Godkend '+ready.length+' der følger planen',()=>prepareApproval(true),'cs-button cs-primary','bulk:ready'));}
-        main.append(bar);
-      }
+      const toolbar=node('div','cs-time-review-toolbar');
+      const tools=node('div','cs-time-tools');
+      const searchField=field('search','Søg i registreringer','search',search);
+      searchField.holder.classList.add('cs-time-search');
+      searchField.input.placeholder='Søg medarbejder, arbejdssted eller dato…';
+      searchField.input.maxLength=120;
+      searchField.input.addEventListener('input',()=>{
+        search=searchField.input.value;
+        pages.entries=0;
+        selected.clear();
+        bulkConfirm=null;
+        selectedId=null;
+        clearDraft();
+        paint('field:search');
+        filterChanged();
+      });
+      tools.append(searchField.holder,button('Opdater',refresh,'cs-button cs-quiet','reload'));
+      toolbar.append(filters,tools);
+      body.append(toolbar);
+    }
+    function paintApproval(main,ready){
+      if(!options.canManage)return;
       if(bulkConfirm){
-        const confirm=node('section','cs-time-bulk-confirm');confirm.setAttribute('aria-label','Bekræft samlet godkendelse');const count=bulkConfirm.items.length;
-        confirm.append(node('strong','',count+(count===1?' registrering · ':' registreringer · ')+minutes(bulkConfirm.total)),node('p','cs-time-caption',(bulkConfirm.scope==='demo'?'Eksempelugen':'Almindelige timer')+' · '+(bulkConfirm.onlyIfMatchesPlan?(serverPaged()?'Kun de viste registreringer, der følger planen.':'Alle registreringer med de valgte filtre, der følger planen.'):'Kun de registreringer, du har valgt.')+' Timerne bliver låst ved godkendelse.'));
-        if(!bulkConfirm.onlyIfMatchesPlan&&bulkConfirm.attention)confirm.append(node('p','cs-time-bulk-warning',bulkConfirm.attention+' af de valgte registreringer har afvigelser. Kontrollér dem før godkendelse.'));
-        const actions=node('div','cs-time-actions');actions.append(button('Godkend '+count+(count===1?' registrering':' registreringer'),approveSelected,'cs-button cs-primary','bulk:confirm'),button('Annuller',()=>{bulkConfirm=null;paint('bulk:ready');},'cs-button','bulk:cancel'));confirm.append(actions);main.append(confirm);
-      }
-      if(!visible.length)main.append(node('p','cs-time-empty',all.length?(status==='attention'?'Ingen registreringer kræver opmærksomhed med de valgte filtre.':status==='ready'?'Ingen registreringer er klar til samlet godkendelse med de valgte filtre.':'Ingen registreringer matcher dine filtre.'):'Der er endnu ingen registrerede timer i perioden. Start en vagt fra Mine vagter, eller indlæs eksempelugen.'));
-      else{
-        const {table,rows}=makeTable(['','Medarbejder','Planlagt','Registreret','Pause','Afvigelse','Status','']);table.classList.add?.('cs-time-entries-table');
-        const eligible=shown.filter(approvable);
-        if(options.canManage&&eligible.length){const check=node('input');check.type='checkbox';check.checked=eligible.every(entry=>selected.get(entry.id)===entry.version);check.indeterminate=!check.checked&&eligible.some(entry=>selected.has(entry.id));check.disabled=blocked();check.dataset.timeFocus='select:all';check.setAttribute('aria-label','Vælg alle viste registreringer, der kan godkendes');check.addEventListener('change',()=>{for(const entry of eligible)if(check.checked)selected.set(entry.id,entry.version);else selected.delete(entry.id);bulkConfirm=null;paint('select:all');});table.querySelector('th').append(check);}
-        for(const entry of shown){
-          const result=review(entry),row=node('tr');row.dataset.entryId=String(entry.id);row.dataset.selected=String(entry.id===selectedId);row.dataset.review=result.bucket;
-          const selection=node('td','cs-time-selection-cell');
-          if(options.canManage&&approvable(entry)){const check=node('input');check.type='checkbox';check.checked=selected.get(entry.id)===entry.version;check.disabled=blocked();check.setAttribute('aria-label','Vælg registreringen for '+nameFor(entry)+' '+dateLabel(entry.date));check.dataset.timeFocus='select:'+entry.id;check.addEventListener('change',()=>{if(check.checked)selected.set(entry.id,entry.version);else selected.delete(entry.id);bulkConfirm=null;paint('select:'+entry.id);});selection.append(check);}
-          const identity=node('td','cs-time-person-cell'),identityButton=button('',()=>openEntry(entry),'cs-time-person','entry:'+entry.id);identityButton.setAttribute('aria-label','Åbn registrering for '+nameFor(entry)+' '+dateLabel(entry.date));
-          const avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('span','cs-time-person-copy');avatar.setAttribute('aria-hidden','true');copy.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));identityButton.append(avatar,copy);identity.append(identityButton);
-          const plannedData=plannedFacts(entry),planned=node('td','cs-time-number');planned.dataset.label='Planlagt';planned.append(node('strong','',plannedData.start&&plannedData.end?plannedData.start+'–'+plannedData.end+daySuffix(entry.date,inferredEndDate(entry.date,plannedData.start,plannedData.end)):'—'));
-          const actual=node('td','cs-time-number');actual.dataset.label='Registreret';actual.append(node('strong','',entry.start?(entry.start+'–'+(entry.end||'…')+(entry.end?daySuffix(entry.date,entry.endDate):'')):'—'));if(!entry.end)actual.append(node('span','cs-time-caption',entry.start?'Afventer afslutning':'Afventer registrering'));
-          const pause=node('td','cs-time-number cs-time-pause-comparison');pause.dataset.label='Pause';pause.append(node('strong','',safeNumber(entry.breakMinutes)+' min'));
-          const differences=node('td','cs-time-differences');differences.dataset.label='Afvigelse';differences.append(differenceNode(entry.end&&Number.isFinite(plannedData.minutes)?entry.workedMinutes-plannedData.minutes:NaN,{unavailable:entry.end?'Kan ikke sammenlignes':entry.start?'Afventer afslutning':'Ikke registreret',reasons:result.reasons||[]}));
-          const state=node('td','cs-time-state-cell');state.dataset.label='Status';state.append(statusNode(entry,true));
-          const action=node('td','cs-time-row-action');action.append(button(result.bucket==='attention'?'Gennemgå':'Se',()=>openEntry(entry),'cs-button','inspect:'+entry.id));
-          row.append(selection,identity,planned,actual,pause,differences,state,action);rows.append(row);
+        const count=bulkConfirm.items.length;
+        const confirmation=node('section','cs-time-bulk-confirm');
+        confirmation.setAttribute('aria-label','Bekræft samlet godkendelse');
+        const scope=bulkConfirm.onlyIfMatchesPlan
+          ? (serverPaged()?'Kun de viste registreringer, der følger planen.':'Alle registreringer med de valgte filtre, der følger planen.')
+          : 'Kun de registreringer, du har valgt.';
+        confirmation.append(
+          node('strong','',count+(count===1?' registrering · ':' registreringer · ')+minutes(bulkConfirm.total)),
+          node('p','cs-time-caption',scope+' Timerne låses ved godkendelse.'+(bulkConfirm.scope==='demo'?' Eksempeluge.':''))
+        );
+        if(!bulkConfirm.onlyIfMatchesPlan&&bulkConfirm.attention){
+          confirmation.append(node('p','cs-time-bulk-warning',bulkConfirm.attention+' af de valgte registreringer har afvigelser. Kontrollér dem før godkendelse.'));
         }
-        main.append(table);const pager=pagination(visible.length,'entries');if(pager)main.append(pager);
+        const actions=node('div','cs-time-actions');
+        actions.append(
+          button('Annuller',()=>{
+            const returnFocus=bulkConfirm.onlyIfMatchesPlan?'bulk:ready':'bulk:approve';
+            bulkConfirm=null;
+            paint(returnFocus);
+          },'cs-button','bulk:cancel'),
+          button('Godkend '+count+(count===1?' registrering':' registreringer'),approveSelected,'cs-button cs-primary','bulk:confirm')
+        );
+        confirmation.append(actions);
+        main.append(confirmation);
+        return;
       }
-      if(serverPaged()&&!visible.length){const pager=pagination(0,'entries');if(pager)main.append(pager);}workspace.append(main);const entry=currentEntry();if(entry)workspace.append(inspector(entry));body.append(workspace);
+      if(!selected.size&&!ready.length)return;
+      const bar=node('div','cs-time-approval-bar');
+      const actions=node('div','cs-time-actions');
+      if(selected.size){
+        bar.append(node('strong','',selected.size+(selected.size===1?' registrering valgt':' registreringer valgt')));
+        actions.append(
+          button('Ryd valg',()=>{selected.clear();paint('filter:status');},'cs-button cs-quiet','bulk:clear'),
+          button('Godkend '+selected.size+(selected.size===1?' valgt':' valgte'),()=>prepareApproval(false),'cs-button cs-primary','bulk:approve')
+        );
+      }else{
+        const total=ready.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0);
+        const label=ready.length+' følger planen · '+minutes(total)+(serverPaged()?' på denne side':'');
+        bar.append(node('strong','',label));
+        actions.append(button('Godkend '+ready.length+' der følger planen',()=>prepareApproval(true),'cs-button cs-primary','bulk:ready'));
+      }
+      bar.append(actions);
+      main.append(bar);
+    }
+    function paintEntryTable(main,shown){
+      const eligible=options.canManage?shown.filter(approvable):[];
+      const columns=[
+        ...(eligible.length?[['','selection']]:[]),
+        ['Medarbejder','person'],['Tider','times'],['Arbejdstid','duration'],['Status','status'],['','action']
+      ];
+      const {table,rows}=makeTable(columns.map(([label])=>label));
+      table.classList.add('cs-time-entries-table');
+      table.querySelectorAll('th').forEach((head,index)=>head.classList.add('cs-time-col-'+columns[index][1]));
+      if(eligible.length){
+        const check=node('input');
+        check.type='checkbox';
+        check.checked=eligible.every(entry=>selected.get(entry.id)===entry.version);
+        check.indeterminate=!check.checked&&eligible.some(entry=>selected.has(entry.id));
+        check.disabled=blocked();
+        check.dataset.timeFocus='select:all';
+        check.setAttribute('aria-label','Vælg alle viste registreringer, der kan godkendes');
+        check.addEventListener('change',()=>{
+          for(const entry of eligible){
+            if(check.checked)selected.set(entry.id,entry.version);
+            else selected.delete(entry.id);
+          }
+          bulkConfirm=null;
+          paint('select:all');
+        });
+        table.querySelector('th').append(check);
+      }
+      const selectable=new Set(eligible);
+      for(const entry of shown){
+        const result=review(entry);
+        const row=node('tr');
+        row.dataset.entryId=String(entry.id);
+        row.dataset.selected=String(selected.get(entry.id)===entry.version);
+        row.dataset.review=result.bucket;
+        if(eligible.length){
+          const selection=node('td','cs-time-selection-cell');
+          if(selectable.has(entry)){
+            const check=node('input');
+            check.type='checkbox';
+            check.checked=selected.get(entry.id)===entry.version;
+            check.disabled=blocked();
+            check.setAttribute('aria-label','Vælg registreringen for '+nameFor(entry)+' '+dateLabel(entry.date));
+            check.dataset.timeFocus='select:'+entry.id;
+            check.addEventListener('change',()=>{
+              if(check.checked)selected.set(entry.id,entry.version);
+              else selected.delete(entry.id);
+              bulkConfirm=null;
+              paint('select:'+entry.id);
+            });
+            selection.append(check);
+          }
+          row.append(selection);
+        }
+        const identity=node('td','cs-time-person-cell');
+        const identityButton=button('',()=>openEntry(entry),'cs-time-person','entry:'+entry.id);
+        identityButton.setAttribute('aria-label','Åbn registrering for '+nameFor(entry)+' '+dateLabel(entry.date));
+        const avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry)));
+        avatar.setAttribute('aria-hidden','true');
+        const copy=node('span','cs-time-person-copy');
+        copy.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));
+        identityButton.append(avatar,copy);
+        identity.append(identityButton);
+
+        const planned=plannedFacts(entry);
+        const times=node('td','cs-time-number cs-time-shift-times');
+        times.dataset.label='Tider';
+        const actualRange=entry.start?entry.start+'–'+(entry.end||'…')+(entry.end?daySuffix(entry.date,entry.endDate):''):'Ikke registreret';
+        const plannedRange=planned.start&&planned.end
+          ? planned.start+'–'+planned.end+daySuffix(entry.date,inferredEndDate(entry.date,planned.start,planned.end))
+          : '—';
+        times.append(node('strong','cs-time-actual-range',actualRange),node('span','cs-time-caption cs-time-planned-range','Planlagt '+plannedRange));
+
+        const duration=node('td','cs-time-number cs-time-work-duration');
+        duration.dataset.label='Arbejdstid';
+        const net=node('div','cs-time-work-net');
+        const delta=entry.end&&Number.isFinite(planned.minutes)?entry.workedMinutes-planned.minutes:NaN;
+        net.append(
+          node('strong','cs-time-net-time',entry.end?minutes(entry.workedMinutes):'—'),
+          differenceNode(delta,{unavailable:entry.end?'Kan ikke sammenlignes':entry.start?'Afventer afslutning':'Ikke registreret',reasons:result.reasons||[]})
+        );
+        duration.append(net,node('span','cs-time-caption cs-time-pause-value',safeNumber(entry.breakMinutes)+' min pause'));
+
+        const state=node('td','cs-time-state-cell');
+        state.dataset.label='Status';
+        state.append(statusNode(entry,result));
+        const reason=result.reasons?.[0];
+        if(result.bucket==='attention'&&reason&&reason.code!=='rejected'){
+          const label=Object.hasOwn(REVIEW_REASON,reason.code)?REVIEW_REASON[reason.code]:Object.hasOwn(FLAGS,reason.code)?FLAGS[reason.code]:reason.label;
+          const caption=node('span','cs-time-review-reason',label);
+          caption.title=reason.label;
+          state.append(caption);
+        }
+        const action=node('td','cs-time-row-action');
+        const label=result.bucket==='attention'?'Gennemgå':result.bucket==='ready'&&options.canManage?'Se og godkend':'Se timer';
+        action.append(button(label,()=>openEntry(entry),'cs-button','inspect:'+entry.id));
+        row.append(identity,times,duration,state,action);
+        rows.append(row);
+      }
+      main.append(table);
+    }
+    function paintEntries(body){
+      const opened=currentEntry();
+      if(opened){body.append(inspector(opened));return;}
+      chooseDefaultQueue();
+      const all=matchingEntries(),counts={attention:0,ready:0,progress:0,approved:0};
+      for(const entry of all)counts[review(entry).bucket]++;
+      paintReviewToolbar(body,all,counts);
+      const visible=filteredEntries(all),shown=pageRows(visible,'entries');
+      const ready=(serverPaged()?shown:visible).filter(entry=>approvable(entry)&&review(entry).bucket==='ready');
+      const main=node('section','cs-time-directory');
+      main.setAttribute('aria-label','Tidsregistreringer');
+      paintApproval(main,ready);
+      if(shown.length)paintEntryTable(main,shown);
+      else{
+        const summary=serverSummary();
+        const total=summary?.counts?.all;
+        let empty='Der er endnu ingen registrerede timer i perioden.';
+        if(search.trim())empty='Ingen registreringer matcher din søgning.';
+        else if(status==='attention')empty='Ingen registreringer kræver opmærksomhed.';
+        else if(status==='ready')empty='Ingen registreringer er klar til samlet godkendelse.';
+        else if(status==='progress')empty='Ingen vagter er i gang.';
+        else if(status==='approved')empty='Ingen registreringer er godkendt.';
+        else if(all.length||total>0)empty='Ingen registreringer på denne side.';
+        main.append(node('p','cs-time-empty',empty));
+      }
+      const pager=pagination(visible.length,'entries');
+      if(pager)main.append(pager);
+      body.append(main);
     }
     function makeTable(labels){const table=node('table','cs-time-table'),head=node('thead'),line=node('tr'),rows=node('tbody');labels.forEach(label=>{const th=node('th','',label);th.scope='col';line.append(th);});head.append(line);table.append(head,rows);return {table,rows};}
     function paintWeek(body){
@@ -283,8 +480,9 @@
         const planned=new Map();for(const shift of scopeShifts()){const id=shift.personId||shift.person,start=String(shift.start||'').split(':').map(Number),end=String(shift.end||'').split(':').map(Number);let duration=end[0]*60+end[1]-start[0]*60-start[1];if(duration<0)duration+=1440;const pause=shift.plannedBreakMinutes===undefined?0:shift.plannedBreakMinutes;planned.set(id,(planned.get(id)||0)+(Number.isFinite(duration)&&Number.isSafeInteger(pause)&&pause>=0&&pause<duration?duration-pause:0));}
         people=people.filter(item=>totals.has(item.personId||item.id)).map(item=>({...item,plannedMinutes:planned.get(item.personId||item.id)??totals.get(item.personId||item.id).planned}));
       }
-      const intro=node('div','cs-time-section-head');intro.append(node('h3','cs-time-heading','Ugens overblik'));body.append(intro);
-      body.append(node('p','cs-time-caption','Planlagte timer efter aftalte, ulønnede pauser sammenholdt med registreret og godkendt tid i den valgte periode.'));
+      const intro=node('div','cs-time-section-head');
+      intro.append(node('h3','cs-time-heading','Timer pr. medarbejder'),node('p','cs-time-caption','Planlagt tid er efter aftalte, ulønnede pauser.'));
+      body.append(intro);
       if(serverPaged()&&!Array.isArray(aggregatePeople))body.append(node('p','cs-time-caption','Registreret og godkendt tid vises for de indlæste registreringer.'));
       if(!people.length){body.append(node('p','cs-time-empty','Ingen medarbejdere i den valgte periode.'));return;}
       const {table,rows:tableRows}=makeTable(['Medarbejder','Planlagt','Aftalt pr. uge','Registreret','Godkendt']);table.classList.add?.('cs-time-week-table');
@@ -301,7 +499,7 @@
       if(viewScope==='real'&&options.companyPayroll!==false&&typeof onPayrollPeriodAction==='function'&&globalThis.CleanRoomsPayrollPeriodView)payrollHead.append(button('Lønperiode og eksport',()=>{
         periodPanel?.destroy?.();periodPanel=globalThis.CleanRoomsPayrollPeriodView.open({element:element.closest?.('#cleanrooms-studio')||element,date:options.from,onAction:onPayrollPeriodAction,onChanged:onPayrollPeriodChanged,onNavigate:onPayrollPeriodNavigate,onClose:()=>{periodPanel=null;}});
       },'cs-button cs-quiet','payroll:period'));
-      body.append(payrollHead,node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelsen. Senere ændringer i en løngruppe ændrer ikke allerede godkendte registreringer. Faste månedsbeløb afregnes én gang pr. måned og lægges ikke til hver vagt.'));
+      body.append(payrollHead,node('p','cs-time-caption','Satser og tillæg fastlåses ved godkendelse. Faste månedsbeløb afregnes pr. måned.'));
       if(!approved.length){body.append(node('p','cs-time-empty',serverPaged()&&count?'Ingen godkendte registreringer på denne side.':'Godkend registreringer, før de indgår i løngrundlaget.'));const pager=pagination(0,'payroll');if(pager)body.append(pager);return;}
       const {table,rows}=makeTable(['Medarbejder og dato','Grundlag','Timer','Grundløn','Tillæg','I alt','']);table.classList.add?.('cs-time-payroll-table');
       for(const entry of pageRows(approved,'payroll')){const row=node('tr'),identity=node('td','cs-time-person-cell');identity.append(node('strong','',nameFor(entry)),node('span','cs-time-caption',dateLabel(entry.date)));const source=node('td');source.append(node('strong','',entry.payroll?.sourceLabel||'Ingen lønaftale'));if(entry.payroll?.monthlyBaseCents)source.append(node('span','cs-time-caption','Fast månedsløn '+money(entry.payroll.monthlyBaseCents)));if(entry.payroll?.monthlySupplementCents)source.append(node('span','cs-time-caption','Faste månedlige tillæg '+money(entry.payroll.monthlySupplementCents)));if(!completePayroll(entry.payroll))source.append(node('span','cs-time-pay-incomplete','Løngrundlag mangler'),node('span','cs-time-caption',entry.payroll?.unavailableReason||'Der mangler en lønaftale for registreringen.'));row.append(identity,source);
@@ -309,10 +507,18 @@
     }
     function inspector(entry){
       const detail=node('section','cs-time-detail cs-time-detail-focused');detail.setAttribute('aria-label','Registrering for '+nameFor(entry));
+      const reviewResult=review(entry);
       const back=button('Tilbage til registreringer',()=>closeEntry(entry),'cs-button cs-quiet cs-time-detail-back cs-chrome-quiet','detail:close');back.setAttribute('aria-label','Luk registrering');detail.append(back);
-      const head=node('header','cs-time-detail-head'),identity=node('div','cs-time-detail-identity'),avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('div');avatar.setAttribute('aria-hidden','true');copy.append(node('h3','cs-time-heading',nameFor(entry)),node('p','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));identity.append(avatar,copy);head.append(identity,statusNode(entry));detail.append(head);
-      if(entry.status==='approved')detail.append(node('p','cs-time-lock-note','Godkendt '+(stamp(entry.approvedAt)||'')+(entry.approvedBy?' · '+(entry.approvedBy.name||entry.approvedBy):'')+'. Rettelser kræver genåbning.'));
-      const plannedData=plannedFacts(entry),reviewResult=review(entry),comparison=node('section','cs-time-comparison-section');comparison.setAttribute('aria-label','Tider og pause');comparison.append(node('h4','cs-time-detail-section-title','Tider og pause'));
+      const head=node('header','cs-time-detail-head'),identity=node('div','cs-time-detail-identity'),avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('div');avatar.setAttribute('aria-hidden','true');copy.append(node('h3','cs-time-heading',nameFor(entry)),node('p','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));identity.append(avatar,copy);head.append(identity,statusNode(entry,reviewResult));detail.append(head);
+      if(entry.status==='approved'){
+        const approval=[entry.approvedAt?stamp(entry.approvedAt):'',entry.approvedBy?.name||(typeof entry.approvedBy==='string'?entry.approvedBy:'')].filter(Boolean);
+        if(approval.length)detail.append(node('p','cs-time-lock-note','Godkendt · '+approval.join(' · ')));
+      }
+      const reviewLayout=node('div','cs-time-review-layout'),factsColumn=node('div','cs-time-review-facts');
+      if(options.canManage)reviewLayout.dataset.hasActions='true';
+      reviewLayout.append(factsColumn);
+      detail.append(reviewLayout);
+      const plannedData=plannedFacts(entry),comparison=node('section','cs-time-comparison-section');comparison.setAttribute('aria-label','Tider og pause');comparison.append(node('h4','cs-time-detail-section-title','Tider og pause'));
       const facts=node('table','cs-time-comparison'),thead=node('thead'),header=node('tr'),tbody=node('tbody');facts.setAttribute('aria-label','Planlagt og registreret tid');
       for(const label of ['','Planlagt','Registreret']){const cell=node('th','',label);cell.scope='col';header.append(cell);}thead.append(header);
       const endWithDate=(end,endDate)=>!end?'Afventer afslutning':end+(endDate&&endDate!==entry.date?' · '+dateLabel(endDate):'');
@@ -325,16 +531,16 @@
         ['net','Arbejdstid',minutes(plannedData.minutes),entry.end?minutes(entry.workedMinutes):'Afventer afslutning']
       ]){const row=node('tr');row.dataset.fact=key;const labelCell=node('th','',label);labelCell.scope='row';const plannedCell=node('td','',planned),actualCell=node('td','',actual);actualCell.dataset.changed=String(key==='start'?Boolean(entry.start&&plannedData.start&&entry.start!==plannedData.start):key==='end'?Boolean(entry.end&&plannedData.end&&(entry.end!==plannedData.end||entry.endDate&&entry.endDate!==plannedEndDate)):key==='pause'?plannedData.breakMinutes!==null&&entry.breakMinutes!==plannedData.breakMinutes:Boolean(entry.end&&Number.isFinite(plannedData.minutes)&&entry.workedMinutes!==plannedData.minutes));row.append(labelCell,plannedCell,actualCell);tbody.append(row);}facts.append(thead,tbody);comparison.append(facts);
       if(entry.end&&Number.isFinite(plannedData.minutes)){const result=node('p','cs-time-comparison-result');result.append(node('span','','Afvigelse'),differenceNode(entry.workedMinutes-plannedData.minutes));comparison.append(result);}
-      detail.append(comparison);
+      factsColumn.append(comparison);
       const rejection=[...(entry.audit||[])].reverse().find(item=>(item.operation||item.action)==='reject');
       if(reviewResult.reasons?.length||entry.comment||entry.correctionReason||entry.status==='rejected'&&rejection?.reason){
-        const context=node('section','cs-time-review-context');context.setAttribute('aria-label','Grundlag for gennemgang');context.append(node('h4','cs-time-detail-section-title','Det skal du gennemgå'));
+        const context=node('section','cs-time-review-context');context.setAttribute('aria-label','Grundlag for gennemgang');context.append(node('h4','cs-time-detail-section-title','Afvigelser og kommentarer'));
         if(reviewResult.reasons?.length){const reasons=node('ul','cs-time-detail-reasons');reasons.setAttribute('aria-label','Årsager til gennemgang');for(const reason of reviewResult.reasons){const item=node('li','cs-time-review-reason',reason.label);item.dataset.priority=String(reviewResult.priority||0);reasons.append(item);}context.append(reasons);}
         for(const [title,value] of [['Medarbejderens kommentar',entry.comment],['Tilbagemelding til medarbejderen',entry.status==='rejected'?rejection?.reason:null],['Seneste begrundelse',entry.correctionReason]])if(value){const note=node('div','cs-time-comment-block');note.append(node('h5','cs-time-subheading',title),node('p','cs-time-note',value));context.append(note);}
-        detail.append(context);
+        factsColumn.append(context);
       }
       if(options.canManage){
-        const decision=node('section','cs-time-decision');decision.setAttribute('aria-label','Behandling af registrering');decision.append(node('h4','cs-time-detail-section-title','Din beslutning'));
+        const decision=node('section','cs-time-decision');decision.setAttribute('aria-label','Behandling af registrering');decision.append(node('h4','cs-time-detail-section-title','Behandl registreringen'));
         if(draft&&mode){const form=node('form','cs-time-form');form.noValidate=true;form.addEventListener('submit',event=>{event.preventDefault();saveDraft();});form.append(node('h5','cs-time-subheading',mode==='reopen'?'Genåbn registrering':mode==='reject'?'Bed om forklaring':'Ret registrering'));
           if(mode==='reopen')form.append(node('p','cs-time-caption','Godkendelsen ophæves, og timerne skal gennemgås og godkendes igen.'));
           else if(mode==='reject')form.append(node('p','cs-time-caption','Bed medarbejderen supplere sin forklaring. Selve tiderne kan kun rettes af planlæggeren.'));
@@ -353,15 +559,18 @@
           if(conflict||entry.version!==draft.version)form.append(node('p','cs-time-error','Registreringen er ændret. Luk redigeringen og hent den seneste version.'));
           const actions=node('div','cs-time-actions');actions.append(button('Annuller',()=>{clearDraft();paint();},'cs-button','draft:cancel'));const save=button(mode==='reopen'?'Genåbn registrering':mode==='reject'?'Bed om forklaring':'Gem og send til godkendelse',saveDraft,'cs-button cs-primary','draft:save');save.disabled=blocked()||conflict||entry.version!==draft.version;actions.append(save);form.append(actions);decision.append(form);
         }else{
-          if(entry.status==='approved')decision.append(node('p','cs-time-caption','Registreringen er låst. Genåbn den med en begrundelse, hvis der skal rettes i timerne.'));
-          else if(!entry.end)decision.append(node('p','cs-time-caption','Der mangler en afslutning. Afklar stemplingen, før timerne kan godkendes.'));
+          if(entry.status==='approved')decision.append(node('p','cs-time-caption','Timerne er låst efter godkendelse. Genåbn for at rette.'));
+          else if(reviewResult.bucket==='ready')decision.append(node('p','cs-time-caption','Timerne følger den planlagte vagt.'));
+          else if(!entry.end)decision.append(node('p','cs-time-caption','Timerne kan godkendes, når registreringen har en sluttid.'));
           const actions=node('div','cs-time-detail-actions');
           if(approvable(entry))actions.append(button('Godkend timer',()=>approve(entry),'cs-button cs-primary','entry:approve'));
-          if(entry.status==='submitted')actions.append(button('Bed om forklaring',()=>edit(entry,'reject'),'cs-button','entry:reject'));
           if(entry.status==='approved')actions.append(button('Genåbn registrering',()=>edit(entry,'reopen'),'cs-button','entry:reopen'));
-          else actions.append(button('Ret registrering',()=>edit(entry,'correct'),'cs-button','entry:edit'));
+          else{
+            actions.append(button('Ret registrering',()=>edit(entry,'correct'),'cs-button','entry:edit'));
+            if(entry.status==='submitted')actions.append(button('Bed om forklaring',()=>edit(entry,'reject'),'cs-button','entry:reject'));
+          }
           decision.append(actions);
-        }detail.append(decision);
+        }reviewLayout.append(decision);
       }
       const disclosure=(key,title,cls)=>{const el=node('details',cls),summary=node('summary','',title);el.open=detailSections.has(key);summary.dataset.timeFocus='section:'+key;el.addEventListener('toggle',()=>{if(disposed||el.isConnected===false)return;if(el.open)detailSections.add(key);else detailSections.delete(key);});el.append(summary);return el;};
       if(options.canViewPayroll&&entry.payroll){

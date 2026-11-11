@@ -272,7 +272,8 @@ test('selected and changed markers accept arrays or Sets without reusing editor 
   assert.match(two.getAttribute('aria-label'),/Ændret siden seneste udgivelse/);
   assert.doesNotMatch(one.getAttribute('aria-label'),/Ændret siden seneste udgivelse/);
   const marker = two.querySelectorAll('.cs-event-change-mark')[0];
-  assert.equal(marker.title,'Ændret siden seneste udgivelse');
+  assert.match(two.dataset.tooltip,/Ændret siden seneste udgivelse/);
+  assert.equal(marker.title||'','');
   assert.equal(marker.getAttribute('aria-hidden'),'true');
   assert.equal(one.querySelectorAll('.cs-event-change-mark').length,0);
   const next = rerender(view,{selectedIds:new Set(['two']),changedIds:['one']});
@@ -290,9 +291,10 @@ test('long descriptions get a marker and remain available to editing without flo
   const markers=card.querySelectorAll('.cs-description-indicator');
   assert.equal(markers.length,1);
   assert.equal(markers[0].getAttribute('aria-hidden'),'true');
-  assert.equal(markers[0].title,'Har beskrivelse');
+  assert.equal(markers[0].title||'','');
+  assert.equal(card.title||'','');
   assert.equal(markers[0].querySelectorAll('svg').length,1);
-  for(const label of [card.getAttribute('aria-label'),card.title,card.dataset.tooltip]) {
+  for(const label of [card.getAttribute('aria-label'),card.dataset.tooltip]) {
     assert.ok(label.length<400);
     assert.match(label,/Har beskrivelse/);
     assert.match(label,/07:00.*15:00/);
@@ -333,7 +335,7 @@ test('issue callbacks can expose real hidden-site overlaps without changing edit
   assert.equal(copy.children.at(-1),warning);
   assert.equal(warning.textContent,'Overlap');
   assert.equal(warning.getAttribute('aria-hidden'),'true');
-  for (const description of [view.card.getAttribute('aria-label'),view.card.title,view.card.dataset.tooltip]) {
+  for (const description of [view.card.getAttribute('aria-label'),view.card.dataset.tooltip]) {
     assert.match(description,/Overlap/);
     assert.match(description,/14:00–16:00 på et andet arbejdssted/);
   }

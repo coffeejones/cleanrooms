@@ -36,14 +36,6 @@
 #cleanrooms-studio[data-page="hours"] .cs-time-table :is(th,td):last-child{padding-right:0}
 #cleanrooms-studio[data-page="hours"] .cs-time-table tbody tr:hover>td{background:#f8fafb}
 #cleanrooms-studio[data-page="hours"] .cs-time-table tbody tr[data-selected="true"]>td{background:#f1f5f7}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:first-child{width:24px}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(2){width:22%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(3){width:12%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(4){width:14%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(5){width:7%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(6){width:17%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(7){width:14%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:last-child{width:52px}
 #cleanrooms-studio[data-page="hours"] .cs-time-selection-cell input{width:16px;height:16px;margin:0;accent-color:#3b4e59}
 #cleanrooms-studio[data-page="hours"] .cs-time-person{display:flex;align-items:center;gap:12px;width:100%;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#29343c;text-align:left;cursor:pointer}
 #cleanrooms-studio[data-page="hours"] .cs-time-person-copy{display:block;min-width:0}
@@ -185,7 +177,6 @@
 #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"]>.cs-time-caption{max-width:720px;line-height:22px}
 #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"]>.cs-time-week-table{margin-top:24px}
 #cleanrooms-studio[data-page="hours"] .cs-time-entries-table td{padding-block:15px}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:last-child{width:88px}
 #cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:first-child input{width:16px;height:16px;min-height:16px;margin:0;accent-color:#3b4e59;vertical-align:middle}
 #cleanrooms-studio[data-page="hours"] .cs-time-detail-reasons{margin:16px 0;padding:12px 0;list-style:none;border-block:1px solid #ece4d8}
 #cleanrooms-studio[data-page="hours"] .cs-time-detail-reasons>.cs-time-review-reason{margin:3px 0;font-size:12px;line-height:20px}
@@ -214,18 +205,9 @@
 #cleanrooms-studio[data-page="hours"][data-role] .cs-time-demo-banner .cs-button{height:30px;min-height:30px;padding:3px 8px;font-size:11px}
 #cleanrooms-studio[data-page="hours"] .cs-time-tools{display:flex;align-items:center;gap:10px;margin:0 0 22px}
 #cleanrooms-studio[data-page="hours"] .cs-time-search{flex:1 1 360px;max-width:420px;margin:0}
-#cleanrooms-studio[data-page="hours"] .cs-time-all-filter[aria-pressed="true"]{background:#f0f3f5;border-color:#b9c6ce;color:#293b46}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:first-child{width:3%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(2){width:24%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(3){width:14%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(4){width:14%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(5){width:7%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(6){width:12%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:nth-child(7){width:13%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table th:last-child{width:13%}
 #cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(th,td){padding-inline:8px}
 #cleanrooms-studio[data-page="hours"] .cs-time-entries-table td{padding-block:14px}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-number>strong{font-size:12px;line-height:20px;white-space:nowrap}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-number>strong{font-size:12px;line-height:20px}
 #cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-status{font-size:11px;line-height:18px}
 #cleanrooms-studio[data-page="hours"] .cs-time-person-copy>strong{font-size:13px;line-height:21px}
 #cleanrooms-studio[data-page="hours"] .cs-time-delta{display:inline-flex;align-items:center;gap:7px;position:relative;white-space:nowrap;vertical-align:middle;color:#4d5e68;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}

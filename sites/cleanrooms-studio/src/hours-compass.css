@@ -66,6 +66,9 @@
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-summary {
+  flex-wrap:wrap;
+  width:100%;
+  margin:0;
   padding:0;
   border:0;
   border-bottom:1px solid var(--cs-compass-rule);
@@ -73,8 +76,15 @@
   background:transparent;
 }
 
+#cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar {
+  display:grid;
+  gap:12px;
+  margin:0;
+  padding:12px 0 18px;
+}
+
 #cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue {
-  padding-inline:10px;
+  padding-inline:12px;
   border:0;
   border-radius:0;
   color:var(--cs-access-muted);
@@ -97,21 +107,27 @@
 }
 
 #cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue .cs-time-review-count {
-  min-width:0;
-  padding:0;
-  background:transparent;
+  min-width:22px;
+  padding-inline:6px;
+  border-radius:10px;
+  background:var(--cs-access-soft);
 }
 
-#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-filter-rail {
-  --cs-ui-field-border:var(--cs-access-control-edge);
-  --cs-ui-field-background:var(--cs-access-surface);
-  gap:8px;
-  background:transparent;
-  box-shadow:none;
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue[data-bucket="attention"][data-empty="false"] .cs-time-review-count {
+  background:#f6ead7;
+  color:#775017;
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter::before {
-  display:none;
+#cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-tools {
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:nowrap;
+  margin:0;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-search {
+  flex:1 1 260px;
+  max-width:360px;
 }
 
 #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-button:not(.cs-chrome-quiet) {
@@ -134,14 +150,6 @@
 
 #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-button.cs-primary:hover:not(:disabled) {
   background:var(--cs-access-primary-hover);
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-button.cs-time-all-filter[aria-pressed="true"] {
-  border-color:transparent;
-  border-radius:0;
-  background:transparent;
-  color:var(--cs-access-ink);
-  box-shadow:inset 0 -2px 0 var(--cs-access-ink);
 }
 
 #cleanrooms-studio[data-page="hours"] :is(.cs-time-table, .cs-time-comparison) {
@@ -198,8 +206,69 @@
   background:currentColor;
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-selection-cell input {
+#cleanrooms-studio[data-page="hours"] .cs-time-status[data-review="ready"]::before {
+  background:var(--cs-access-primary);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-status[data-review="attention"]::before {
+  background:#976023;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(.cs-time-col-selection,.cs-time-selection-cell) input {
+  width:16px;
+  height:16px;
+  margin:0;
   accent-color:var(--cs-access-primary);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-selection {width:42px}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-times {width:22%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-duration {width:20%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-status {width:20%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-action {width:116px}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-work-net {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:0 8px;
+  font-variant-numeric:tabular-nums;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(.cs-time-net-time,.cs-time-actual-range) {
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-work-net .cs-time-delta:is([data-direction="equal"],[data-direction="unknown"]) {
+  display:none;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-state-cell .cs-time-review-reason {
+  margin:3px 0 0;
+  color:var(--cs-access-muted);
+  line-height:16px;
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-entries-table .cs-time-row-action .cs-button {
+  min-width:0;
+  padding-inline:9px;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"] .cs-time-section-head {
+  flex-wrap:wrap;
+  gap:4px 16px;
+  margin:0 0 12px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-section-head>.cs-time-caption {
+  white-space:normal;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"]>.cs-time-week-table {
+  margin-top:12px;
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="payroll"] {
@@ -207,6 +276,7 @@
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-metrics {
+  grid-template-columns:repeat(3,minmax(0,1fr));
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
   padding-inline:16px;
@@ -230,6 +300,50 @@
   font-weight:700;
 }
 
+#cleanrooms-studio[data-page="hours"] .cs-time-review-layout {
+  display:grid;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-facts {
+  min-width:0;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-layout .cs-time-decision {
+  align-self:start;
+  min-width:0;
+  padding:16px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:7px;
+  background:var(--cs-access-soft);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-decision .cs-time-detail-actions {
+  display:flex;
+  align-items:stretch;
+  flex-direction:column;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-decision .cs-time-form {
+  gap:12px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-decision .cs-time-form .cs-time-actions {
+  justify-content:flex-end;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-facts .cs-time-review-context {
+  margin-top:16px;
+  padding:16px 0 0;
+}
+
+@media(min-width:1050px) {
+  #cleanrooms-studio[data-page="hours"] .cs-time-review-layout[data-has-actions="true"] {
+    grid-template-columns:minmax(0,1.75fr) minmax(255px,1fr);
+  }
+}
+
 #cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-head,
 #cleanrooms-studio[data-page="hours"] .cs-time-detail-focused :is(.cs-time-review-context, .cs-time-decision, .cs-time-secondary, .cs-time-detail-links) {
   border-color:var(--cs-compass-rule);
@@ -250,11 +364,15 @@
     padding-block:12px;
   }
 
-  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(th:first-child,.cs-time-selection-cell) {
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(.cs-time-col-selection,.cs-time-selection-cell) {
     text-align:center;
   }
 
   #cleanrooms-studio[data-page="hours"] .cs-time-table:not(.cs-time-entries-table) :is(th,td):first-child {
+    padding-inline-start:14px;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(th,td):first-child:not(.cs-time-col-selection,.cs-time-selection-cell) {
     padding-inline-start:14px;
   }
 
@@ -275,11 +393,38 @@
   #cleanrooms-studio[data-page="hours"] .cs-time-table tbody>tr:last-child {
     border-bottom:0;
   }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table tbody>tr {
+    gap:9px 14px;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table td[data-label]::before {
+    margin-bottom:2px;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-row-action {
+    align-self:end;
+    justify-self:end;
+  }
 }
 
 @media(max-width:760px),(pointer:coarse) {
   #cleanrooms-studio[data-page="hours"] :is(.cs-timekeeping-page, #cs-workspace-toolbar) {
     --cs-ui-height:44px;
+  }
+}
+
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="hours"] .cs-time-review-summary {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-review-queue[data-bucket="all"] {
+    grid-column:1/-1;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="payroll"] .cs-time-metrics {
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
 

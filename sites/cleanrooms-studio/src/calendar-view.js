@@ -50,13 +50,12 @@
 
   function seriesMarker() {
     const marker = node('span', 'cs-series-indicator', '↻');
-    marker.setAttribute('aria-label', 'Del af en vagtserie');
-    marker.title = 'Del af en vagtserie';
+    marker.setAttribute('aria-hidden', 'true');
     return marker;
   }
 
   function descriptionMarker() {
-    const marker = node('span','cs-description-indicator'); marker.setAttribute('aria-hidden','true'); marker.title = 'Har beskrivelse';
+    const marker = node('span','cs-description-indicator'); marker.setAttribute('aria-hidden','true');
     const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns,'svg'), path = document.createElementNS(ns,'path');
     Object.entries({viewBox:'0 0 24 24',width:12,height:12,fill:'none',stroke:'currentColor','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round',focusable:'false','aria-hidden':'true'}).forEach(([name,value]) => svg.setAttribute(name,String(value)));
     path.setAttribute('d','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6M8 13h8M8 17h6');
@@ -215,7 +214,7 @@
       const issue = issueFor(shift);
       const button = node('button', 'cs-event' + (!shift.person ? ' is-open' : '') + (selected ? ' is-multi-selected' : '') + (changed ? ' is-changed' : '') + (issue ? ' has-issue' : ''));
       const name = nameFor(shift), site = siteFor(shift);
-      const description = name + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift) + ', ' + site.name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : '') + (changed ? '. Ændret siden seneste udgivelse' : '') + (issue ? '. ' + issue.label + (issue.detail ? ' · ' + issue.detail : '') : '');
+      const description = name + ', ' + fullDate(shift.date) + ', ' + clockLabel(shift) + ', ' + site.name + (shift.plannedBreakMinutes?'. Planlagt pause '+shift.plannedBreakMinutes+' minutter':'') + ((shift.note || shift.noteRich || shift._instructions?.hasDescription) ? '. Har beskrivelse' : '') + (shift.seriesId ? '. Del af en vagtserie' : '') + (changed ? '. Ændret siden seneste udgivelse' : '') + (issue ? '. ' + issue.label + (issue.detail ? ' · ' + issue.detail : '') : '');
       button.type = 'button';
       button.id = 'cs-calendar-event-' + encodeURIComponent(String(shift.id));
       button.dataset.shift = String(shift.id);
@@ -225,7 +224,6 @@
       if (selectionMode || selected) button.setAttribute('aria-pressed', String(selected));
       button.style.setProperty('--cs-shift-color', site.color || 'currentColor');
       button.setAttribute('aria-label', description);
-      button.title = description;
       button.dataset.tooltip = description;
       button.draggable = canMove;
       if (canMove) button.setAttribute('aria-describedby', helpId);
@@ -251,7 +249,7 @@
       if (shift.seriesId) button.append(seriesMarker());
       if (changed) {
         const mark = node('span', 'cs-event-change-mark');
-        mark.setAttribute('aria-hidden', 'true'); mark.title = 'Ændret siden seneste udgivelse'; button.append(mark);
+        mark.setAttribute('aria-hidden', 'true'); button.append(mark);
       }
       button.addEventListener('click', event => {
         event.stopPropagation();

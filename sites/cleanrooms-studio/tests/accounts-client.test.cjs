@@ -145,18 +145,20 @@ test('no-plan user managers can edit existing bindings but cannot invite an empl
   const settle=()=>new Promise(resolve=>setImmediate(resolve)),find=selector=>element.querySelector(selector);
   controller.render({viewer:manager,capabilities:{manageUsers:true,plan:false}});await settle();
   const inviteName=find('#cs-account-invite-name'),inviteEmail=find('#cs-account-invite-email'),inviteSend=find('#cs-account-invite-send');
+  find('#cs-account-user-create').click();
   assert.equal(find('#cs-account-invite-person'),null);assert.equal(inviteSend.disabled,true);
   assert.match(find('#cs-account-invite-help').textContent,/adgang til planlægning/);
   inviteName.value='Ny konto';inviteEmail.value='new@example.com';
   model.staff.push({id:'p-imported',name:'Importeret medarbejder',initials:'IM',active:true});await controller.open();
   assert.equal(inviteName.value,'Ny konto');assert.equal(inviteEmail.value,'new@example.com');
+  inviteSend.click();await settle();assert.equal(calls.filter(call=>call.action==='invite').length,0);
+  find('#cs-account-create-close').click();
   find('[data-user-id="member"]').querySelector('button').click();const editPerson=find('#cs-account-edit-person');
   assert.ok(editPerson.querySelector('option[value="p-imported"]'),'Editing can use the server roster even when mount staff is empty.');
   assert.equal(editPerson.value,'p-archived');assert.equal(editPerson.querySelector('option[value="p-archived"]').disabled,false);assert.match(editPerson.querySelector('option[value="p-archived"]').textContent,/arkiveret/);
   find('#cs-account-edit-name').value='Lea opdateret';model.staff[1].name='Lea nyt navn';await controller.open();
   assert.equal(find('#cs-account-edit-name').value,'Lea opdateret');assert.equal(editPerson.value,'p-archived');assert.match(editPerson.querySelector('option[value="p-archived"]').textContent,/Lea nyt navn/);
   find('#cs-account-edit-save').click();await settle();const update=calls.find(call=>call.action==='updateMember');assert.equal(update.payload.personId,'p-archived');assert.equal(update.payload.version,4);
-  inviteSend.click();await settle();assert.equal(calls.filter(call=>call.action==='invite').length,0);
   controller.render({viewer:{userId:'roles-only',permissions:['roles.manage']},capabilities:{manageRoles:true}});await settle();assert.equal(editPerson.querySelector('option[value="p-imported"]'),null,'Roster data must be cleared when user-management capability is absent.');controller.destroy();
 });
 
@@ -166,19 +168,30 @@ test('employee creation includes app access and profile navigation while adminis
   const staff=[{id:'p-live',name:'Eksisterende kollega',active:true}];
   const sites=[{index:0,id:'site-first',name:'Ringsted'},{index:3,id:'site-second',name:'Nykøbing'}];
   const roles=[{id:'employee',name:'Medarbejder',permissions:[]},{id:'planner',name:'Planlægger',permissions:['plan']}];
-  const appLogins=[];
+  const appLogins=[],invites=[];
   const controller=context.CleanRoomsAccountsView.mount({element,onOpenEmployee:personId=>opened.push(personId),onAction:async(action,payload)=>{
     calls.push({action,payload:plain(payload)});
-    if(action==='list')return {ok:true,staff,sites,roles,appLogins};
+    if(action==='list')return {ok:true,staff,sites,roles,appLogins,invites};
     if(action==='createEmployeeUser'){
       const createdEmployee={id:'p-new',name:payload.name,active:true},account={personId:'p-new',email:payload.email,status:'active',version:1};
       staff.push(createdEmployee);appLogins.push(account);return {ok:true,createdEmployee,account};
     }
-    return {ok:true,invite:{id:'invite-new'},inviteUrl:'https://example.com/join?token=synthetic'};
+    if(action==='revokeInvite'){
+      invites.find(invite=>invite.id===payload.inviteId).status='revoked';
+      return {ok:true};
+    }
+    const invite={id:'invite-new',name:payload.name,email:payload.email,roleId:payload.roleId,status:'pending',version:1};
+    invites.push(invite);
+    return {ok:true,invite,inviteUrl:'https://example.com/join?token=synthetic'};
   }});
   const settle=()=>new Promise(resolve=>setImmediate(resolve)),find=selector=>element.querySelector(selector);
   controller.render({viewer:{userId:'admin',permissions:['plan','users.manage']},capabilities:{plan:true,manageUsers:true,manageAppLogins:true}});await settle();
+  const create=find('#cs-account-user-create'),dialog=find('#cs-account-create-dialog'),invitations=find('#cs-account-invites-panel');
   const site=find('#cs-account-invite-worksite'),name=find('#cs-account-invite-name'),email=find('#cs-account-invite-email'),send=find('#cs-account-invite-send');
+  assert.equal(dialog.hidden,true);assert.equal(create.getAttribute('aria-controls'),dialog.id);
+  create.click();assert.equal(dialog.hidden,false);assert.equal(element.ownerDocument.activeElement,name);
+  dialog.fire('cancel');assert.equal(dialog.hidden,true);assert.equal(element.ownerDocument.activeElement,create);
+  create.click();
   assert.equal(find('#cs-account-invite-person'),null);assert.equal(site.parentElement.hidden,false);assert.equal(site.value,'');
   name.value='  Anna Andersen  ';email.value='anna@example.com';send.click();await settle();
   assert.equal(calls.filter(call=>call.action==='createEmployeeUser').length,0);assert.match(find('#cs-account-invite-error').textContent,/Vælg et arbejdssted/);assert.equal(element.ownerDocument.activeElement,site);
@@ -188,15 +201,33 @@ test('employee creation includes app access and profile navigation while adminis
   assert.equal(calls.filter(call=>call.action==='invite').length,0);
   assert.match(find('#cs-account-status').textContent,/Medarbejderen og app-login er oprettet/);
   assert.equal(find('#cs-account-invite-result').hidden,true);
+  assert.equal(find('#cs-account-invite-form').hidden,true);
   assert.match(find('[data-app-user-id="p-new"]').textContent,/anna@example.com/);
   find('#cs-account-open-employee-profile').click();assert.deepEqual(opened,['p-new']);
+  assert.equal(dialog.hidden,true);
   assert.equal(name.value,'');assert.equal(site.value,'');
+  create.click();
   const role=find('#cs-account-invite-role');role.value='planner';role.fire('change');
   assert.equal(site.required,false);assert.equal(site.parentElement.hidden,true);assert.equal(site.disabled,true);
   name.value='Kun planlægger';email.value='planner@example.com';send.click();await settle();
   assert.deepEqual(calls.filter(call=>call.action==='invite').at(-1).payload,{name:'Kun planlægger',roleId:'planner',newUser:true,email:'planner@example.com',accessScope:{mode:'all',departmentIds:[]}});
   assert.equal(find('#cs-account-employee-result').hidden,true);
   assert.equal(find('#cs-account-invite-link').value,'https://example.com/join?token=synthetic');
+  assert.equal(dialog.hidden,true);
+  assert.equal(find('#cs-account-tab-invites').getAttribute('aria-selected'),'true');
+  assert.equal(find('#cs-account-users-panel').hidden,true);
+  assert.equal(invitations.hidden,false);
+  assert.equal(find('#cs-account-users-panel').contains(find('[data-invite-id="invite-new"]')),false);
+  assert.equal(element.ownerDocument.activeElement,find('#cs-account-invite-copy'));
+  find('[data-invite-id="invite-new"]').querySelector('button').click();await settle();
+  assert.deepEqual(calls.find(call=>call.action==='revokeInvite').payload,{inviteId:'invite-new',version:1});
+  assert.equal(find('#cs-account-invite-result').hidden,true);
+  assert.equal(find('#cs-account-invite-link').value,'');
+  create.click();assert.equal(dialog.hidden,false);
+  controller.render({viewer:{userId:'roles-only'},capabilities:{manageRoles:true}});await settle();
+  assert.equal(dialog.hidden,true);
+  assert.equal(create.hidden,true);
+  assert.equal(find('#cs-account-tab-invites').hidden,true);
   controller.destroy();
 });
 
@@ -234,7 +265,7 @@ test('users list combines app and web access and opens the employee profile for 
     return {ok:true,staff,appLogins,members,roles};
   }});
   controller.render({viewer,capabilities});await settle();
-  assert.deepEqual(find('#cs-account-tabs').querySelectorAll('[role="tab"]').map(tab=>tab.id),['cs-account-tab-users','cs-account-tab-roles']);
+  assert.deepEqual(find('#cs-account-tabs').querySelectorAll('[role="tab"]').map(tab=>tab.id),['cs-account-tab-users','cs-account-tab-roles','cs-account-tab-invites']);
   assert.equal(find('#cs-account-app-form'),null);
   assert.equal(find('#cs-account-app-dialog'),null);
   const webUser=find('[data-user-id="old-web"]'),appUser=find('[data-app-user-id="p-mads"]');
@@ -258,9 +289,10 @@ test('web invitation and member editing preserve explicit department scope with 
  const model={roles:[{id:'planner',name:'Planlægger',permissions:['plan']}],departments:[{id:'north',name:'Ringsted'},{id:'south',name:'Nykøbing'}],members:[{userId:'local',name:'Lokal planlægger',email:'local@example.test',roleId:'planner',status:'active',version:3,accessScope:{mode:'departments',departmentIds:['north']}}],invites:[],staff:[]};
  const view=context.CleanRoomsAccountsView.mount({element,onAction:async(action,payload)=>{calls.push({action,payload:plain(payload)});return action==='list'?{ok:true,...model}:{ok:true};}}),settle=()=>new Promise(resolve=>setImmediate(resolve)),find=selector=>element.querySelector(selector);
  view.render({viewer:{userId:'owner',permissions:['plan','users.manage']},capabilities:{plan:true,manageUsers:true}});await settle();
+ find('#cs-account-user-create').click();
  find('#cs-account-invite-name').value='Ny planlægger';find('#cs-account-invite-email').value='planner@example.test';const mode=find('#cs-account-invite-scope-mode');mode.value='departments';mode.fire('change');find('#cs-account-invite-send').click();await settle();assert.equal(calls.some(call=>call.action==='invite'),false);
- const north=find('[data-department-scope="north"]');north.checked=true;north.fire('change');find('#cs-account-invite-send').click();await settle();assert.deepEqual(calls.find(call=>call.action==='invite').payload.accessScope,{mode:'departments',departmentIds:['north']});
- const member=find('[data-user-id="local"]');assert.match(member.textContent,/Ringsted/);member.querySelector('button').click();assert.equal(find('#cs-account-edit-scope-mode').value,'departments');find('#cs-account-edit-save').click();await settle();const saved=calls.find(call=>call.action==='updateMember');assert.deepEqual(saved.payload.accessScope,{mode:'departments',departmentIds:['north']});assert.equal(saved.payload.version,3);view.destroy();
+ const north=find('#cs-account-invite-form').querySelector('[data-department-scope="north"]');north.checked=true;north.fire('change');find('#cs-account-invite-send').click();await settle();assert.deepEqual(calls.find(call=>call.action==='invite').payload.accessScope,{mode:'departments',departmentIds:['north']});
+ find('#cs-account-tab-users').click();const member=find('[data-user-id="local"]');assert.match(member.textContent,/Ringsted/);member.querySelector('button').click();assert.equal(find('#cs-account-edit-scope-mode').value,'departments');find('#cs-account-edit-save').click();await settle();const saved=calls.find(call=>call.action==='updateMember');assert.deepEqual(saved.payload.accessScope,{mode:'departments',departmentIds:['north']});assert.equal(saved.payload.version,3);view.destroy();
 });
 
 test('a scoped user manager cannot select company-wide web access and scope changes clear former choices',async()=>{

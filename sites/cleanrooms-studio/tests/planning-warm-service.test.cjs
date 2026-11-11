@@ -21,6 +21,29 @@ test('one-week bootstrap stays fast and six-week warming uses private complete t
  const count=h.reads().length;assert.equal((await h.api.viewport(range(4,5),{bounds})).ok,true);assert.equal(h.reads().length,count,'Warmed weeks become visible without another request');assert.equal(h.api.viewportCache.weeks,6);
 });
 
+test('the unrestricted workspace capability shape keeps the active and warmed calendar on the same generation',async()=>{
+ const h=harness();
+ function unrestrictedBatch(index){
+  const result=batch(index);
+  result.capabilities={...result.capabilities,scopeRestricted:false,allowedDepartmentIds:null,allowedSiteIds:null,viewPayroll:true,companyPayroll:true};
+  return result;
+ }
+ await h.load(unrestrictedBatch(0));
+ const generation=h.api.calendarGeneration;
+ assert.equal(h.api.viewportCache.generation,generation);
+ const warming=h.api.warmViewport(range(0,1),{bounds});
+ await drain();
+ assert.equal(h.reads().length,2);
+ await h.reply(h.reads()[1],unrestrictedBatch(1));
+ const result=await warming;
+ assert.equal(result.complete,true);
+ assert.equal(h.api.viewportCached(week(1)),true);
+ assert.equal(h.api.viewportCovers(week(0)),true);
+ assert.equal(h.api.calendarGeneration,generation);
+ assert.deepEqual(copy(h.api.projection),week(0));
+ assert.equal(h.contexts.length,0);
+});
+
 test('duplicate warming shares one job and cancelled in-flight work prevents a second background RPC until it settles',async()=>{
  const h=harness();await h.load(batch(0));const first=h.api.warmViewport(range(0,5),{bounds}),same=h.api.warmViewport(range(0,5),{bounds});assert.equal(first,same);await drain();assert.equal(h.reads().length,2);h.api.cancelWarmViewport();const busy=await h.api.warmViewport(range(1,6),{bounds});assert.equal(busy.busy,true);assert.equal(busy.cancelled,true);assert.equal(busy.retryAfter,300);assert.equal(h.reads().length,2);await h.reply(h.reads()[1],batch(1,2));assert.equal((await first).superseded,true);assert.deepEqual(copy(h.api.viewportCache.keys),[week(0).from]);
  const retry=h.api.warmViewport(range(0,1),{bounds});await drain();await answer(h,1);assert.equal((await retry).complete,true);assert.equal(h.contexts.length,0);

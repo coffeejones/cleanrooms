@@ -236,7 +236,21 @@
       return {ok:false,status:409,message:'Kalenderen ændrer sig. Prøv at hente perioden igen.'};
     }
     function loadedResult(result){
-      const capabilities={manageDepartments:result.capabilities?.manageDepartments===true,manageSiteGps:result.capabilities?.manageSiteGps===true,manageAppLogins:result.capabilities?.manageAppLogins===true,manageUsers:result.capabilities?.manageUsers===true,manageRoles:result.capabilities?.manageRoles===true,viewPayroll:result.capabilities?.viewPayroll===true,managePayroll:result.capabilities?.managePayroll===true,managePayrollGroups:result.capabilities?.managePayrollGroups===true,chat:result.capabilities?.chat===true,manageChat:result.capabilities?.manageChat===true,plan:result.capabilities?.plan===true,previewEmployees:result.capabilities?.previewEmployees===true,...(typeof result.capabilities?.scopeRestricted==='boolean'?{scopeRestricted:result.capabilities.scopeRestricted,allowedDepartmentIds:Array.isArray(result.capabilities.allowedDepartmentIds)?result.capabilities.allowedDepartmentIds.filter(id=>typeof id==='string').slice(0,1000):[],allowedSiteIds:Array.isArray(result.capabilities.allowedSiteIds)?result.capabilities.allowedSiteIds.filter(id=>Number.isInteger(id)&&id>=0&&id<2000):[]}:{}),...(typeof result.capabilities?.companyPayroll==='boolean'?{companyPayroll:result.capabilities.companyPayroll}:{})};
+      const source=result.capabilities;
+      const capabilities={manageDepartments:source?.manageDepartments===true,manageSiteGps:source?.manageSiteGps===true,manageAppLogins:source?.manageAppLogins===true,manageUsers:source?.manageUsers===true,manageRoles:source?.manageRoles===true,viewPayroll:source?.viewPayroll===true,managePayroll:source?.managePayroll===true,managePayrollGroups:source?.managePayrollGroups===true,chat:source?.chat===true,manageChat:source?.manageChat===true,plan:source?.plan===true,previewEmployees:source?.previewEmployees===true};
+      if(typeof source?.companyPayroll==='boolean')capabilities.companyPayroll=source.companyPayroll;
+      if(typeof source?.scopeRestricted==='boolean'){
+        capabilities.scopeRestricted=source.scopeRestricted;
+        // Calendar generations compare this result with the server projection.
+        // An unrestricted scope has null lists; empty lists deny access in a restricted scope.
+        if(source.scopeRestricted){
+          capabilities.allowedDepartmentIds=Array.isArray(source.allowedDepartmentIds)?source.allowedDepartmentIds.filter(id=>typeof id==='string').slice(0,1000):[];
+          capabilities.allowedSiteIds=Array.isArray(source.allowedSiteIds)?source.allowedSiteIds.filter(id=>Number.isInteger(id)&&id>=0&&id<2000):[];
+        }else{
+          capabilities.allowedDepartmentIds=null;
+          capabilities.allowedSiteIds=null;
+        }
+      }
       return {ok:true,studio:result.studio,employee:result.employee||null,viewer:result.viewer||null,...(typeof result.accessIdentity==='string'?{accessIdentity:result.accessIdentity}:{}),workspace:result.workspace||null,capabilities,...Object.fromEntries(['workflowSummary','planningSummary','selection','availability','catalog','directory'].filter(field=>result[field]!==undefined).map(field=>[field,copy(result[field])]))};
     }
     // A small, private point cache is independent of the compact week cache.

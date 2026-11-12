@@ -6,6 +6,7 @@ class Element extends EventTarget {
   constructor(tag, document) {
     super();
     this.tagName = tag.toUpperCase();
+    this.nodeType = 1;
     this.ownerDocument = document;
     this.children = [];
     this.attributes = new Map();
@@ -16,33 +17,56 @@ class Element extends EventTarget {
   }
   append(...children) {
     for (const child of children) {
+      child.remove();
       this.children.push(child);
       child.parentElement = this;
     }
   }
   after(element) {
+    this.insertNext(element, 1);
+  }
+  before(element) {
+    this.insertNext(element, 0);
+  }
+  insertNext(element, offset) {
     const parent = this.parentElement;
-    parent.children.splice(parent.children.indexOf(this) + 1, 0, element);
+    element.remove();
+    parent.children.splice(parent.children.indexOf(this) + offset, 0, element);
     element.parentElement = parent;
   }
   remove() {
     const parent = this.parentElement;
+    if (!parent) return;
     parent.children.splice(parent.children.indexOf(this), 1);
     this.parentElement = null;
   }
   replaceChildren(...children) {
-    this.children = [];
+    for (const child of [...this.children]) child.remove();
     this.append(...children);
   }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
   getAttribute(name) { return this.attributes.get(name) ?? null; }
   hasAttribute(name) { return this.attributes.has(name); }
   removeAttribute(name) { this.attributes.delete(name); }
-  closest() { return null; }
+  closest(selector) {
+    for (let node = this; node; node = node.parentElement) {
+      if (selector === node.tagName.toLowerCase() || node.className?.split(' ').includes(selector.slice(1))) return node;
+    }
+    return null;
+  }
+  querySelectorAll(selector) {
+    return descendants(this).slice(1).filter(node => node.tagName === 'SELECT' &&
+      (selector === 'select' || (selector === 'select[data-cs-select-source]' && node.hasAttribute('data-cs-select-source'))));
+  }
   contains(element) { return descendants(this).includes(element); }
   getBoundingClientRect() { return {top: 0, bottom: 0, height: 0}; }
   get label() { return this.textContent; }
+  get labels() { return this.closest('label') ? [this.closest('label')] : []; }
   get options() { return descendants(this).filter(element => element.tagName === 'OPTION'); }
+  get value() { return this.currentValue; }
+  set value(value) { this.currentValue = String(value); }
+  get selectedIndex() { return this.options.findIndex(option => option.value === this.value); }
+  set selectedIndex(index) { this.value = this.options[index]?.value || ''; }
   get selectedOptions() { return this.options.filter(option => option.value === this.value); }
   get selected() {
     const select = this.parentElement?.tagName === 'OPTGROUP' ? this.parentElement.parentElement : this.parentElement;
@@ -62,6 +86,12 @@ const dispatch = (target, type, properties = {}) => {
 function fixture() {
   const doc = new EventTarget();
   doc.defaultView = Object.assign(new EventTarget(), {Event});
+  let report;
+  doc.defaultView.MutationObserver = class {
+    constructor(callback) { report = callback; }
+    observe() {}
+    disconnect() { report = undefined; }
+  };
   doc.createElement = tag => new Element(tag, doc);
   const parent = doc.createElement('div');
   const select = doc.createElement('select');
@@ -75,7 +105,7 @@ function fixture() {
     return item;
   };
   const withClass = name => descendants(parent).filter(element => element.className === 'cs-publication-combobox-' + name);
-  return {select, label, option, withClass, create: doc.createElement};
+  return {doc, parent, select, label, option, withClass, create: doc.createElement, mutate: (...records) => report(records)};
 }
 
 test('search across week and year commits only the selected enabled result', () => {
@@ -92,7 +122,8 @@ test('search across week and year commits only the selected enabled result', () 
   select.addEventListener('change', () => changes++);
   const combo = Combobox.enhance(select, {label: 'Startuge'});
   const [input] = withClass('input');
-  assert.equal(select.hidden, true);
+  assert.equal(select.hasAttribute('data-cs-select-source'), true);
+  assert.equal(select.hidden, false);
   assert.equal(input.value, 'Uge 46');
 
   dispatch(input, 'keydown', {key: 'ArrowDown'});
@@ -135,7 +166,66 @@ test('standalone options remain available and the visible control follows disabl
   assert.equal(select.value, 'all');
   combo.dispose();
   assert.equal(select.hidden, false);
+  assert.equal(select.hasAttribute('data-cs-select-source'), false);
   assert.equal(label.getAttribute('for'), 'native-select');
+});
+
+test('shared enhancement follows dynamic selects, native setters and opt-out flags', async () => {
+  const {parent, select, option, create, mutate} = fixture();
+  select.setAttribute('data-native-select', '');
+  const controller = Combobox.enhanceAll(parent);
+  assert.equal(Combobox.get(select), undefined);
+
+  const source = create('select');
+  source.append(option('', 'Ikke tilknyttet'), option('1', 'Nørrebro'));
+  source.dataset.fieldFocus = 'site';
+  parent.append(source);
+  mutate({type: 'childList', target: parent, addedNodes: [source], removedNodes: []});
+  const instance = Combobox.get(source);
+  assert.equal(instance.input.value, 'Ikke tilknyttet');
+  assert.equal(instance.input.dataset.fieldFocus, 'site');
+  assert.equal(Combobox.enhance(source), instance);
+
+  source.value = '1';
+  await Promise.resolve();
+  assert.equal(instance.input.value, 'Nørrebro');
+  source.selectedIndex = 0;
+  await Promise.resolve();
+  assert.equal(instance.input.value, 'Ikke tilknyttet');
+  source.hidden = true;
+  source.disabled = true;
+  mutate({type: 'attributes', target: source, attributeName: 'hidden'});
+  assert.equal(instance.input.parentElement.hidden, true);
+  assert.equal(instance.input.disabled, true);
+
+  source.remove();
+  mutate({type: 'childList', target: parent, addedNodes: [], removedNodes: [source]});
+  assert.equal(Combobox.get(source), undefined);
+  assert.equal(parent.contains(instance.input), false);
+  controller.dispose();
+});
+
+test('implicit labels continue to activate the visible input and restore the native placement', () => {
+  const {doc, parent, select, label, option, withClass} = fixture();
+  label.removeAttribute('for');
+  label.textContent = 'Vælg arbejdssted';
+  label.append(select);
+  select.append(option('0', 'Kontor Nord'), option('1', 'Klinikken'));
+  select.value = '0';
+  select.focus();
+  const combo = Combobox.enhance(select);
+  assert.equal(parent.contains(select), true);
+  assert.equal(label.contains(select), false);
+  assert.equal(label.contains(combo.input), true);
+  assert.equal(label.getAttribute('for'), combo.input.id);
+  assert.equal(doc.activeElement, combo.input);
+  combo.focus({open: true});
+  assert.equal(dispatch(withClass('option')[1], 'click').defaultPrevented, true);
+  assert.equal(select.value, '1');
+  assert.equal(combo.input.getAttribute('aria-expanded'), 'false');
+  combo.dispose();
+  assert.equal(label.contains(select), true);
+  assert.equal(label.getAttribute('for'), null);
 });
 
 test('an exact duration takes precedence over a current partial match', () => {

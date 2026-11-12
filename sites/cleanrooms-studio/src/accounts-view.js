@@ -166,7 +166,7 @@
     }
     createDialog.addEventListener('cancel',event=>{event.preventDefault();closeCreation(true);});
     createDialog.addEventListener('keydown',event=>{
-      if(event.key!=='Escape')return;
+      if(event.defaultPrevented||event.isComposing||event.key!=='Escape')return;
       event.preventDefault();event.stopPropagation();closeCreation(true);
     });
     let helpReturnFocus=null;
@@ -178,7 +178,14 @@
 
     function bindForm(form,save,escape){
       form.addEventListener('submit',event=>{event.preventDefault();save();});
-      form.addEventListener('keydown',event=>{if(event.key==='Escape'&&escape){event.preventDefault();if(!pending)escape();return;}if(event.key==='Enter'&&!event.isComposing&&event.target.tagName!=='BUTTON'){const shortcut=event.ctrlKey||event.metaKey,textInput=event.target.tagName==='INPUT'&&!['checkbox','radio','button'].includes(event.target.type);if(shortcut||textInput){event.preventDefault();save();}}});
+      form.addEventListener('keydown',event=>{
+        if(event.defaultPrevented||event.isComposing)return;
+        if(event.key==='Escape'&&escape){event.preventDefault();if(!pending)escape();return;}
+        if(event.key!=='Enter'||event.target.tagName==='BUTTON')return;
+        const shortcut=event.ctrlKey||event.metaKey;
+        const textInput=event.target.tagName==='INPUT'&&!['checkbox','radio','button'].includes(event.target.type)&&event.target.getAttribute?.('role')!=='combobox';
+        if(shortcut||textInput){event.preventDefault();save();}
+      });
     }
     function employeeCreationNote(){
       if(capabilities.plan!==true)return 'Du skal have adgang til planlægning for at oprette en medarbejder.';

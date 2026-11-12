@@ -133,6 +133,7 @@ export function mount({ element, sourceInput }) {
   const typography = group('Skrift og afsnit');
   function select(label,className,options,change) {
     const control = node('select','cs-rich-select ' + className); control.title = label; control.setAttribute('aria-label',label);
+    control.setAttribute('data-custom-select', '');
     options.forEach(([value,text]) => { const option = node('option','',text); option.value = value; control.append(option); });
     control.addEventListener('change',() => change(control.value)); typography.append(control); return control;
   }
@@ -226,8 +227,10 @@ export function mount({ element, sourceInput }) {
     setMode(nextPreview); (nextPreview ? previewTab : editTab).focus();
   });
   toolbar.addEventListener('keydown',event => {
-    if (event.target.tagName === 'SELECT' || !['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
-    const controls = [...toolbar.querySelectorAll('button,select')].filter(control => !control.disabled), index = controls.indexOf(event.target);
+    if (event.defaultPrevented || event.target.matches('select,input[role="combobox"]') || !['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+    const controls = [...toolbar.querySelectorAll('button,select,input[role="combobox"]')]
+      .filter(control => !control.disabled && control.tabIndex !== -1 && control.getClientRects().length);
+    const index = controls.indexOf(event.target);
     if (index < 0) return; event.preventDefault();
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? controls.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + controls.length) % controls.length; controls[next]?.focus();
   });

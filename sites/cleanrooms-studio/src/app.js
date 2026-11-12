@@ -3904,8 +3904,9 @@
   q('#cs-repeat-unlimited').addEventListener('click',()=>chooseSeriesLength(null));
   root.querySelectorAll('[data-series-months]').forEach(button=>button.addEventListener('click',()=>chooseSeriesLength(Number(button.dataset.seriesMonths))));
   function trapDialog(event, panel, close) {
+    if (event.defaultPrevented || event.isComposing) return;
     if (event.key === 'Escape') { event.preventDefault(); close(); }
-    if (event.key === 'Tab') { const controls = [...panel.querySelectorAll('button,input,select,textarea,[contenteditable="true"],summary')].filter(element => !element.disabled && !element.hidden && element.getClientRects().length), first = controls[0], last = controls[controls.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } }
+    if (event.key === 'Tab') { const controls = [...panel.querySelectorAll('button,input,select,textarea,[contenteditable="true"],summary')].filter(element => !element.disabled && !element.hidden && element.tabIndex !== -1 && element.getClientRects().length), first = controls[0], last = controls[controls.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } }
   }
   q('#cs-editor-layer').addEventListener('keydown',event => { if (event.defaultPrevented) return; if (event.key === 'Escape' && staffPickerOpen) { event.preventDefault(); closeStaffPicker(); return; } trapDialog(event,q('.cs-editor'),closeEditor); });
   q('#cs-selection-toggle').addEventListener('click',() => { if (selectionMode) clearSelection(); else { selectionMode = true; render(); } });
@@ -3924,9 +3925,7 @@
     renderChanges();
   });
   ['#cs-changes-close','#cs-changes-backdrop','#cs-changes-cancel'].forEach(selector => q(selector).addEventListener('click',() => closeChanges()));
-  q('#cs-changes-layer').addEventListener('keydown',event => {
-    if(!event.defaultPrevented&&!event.isComposing)trapDialog(event,q('.cs-changes-editor'),closeChanges);
-  });
+  q('#cs-changes-layer').addEventListener('keydown',event => trapDialog(event,q('.cs-changes-editor'),closeChanges));
   q('#cs-changes-publish').addEventListener('click',publishReviewedWeek);
   root.addEventListener('keydown',event => { if (!event.defaultPrevented && event.key === 'Escape' && selectionMode && q('#cs-bulk-layer').hidden && q('#cs-group-layer').hidden && q('#cs-editor-layer').hidden && q('#cs-changes-layer').hidden && q('#cs-review-layer').hidden) { event.preventDefault(); clearSelection(); q('#cs-selection-toggle').focus({preventScroll:true}); } });
   root.addEventListener('keydown',event=>{if(event.key==='Escape'&&plannerDetailBusy){event.preventDefault();cancelPlannerDetails();}});
@@ -4010,6 +4009,7 @@
   q('#cs-page-help').addEventListener('click',event=>openPageHelp(event.currentTarget));
   q('#cs-employee-help').addEventListener('click',event=>openPageHelp(event.currentTarget));
   q('#cs-search').value = state.search; q('#cs-site-filter').value = state.site; render();
+  globalThis.CleanRoomsCombobox?.enhanceAll(root);
   if (persistence) initializeCloud();
   window.addEventListener('focus',()=>void refreshOnReturn());
   window.addEventListener('online',()=>void refreshOnReturn(true));

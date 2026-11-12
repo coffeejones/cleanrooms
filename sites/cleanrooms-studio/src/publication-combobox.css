@@ -1,10 +1,25 @@
 /* The field keeps the shared form scale; the popup has its own scroll area. */
+#cleanrooms-studio {
+  --cs-combobox-edge:#d4dce3;
+  --cs-combobox-shadow:0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05);
+  --cs-combobox-active:#edf1f4;
+}
+#cleanrooms-studio select[data-cs-select-source] {
+  display:none!important;
+}
 #cleanrooms-studio .cs-publication-combobox {
   --cs-publication-toggle-width:34px;
   --cs-ui-field-inset-start:10px;
   --cs-ui-field-inset-end:var(--cs-publication-toggle-width);
   position:relative;
   min-width:0;
+  max-width:100%;
+}
+#cleanrooms-studio .cs-publication-combobox[data-select-kind="toolbar"] {
+  --cs-publication-toggle-width:22px;
+  --cs-ui-height:28px;
+  --cs-ui-field-font:12px;
+  --cs-ui-field-inset-start:6px;
 }
 #cleanrooms-studio .cs-publication-combobox-input {
   display:block;
@@ -43,12 +58,9 @@
 #cleanrooms-studio .cs-publication-combobox[data-open="true"] .cs-publication-combobox-toggle::before {
   transform:translateY(2px) rotate(225deg);
 }
-#cleanrooms-studio .cs-publication-combobox-toggle:focus-visible {
-  outline:2px solid var(--cs-access-blue);
-  outline-offset:-3px;
-}
-#cleanrooms-studio .cs-publication-combobox-toggle:disabled {
+#cleanrooms-studio .cs-publication-combobox[data-disabled="true"] .cs-publication-combobox-toggle {
   cursor:default;
+  pointer-events:none;
 }
 
 #cleanrooms-studio .cs-publication-combobox-menu {
@@ -58,10 +70,10 @@
   overflow:auto;
   overscroll-behavior:contain;
   scrollbar-width:thin;
-  border:1px solid var(--cs-publication-rule,#d4dce3);
+  border:1px solid var(--cs-publication-rule,var(--cs-combobox-edge));
   border-radius:8px;
   background:var(--cs-access-surface);
-  box-shadow:0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05);
+  box-shadow:var(--cs-combobox-shadow);
   color:var(--cs-access-ink);
 }
 #cleanrooms-studio .cs-publication-combobox-menu[popover] {
@@ -139,7 +151,7 @@
   }
 }
 #cleanrooms-studio .cs-publication-combobox-option[data-active="true"] {
-  background:var(--cs-compass-selected,#edf1f4);
+  background:var(--cs-combobox-active);
 }
 #cleanrooms-studio .cs-publication-combobox-empty {
   margin:0;
@@ -149,9 +161,13 @@
   line-height:19px;
   overflow-wrap:anywhere;
 }
+#cleanrooms-studio .cs-publication-combobox-footer {
+  padding:4px 2px 2px;
+  border-top:1px solid var(--cs-combobox-edge);
+}
 
 @media (max-width:600px),(pointer:coarse) {
-  #cleanrooms-studio .cs-publication-combobox {
+  #cleanrooms-studio .cs-publication-combobox:not([data-select-kind="toolbar"]) {
     --cs-ui-height:44px;
     --cs-ui-field-font:16px;
   }

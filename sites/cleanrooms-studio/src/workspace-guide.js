@@ -338,7 +338,12 @@
         item.panel.hidden=!selected;
       }
     }
-    form.addEventListener('submit',event=>{event.preventDefault();saveSettings();});form.addEventListener('keydown',event=>{if(event.key!=='Enter'||event.isComposing||['BUTTON','SELECT'].includes(event.target.tagName))return;if(event.target.tagName==='TEXTAREA'&&!event.ctrlKey&&!event.metaKey)return;event.preventDefault();saveSettings();});
+    form.addEventListener('submit',event=>{event.preventDefault();saveSettings();});
+    form.addEventListener('keydown',event=>{
+      if(event.defaultPrevented||event.isComposing||event.key!=='Enter'||['BUTTON','SELECT'].includes(event.target.tagName)||event.target.getAttribute?.('role')==='combobox')return;
+      if(event.target.tagName==='TEXTAREA'&&!event.ctrlKey&&!event.metaKey)return;
+      event.preventDefault();saveSettings();
+    });
     function updateDisabled(){for(const control of form.querySelectorAll('input,textarea,select,button'))control.disabled=pending||!canEdit;save.textContent=pending?'Gemmer…':'Gem oplysninger';form.setAttribute('aria-busy',String(pending));permissionNote.textContent=canEdit?'':'Redigering kræver adgang til både planlægning og brugerstyring.';permissionNote.hidden=canEdit;demoToggle.disabled=demoPending||!canEdit||typeof onDemoChange!=='function';demo.section.hidden=typeof stats.demoEnabled!=='boolean';if(!demoPending)demoToggle.checked=stats.demoEnabled===true;}
     async function saveSettings(){
       if(!canEdit||pending||disposed)return;const draft=Object.fromEntries(keys.map(key=>[key,fields[key].value.trim()]));if(draft.contactEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contactEmail)){error.textContent='Skriv en gyldig e-mailadresse, eller lad feltet stå tomt.';error.hidden=false;fields.contactEmail.focus();return;}

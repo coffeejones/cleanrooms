@@ -6,6 +6,7 @@
 #cleanrooms-studio .cs-payroll-period-header p{margin:3px 0 0;color:#5c6c75;font-size:12px}
 #cleanrooms-studio .cs-payroll-period-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:20px 24px 28px;display:flex;flex-direction:column;gap:20px}
 #cleanrooms-studio .cs-payroll-period-nav{display:flex;align-items:center;gap:12px}
+#cleanrooms-studio .cs-payroll-period-nav > .cs-publication-combobox {flex:1;min-width:0}
 #cleanrooms-studio .cs-payroll-period-range{flex:1;text-align:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
 #cleanrooms-studio select.cs-payroll-period-range{min-width:0;height:36px;padding:0 8px;border:1px solid #c1c7c6;border-radius:6px;color:#243943;background:#fff;font-family:inherit}
 #cleanrooms-studio .cs-payroll-period-status{align-self:flex-start;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#5c6c75}

@@ -173,8 +173,9 @@
       }
     }
     layer.addEventListener('keydown',event=>{
+      if(event.defaultPrevented||event.isComposing)return;
       if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();}
-      if(event.key==='Tab'){const controls=[...panel.querySelectorAll('button,input,textarea,select,summary')].filter(el=>!el.disabled&&!el.hidden&&el.getClientRects().length),first=controls[0],last=controls.at(-1);if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first?.focus();}}
+      if(event.key==='Tab'){const controls=[...panel.querySelectorAll('button,input,textarea,select,summary')].filter(el=>!el.disabled&&!el.hidden&&el.tabIndex!==-1&&el.getClientRects().length),first=controls[0],last=controls.at(-1);if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first?.focus();}}
     });
     void load();panel.focus({preventScroll:true});
     return Object.freeze({destroy(){close(true);},get busy(){return busy;}});

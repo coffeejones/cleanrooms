@@ -117,7 +117,7 @@
     }
     function saveImport(){if(!preview?.ok||pending||!canEdit)return;if(previewBase!==JSON.stringify(staff)){showError(importError,'Medarbejderlisten er ændret. Kontrollér importen igen.');confirm.hidden=true;return;}return perform(onImport||onSave,preview.staff,{kind:'import',rows:preview.rows},importError,()=>closeImport());}
     const applyFilter=()=>{pageIndex=0;renderDirectory();};search.addEventListener('input',applyFilter);filter.addEventListener('change',applyFilter);siteFilter.addEventListener('change',applyFilter);
-    form.addEventListener('submit',event=>{event.preventDefault();saveEditor();});form.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeEditor();}});
+    form.addEventListener('submit',event=>{event.preventDefault();saveEditor();});form.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.defaultPrevented&&!event.isComposing){event.preventDefault();closeEditor();}});
     csv.addEventListener('input',()=>{preview=null;previewBox.hidden=true;confirm.hidden=true;importError.hidden=true;});
     file.addEventListener('change',async()=>{const selected=file.files?.[0];if(!selected||pending)return;const token=++epoch;try{if(selected.size>5*1024*1024)throw Error('CSV-filen må højst være 5 MB.');const value=await selected.text();if(disposed||token!==epoch)return;csv.value=value;reviewImport();}catch(problem){showError(importError,problem.message||'CSV-filen kunne ikke læses.');}});
     importer.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeImport();}});

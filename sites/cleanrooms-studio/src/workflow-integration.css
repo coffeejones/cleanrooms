@@ -15,6 +15,7 @@
 #cleanrooms-studio .cs-workflow-demo-caption{flex:1;min-width:180px;font-size:12px;line-height:20px;color:#7c8790}
 #cleanrooms-studio .cs-workflow-demo-person{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;color:#73818a}
 #cleanrooms-studio .cs-workflow-demo-person select{height:40px;min-height:40px;max-width:220px;padding:0 12px;border:1px solid #cbd5dc;border-radius:7px;background:#fff;color:#425663;font:inherit;font-size:13px}
+#cleanrooms-studio .cs-workflow-demo-person .cs-publication-combobox {max-width:220px}
 #cleanrooms-studio .cs-workflow-demo-views{display:flex;gap:4px}
 #cleanrooms-studio .cs-workflow-demo-views button[aria-pressed="true"]{background:#edf2f5;border-color:#c5d1d9;color:#38546a}
 #cleanrooms-studio .cs-workflow-demo-detail{box-sizing:border-box;width:min(440px,calc(100% - 32px));padding:28px;border:1px solid #d7e0e5;border-radius:10px;background:#fff;color:#374c5a;box-shadow:0 20px 70px #15232d26}

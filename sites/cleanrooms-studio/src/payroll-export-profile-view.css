@@ -5,7 +5,7 @@
 #cleanrooms-studio .cs-export-profile-header h3{margin:0;font-size:18px;font-weight:650;letter-spacing:-.3px}
 #cleanrooms-studio .cs-export-profile-body{flex:1;overflow:auto;scrollbar-gutter:stable;min-height:0;padding:20px 24px 28px;display:flex;flex-direction:column;gap:18px}
 #cleanrooms-studio .cs-export-profile-toolbar{display:flex;align-items:center;gap:10px}
-#cleanrooms-studio .cs-export-profile-toolbar>select{flex:1;min-width:0}
+#cleanrooms-studio .cs-export-profile-toolbar > :is(select,.cs-publication-combobox){flex:1;min-width:0}
 #cleanrooms-studio .cs-export-profile-caption{margin:0;color:#5c6c75;font-size:12px;line-height:19px}
 #cleanrooms-studio .cs-export-profile-tabs{display:flex;gap:24px;border-bottom:1px solid #e2e8e6;margin-bottom:2px}
 #cleanrooms-studio .cs-export-profile-tab{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#5c6c75;font:inherit;font-size:13px;font-weight:600;padding:8px 1px 12px;min-height:40px}

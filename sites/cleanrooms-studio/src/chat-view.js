@@ -250,7 +250,16 @@
     function visibility(){syncTimer();if(visible()){wakeSync();nextSyncAt=0;poll();}}
     input.addEventListener('input',()=>{if(selected)drafts.set(selected,input.value);composerFeedback();});input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendMessage();}});composer.addEventListener('submit',event=>{event.preventDefault();sendMessage();});
     scroller.addEventListener('scroll',()=>{if(nearBottom()){newCount=0;paintJump();markRead();}});departmentSelect.addEventListener('change',()=>{const department=departments.find(item=>item.id===departmentSelect.value);if(department)nameInput.value=department.name;});modalForm.addEventListener('submit',event=>{event.preventDefault();saveRoom();});
-    dialog.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeModal();return;}if(event.key!=='Tab')return;const candidates=[modalClose,departmentSelect,nameInput,cancel,confirm].filter(el=>!el.disabled&&!el.hidden),first=candidates[0],last=candidates.at(-1);if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last?.focus?.();}else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first?.focus?.();}});
+    dialog.addEventListener('keydown',event=>{
+      if(event.defaultPrevented||event.isComposing)return;
+      if(event.key==='Escape'){event.preventDefault();closeModal();return;}
+      if(event.key!=='Tab')return;
+      const departmentField=globalThis.CleanRoomsCombobox?.get(departmentSelect)?.input??departmentSelect;
+      const candidates=[modalClose,departmentField,nameInput,cancel,confirm].filter(el=>!el.disabled&&!el.hidden);
+      const first=candidates[0],last=candidates.at(-1);
+      if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last?.focus?.();}
+      else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first?.focus?.();}
+    });
     doc.addEventListener?.('visibilitychange',visibility);
     win.addEventListener?.('focus',visibility);
     return {

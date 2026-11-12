@@ -163,6 +163,18 @@
 #cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar .cs-department-control {
   width:100%;
 }
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
+  --cs-publication-toggle-width:26px;
+  --cs-ui-field-inset-start:9px;
+  --cs-ui-field-border:transparent;
+  --cs-ui-field-background:transparent;
+  --cs-ui-field-shadow:none;
+  --cs-ui-radius:0;
+  width:100%;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox:hover {
+  --cs-ui-field-background:var(--cs-access-soft);
+}
 #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention) {
   height:var(--cs-ui-height);
   min-height:var(--cs-ui-height);
@@ -239,6 +251,15 @@
   #cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
     border:0;
     padding:0;
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
+    --cs-ui-field-border:var(--cs-access-control-edge);
+    --cs-ui-field-background:var(--cs-access-surface);
+    --cs-ui-field-font:14px;
+    --cs-ui-radius:6px;
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox-input:focus {
+    --cs-ui-field-font:16px;
   }
   #cleanrooms-studio[data-page="schedule"][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger,#cs-attention) {
     min-width:0;

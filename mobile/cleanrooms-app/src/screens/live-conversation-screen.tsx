@@ -5,15 +5,17 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View, type ViewToken } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConversationLatestButton, latestMessageThreshold } from '@/components/conversation-latest-button';
+import { ConversationMessage } from '@/components/conversation-message';
+import { ConversationSendError } from '@/components/conversation-send-error';
+import { FlowScreen } from '@/components/flow-screen';
 import { Icon, IconButton, Row, Txt } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
+import { firstUnreadLiveMessageId, type LiveUnreadSnapshot } from '@/state/chat-unread';
 import { useLiveConversation, type LiveChatMessage } from '@/state/live-chat';
 
 const viewability = { itemVisiblePercentThreshold: 60, minimumViewTime: 500 };
-function time(value: string) {
-  return new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
-}
 
 export default function LiveConversationScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -22,6 +24,7 @@ export default function LiveConversationScreen() {
   const detail = conversation.data;
   const { draft, setDraft } = conversation;
   const [selectedPin, setSelectedPin] = useState<LiveChatMessage | null>(null);
+  const [latestWhenAway, setLatestWhenAway] = useState<number | null>(null);
   const list = useRef<FlatList<LiveChatMessage>>(null);
   const atBottom = useRef(true);
   const previousLatest = useRef(0);
@@ -29,8 +32,20 @@ export default function LiveConversationScreen() {
   useLayoutEffect(() => { mark.current = conversation.markRead; }, [conversation.markRead]);
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
+  const [unreadAtOpen, setUnreadAtOpen] = useState<(LiveUnreadSnapshot & { roomId: string })>();
+  if (unreadAtOpen?.roomId !== detail?.room.id || unreadAtOpen?.viewerId !== detail?.viewer.userId) {
+    setUnreadAtOpen(detail ? {
+      roomId: detail.room.id,
+      viewerId: detail.viewer.userId,
+      unread: detail.room.unread,
+      latestSeq: detail.room.latestSeq,
+    } : undefined);
+  }
+  const unreadMessageId = useMemo(() => unreadAtOpen && firstUnreadLiveMessageId(detail?.messages ?? [], unreadAtOpen), [detail?.messages, unreadAtOpen]);
   const messages = useMemo(() => [...(detail?.messages ?? [])].reverse(), [detail?.messages]);
   const latest = detail?.messages.at(-1)?.seq ?? 0;
+  const hasNewMessages = latestWhenAway !== null &&
+    (messages.find(message => message.authorId !== detail?.viewer.userId)?.seq ?? 0) > latestWhenAway;
   useEffect(() => {
     if (latest > previousLatest.current && atBottom.current) {
       const first = previousLatest.current === 0;
@@ -52,6 +67,8 @@ export default function LiveConversationScreen() {
     }
   }
 
+  const canSend = Boolean(draft.trim()) && !conversation.sending && conversation.draftReady && conversation.sendRetryReady;
+
   return <KeyboardAvoidingView style={styles.screen} behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
     keyboardVerticalOffset={process.env.EXPO_OS === 'ios' ? headerHeight : 0}>
     <Stack.Screen options={{ title: detail?.room.name ?? 'Samtale', headerStyle: { backgroundColor: cardColors.canvas } }} />
@@ -72,33 +89,40 @@ export default function LiveConversationScreen() {
       <Text selectable style={styles.error}>{conversation.error || conversation.draftError}</Text>
       <Pressable accessibilityRole="button" onPress={() => { conversation.refresh(); if (conversation.draftError) conversation.retryDraft(); }} style={styles.retry}><Text style={styles.link}>Prøv igen</Text></Pressable>
     </Row>}
-    {conversation.loading && !detail ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter beskeder" /></View> : <FlatList
-      ref={list} inverted data={messages} keyExtractor={item => item.id}
-      maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
-      contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.messages}
-      keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
-      onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
-      scrollEventThrottle={32} onScroll={event => { atBottom.current = event.nativeEvent.contentOffset.y < 72; }}
-      ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
-      ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
-        onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
-      renderItem={({ item, index }) => {
-        const mine = item.authorId === detail?.viewer.userId;
-        const older = messages[index + 1];
-        const newDay = !older || new Date(older.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' }) !== new Date(item.createdAt).toLocaleDateString('da-DK', { timeZone: 'Europe/Copenhagen' });
-        return <View style={styles.message}>
-          {newDay && <Text selectable style={styles.date}>{new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', day: 'numeric', month: 'long' }).format(new Date(item.createdAt))}</Text>}
-          <View style={[styles.messageBody, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>
-            {!mine && <Text selectable style={styles.author}>{item.authorName}</Text>}
-            <View style={[styles.bubble, mine ? styles.sent : styles.received]}>
-              <Text selectable style={[styles.messageText, mine && styles.sentText]}>{item.text}</Text>
-            </View>
-            <Text style={[styles.time, { alignSelf: mine ? 'flex-end' : 'flex-start' }]}>{time(item.createdAt)}</Text>
-          </View>
-        </View>;
-      }}
-    />}
+    <FlowScreen>
+      {conversation.loading && !detail ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter beskeder" /></View> : <FlatList
+        ref={list} inverted data={messages} keyExtractor={item => item.id}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+        contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.messages}
+        keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive"
+        onViewableItemsChanged={onViewable} viewabilityConfig={viewability}
+        scrollEventThrottle={32}
+        onScroll={({ nativeEvent: { contentOffset } }) => {
+          const nearLatest = contentOffset.y < latestMessageThreshold;
+          atBottom.current = nearLatest;
+          setLatestWhenAway(previous => nearLatest ? null : previous ?? latest);
+        }}
+        ListEmptyComponent={!conversation.error ? <Text selectable style={styles.empty}>Start samtalen med dit team.</Text> : null}
+        ListFooterComponent={detail?.nextCursor ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: conversation.more }} disabled={conversation.more}
+          onPress={conversation.loadOlder} style={styles.older}>{conversation.more ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.link}>Ældre beskeder</Text>}</Pressable> : null}
+        renderItem={({ item, index }) => (
+          <ConversationMessage
+            message={item}
+            older={messages[index + 1]}
+            newer={messages[index - 1]}
+            unreadId={unreadMessageId}
+            mine={item.authorId === detail?.viewer.userId}
+            authorName={item.authorName}
+          />
+        )}
+      />}
+      {latestWhenAway !== null && messages.length > 0 && (
+        <ConversationLatestButton hasNewMessages={hasNewMessages}
+          onJump={animated => list.current?.scrollToOffset({ offset: 0, animated })} />
+      )}
+    </FlowScreen>
     {detail && <View style={[styles.composer, { paddingBottom: Math.max(12, insets.bottom) }]}>
+      {!!conversation.sendError && <ConversationSendError error={conversation.sendError} disabled={!canSend} onRetry={() => { void send(); }} />}
       <View style={styles.composerRow}>
         <View style={[cardStyles.raisedFrame, styles.inputFrame]}>
           <TextInput accessibilityLabel="Skriv besked" placeholder="Skriv til dit team…" placeholderTextColor={colors.muted}
@@ -106,10 +130,10 @@ export default function LiveConversationScreen() {
             style={[cardStyles.raisedSurface, styles.input]} />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={conversation.sending ? 'Sender besked' : 'Send besked'}
-          accessibilityState={{ disabled: !draft.trim() || conversation.sending || !conversation.draftReady, busy: conversation.sending }}
-          disabled={!draft.trim() || conversation.sending || !conversation.draftReady} onPress={() => { void send(); }}
-          style={({ pressed }) => [styles.send, Boolean(draft.trim()) && !conversation.sending && styles.sendReady, pressed && styles.pressed]}>
-          {conversation.sending ? <ActivityIndicator color={colors.muted} /> : <Icon name="send" size={20} color={draft.trim() ? colors.white : colors.muted} />}
+          accessibilityState={{ disabled: !canSend, busy: conversation.sending }}
+          disabled={!canSend} onPress={() => { void send(); }}
+          style={({ pressed }) => [styles.send, canSend && styles.sendReady, pressed && styles.pressed]}>
+          {conversation.sending ? <ActivityIndicator color={colors.muted} /> : <Icon name="send" size={20} color={canSend ? colors.white : colors.muted} />}
         </Pressable>
       </View>
     </View>}
@@ -140,17 +164,7 @@ const styles = StyleSheet.create({
   pinned: { marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, gap: 3 },
   pinnedLabel: { color: colors.accent, fontSize: 10, letterSpacing: 0.8, fontWeight: '600' },
   pinnedText: { color: colors.ink, fontSize: 13, lineHeight: 19 },
-  messages: { paddingHorizontal: 16, paddingVertical: 16, gap: 14, flexGrow: 1 },
-  message: { gap: 12 },
-  date: { textAlign: 'center', color: colors.muted, fontSize: 11, fontWeight: '500', paddingVertical: 6 },
-  messageBody: { maxWidth: '86%', gap: 5 },
-  author: { color: colors.muted, fontSize: 11, paddingLeft: 13 },
-  bubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, borderCurve: 'continuous' },
-  sent: { backgroundColor: colors.accent, borderBottomRightRadius: 5 },
-  received: { backgroundColor: colors.white, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: cardColors.border },
-  messageText: { color: colors.ink, fontSize: 15, lineHeight: 22 },
-  sentText: { color: colors.white },
-  time: { paddingHorizontal: 12, color: colors.muted, fontSize: 10, fontVariant: ['tabular-nums'] },
+  messages: { paddingHorizontal: 16, paddingVertical: 16, flexGrow: 1 },
   composer: { backgroundColor: cardColors.section, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: cardColors.border,
     paddingHorizontal: 16, paddingTop: 10, gap: 8 },
   composerRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
@@ -166,5 +180,5 @@ const styles = StyleSheet.create({
   error: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 19 },
   retry: { minHeight: 44, paddingHorizontal: 8, justifyContent: 'center' },
   link: { color: colors.accent, fontSize: 13, fontWeight: '600' },
-  older: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginVertical: 8 },
+  older: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 8, marginBottom: 22 },
 });

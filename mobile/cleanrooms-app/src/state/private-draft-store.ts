@@ -32,6 +32,11 @@ function validateDraft(value: unknown): EmployeeDraft {
     || !('text' in pending) || typeof pending.text !== 'string' || !pending.text.trim() || pending.text.length > 10_000) throw Error('Invalid chat command');
   return { text: value.text, pending: { clientId: pending.clientId, text: pending.text } };
 }
+
+export function chatDraftPreview(text: string) {
+  const characters = Array.from(text.trim().replace(/\s+/g, ' '));
+  return characters.length > 100 ? `${characters.slice(0, 100).join('')}…` : characters.join('');
+}
 /** Keychain items stay small even for a 10,000-character Unicode message. */
 function chunks(value: string) {
   const result: string[] = [];
@@ -62,17 +67,37 @@ export class PrivateDraftStore {
   private async remove(entries: Entry[]) {
     await Promise.allSettled(entries.flatMap(entry => Array.from({ length: entry.count }, (_, index) => this.storage.remove(chunkKey(entry, index)))));
   }
+  private async readEntry(entry: Entry, lease: number) {
+    const values = await Promise.all(Array.from({ length: entry.count }, (_, index) => this.storage.read(chunkKey(entry, index))));
+    this.current(lease);
+    if (values.some(value => typeof value !== 'string' || bytes(value) > 1024)) throw Error('Incomplete chat draft');
+    return validateDraft(JSON.parse(values.join('')));
+  }
   read(key: string, lease: number) {
     return this.queue(async () => {
       this.current(lease);
       if (!hash.test(key)) throw Error('Invalid draft scope');
       const entry = parseIndex(await this.storage.read(indexKey)).find(value => value.key === key);
       this.current(lease);
-      if (!entry) return null;
-      const values = await Promise.all(Array.from({ length: entry.count }, (_, index) => this.storage.read(chunkKey(entry, index))));
+      return entry ? this.readEntry(entry, lease) : null;
+    });
+  }
+  readPreviews(keys: readonly string[], lease: number) {
+    return this.queue(async () => {
       this.current(lease);
-      if (values.some(value => typeof value !== 'string' || bytes(value) > 1024)) throw Error('Incomplete chat draft');
-      return validateDraft(JSON.parse(values.join('')));
+      const allowed = new Set(keys);
+      const entries = parseIndex(await this.storage.read(indexKey)).filter(entry => allowed.has(entry.key));
+      this.current(lease);
+      const results = await Promise.allSettled(entries.map(async entry => {
+        const draft = await this.readEntry(entry, lease);
+        return [entry.key, chatDraftPreview(draft.text)] as const;
+      }));
+      this.current(lease);
+      const previews = new Map<string, string>();
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value[1]) previews.set(...result.value);
+      }
+      return previews;
     });
   }
   save(key: string, draft: EmployeeDraft, expiresAt: number, lease: number) {

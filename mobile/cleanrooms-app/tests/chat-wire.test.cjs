@@ -5,6 +5,7 @@ const path = require('node:path');
 const build = process.env.CLEANROOMS_TEST_BUILD;
 if (!build) throw new Error('Run npm test to compile the actual chat wire helpers.');
 const chat = require(path.join(build, 'state/chat-wire.js'));
+const { firstUnreadLiveMessageId } = require(path.join(build, 'state/chat-unread.js'));
 const viewer = { userId: 'employee-web-account', name: 'Jonas Hansen' };
 const message = (seq, extra = {}) => ({
   id: `message-${seq}`, seq, text: `Besked ${seq}`, authorId: 'colleague', authorName: 'Sara',
@@ -104,4 +105,26 @@ test('conflicting message identity or sequence is rejected instead of duplicatin
   assert.throws(() => chat.mergeLiveMessages([message(3)], [message(4, { id: 'message-3' })]));
   assert.throws(() => chat.mergeLiveMessages([message(3)], [message(3, { id: 'different-message' })]));
   assert.equal(chat.mergeLiveMessages([message(3)], [message(3)])[0].id, 'message-3');
+});
+
+test('the unread divider uses the opening snapshot and skips the viewer’s own messages', () => {
+  const snapshot = { viewerId: viewer.userId, unread: 2, latestSeq: 4 };
+  const messages = [message(1), message(2), message(3, { authorId: viewer.userId }), message(4)];
+  assert.equal(firstUnreadLiveMessageId(messages, snapshot), 'message-2');
+  assert.equal(firstUnreadLiveMessageId([...messages, message(5)], snapshot), 'message-2');
+  assert.equal(firstUnreadLiveMessageId(messages, { ...snapshot, unread: 0 }), undefined);
+});
+
+test('the unread divider waits for older history if the boundary is outside the current page', () => {
+  const snapshot = { viewerId: viewer.userId, unread: 3, latestSeq: 4 };
+  const newest = [message(3), message(4)];
+  assert.equal(firstUnreadLiveMessageId(newest, snapshot), undefined);
+  assert.equal(firstUnreadLiveMessageId([message(1), message(2), ...newest], snapshot), 'message-2');
+});
+
+test('the unread divider waits for missing messages covered by the opening summary', () => {
+  const snapshot = { viewerId: viewer.userId, unread: 2, latestSeq: 4 };
+  assert.equal(firstUnreadLiveMessageId([message(1), message(2), message(3)], snapshot), undefined);
+  assert.equal(firstUnreadLiveMessageId([message(2), message(4)], snapshot), undefined);
+  assert.equal(firstUnreadLiveMessageId([message(2), message(3), message(4)], snapshot), 'message-3');
 });

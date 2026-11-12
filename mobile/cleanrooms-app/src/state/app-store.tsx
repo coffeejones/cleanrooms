@@ -26,7 +26,11 @@ export type AppActions = {
   setPreference: (key: keyof Preferences, value: boolean) => Result;
   resetDemo: () => Result;
 };
-type StoreValue = { state: AppState; ready: boolean; self: Person; actions: AppActions; storageError: string | null };
+type StoreValue = {
+  state: AppState; ready: boolean; self: Person; actions: AppActions; storageError: string | null;
+  demoChatDrafts: ReadonlyMap<string, string>;
+  setDemoChatDraft: (roomId: string, text: string) => void;
+};
 const StoreContext = createContext<StoreValue | null>(null);
 const NowContext = createContext<number>(Date.now());
 
@@ -52,6 +56,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => createDemoState());
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [demoChatDrafts, setDemoChatDrafts] = useState<ReadonlyMap<string, string>>(() => new Map());
   const stateRef = useRef(state), readyRef = useRef(false), canPersist = useRef(true), mounted = useRef(true);
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
 
@@ -128,8 +133,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!readyRef.current) return unavailable();
     const seed = createDemoState();
     canPersist.current = true; stateRef.current = seed; setState(seed); setStorageError(null);
+    setDemoChatDrafts(new Map());
     return { ok: true };
   }, []);
+  const setDemoChatDraft = useCallback((roomId: string, text: string) => {
+    if (auth.mode !== 'demo') return;
+    const { rooms, selfId } = stateRef.current;
+    if (!rooms.some(room => room.id === roomId && room.memberIds.includes(selfId))) return;
+    setDemoChatDrafts(previous => {
+      if ((previous.get(roomId) ?? '') === text) return previous;
+      const next = new Map(previous);
+      if (text) next.set(roomId, text);
+      else next.delete(roomId);
+      return next;
+    });
+  }, [auth.mode]);
   const actions = useMemo<AppActions>(() => ({
     clockIn,
     clockOut: (shiftId, comment) => dispatch({ type: 'clockOut', shiftId, comment }),
@@ -146,7 +164,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     resetDemo,
   }), [clockIn, dispatch, resetDemo]);
   const self = state.people.find(p => p.id === state.selfId)!;
-  const value = useMemo(() => ({ state, ready, self, actions, storageError }), [state, ready, self, actions, storageError]);
+  const value = useMemo(() => ({ state, ready, self, actions, storageError, demoChatDrafts, setDemoChatDraft }),
+    [state, ready, self, actions, storageError, demoChatDrafts, setDemoChatDraft]);
   return <StoreContext value={value}><AppClock state={state} live={auth.mode === 'signedIn'} onDayChange={onDayChange}>{children}</AppClock></StoreContext>;
 }
 

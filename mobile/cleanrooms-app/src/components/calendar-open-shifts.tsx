@@ -23,7 +23,7 @@ export function CalendarOpenShifts({ shifts }: { shifts: Shift[] }) {
         <Txt accessibilityRole="header" size={16} weight="700" style={styles.title}>Kommende vagter</Txt>
       </View>
       <View style={cardStyles.divider}>
-        {groups.size === 0 ? <EmptyState title="Ingen ledige vagter" /> : (
+        {groups.size === 0 ? <EmptyState title="Ingen ledige vagter" body="Nye ledige vagter vises her. Kig gerne forbi igen senere." /> : (
           Array.from(groups, ([date, dayShifts], groupIndex) => (
             <View key={date} style={groupIndex > 0 && cardStyles.divider}>
               <View style={styles.dateHeading}>

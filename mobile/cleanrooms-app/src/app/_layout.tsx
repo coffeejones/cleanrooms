@@ -7,6 +7,7 @@ import { cardColors } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { PushNotificationsProvider } from '@/notifications/push-notifications';
 import { MotionPreference, useReduceMotionPreference } from '@/components/motion-preference';
+import { FlowLayout } from '@/components/flow-screen';
 import { Txt } from '@/components/ui';
 import '@/global.css';
 
@@ -16,6 +17,10 @@ function AppContent() {
   const { state } = useMobileAuth();
   const reduceMotion = useReduceMotionPreference();
   const isDemo = state.mode === 'demo';
+  const detailTransition = {
+    animation: reduceMotion ? 'none' : process.env.EXPO_OS === 'ios' ? 'simple_push' : 'default',
+    animationDuration: 220,
+  } as const;
   if (state.mode === 'loading' || (isDemo && !ready)) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.white }}><Txt weight="600" size={22}>CleanRooms</Txt><Txt color={colors.muted}>{isDemo ? 'Åbner demoen…' : 'Åbner CleanRooms…'}</Txt></View>;
   return <View style={{ flex: 1, backgroundColor: colors.white }}>
     {isDemo && storageError && <View accessibilityRole="alert" style={{ backgroundColor: '#fff0e5', padding: 10 }}><Txt size={12}>{storageError}</Txt></View>}
@@ -25,21 +30,22 @@ function AppContent() {
       </Stack.Protected>
       <Stack.Protected guard={isDemo || state.mode === 'signedIn'}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ title: 'Indstillinger' }} />
-        <Stack.Screen name="chat/[id]" options={{ title: 'Samtale', headerStyle: { backgroundColor: colors.white } }} />
-        <Stack.Screen name="notifications" options={{ title: 'Notifikationer' }} />
+        <Stack.Screen name="settings" options={{ ...detailTransition, title: 'Indstillinger' }} />
+        <Stack.Screen name="chat/[id]" options={{ ...detailTransition, title: 'Samtale', headerStyle: { backgroundColor: colors.white } }} />
+        <Stack.Screen name="notifications" options={{ ...detailTransition, title: 'Notifikationer' }} />
         <Stack.Screen name="shift/[id]" options={{
+          ...detailTransition,
           title: 'Din vagt',
-          animation: reduceMotion ? 'none' : process.env.EXPO_OS === 'ios' ? 'simple_push' : 'fade',
-          animationDuration: 230,
+          animation: !reduceMotion && process.env.EXPO_OS === 'android' ? 'fade' : detailTransition.animation,
+          animationDuration: 170,
         }} />
       </Stack.Protected>
       <Stack.Protected guard={state.mode === 'signedIn'}>
-        <Stack.Screen name="account" options={{ title: 'Indstillinger' }} />
+        <Stack.Screen name="account" options={{ ...detailTransition, title: 'Indstillinger' }} />
       </Stack.Protected>
     </Stack>
   </View>;
 }
 export default function RootLayout() {
-  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><PushNotificationsProvider><AppProvider><StatusBar style="dark" /><MotionPreference><AppContent /></MotionPreference></AppProvider></PushNotificationsProvider></MobileAuthProvider></ThemeProvider>;
+  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><PushNotificationsProvider><AppProvider><StatusBar style="dark" /><MotionPreference><FlowLayout><AppContent /></FlowLayout></MotionPreference></AppProvider></PushNotificationsProvider></MobileAuthProvider></ThemeProvider>;
 }

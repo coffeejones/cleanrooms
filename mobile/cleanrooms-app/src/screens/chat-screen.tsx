@@ -1,18 +1,21 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useMobileAuth } from '@/auth/mobile-auth';
 import LiveChatScreen from '@/screens/live-chat-screen';
 
-import { Avatar, EmptyState, Icon, Row } from '@/components/ui';
+import { FlowScreen } from '@/components/flow-screen';
+import { ChatRoomPreview } from '@/components/chat-room-preview';
+import { ChatRoomTitle, chatRoomSearchPattern } from '@/components/chat-room-title';
+import { ChatSearchField, useChatSearchMotion } from '@/components/chat-search-field';
+import { PressFeedback } from '@/components/press-feedback';
+import { Avatar, EmptyState, Row } from '@/components/ui';
 import { cardColors, cardStyles } from '@/constants/card-styles';
 import { colors as c } from '@/constants/palette';
+import { chatListTimestamp } from '@/domain/chat-list-timestamp';
 import { useAppData } from '@/state/app-store';
-
-function messageTime(value?: string) {
-  if (!value) return '';
-  return new Intl.DateTimeFormat('da-DK', { timeZone: 'Europe/Copenhagen', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
-}
+import { chatDraftPreview } from '@/state/private-draft-store';
 
 export default function ChatScreen() {
   const { state } = useMobileAuth();
@@ -21,85 +24,76 @@ export default function ChatScreen() {
 }
 
 function DemoChatScreen() {
-  const { state } = useAppData();
+  const { state, demoChatDrafts } = useAppData();
   const [query, setQuery] = useState('');
+  const searchMotion = useChatSearchMotion(query);
+  const pattern = useMemo(() => chatRoomSearchPattern(query), [query]);
   const rooms = useMemo(() => state.rooms
     .filter((room) => room.memberIds.includes(state.selfId))
-    .filter((room) => `${room.name} ${room.subtitle}`.toLocaleLowerCase('da-DK').includes(query.toLocaleLowerCase('da-DK'))), [query, state.rooms, state.selfId]);
+    .filter((room) => !pattern || pattern.test(`${room.name} ${room.subtitle}`)), [pattern, state.rooms, state.selfId]);
 
   return (
-    <FlatList
-      contentInsetAdjustmentBehavior="automatic"
-      style={styles.canvas}
-      contentContainerStyle={styles.content}
-      data={rooms}
-      keyExtractor={(room) => room.id}
-      keyboardShouldPersistTaps="handled"
-      ListHeaderComponent={
-        <View style={[cardStyles.raisedFrame, styles.searchFrame]}>
-          <Row gap={10} style={[cardStyles.raisedSurface, styles.search]}>
-            <Icon name="search" size={17} color={c.muted} />
-            <TextInput
-              accessibilityLabel="Søg efter chatrum"
-              placeholder="Søg i samtaler"
-              placeholderTextColor={c.muted}
-              value={query}
-              onChangeText={setQuery}
-              autoCorrect={false}
-              returnKeyType="search"
-              style={styles.searchInput}
-            />
-          </Row>
-        </View>
-      }
-      ListEmptyComponent={
-        <View style={cardStyles.listSurface}>
-          <EmptyState icon="chat" title={query ? 'Ingen samtaler matcher' : 'Ingen samtaler'} />
-        </View>
-      }
-      renderItem={({ item: room, index }) => {
-        const messages = state.messages.filter((message) => message.roomId === room.id).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-        const last = messages[messages.length - 1];
-        const author = last ? state.people.find((person) => person.id === last.personId) : undefined;
-        const unread = messages.filter((message) => message.personId !== state.selfId && !message.read).length;
-        const initials = room.name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
-        return (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}`}
-            onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
-            style={({ pressed }) => [
-              styles.room,
-              index === 0 ? styles.firstRoom : cardStyles.divider,
-              index === rooms.length - 1 && styles.lastRoom,
-              pressed && styles.roomPressed,
-            ]}>
-            <Avatar initials={initials} size={40} />
-            <View style={styles.roomDetails}>
-              <Row gap={10}>
-                <Text numberOfLines={1} style={styles.roomName}>{room.name}</Text>
-                <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{messageTime(last?.createdAt)}</Text>
-              </Row>
-              <Row gap={10}>
-                <Text numberOfLines={2} style={[styles.preview, unread > 0 && styles.unreadPreview]}>
-                  {last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle}
-                </Text>
-                {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>}
-              </Row>
-            </View>
-          </Pressable>
-        );
-      }}
-    />
+    <FlowScreen>
+      <FlatList
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.canvas}
+        contentContainerStyle={styles.content}
+        data={rooms}
+        keyExtractor={(room) => room.id}
+        keyboardShouldPersistTaps="handled"
+        ListHeaderComponent={<ChatSearchField value={query} onChangeText={setQuery} />}
+        ListEmptyComponent={
+          <Animated.View style={[cardStyles.listSurface, searchMotion]}>
+            <EmptyState icon="chat" compact={Boolean(query)}
+              title={query ? 'Ingen samtaler fundet' : 'Her begynder samtalen'}
+              body={query ? 'Prøv et andet navn eller en anden afdeling.' : 'Dine samtaler med teamet samles her.'} />
+          </Animated.View>
+        }
+        renderItem={({ item: room, index }) => {
+          const messages = state.messages.filter((message) => message.roomId === room.id).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+          const last = messages[messages.length - 1];
+          const author = last ? state.people.find((person) => person.id === last.personId) : undefined;
+          const unread = messages.filter((message) => message.personId !== state.selfId && !message.read).length;
+          const draft = chatDraftPreview(demoChatDrafts.get(room.id) ?? '');
+          const timestamp = chatListTimestamp(last?.createdAt, state.today);
+          const preview = last ? `${last.personId === state.selfId ? 'Dig' : author?.name.split(' ')[0] ?? 'Kollega'}: ${last.text}` : room.subtitle;
+          const initials = room.name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
+          return (
+            <Animated.View style={searchMotion}>
+              <PressFeedback
+                accessibilityRole="button"
+                accessibilityLabel={`${room.name}, ${unread ? `${unread} ulæste beskeder` : 'ingen ulæste beskeder'}${draft ? ', kladde' : ''}${timestamp ? `, seneste besked ${timestamp}` : ''}`}
+                haptic="light"
+                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: room.id } })}
+                style={({ pressed }) => [
+                  styles.room,
+                  index === 0 ? styles.firstRoom : cardStyles.divider,
+                  index === rooms.length - 1 && styles.lastRoom,
+                  pressed && styles.roomPressed,
+                ]}>
+                <Avatar initials={initials} size={40} />
+                <View style={styles.roomDetails}>
+                  <Row gap={10}>
+                    <ChatRoomTitle name={room.name} pattern={pattern} style={styles.roomName} />
+                    {timestamp ? <Text style={[styles.time, unread > 0 && styles.unreadTime]}>{timestamp}</Text> : null}
+                  </Row>
+                  <Row gap={10}>
+                    <ChatRoomPreview draft={draft} text={preview} style={[styles.preview, !draft && unread > 0 && styles.unreadPreview]} />
+                    {unread > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>}
+                  </Row>
+                </View>
+              </PressFeedback>
+            </Animated.View>
+          );
+        }}
+      />
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  canvas: { flex: 1, backgroundColor: cardColors.canvas },
+  canvas: { flex: 1 },
   content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32 },
-  searchFrame: { marginBottom: 16 },
-  search: { paddingHorizontal: 13 },
-  searchInput: { flex: 1, minHeight: 46, paddingVertical: 10, color: c.ink, fontSize: 16 },
   room: {
     flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 68,
     paddingVertical: 13, paddingHorizontal: 14,

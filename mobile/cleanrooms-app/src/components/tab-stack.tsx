@@ -23,7 +23,7 @@ export default function TabStack({ name, title }: { name: string; title: string 
       opacity.set(1);
     } else if (switchedToTab) {
       opacity.set(0.82);
-      opacity.set(withTiming(1, { duration: 170, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never }));
+      opacity.set(withTiming(1, { duration: 110, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.Never }));
     }
   }, [opacity, reduceMotion, selected]);
 

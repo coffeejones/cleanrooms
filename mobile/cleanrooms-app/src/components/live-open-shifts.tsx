@@ -65,8 +65,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
   }
 
   return <View style={cardStyles.listSurface}>
-    <View style={styles.heading}>
-      <Txt size={16} weight="600" accessibilityRole="header">Ledige vagter</Txt>
+    <View style={styles.period}>
       <Txt size={12} color={colors.muted}>{dateLabel(from)} – {dateLabel(to)}</Txt>
     </View>
     {!!(error || resource.error) && <Row gap={8} style={styles.feedback} accessibilityLiveRegion="polite">
@@ -74,11 +73,14 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
       <Pressable accessibilityRole="button" onPress={resource.refresh} style={styles.retry}><Txt size={13} weight="600" color={colors.accent}>Prøv igen</Txt></Pressable>
     </Row>}
     {resource.loading && !resource.data ? <View style={styles.loading}><ActivityIndicator color={colors.accent} accessibilityLabel="Henter ledige vagter" /></View>
-      : shifts.length === 0 && !resource.error ? <EmptyState title="Ingen ledige vagter" /> : shifts.map((shift, index) => {
+      : shifts.length === 0 && !resource.error ? <EmptyState title="Ingen ledige vagter" body="Nye ledige vagter vises her. Kig gerne forbi igen senere." /> : shifts.map((shift, index) => {
+        const startsDay = shifts[index - 1]?.date !== shift.date;
         const sent = requested.has(shift.id);
         const unavailable = unavailableDates.has(shift.date) || shift.end < shift.start && shift.end !== '00:00' && unavailableDates.has(addDays(shift.date, 1));
         return <View key={shift.id} style={[styles.shift, index > 0 && cardStyles.divider]}>
-          <Txt size={12} weight="500" color={colors.muted}>{dateLabel(shift.date, { weekday: 'long', month: 'long' })}</Txt>
+          {startsDay && <Txt accessibilityRole="header" size={13} weight="600" color={colors.muted}>
+            {dateLabel(shift.date, { weekday: 'long', month: 'long' })}
+          </Txt>}
           <Row gap={12} style={{ alignItems: 'center' }}>
             <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
               <Txt size={17} weight="600">{shiftTimeLabel(shift)}</Txt>
@@ -99,7 +101,7 @@ export function LiveOpenShifts({ from, to, unavailableDates }: { from: string; t
 }
 
 const styles = StyleSheet.create({
-  heading: { paddingHorizontal: 16, paddingVertical: 14, gap: 3, backgroundColor: cardColors.section },
+  period: { paddingHorizontal: 16, paddingVertical: 14, backgroundColor: cardColors.section },
   shift: { paddingHorizontal: 16, paddingVertical: 14, gap: 7 },
   feedback: { paddingHorizontal: 16, paddingVertical: 8 },
   retry: { minHeight: 44, paddingHorizontal: 8, justifyContent: 'center' },

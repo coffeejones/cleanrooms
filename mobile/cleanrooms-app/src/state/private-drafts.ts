@@ -9,7 +9,71 @@ const drafts = new PrivateDraftStore({
   write: (key, value) => SecureStore.setItemAsync(key, value, options),
   remove: key => SecureStore.deleteItemAsync(key, options),
 }, randomUUID);
-export function clearEmployeeDrafts() { return drafts.clear(); }
+const previewListeners = new Set<() => void>();
+const emptyPreviews: ReadonlyMap<string, string> = new Map();
+
+function refreshPreviews() {
+  for (const listener of previewListeners) listener();
+}
+
+export function clearEmployeeDrafts() {
+  const clearing = drafts.clear();
+  refreshPreviews();
+  return clearing;
+}
+
+export function useEmployeeDraftPreviews(
+  key: string,
+  rooms: readonly { id: string }[] | undefined,
+  scopeForRoom: (roomId: string) => string,
+  active: boolean,
+) {
+  const [snapshot, setSnapshot] = useState<{ key: string; lease: number; previews: ReadonlyMap<string, string> }>();
+  // Chat polling replaces room objects even when the list of room IDs is unchanged.
+  const roomIds = JSON.stringify(rooms?.map(room => room.id) ?? []);
+
+  useLayoutEffect(() => {
+    if (!key || !active || roomIds === '[]') return;
+    const lease = drafts.lease();
+    let version = 0;
+    let closed = false;
+    const ids: string[] = JSON.parse(roomIds);
+    const hashes = Promise.all(ids.map(async id =>
+      [id, await digestStringAsync(CryptoDigestAlgorithm.SHA256, scopeForRoom(id))] as const));
+
+    async function refresh() {
+      const request = ++version;
+      if (drafts.lease() !== lease) {
+        setSnapshot(undefined);
+        return;
+      }
+      try {
+        const entries = await hashes;
+        if (closed || request !== version || drafts.lease() !== lease) return;
+        const stored = await drafts.readPreviews(entries.map(([, hash]) => hash), lease);
+        if (closed || request !== version || drafts.lease() !== lease) return;
+        const previews = new Map<string, string>();
+        for (const [roomId, hash] of entries) {
+          const text = stored.get(hash);
+          if (text) previews.set(roomId, text);
+        }
+        setSnapshot({ key, lease, previews });
+      } catch {
+        if (!closed && request === version) setSnapshot(undefined);
+      }
+    }
+
+    const listener = () => { void refresh(); };
+    previewListeners.add(listener);
+    listener();
+    return () => {
+      closed = true;
+      previewListeners.delete(listener);
+    };
+  }, [active, key, roomIds, scopeForRoom]);
+
+  return snapshot?.key === key && snapshot.lease === drafts.lease() ? snapshot.previews : emptyPreviews;
+}
 
 type Composer = { key: string; text: string; loading: boolean; error?: string };
 type Local = { key: string; hash: Promise<string>; expiresAt: number; lease: number; revision: number; savedRevision: number; hydrated: boolean; draft: EmployeeDraft; loading: Promise<void>; writing?: Promise<void> };
@@ -27,6 +91,7 @@ export function useEmployeeDraft(key: string, persistentScope: string, expiresAt
         value.writing = (async () => {
           await drafts.save(await value.hash, snapshot, value.expiresAt, value.lease);
           value.savedRevision = revision;
+          if (value.lease === drafts.lease()) refreshPreviews();
         })().finally(() => { value.writing = undefined; });
       }
       await value.writing;

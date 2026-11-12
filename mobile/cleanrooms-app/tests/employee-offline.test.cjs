@@ -62,7 +62,7 @@ function resources(auth,clockDate=Date){const h=hooks(),mod=loadModule('src/stat
 test('actual published hook restores a completed snapshot on network failure and rejects revoked-authority fallback',async()=>{
  const {cache}=await fixture();await cache.save(scope,'schedule',period,[shift()],0);let writes=0;
  const auth={state:{mode:'signedIn',session},sessionEpoch:1,offlineLease:0,readOfflineResource:(kind,key,lease)=>cache.read(scope,kind,key,lease),saveOfflineResource:async()=>{writes++;}};
- const h=resources(auth);let error=network();const load=async()=>{throw error;};h.render(load);await tick();let view=h.render(load);assert.equal(view.offline,true);assert.equal(view.data[0].shift.id,'own-night');assert.equal(view.error,undefined);assert.equal(writes,0);
+ const h=resources(auth,class extends Date{static now(){return now;}});let error=network();const load=async()=>{throw error;};h.render(load);await tick();let view=h.render(load);assert.equal(view.offline,true);assert.equal(view.data[0].shift.id,'own-night');assert.equal(view.error,undefined);assert.equal(writes,0);
  error=new MobileAuthError('forbidden',403,'No access');view.refresh();await tick();view=h.render(load);assert.equal(view.data,undefined);assert.equal(view.offline,false);assert.equal(view.error,'No access');h.unmount();
 });
 test('partial pagination and late old-account replies never persist or expose an incomplete/new-account plan',async()=>{

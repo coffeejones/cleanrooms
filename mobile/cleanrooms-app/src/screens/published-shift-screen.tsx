@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMobileAuth } from '@/auth/mobile-auth';
 import { mobileAuthOrigin, MobileAuthError, type PublishedShiftDetail, type ShiftTimeEntry, type ShiftTimeOperation } from '@/auth/mobile-auth-api';
+import { FlowScreen } from '@/components/flow-screen';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
+import { ShiftAddressRow } from '@/components/shift-address-row';
 import { WorksiteInformation } from '@/components/worksite-info';
 import { ShiftActionButton, ShiftConfirmation, type ShiftConfirmationKind } from '@/components/shift-confirmation';
 import { Avatar, Button, EmptyState, Icon, Row, Surface, Txt } from '@/components/ui';
@@ -67,8 +69,11 @@ export default function PublishedShiftScreen() {
   const coworkerPage = extraCoworkers?.shiftId === id && extraCoworkers.source === coworkers.data && extraCoworkers.generation === coworkers.generation
     ? extraCoworkers.page : coworkers.data;
   // A successful refresh is authoritative even if the checklist structure is unchanged.
-  const completed = taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
-    ? taskReceipt.completedTaskIds : detail?.completedTaskIds ?? [];
+  const completed = new Set(taskReceipt?.shiftId === id && taskReceipt.checklistToken === detail?.checklistToken && taskReceipt.source === detail
+    ? taskReceipt.completedTaskIds : detail?.completedTaskIds);
+  const checklist = detail?.shift.checklist ?? [];
+  const done = checklist.filter(task => completed.has(task.id)).length;
+  const checklistComplete = checklist.length > 0 && done === checklist.length;
   const lastSaved = saved?.shiftId === id ? saved.entry : undefined;
   const entry = lastSaved && lastSaved.version > (detail?.entry?.version ?? 0) ? lastSaved : detail?.entry;
   useEffect(() => {
@@ -152,7 +157,7 @@ export default function PublishedShiftScreen() {
     if (offline || taskLock.current || !detail?.checklistToken) return;
     taskLock.current = true; setTaskPending(true); setTaskError(undefined);
     try {
-      const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.includes(taskId), checklistToken: detail.checklistToken });
+      const result = await employeeRequest<{ completedTaskIds: string[] }>({ action: 'employeeChecklist', shiftId: id, taskId, checked: !completed.has(taskId), checklistToken: detail.checklistToken });
       setTaskReceipt({ shiftId: id, checklistToken: detail.checklistToken, source: detail, completedTaskIds: result.completedTaskIds });
       resource.refresh();
     } catch (error) {
@@ -190,117 +195,144 @@ export default function PublishedShiftScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: cardColors.canvas }}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}
-        refreshControl={<RefreshControl refreshing={resource.refreshing} onRefresh={refreshShift} />}
-      >
-        <ScheduleFeedback loading={resource.loading && detail === undefined} error={resource.error} onRetry={refreshShift} offline={resource.offline} savedAt={resource.savedAt} />
-        {detail?.offlineSummary && <Txt size={12} color={colors.muted}>Beskrivelse og tjekliste kræver forbindelse.</Txt>}
-        {detail === null && <EmptyState title="Vagten er ikke længere udgivet til dig" />}
-        {detail && <>
-          <Surface style={[cardStyles.listSurface, { gap: 20, padding: 18 }]}>
-            <View style={{ gap: 10 }}>
-              <Row gap={12} style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                <Txt size={13} weight="500" color={colors.muted} style={{ flexShrink: 1 }}>
-                  {dateLabel(detail.shift.date, { weekday: 'long', month: 'long' })}
+      <FlowScreen>
+        <ScrollView contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}
+          refreshControl={<RefreshControl refreshing={resource.refreshing} onRefresh={refreshShift} />}
+        >
+          <ScheduleFeedback loading={resource.loading && detail === undefined} error={resource.error} onRetry={refreshShift} offline={resource.offline} savedAt={resource.savedAt} />
+          {detail?.offlineSummary && <Txt size={12} color={colors.muted}>Beskrivelse og tjekliste kræver forbindelse.</Txt>}
+          {detail === null && <EmptyState title="Vagten er ikke længere udgivet til dig" />}
+          {detail && <>
+            <Surface style={[cardStyles.listSurface, { gap: 20, padding: 18 }]}>
+              <View style={{ gap: 10 }}>
+                <Row gap={12} style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                  <Txt size={13} weight="500" color={colors.muted} style={{ flexShrink: 1 }}>
+                    {dateLabel(detail.shift.date, { weekday: 'long', month: 'long' })}
+                  </Txt>
+                  <Row gap={5}>
+                    {previousTime && <ShiftTimeChange shift={{ ...detail.shift, previousTime }} />}
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusColor }} />
+                    <Txt size={12} weight="500" color={colors.muted}>{status}</Txt>
+                  </Row>
+                </Row>
+                <Txt size={32} weight="600" accessibilityRole="header" style={{ letterSpacing: -1.2 }}>
+                  {shiftTimeLabel(detail.shift)}
                 </Txt>
-                <Row gap={5}>
-                  {previousTime && <ShiftTimeChange shift={{ ...detail.shift, previousTime }} />}
-                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusColor }} />
-                  <Txt size={12} weight="500" color={colors.muted}>{status}</Txt>
+              </View>
+              {!offline && timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
+              <View style={{ gap: 7 }}>
+                <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
+                <ShiftAddressRow address={detail.site.address} />
+                <WorksiteInformation key={detail.site.id} information={showWorksiteInfo ? detail.site.worksiteInfo : undefined} />
+                {detail.shift.breakMinutes > 0 && <Txt size={13} color={colors.muted}>
+                  Planlagt pause · {minutesLabel(detail.shift.breakMinutes)}
+                </Txt>}
+              </View>
+              <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}><Txt size={12} color={colors.muted}>{pay?.kind === 'registered' ? 'Løn før skat' : 'Forventet løn før skat'}</Txt><Txt size={16} weight="600">{pay && !pay.unavailableReason ? currency(pay.totalCents) : '—'}</Txt></Row>
+              {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
+              {!offline && leaves.loading && !leaves.data && <Txt size={12} color={colors.muted}>Henter friønske…</Txt>}
+              {!offline && leaves.error && <Pressable accessibilityRole="button" onPress={leaves.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.danger}>Friønsket kunne ikke hentes. Prøv igen.</Txt></Pressable>}
+              {leaveRequest && <View style={{ gap: 5 }}>
+                <Txt size={13} weight="500" color={leaveRequest.status === 'rejected' ? colors.danger : colors.muted}>{leaveRequest.type === 'Friønske' ? 'Friønske' : 'Fravær'} {leaveRequest.status === 'pending' ? 'afventer godkendelse' : leaveRequest.status === 'approved' ? 'godkendt' : 'afvist'}.</Txt>
+                {!!leaveRequest.decision?.reason && <Txt size={13} color={colors.muted}>{leaveRequest.decision.reason}</Txt>}
+              </View>}
+              {!offline && !entry && leaves.data && !leaves.loading && !leaves.error && (!leaveRequest || leaveRequest.status === 'rejected') && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>{leaveRequest ? 'Ønsk fri igen' : 'Ønsk fri'}</Txt></Pressable>}
+              {!offline && !entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
+              {entry?.status === 'rejected' && <View style={{ gap: 10 }}>
+                <Txt size={15} weight="600">Timer sendt retur</Txt>
+                {!!entry.rejectionReason && <Txt size={14} color={colors.muted}>{entry.rejectionReason}</Txt>}
+                {!!entry.comment && <Txt size={13} color={colors.muted}>Din kommentar: {entry.comment}</Txt>}
+                {!entry.clockOut && <Txt size={13} color={colors.muted}>Den manglende udstempling afklares af planlæggeren.</Txt>}
+                <TextInput editable={!offline} accessibilityLabel="Kommentar til genindsendelse" value={returnComment} onChangeText={setReturnComment} multiline placeholder="Svar til planlæggeren" placeholderTextColor={colors.muted} style={{ minHeight: 86, padding: 12, color: colors.ink, borderColor: colors.line, borderWidth: 1, borderRadius: 8, textAlignVertical: 'top' }} />
+                <Button label={busy ? 'Sender…' : entry.clockOut ? 'Send timer igen' : 'Send forklaring'} disabled={offline || busy || !returnComment.trim()} onPress={() => { void register('submit', returnComment.trim()).then(result => { if (result.ok) setReturnComment(''); else setActionError(result.error); }); }} />
+                {actionError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
+              </View>}
+              {entry?.clockIn && <View style={[cardStyles.divider, { paddingTop: 18, gap: 12 }]}>
+                <Row gap={16} style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
+                    <Txt size={12} color={colors.muted}>Stemplet ind</Txt>
+                    <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockIn))}</Txt>
+                  </View>
+                  {entry.clockOut && <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
+                    <Txt size={12} color={colors.muted}>Stemplet ud</Txt>
+                    <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockOut))}</Txt>
+                  </View>}
                 </Row>
-              </Row>
-              <Txt size={32} weight="600" accessibilityRole="header" style={{ letterSpacing: -1.2 }}>
-                {shiftTimeLabel(detail.shift)}
-              </Txt>
-            </View>
-            {!offline && timeChange.error && <Pressable accessibilityRole="button" onPress={timeChange.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.muted}>Vagtændringer kunne ikke hentes. Prøv igen.</Txt></Pressable>}
-            <View style={{ gap: 7 }}>
-              <Txt size={19} weight="600" style={{ letterSpacing: -0.35 }}>{detail.site.name}</Txt>
-              {detail.site.address ? <Row gap={7} style={{ alignItems: 'flex-start' }}>
-                <Icon name="map-pin" color={colors.muted} size={14} />
-                <Txt size={13} color={colors.muted} style={{ flex: 1 }}>{detail.site.address}</Txt>
-              </Row> : null}
-              <WorksiteInformation key={detail.site.id} information={showWorksiteInfo ? detail.site.worksiteInfo : undefined} />
-              {detail.shift.breakMinutes > 0 && <Txt size={13} color={colors.muted}>
-                Planlagt pause · {minutesLabel(detail.shift.breakMinutes)}
-              </Txt>}
-            </View>
-            <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}><Txt size={12} color={colors.muted}>{pay?.kind === 'registered' ? 'Løn før skat' : 'Forventet løn før skat'}</Txt><Txt size={16} weight="600">{pay && !pay.unavailableReason ? currency(pay.totalCents) : '—'}</Txt></Row>
-            {pay?.unavailableReason && <Txt size={12} color={colors.muted}>{pay.unavailableReason}</Txt>}
-            {!offline && leaves.loading && !leaves.data && <Txt size={12} color={colors.muted}>Henter friønske…</Txt>}
-            {!offline && leaves.error && <Pressable accessibilityRole="button" onPress={leaves.refresh} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={12} color={colors.danger}>Friønsket kunne ikke hentes. Prøv igen.</Txt></Pressable>}
-            {leaveRequest && <View style={{ gap: 5 }}>
-              <Txt size={13} weight="500" color={leaveRequest.status === 'rejected' ? colors.danger : colors.muted}>{leaveRequest.type === 'Friønske' ? 'Friønske' : 'Fravær'} {leaveRequest.status === 'pending' ? 'afventer godkendelse' : leaveRequest.status === 'approved' ? 'godkendt' : 'afvist'}.</Txt>
-              {!!leaveRequest.decision?.reason && <Txt size={13} color={colors.muted}>{leaveRequest.decision.reason}</Txt>}
-            </View>}
-            {!offline && !entry && leaves.data && !leaves.loading && !leaves.error && (!leaveRequest || leaveRequest.status === 'rejected') && shiftInterval(detail.shift).start > now && <Pressable accessibilityRole="button" onPress={() => setLeave(true)} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={14} weight="600" color={colors.accent}>{leaveRequest ? 'Ønsk fri igen' : 'Ønsk fri'}</Txt></Pressable>}
-            {!offline && !entry && shiftInterval(detail.shift).start > now && <ShiftOffer shiftId={id} date={detail.shift.date} />}
-            {entry?.status === 'rejected' && <View style={{ gap: 10 }}>
-              <Txt size={15} weight="600">Timer sendt retur</Txt>
-              {!!entry.rejectionReason && <Txt size={14} color={colors.muted}>{entry.rejectionReason}</Txt>}
-              {!!entry.comment && <Txt size={13} color={colors.muted}>Din kommentar: {entry.comment}</Txt>}
-              {!entry.clockOut && <Txt size={13} color={colors.muted}>Den manglende udstempling afklares af planlæggeren.</Txt>}
-              <TextInput editable={!offline} accessibilityLabel="Kommentar til genindsendelse" value={returnComment} onChangeText={setReturnComment} multiline placeholder="Svar til planlæggeren" placeholderTextColor={colors.muted} style={{ minHeight: 86, padding: 12, color: colors.ink, borderColor: colors.line, borderWidth: 1, borderRadius: 8, textAlignVertical: 'top' }} />
-              <Button label={busy ? 'Sender…' : entry.clockOut ? 'Send timer igen' : 'Send forklaring'} disabled={offline || busy || !returnComment.trim()} onPress={() => { void register('submit', returnComment.trim()).then(result => { if (result.ok) setReturnComment(''); else setActionError(result.error); }); }} />
-              {actionError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{actionError}</Txt>}
-            </View>}
-            {entry?.clockIn && <View style={[cardStyles.divider, { paddingTop: 18, gap: 12 }]}>
-              <Row gap={16} style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
-                  <Txt size={12} color={colors.muted}>Stemplet ind</Txt>
-                  <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockIn))}</Txt>
-                </View>
-                {entry.clockOut && <View style={{ gap: 4, flexGrow: 1, flexBasis: '44%' }}>
-                  <Txt size={12} color={colors.muted}>Stemplet ud</Txt>
-                  <Txt size={16} weight="600">{clockTimeLabel(Date.parse(entry.clockOut))}</Txt>
-                </View>}
-              </Row>
-              {running && <Pressable
+                {running && <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: offline || busy }}
+                  onPress={() => void togglePause()}
+                  disabled={offline || busy}
+                  style={({ pressed }) => ({
+                    alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 12, justifyContent: 'center',
+                    backgroundColor: colors.white, borderWidth: 1, borderColor: cardColors.border,
+                    borderRadius: 8, borderCurve: 'continuous', opacity: offline || busy ? 0.45 : pressed ? 0.65 : 1,
+                  })}
+                >
+                  <Row gap={8}>
+                    <Icon name={entry.status === 'paused' ? 'play' : 'pause'} size={15} color={colors.ink} />
+                    <Txt size={14} weight="600">{entry.status === 'paused' ? 'Genoptag' : 'Start pause'}</Txt>
+                  </Row>
+                </Pressable>}
+              </View>}
+            </Surface>
+            {!!(detail.shift.description || checklist.length) && <Surface style={[cardStyles.listSurface, { gap: 14, padding: 18 }]}>
+              <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ disabled: offline || busy }}
-                onPress={() => void togglePause()}
-                disabled={offline || busy}
-                style={({ pressed }) => ({
-                  alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 12, justifyContent: 'center',
-                  backgroundColor: colors.white, borderWidth: 1, borderColor: cardColors.border,
-                  borderRadius: 8, borderCurve: 'continuous', opacity: offline || busy ? 0.45 : pressed ? 0.65 : 1,
-                })}
+                accessibilityState={{ expanded: descriptionOpen }}
+                accessibilityLabel={checklist.length ? `Beskrivelse, ${done} af ${checklist.length} opgaver udført` : 'Beskrivelse'}
+                onPress={() => setDescriptionOpen(value => !value)}
+                style={{ minHeight: 44, justifyContent: 'center' }}
               >
-                <Row gap={8}>
-                  <Icon name={entry.status === 'paused' ? 'play' : 'pause'} size={15} color={colors.ink} />
-                  <Txt size={14} weight="600">{entry.status === 'paused' ? 'Genoptag' : 'Start pause'}</Txt>
+                <Row gap={10}>
+                  <Icon name="file" size={18} color={colors.muted} />
+                  <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
+                  {!!checklist.length && <Txt size={12} color={colors.muted}>{done} af {checklist.length}</Txt>}
+                  <Row gap={6}>
+                    {checklistComplete && <Icon name="check" size={12} color={colors.success} />}
+                    <View style={{ transform: [{ rotate: descriptionOpen ? '180deg' : '0deg' }] }}>
+                      <Icon name="chevron-down" size={12} color={colors.muted} />
+                    </View>
+                  </Row>
                 </Row>
-              </Pressable>}
-            </View>}
-          </Surface>
-          {!!(detail.shift.description || detail.shift.checklist.length) && <Surface style={[cardStyles.listSurface, { gap: 14, padding: 18 }]}>
-            <Pressable accessibilityRole="button" accessibilityState={{ expanded: descriptionOpen }} onPress={() => setDescriptionOpen(value => !value)} style={{ minHeight: 44, justifyContent: 'center' }}><Row gap={10}>
-              <Icon name="file" size={18} color={colors.muted} />
-              <Txt size={15} weight="600" style={{ flex: 1 }}>Beskrivelse</Txt>
-              {!!detail.shift.checklist.length && <Txt size={12} color={colors.muted}>{completed.length} af {detail.shift.checklist.length}</Txt>}
-              <Icon name="chevron-down" size={12} color={colors.muted} />
-            </Row></Pressable>
-            {descriptionOpen && <>
-              {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
-              {detail.shift.checklist.map(task => <Pressable key={task.id} accessibilityRole="checkbox" accessibilityLabel={task.text} accessibilityState={{ checked: completed.includes(task.id), disabled: offline || taskPending || !detail.checklistToken }} disabled={offline || taskPending || !detail.checklistToken} onPress={() => void toggleTask(task.id)} style={{ minHeight: 44, justifyContent: 'center', paddingVertical: 8 }}><Row gap={10} style={{ alignItems: 'flex-start' }}>
-                <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.includes(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.includes(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
-                <Txt size={14} color={completed.includes(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
-              </Row></Pressable>)}
-              {taskError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{taskError}</Txt>}
-            </>}
-          </Surface>}
-          <Surface style={[cardStyles.listSurface, { padding: 18, gap: 14 }]}>
-            <Txt size={15} weight="600" accessibilityRole="header">Kollegaer den dag</Txt>
-            {offline ? <Txt size={13} color={colors.muted}>Kollegaer vises, når der er forbindelse.</Txt> : <>
-            <ScheduleFeedback loading={coworkers.loading && !coworkerPage} error={coworkerError ?? coworkers.error} onRetry={refreshColleagues} />
-            {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{shiftTimeLabel(person)}</Txt></Row>)}
-            {coworkerPage?.colleagues.length === 0 && <Txt size={13} color={colors.muted}>Ingen andre på arbejdsstedet den dag.</Txt>}
-            {coworkerPage?.nextCursor && <Pressable accessibilityRole="button" accessibilityState={{ disabled: loadingMore || coworkers.loading || Boolean(coworkers.error), busy: loadingMore }} disabled={loadingMore || coworkers.loading || Boolean(coworkers.error)} onPress={() => void loadMoreColleagues()} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={13} weight="600" color={colors.accent}>{loadingMore ? 'Henter…' : 'Vis flere'}</Txt></Pressable>}
-            </>}
-          </Surface>
-        </>}
-      </ScrollView>
+              </Pressable>
+              {descriptionOpen && <>
+                {detail.shift.description && <Txt size={15} style={{ lineHeight: 23 }}>{detail.shift.description}</Txt>}
+                {checklist.map((task, index) => (
+                  <Pressable
+                    key={task.id}
+                    accessibilityRole="checkbox"
+                    accessibilityLabel={task.text}
+                    accessibilityState={{ checked: completed.has(task.id), disabled: offline || taskPending || !detail.checklistToken }}
+                    disabled={offline || taskPending || !detail.checklistToken}
+                    onPress={() => void toggleTask(task.id)}
+                    style={[
+                      { minHeight: 44, justifyContent: 'center', paddingVertical: 8 },
+                      index === 0 && !!detail.shift.description?.trim() && cardStyles.divider,
+                    ]}
+                  >
+                    <Row gap={10} style={{ alignItems: 'flex-start' }}>
+                      <View style={{ width: 21, height: 21, borderRadius: 5, borderWidth: 1, borderColor: colors.line, backgroundColor: completed.has(task.id) ? colors.accent : colors.white, alignItems: 'center', justifyContent: 'center' }}>{completed.has(task.id) && <Icon name="check" color={colors.white} size={13} />}</View>
+                      <Txt size={14} color={completed.has(task.id) ? colors.muted : colors.ink} style={{ flex: 1, lineHeight: 21 }}>{task.text}</Txt>
+                    </Row>
+                  </Pressable>
+                ))}
+                {taskError && <Txt size={13} color={colors.danger} accessibilityRole="alert">{taskError}</Txt>}
+              </>}
+            </Surface>}
+            <Surface style={[cardStyles.listSurface, { padding: 18, gap: 14 }]}>
+              <Txt size={15} weight="600" accessibilityRole="header">Kollegaer den dag</Txt>
+              {offline ? <Txt size={13} color={colors.muted}>Kollegaer vises, når der er forbindelse.</Txt> : <>
+                <ScheduleFeedback loading={coworkers.loading && !coworkerPage} error={coworkerError ?? coworkers.error} onRetry={refreshColleagues} />
+                {coworkerPage?.colleagues.map(person => <Row key={person.id} gap={10}><Avatar initials={person.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('')} size={32} /><View style={{ flex: 1 }}><Txt size={14} weight="500">{person.name}</Txt>{!!person.role && <Txt size={12} color={colors.muted}>{person.role}</Txt>}</View><Txt size={13} color={colors.muted}>{shiftTimeLabel(person)}</Txt></Row>)}
+                {coworkerPage?.colleagues.length === 0 && <Txt size={13} color={colors.muted}>Ingen andre på arbejdsstedet den dag.</Txt>}
+                {coworkerPage?.nextCursor && <Pressable accessibilityRole="button" accessibilityState={{ disabled: loadingMore || coworkers.loading || Boolean(coworkers.error), busy: loadingMore }} disabled={loadingMore || coworkers.loading || Boolean(coworkers.error)} onPress={() => void loadMoreColleagues()} style={{ minHeight: 44, justifyContent: 'center' }}><Txt size={13} weight="600" color={colors.accent}>{loadingMore ? 'Henter…' : 'Vis flere'}</Txt></Pressable>}
+              </>}
+            </Surface>
+          </>}
+        </ScrollView>
+      </FlowScreen>
       {(canStart || running) && <View style={{
         backgroundColor: colors.surface, borderTopWidth: 1, borderColor: colors.line, gap: 8,
         boxShadow: '0 -3px 12px rgba(0, 30, 43, 0.035)',

@@ -1,12 +1,16 @@
 import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ShiftTimeEntry } from '@/auth/mobile-auth-api';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-screens/experimental';
+import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { FlowScreen } from '@/components/flow-screen';
+import { PressFeedback } from '@/components/press-feedback';
 import { HomeShiftDock } from '@/components/home-shift-dock';
+import { useReduceMotionPreference } from '@/components/motion-preference';
 import { PeriodArrows } from '@/components/period-arrows';
-import { Row, Txt } from '@/components/ui';
+import { EmptyState, Row, Txt } from '@/components/ui';
 import { ShiftRow } from '@/components/shift-row';
 import { ScheduleFeedback } from '@/components/schedule-feedback';
 import { cardColors, cardStyles } from '@/constants/card-styles';
@@ -38,12 +42,34 @@ export default function HomeScreen() {
   const { state: auth } = useMobileAuth();
   const { fontScale } = useWindowDimensions();
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+  // Content layout keeps the week heading clear without following the scroll offset.
+  const [agendaTop, setAgendaTop] = useState<number | null>(null);
+  const [agendaBodyTop, setAgendaBodyTop] = useState<number | null>(null);
   const live = auth.mode === 'signedIn';
   const today = live ? copenhagenDate(now) : state.today;
   const currentWeek = mondayOfWeek(today);
   const weekStart = selectedWeek ?? currentWeek;
   const showingCurrentWeek = weekStart === currentWeek;
   const weekEnd = addDays(weekStart, 6);
+  const reduceMotion = useReduceMotionPreference();
+  const previousWeek = useRef(weekStart);
+  const weekSlide = useSharedValue(0);
+  const weekMotion = useAnimatedStyle(() => {
+    const offset = weekSlide.get();
+    return { transform: [{ translateX: offset }], opacity: 1 - Math.abs(offset) * 0.025 };
+  });
+
+  useLayoutEffect(() => {
+    const previous = previousWeek.current;
+    previousWeek.current = weekStart;
+    if (reduceMotion) {
+      weekSlide.set(0);
+    } else if (previous !== weekStart) {
+      weekSlide.set(weekStart > previous ? 8 : -8);
+      weekSlide.set(withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }));
+    }
+  }, [reduceMotion, weekSlide, weekStart]);
+
   const schedule = usePublishedSchedule(weekStart, weekEnd);
   const activeTime = useEmployeeActiveTime();
   const activeLiveRecord = activeTime.data ?? null;
@@ -61,6 +87,7 @@ export default function HomeScreen() {
   const nextStart = activeShift ? shiftInterval(activeShift).start : upcomingShift?.start;
   const site = live ? activeLiveRecord?.site ?? upcomingShift?.site : state.sites.find(place => place.id === next?.siteId);
   const agenda = weekShifts.filter(record => record.shift.id !== next?.id);
+  const weekShiftCount = live && !schedule.data ? null : weekShifts.length;
 
   function moveWeek(direction: -1 | 1) {
     setSelectedWeek(previous => {
@@ -89,62 +116,73 @@ export default function HomeScreen() {
 
   const content = <>
     <Stack.Screen options={headerOptions} />
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      showsVerticalScrollIndicator={false}
-      style={styles.canvas}
-      contentContainerStyle={styles.content}
-      refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
-    >
-      {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
-      {live && !(auth.mode === 'signedIn' && auth.offline) && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
-      <View style={styles.agenda}>
-        <Row gap={12} style={styles.sectionHead}>
-          <View style={styles.sectionIntro}>
-            <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
-            <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
-          </View>
-          <Row gap={6}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Gå til denne uge"
-              accessibilityState={{ disabled: showingCurrentWeek }}
-              disabled={showingCurrentWeek}
-              onPress={() => setSelectedWeek(null)}
-              style={({ pressed }) => [styles.todayButton, pressed && styles.softPressed]}
-            >
-              <Txt size={13} weight="500" color={showingCurrentWeek ? muted : accent} selectable={false}>I dag</Txt>
-            </Pressable>
-            <PeriodArrows
-              previousLabel="Forrige uge"
-              nextLabel="Næste uge"
-              onPrevious={() => moveWeek(-1)}
-              onNext={() => moveWeek(1)}
-            />
-          </Row>
-        </Row>
-        <View style={[cardStyles.listSurface, styles.agendaList]}>
-          <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} offline={schedule.offline} savedAt={schedule.savedAt} onRetry={schedule.refresh} />
-          {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
-            <View key={shift.id}>
-              {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
-              <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
-                publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
-                dateTile endedWithoutEntry={!live && !entry && end <= now} />
+    <FlowScreen reference backgroundTop={agendaTop !== null && agendaBodyTop !== null ? agendaTop + agendaBodyTop : null}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || activeTime.refreshing} onRefresh={() => { schedule.refresh(); activeTime.refresh(); }} /> : undefined}
+      >
+        {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
+        {live && !auth.offline && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
+        <View style={styles.agenda} onLayout={event => setAgendaTop(event.nativeEvent.layout.y)}>
+          <Row gap={12} style={styles.sectionHead}>
+            <View style={styles.sectionIntro}>
+              <Row gap={8} style={styles.weekHeading}>
+                <Txt size={22} weight="600" color={ink} accessibilityRole="header" style={styles.sectionTitle}>Uge {isoWeekNumber(weekStart)}</Txt>
+                {weekShiftCount !== null && (
+                  <Txt size={12} color={muted}>{weekShiftCount} {weekShiftCount === 1 ? 'vagt' : 'vagter'}</Txt>
+                )}
+              </Row>
+              <Txt size={12} color={muted} style={styles.weekDates}>{dateLabel(weekStart)} – {dateLabel(weekEnd, { year: 'numeric' })}</Txt>
             </View>
-          ))}
-          {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
-            <Txt size={13} color={muted} style={styles.emptyAgenda}>
-              {weekShifts.length ? 'Ingen andre vagter i denne uge.' : 'Ingen vagter i denne uge.'}
-            </Txt>
-          )}
+            <Row gap={6}>
+              <PressFeedback haptic="selection"
+                accessibilityRole="button"
+                accessibilityLabel="Gå til denne uge"
+                accessibilityState={{ disabled: showingCurrentWeek }}
+                disabled={showingCurrentWeek}
+                onPress={() => setSelectedWeek(null)}
+                style={({ pressed }) => [styles.todayButton, pressed && styles.softPressed]}
+              >
+                <Txt size={13} weight="500" color={showingCurrentWeek ? muted : accent} selectable={false}>I dag</Txt>
+              </PressFeedback>
+              <PeriodArrows
+                previousLabel="Forrige uge"
+                nextLabel="Næste uge"
+                onPrevious={() => moveWeek(-1)}
+                onNext={() => moveWeek(1)}
+              />
+            </Row>
+          </Row>
+          <View style={styles.agendaBody} onLayout={event => setAgendaBodyTop(event.nativeEvent.layout.y)}>
+            <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
+              <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} offline={schedule.offline} savedAt={schedule.savedAt} onRetry={schedule.refresh} />
+              {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (
+                <View key={shift.id}>
+                  {index > 0 && <View style={[cardStyles.divider, styles.agendaDivider]} />}
+                  <ShiftRow shift={shift} publishedSite={publishedSite} publishedToday={live ? today : undefined}
+                    publishedEntry={live ? schedule.data?.find(item => item.shift.id === shift.id)?.entry : undefined}
+                    dateTile endedWithoutEntry={!live && !entry && end <= now} />
+                </View>
+              ))}
+              {!agenda.length && (!live || (schedule.data && !schedule.error)) && (
+                <EmptyState compact
+                  title={weekShifts.length ? 'Ingen andre vagter i denne uge' : 'Ingen vagter i denne uge'}
+                  body={weekShifts.length ? 'Din vagt ligger i kortet nedenfor.' : 'Prøv en anden uge med pilene ovenfor.'}
+                />
+              )}
+            </Animated.View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FlowScreen>
     {next && nextStart !== undefined && (
       <View style={styles.dock}>
         <HomeShiftDock
           shift={next}
+          today={today}
           siteName={site?.name ?? 'Arbejdssted'}
           start={nextStart}
           entry={activeShift ? activeEntry : undefined}
@@ -164,19 +202,21 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   canvas: { flex: 1, backgroundColor: cardColors.canvas },
-  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
-  dock: { paddingHorizontal: 16, paddingTop: 6, paddingBottom: 8 },
+  scroll: { flex: 1 },
+  content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 20, gap: 16 },
+  dock: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 8 },
   brandMark: { width: 32, height: 32, borderRadius: 8, borderCurve: 'continuous' },
   brandName: { letterSpacing: -.4, lineHeight: 22 },
   brandText: { flexShrink: 1 },
-  agenda: { gap: 16 },
+  agenda: { flexGrow: 1, gap: 16 },
+  agendaBody: { flexGrow: 1 },
   agendaList: { overflow: 'hidden' },
   agendaDivider: { marginHorizontal: 16 },
   sectionHead: { justifyContent: 'space-between', paddingTop: 4 },
   sectionIntro: { flex: 1, minWidth: 0, gap: 3 },
+  weekHeading: { alignItems: 'baseline', flexWrap: 'wrap', rowGap: 0 },
   sectionTitle: { letterSpacing: -.55, lineHeight: 28 },
   weekDates: { lineHeight: 17 },
   todayButton: { minHeight: 44, justifyContent: 'center', borderRadius: 8, paddingHorizontal: 8 },
-  emptyAgenda: { paddingVertical: 24, paddingHorizontal: 16 },
   softPressed: { backgroundColor: colors.paper },
 });

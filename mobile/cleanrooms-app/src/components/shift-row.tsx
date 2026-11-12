@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import type { PublishedShift } from '@/auth/mobile-auth-api';
 import { colors } from '@/constants/palette';
-import { shiftTimeLabel, dateLabel, type Shift } from '@/domain/model';
+import { dateLabel, shiftTimeLabel, type Shift } from '@/domain/model';
 import { useAppData } from '@/state/app-store';
+import { ShiftDetailsButton } from './shift-details-button';
 import { Icon, LiveClock, Row, Txt } from './ui';
 
 export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday, showDate = true, dateTile = false, endedWithoutEntry = false }: {
@@ -16,8 +16,11 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   endedWithoutEntry?: boolean;
 }) {
   const { state } = useAppData();
+  const homeTile = dateTile && showDate;
+
   const site = publishedSite ?? state.sites.find(place => place.id === shift.siteId);
   const entry = publishedSite ? publishedEntry : state.entries.find(record => record.shiftId === shift.id);
+  const completedHomeRow = homeTile && Boolean(entry?.clockOut);
   const active = entry && (entry.status === 'running' || entry.status === 'paused');
   const paused = entry?.status === 'paused';
   const activeColor = paused ? colors.warning : colors.success;
@@ -42,28 +45,32 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
   ].filter(Boolean).join(', ');
 
   return (
-    <Pressable
+    <ShiftDetailsButton
+      shiftId={shift.id}
       accessibilityRole="button"
       accessibilityLabel={label}
-      onPress={() => router.push({ pathname: '/shift/[id]', params: { id: shift.id } })}
-      style={({ pressed }) => ({
+      haptic="light"
+      style={{
         paddingVertical: dateTile ? 16 : 9,
         paddingHorizontal: dateTile ? 16 : undefined,
         minHeight: dateTile ? 84 : 57,
         justifyContent: 'center',
-        opacity: pressed && !dateTile ? .6 : 1,
-        backgroundColor: pressed && dateTile ? colors.paper : undefined,
-      })}
+      }}
     >
-      <Row gap={dateTile ? 16 : 12}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: dateTile ? 16 : 12 }}>
         {showDate && dateTile && (
-          <View style={{ flexBasis: 52, flexShrink: 0, gap: 3 }}>
+          <View style={{ flexBasis: 52, flexShrink: 0 }}>
             <Txt size={11} weight="500" color={today ? colors.accent : colors.muted} style={{ lineHeight: 15 }}>
               {tileWeekday}
             </Txt>
-            <Txt size={21} weight="600" color={colors.ink} style={{ lineHeight: 25, letterSpacing: -.5 }}>
-              {dateNumber}<Txt size={11} color={colors.muted}> {dateMonth}</Txt>
-            </Txt>
+            <View style={{ alignItems: 'flex-start' }}>
+              <Txt size={21} weight={completedHomeRow ? '500' : '600'} color={colors.ink} style={{ lineHeight: 24, letterSpacing: -.5 }}>
+                {dateNumber}
+              </Txt>
+              <Txt size={11} color={colors.muted} style={{ lineHeight: 13 }}>
+                {dateMonth}
+              </Txt>
+            </View>
           </View>
         )}
         {showDate && !dateTile && (
@@ -76,7 +83,7 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
         <View style={{ flex: 1, minWidth: dateTile ? 0 : undefined, gap: dateTile ? 3 : 2 }}>
           {dateTile ? (
             <>
-              <Txt size={17} weight="600" style={{ lineHeight: 23, letterSpacing: -.25 }}>{shiftTimeLabel(shift)}</Txt>
+              <Txt size={17} weight={completedHomeRow ? '500' : '600'} style={{ lineHeight: 23, letterSpacing: -.25 }}>{shiftTimeLabel(shift)}</Txt>
               <Txt size={13} color={colors.muted} numberOfLines={2} style={{ lineHeight: 18 }}>{siteLabel}</Txt>
             </>
           ) : (
@@ -88,22 +95,24 @@ export function ShiftRow({ shift, publishedSite, publishedEntry, publishedToday,
           {missed && <Txt size={11} color={colors.warning}>Ikke registreret</Txt>}
           {requestStatus && <Txt size={11} color={colors.warning}>{requestStatus}</Txt>}
         </View>
-        <Row gap={7}>
+        <Row gap={7} style={homeTile ? { minHeight: 20 } : undefined}>
           {entry?.clockOut ? (
-            <Icon name="check-circle" size={17} color={colors.success} />
+            <Icon name="check-circle" size={homeTile ? 16 : 17} color={colors.success} />
           ) : active ? (
             <Row gap={5}>
               {paused
-                ? <Icon name="pause" size={14} color={activeColor} />
-                : <LiveClock size={14} color={activeColor} />}
+                ? <Icon name="pause" size={homeTile ? 16 : 14} color={activeColor} />
+                : <LiveClock size={homeTile ? 16 : 14} color={activeColor} />}
               <Txt size={11} weight="500" color={activeColor}>{status}</Txt>
             </Row>
           ) : !shift.personId && !pending ? (
             <Txt size={11} weight="600" color={colors.accent}>Ledig</Txt>
           ) : null}
-          <Icon name="chevron-right" size={dateTile ? 12 : 14} color={colors.muted} />
+          <View style={homeTile ? { width: 14, height: 20, alignItems: 'center', justifyContent: 'center' } : undefined}>
+            <Icon name="chevron-right" size={dateTile ? 12 : 14} color={colors.muted} />
+          </View>
         </Row>
-      </Row>
-    </Pressable>
+      </View>
+    </ShiftDetailsButton>
   );
 }

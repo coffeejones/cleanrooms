@@ -30,40 +30,90 @@ test('summary states both years when the chosen weeks cross the year boundary',(
  assert.match(Range.summary({from:'2026-12-28',to:'2027-01-10'}),/2026.*2027/);
  assert.match(Range.summary({from:'2026-11-02'}),/^1 uge ·/);
 });
-test('presets emit explicit complete ranges and keep the end field on the final week start',()=>{
- const fixture=app();assert.equal(fixture.changes.length,0);fixture.field('preset:4').click();assert.deepEqual(fixture.changes[0],{scope:{from:'2026-11-02',to:'2026-11-29'},meta:{source:'preset'}});assert.equal(fixture.field('from').value,'2026-11-02');assert.equal(fixture.field('to').value,'2026-11-23');assert.equal(fixture.field('preset:4').getAttribute('aria-pressed'),'true');assert.match(fixture.byClass('cs-publication-range-summary').textContent,/4 uger/);
- fixture.field('preset:4').click();assert.equal(fixture.changes.length,1);
+test('week and duration controls select whole weeks and show the resulting dates once',()=>{
+ const fixture=app(),caption=fixture.byClass('cs-publication-range-summary');
+ assert.equal(fixture.field('week').value,'2026-11-02');
+ assert.equal(fixture.field('duration').value,'1');
+ assert.equal(caption.textContent,'2.–8. november 2026');
+ fixture.change('duration','4');
+ assert.deepEqual(fixture.changes[0],{scope:{from:'2026-11-02',to:'2026-11-29'},meta:{source:'duration'}});
+ fixture.change('week','2026-11-09');
+ assert.deepEqual(fixture.changes[1],{scope:{from:'2026-11-09',to:'2026-12-06'},meta:{source:'week'}});
+ assert.equal(fixture.field('duration').value,'4');
+ assert.match(caption.textContent,/^9\. november\s*–\s*6\. december 2026$/);
+ fixture.change('duration','4');
+ assert.equal(fixture.changes.length,2);
 });
-test('the dropdown selects additional complete weeks and reflects manual ranges',()=>{
- const fixture=app({from:'2026-12-28',to:'2027-01-03'}),more=fixture.field('more');
- fixture.change('more','12');
- assert.deepEqual(fixture.changes[0].scope,{from:'2026-12-28',to:'2027-03-21'});
- assert.equal(fixture.field('to').value,'2027-03-15');
- assert.equal(more.value,'12');
- fixture.change('more','52');
+test('the week menu respects ISO years and a duration can cross the year boundary',()=>{
+ const fixture=app({from:'2026-12-28',to:'2027-01-03'});
+ const groups=fixture.field('week').children.filter(node=>node.tagName==='OPTGROUP');
+ assert.equal(groups.find(group=>group.label==='2026').children.at(-1).textContent,'Uge 53');
+ assert.equal(groups.find(group=>group.label==='2027').children[0].value,'2027-01-04');
+ fixture.change('duration','2');
+ assert.deepEqual(fixture.controller.value,{from:'2026-12-28',to:'2027-01-10'});
+ assert.match(fixture.byClass('cs-publication-range-summary').textContent,/december 2026.*januar 2027/);
+ fixture.change('duration','52');
  assert.equal(Range.countWeeks(fixture.controller.value.from,fixture.controller.value.to),52);
- fixture.field('preset:4').click();
- assert.equal(more.value,'');
- fixture.change('to','2027-02-01');
- assert.equal(more.value,'6');
 });
-test('date editing never publishes partial weeks and invalid drafts preserve the previously reviewed scope',()=>{
- const fixture=app();fixture.change('to','2026-11-25');assert.deepEqual(fixture.changes[0].scope,{from:'2026-11-02',to:'2026-11-29'});assert.equal(fixture.field('to').value,'2026-11-23');
- fixture.change('from','2026-12-01');assert.equal(fixture.controller.valid,false);assert.equal(fixture.changes.length,1);assert.deepEqual(fixture.controller.value,{from:'2026-11-02',to:'2026-11-29'});assert.equal(fixture.field('from').value,'2026-12-01');assert.equal(fixture.field('from').getAttribute('aria-invalid'),'true');assert.equal(fixture.byClass('cs-publication-range-error').hidden,false);assert.match(fixture.byClass('cs-publication-range-summary').textContent,/Ret perioden/);
- fixture.controller.render({from:'2026-11-02',to:'2026-11-29'});assert.equal(fixture.field('from').value,'2026-12-01');assert.equal(fixture.controller.valid,false);
- fixture.change('to','2026-12-07');assert.equal(fixture.controller.valid,true);assert.deepEqual(fixture.changes[1].scope,{from:'2026-11-30',to:'2026-12-13'});assert.deepEqual(fixture.validities.map(value=>value.valid),[false,true]);
+test('browsing a distant year leaves the reviewed scope intact until a complete week is chosen',()=>{
+ const fixture=app(),yearField=fixture.byClass('cs-publication-range-year');
+ assert.equal(yearField.hidden,true);
+ fixture.change('week','other-year');
+ assert.equal(yearField.hidden,false);
+ assert.equal(fixture.controller.valid,true);
+ assert.equal(fixture.changes.length,0);
+ assert.equal(fixture.field('week').value,'2026-11-02');
+ fixture.change('year','2040');
+ assert.equal(fixture.controller.valid,false);
+ assert.deepEqual(fixture.controller.value,{from:'2026-11-02',to:'2026-11-08'});
+ assert.equal(fixture.changes.length,0);
+ const week=fixture.field('week').children.find(node=>node.label==='2040').children[0];
+ fixture.change('week',week.value);
+ assert.equal(fixture.controller.valid,true);
+ assert.equal(yearField.hidden,true);
+ assert.equal(fixture.changes[0].scope.from,week.value);
 });
-test('calendar boundaries disable only presets that cannot fit and limit inputs to complete weeks',()=>{
- const fixture=app({minDate:'2026-10-29',maxDate:'2026-11-30'});assert.equal(fixture.field('from').min,'2026-11-02');assert.equal(fixture.field('to').max,'2026-11-23');assert.equal(fixture.field('preset:4').disabled,false);assert.equal(fixture.field('preset:8').disabled,true);fixture.field('preset:8').click();assert.equal(fixture.changes.length,0);
- const more=fixture.field('more');
- assert.equal(more.children.find(option=>option.value==='3').disabled,false);
- assert.equal(more.children.find(option=>option.value==='5').disabled,true);
- fixture.change('more','5');assert.equal(fixture.changes.length,0);
- fixture.change('from','2026-11-16');assert.equal(more.disabled,true);
+test('calendar boundaries hide partial weeks and block an incompatible duration until corrected',()=>{
+ const options={minDate:'2026-10-29',maxDate:'2026-11-30'};
+ const fixture=app(options),weeks=walk(fixture.field('week')).filter(node=>node.tagName==='OPTION'&&node.value);
+ assert.deepEqual(weeks.map(week=>week.value),['2026-11-02','2026-11-09','2026-11-16','2026-11-23']);
+ assert.equal(fixture.field('duration').children.find(option=>option.value==='5').disabled,true);
+ fixture.change('duration','4');
+ fixture.change('week','2026-11-16');
+ assert.equal(fixture.controller.valid,false);
+ assert.equal(fixture.field('duration').getAttribute('aria-invalid'),'true');
+ assert.match(fixture.byClass('cs-publication-range-error').textContent,/Vælg færre uger/);
+ assert.equal(fixture.byClass('cs-publication-range-summary').hidden,true);
+ fixture.controller.render({from:'2026-11-02',to:'2026-11-29',...options});
+ assert.equal(fixture.field('week').value,'2026-11-16');
+ assert.deepEqual(fixture.controller.value,{from:'2026-11-02',to:'2026-11-29'});
+ fixture.change('duration','2');
+ assert.deepEqual(fixture.changes.map(entry=>entry.scope),[
+  {from:'2026-11-02',to:'2026-11-29'},
+  {from:'2026-11-16',to:'2026-11-29'}
+ ]);
+ assert.deepEqual(fixture.validities.map(value=>value.valid),[false,true]);
 });
-test('disabled and disposed selectors cannot dispatch changes; invalid initial options render a repairable error',()=>{
- const fixture=app({disabled:true});fixture.field('preset:4').click();fixture.change('to','2026-11-23');assert.equal(fixture.changes.length,0);assert.equal(fixture.field('from').disabled,true);fixture.controller.render({disabled:false});const input=fixture.field('to');fixture.controller.dispose();input.value='2026-11-23';input.fire('change');assert.equal(fixture.host.children.length,0);assert.equal(fixture.changes.length,0);
- const invalid=app({from:'invalid',to:'invalid'});assert.equal(invalid.controller.valid,false);assert.equal(invalid.controller.value,null);assert.equal(invalid.byClass('cs-publication-range-error').hidden,false);
+test('disabled and disposed selectors cannot dispatch changes and an invalid period is repairable',()=>{
+ const fixture=app({disabled:true});
+ fixture.change('duration','4');
+ fixture.change('week','2026-11-23');
+ assert.equal(fixture.changes.length,0);
+ assert.equal(fixture.field('week').disabled,true);
+ fixture.controller.render({disabled:false});
+ const week=fixture.field('week');
+ fixture.controller.dispose();
+ week.value='2026-11-23';
+ week.fire('change');
+ assert.equal(fixture.host.children.length,0);
+ assert.equal(fixture.changes.length,0);
+
+ const invalid=app({from:'invalid',to:'invalid'});
+ assert.equal(invalid.controller.valid,false);
+ assert.equal(invalid.controller.value,null);
+ assert.equal(invalid.byClass('cs-publication-range-error').hidden,false);
+ invalid.change('week','2026-11-09');
+ assert.deepEqual(invalid.controller.value,{from:'2026-11-09',to:'2026-11-15'});
 });
 test('overview compares each chosen week with its own publication, including cancellation and new weeks',()=>{
  const one={id:'one',person:'p0',site:0,date:'2026-11-03',start:'07:00',end:'15:00',note:''},two={id:'two',person:'',site:0,date:'2026-11-10',start:'08:00',end:'16:00',note:''},three={id:'three',person:'p1',site:1,date:'2026-11-11',start:'08:00',end:'16:00',note:''};

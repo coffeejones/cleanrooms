@@ -59,7 +59,7 @@
 
 /* Group edits, changes and validation use the same section rhythm. */
 #cleanrooms-studio[data-page] .cs-group-fields :is(.cs-field,.cs-field-pair,.cs-group-footnote):not([hidden]){margin-bottom:var(--cs-overlay-section)}
-#cleanrooms-studio[data-page] :is(#cs-group-caption,#cs-bulk-caption,#cs-changes-period){margin-bottom:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] :is(#cs-group-caption,#cs-bulk-caption){margin-bottom:var(--cs-overlay-label)}
 #cleanrooms-studio[data-page] .cs-group-fields > :nth-last-child(1 of :not([hidden])){margin-bottom:0}
 #cleanrooms-studio[data-page] #cs-group-error{padding:var(--cs-overlay-row)}
 #cleanrooms-studio[data-page] .cs-review-section{margin-bottom:var(--cs-overlay-section)}

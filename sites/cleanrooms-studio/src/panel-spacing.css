@@ -42,7 +42,6 @@
 #cleanrooms-studio .cs-editor-caption:not([hidden]){margin:0 0 var(--cs-space-6)}
 #cleanrooms-studio #cs-group-caption,
 #cleanrooms-studio #cs-bulk-caption,
-#cleanrooms-studio #cs-changes-period{margin:0 0 var(--cs-space-2)}
 #cleanrooms-studio .cs-group-footnote:not([hidden]){margin:0 0 var(--cs-space-6)}
 #cleanrooms-studio .cs-editor-fields .cs-field:not([hidden]),
 #cleanrooms-studio .cs-group-fields .cs-field:not([hidden]),

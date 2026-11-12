@@ -77,10 +77,10 @@ function application() {
     globalThis.planningTest = {
       state, snapshot, weekPlan, changesForWeek, publicationStatus, shiftsInRange,
       bulkProposal, saveBulk, publishReviewedWeek:async()=>{openChanges();return publishReviewedWeek();}, undo:undoAction,
-      getUndo:() => lastUndo,commit,closeEditor,navigateTo,editorHasDirtyDraft,openChanges,closeChanges,
+      getUndo:() => lastUndo,commit,closeEditor,navigateTo,editorHasDirtyDraft,openChanges,showPublicationShift,
       setSave:callback=>{persistence.save=callback;},confirm:value=>{if(value)editorDiscard?.accept();else editorDiscard?.cancel();},dialog:()=>editorDiscard,
       beginDirtyEditor:shift=>{activeEdit=clone(shift);q('#cs-editor-layer').hidden=false;q('#cs-edit-date').value=shift.date;q('#cs-edit-start').value=shift.start;q('#cs-edit-end').value=shift.end;q('#cs-edit-note').value=shift.note||'';editorDirtyBaseline=editorDraftFingerprint();},
-      draft:()=>activeEdit,publicationContext:()=>({range:publicationRange,allSites:publicationAllSites,canSubmit:publicationCanSubmit}),setPublicationRange:value=>{publicationRange=value;renderChanges();},
+      draft:()=>activeEdit,publicationContext:()=>({range:publicationRange,canSubmit:publicationCanSubmit}),setPublicationRange:value=>{publicationRange=value;renderChanges();},
       select:(members,operation,copyIds) => {
         activeBulk = {members:clone(members),operation,firstDate:members.map(shift=>shift.date).sort()[0],copyIds:copyIds || {}};
         q('#cs-bulk-layer').hidden = false;
@@ -212,7 +212,7 @@ test('optimistic plan changes report successful saving only after the server ack
  app.control('#cs-toast').hidden=true;app.setSave(async()=>false);await app.commit(app.snapshot(),'Falsk succes');await Promise.resolve();assert.equal(app.control('#cs-toast').hidden,true);
 });
 test('publication review restores its selected multiweek range after visiting a shift without restoring an old submit gate',()=>{
- const app=application();app.openChanges();app.setPublicationRange({from:'2026-10-26',to:'2026-11-22'});app.closeChanges(false);app.state.week=2;app.openChanges();assert.deepEqual(plain(app.publicationContext().range),{from:'2026-10-26',to:'2026-11-22'});assert.equal(app.control('#cs-changes-layer').hidden,false);
+ const app=application();app.openChanges();app.setPublicationRange({from:'2026-10-26',to:'2026-11-22'});app.showPublicationShift({date:'2026-11-10',site:0,id:'visited'},true);app.openChanges();assert.deepEqual(plain(app.publicationContext().range),{from:'2026-10-26',to:'2026-11-22'});assert.equal(app.control('#cs-changes-layer').hidden,false);
 });
 
 

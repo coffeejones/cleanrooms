@@ -26,16 +26,8 @@
 #cleanrooms-studio[data-page="workflow"] .cs-workflow-host{padding:8px 20px 0 0}
 #cleanrooms-studio #cs-employee-content>.cs-workflow-host{padding:0 32px 0 24px}
 #cleanrooms-studio .cs-employee-offer{margin:0 0 24px;width:100%;min-height:44px}
-#cleanrooms-studio .cs-publication-weeks{width:100%;margin:8px 0 24px;border-collapse:collapse;color:#425660;font-size:12px;line-height:20px;text-align:left;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-weeks :is(th,td){padding:12px 10px;border-bottom:1px solid #e6ebee;text-align:left;font-weight:400}
-#cleanrooms-studio .cs-publication-weeks thead th{font-size:11px;font-weight:500;background:#f5f7f8;color:#74818a}
-#cleanrooms-studio .cs-publication-weeks tbody th{font-weight:500;white-space:nowrap}
-#cleanrooms-studio .cs-publication-weeks tr[data-issues="true"] td:last-child{color:#96652b}
-#cleanrooms-studio .cs-publication-change-details{margin:24px 0 0;border-top:1px solid #e3e9ed}
-#cleanrooms-studio .cs-publication-change-details>summary{padding:18px 0;cursor:pointer;color:#475d6a;font-size:13px;font-weight:500;line-height:22px}
 @media(max-width:760px){
  #cleanrooms-studio[data-page="workflow"]{--cs-workflow-gutter:18px}
  #cleanrooms-studio #cs-employee-content>.cs-workflow-host{padding:0 14px 0 18px}
  #cleanrooms-studio[data-page="workflow"] .cs-workflow-host{padding-right:4px}
- #cleanrooms-studio .cs-publication-weeks :is(th,td){padding:10px 6px;font-size:11px;line-height:18px}
 }

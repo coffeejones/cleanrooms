@@ -3325,7 +3325,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-editor-caption:not([hidden]){margin:0 0 var(--cs-space-6)}
 #cleanrooms-studio #cs-group-caption,
 #cleanrooms-studio #cs-bulk-caption,
-#cleanrooms-studio #cs-changes-period{margin:0 0 var(--cs-space-2)}
 #cleanrooms-studio .cs-group-footnote:not([hidden]){margin:0 0 var(--cs-space-6)}
 #cleanrooms-studio .cs-editor-fields .cs-field:not([hidden]),
 #cleanrooms-studio .cs-group-fields .cs-field:not([hidden]),
@@ -5573,10 +5572,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-nav-button{flex-shrink:0}
 #cleanrooms-studio .cs-workspace-copy{min-width:0}
 #cleanrooms-studio .cs-workspace-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#cleanrooms-studio .cs-publication-scope{margin:0 0 20px;padding:16px;background:#f4f6f8;border:1px solid #dce2e7;border-radius:9px}
-#cleanrooms-studio .cs-publication-scope&gt;label:first-child{display:grid;gap:8px;font-size:12px;font-weight:600;color:#344350}
-#cleanrooms-studio .cs-publication-scope select{width:100%;height:40px;padding:0 10px;background:#fff;border:1px solid #bcc8d1;border-radius:7px;color:#25303b;font:inherit}
-#cleanrooms-studio .cs-publication-scope p{margin:9px 0 0;font-size:12px;line-height:1.6;color:#5c6b77;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-publication-related{display:flex;align-items:flex-start;gap:9px;margin-top:16px;font-size:12px;font-weight:500;line-height:1.6;color:#704d16}
 #cleanrooms-studio .cs-publication-related input{margin:3px 0;accent-color:#365f83;flex:none}
 #cleanrooms-studio .cs-exceptions-field{display:flex;align-items:flex-start;gap:10px;padding:13px;background:#f3f6f8;border:1px solid #d8e0e6;border-radius:8px}
@@ -5630,7 +5625,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;activity&quot;] .cs-content{padding:14px}
  #cleanrooms-studio .cs-activity-intro{padding:19px}
  #cleanrooms-studio .cs-activity-intro h3{font-size:18px}
- #cleanrooms-studio .cs-publication-scope{padding:12px}
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-save-indicator::before{animation:none}}
 
@@ -5897,7 +5891,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 /* Group edits, changes and validation use the same section rhythm. */
 #cleanrooms-studio[data-page] .cs-group-fields :is(.cs-field,.cs-field-pair,.cs-group-footnote):not([hidden]){margin-bottom:var(--cs-overlay-section)}
-#cleanrooms-studio[data-page] :is(#cs-group-caption,#cs-bulk-caption,#cs-changes-period){margin-bottom:var(--cs-overlay-label)}
+#cleanrooms-studio[data-page] :is(#cs-group-caption,#cs-bulk-caption){margin-bottom:var(--cs-overlay-label)}
 #cleanrooms-studio[data-page] .cs-group-fields &gt; :nth-last-child(1 of :not([hidden])){margin-bottom:0}
 #cleanrooms-studio[data-page] #cs-group-error{padding:var(--cs-overlay-row)}
 #cleanrooms-studio[data-page] .cs-review-section{margin-bottom:var(--cs-overlay-section)}
@@ -8055,27 +8049,38 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-workflow *{transition:none!important;animation:none!important}}
 
-/* One quiet control group selects the same full weeks that the server publishes. */
-#cleanrooms-studio .cs-publication-range{display:flex;flex-direction:column;gap:12px;min-width:0;padding:0;margin:0 0 20px;border:0}
-#cleanrooms-studio .cs-publication-range-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
-#cleanrooms-studio .cs-publication-range-title{margin:0;color:#344650;font-size:14px;font-weight:600;line-height:22px}
-#cleanrooms-studio .cs-publication-range-presets{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-#cleanrooms-studio .cs-publication-range-preset{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:40px;min-height:40px;padding:6px 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:#687984;font:inherit;font-size:12px;font-weight:500;line-height:22px;cursor:pointer;transition:background-color 140ms ease,color 140ms ease,border-color 140ms ease}
-#cleanrooms-studio .cs-publication-range-preset:hover:not(:disabled){background:#f3f6f8;color:#334955}
-#cleanrooms-studio .cs-publication-range-preset[aria-pressed=&quot;true&quot;]{border-color:#d5dfe5;background:#eef3f6;color:#334f60}
-#cleanrooms-studio .cs-publication-range-preset:disabled{opacity:.4;cursor:default}
-#cleanrooms-studio .cs-publication-range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
-#cleanrooms-studio .cs-publication-range-field{display:flex;flex-direction:column;gap:7px;min-width:0;color:#697a84;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-input{box-sizing:border-box;display:block;width:100%;min-width:0;height:40px;min-height:40px;margin:0;padding:0 12px;border:1px solid #cbd5dc;border-radius:7px;background:#fff;color:#374d5a;font:inherit;font-size:13px;line-height:normal;font-variant-numeric:tabular-nums;transition:border-color 140ms ease,box-shadow 140ms ease}
-#cleanrooms-studio .cs-publication-range-input::-webkit-datetime-edit{display:flex;align-items:center;height:100%;padding:0}
-#cleanrooms-studio .cs-publication-range-input:disabled{opacity:.55;cursor:default}
-#cleanrooms-studio :is(.cs-publication-range-input,.cs-publication-range-preset):focus-visible{outline:2px solid #7194ab;outline-offset:3px}
-#cleanrooms-studio .cs-publication-range-input[aria-invalid=&quot;true&quot;]{border-color:#c89067}
-#cleanrooms-studio .cs-publication-range-summary{margin:0;color:#7a8790;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-error{margin:0;color:#96632d;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-error[hidden]{display:none}
-@media(max-width:600px){#cleanrooms-studio .cs-publication-range-head{align-items:flex-start;flex-direction:column;gap:10px}#cleanrooms-studio .cs-publication-range-presets{width:100%;gap:6px}#cleanrooms-studio .cs-publication-range-preset{flex:1;min-height:40px;height:40px}#cleanrooms-studio .cs-publication-range-fields{gap:12px}}
-@media(prefers-reduced-motion:reduce){#cleanrooms-studio :is(.cs-publication-range-input,.cs-publication-range-preset){transition:none}}
+/* A start week and a duration select full weeks for publication. */
+#cleanrooms-studio .cs-publication-range {
+  display:grid;
+  gap:7px;
+  min-width:0;
+  margin:0;
+}
+#cleanrooms-studio .cs-publication-range-fields {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+#cleanrooms-studio .cs-publication-range-input {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio :is(.cs-publication-range-summary,.cs-publication-range-year,.cs-publication-range-error) {
+  margin:0;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-publication-range-year {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  width:fit-content;
+  max-width:100%;
+}
+#cleanrooms-studio .cs-publication-range-error {
+  color:#775210;
+}
 
 /* Shared workflows occupy the existing page canvas and employee navigation. */
 #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-main,.cs-page-head,.cs-content,#cs-page-content){background:#fff}
@@ -8105,78 +8110,284 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-host{padding:8px 20px 0 0}
 #cleanrooms-studio #cs-employee-content&gt;.cs-workflow-host{padding:0 32px 0 24px}
 #cleanrooms-studio .cs-employee-offer{margin:0 0 24px;width:100%;min-height:44px}
-#cleanrooms-studio .cs-publication-weeks{width:100%;margin:8px 0 24px;border-collapse:collapse;color:#425660;font-size:12px;line-height:20px;text-align:left;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-weeks :is(th,td){padding:12px 10px;border-bottom:1px solid #e6ebee;text-align:left;font-weight:400}
-#cleanrooms-studio .cs-publication-weeks thead th{font-size:11px;font-weight:500;background:#f5f7f8;color:#74818a}
-#cleanrooms-studio .cs-publication-weeks tbody th{font-weight:500;white-space:nowrap}
-#cleanrooms-studio .cs-publication-weeks tr[data-issues=&quot;true&quot;] td:last-child{color:#96652b}
-#cleanrooms-studio .cs-publication-change-details{margin:24px 0 0;border-top:1px solid #e3e9ed}
-#cleanrooms-studio .cs-publication-change-details&gt;summary{padding:18px 0;cursor:pointer;color:#475d6a;font-size:13px;font-weight:500;line-height:22px}
 @media(max-width:760px){
  #cleanrooms-studio[data-page=&quot;workflow&quot;]{--cs-workflow-gutter:18px}
  #cleanrooms-studio #cs-employee-content&gt;.cs-workflow-host{padding:0 14px 0 18px}
  #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-host{padding-right:4px}
- #cleanrooms-studio .cs-publication-weeks :is(th,td){padding:10px 6px;font-size:11px;line-height:18px}
 }
 
-/* A short change list leads to a focused comparison instead of repeated before/after cards. */
-#cleanrooms-studio .cs-publication-review{min-width:0;margin:24px 0 0;color:#3d515e;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-muted{color:#7c8991;font-size:11px;line-height:19px}
-#cleanrooms-studio .cs-publication-review-tools{display:flex;flex-direction:column;gap:12px;margin:0 0 22px}
-#cleanrooms-studio .cs-publication-review-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-filter{display:inline-flex;align-items:center;gap:7px;min-height:40px!important;height:40px!important;margin:0;padding:8px 12px!important;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:#6d7d87;font:inherit;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-filter[aria-pressed=&quot;true&quot;]{border-color:#dce4e9;background:#f3f6f8;color:#354e5d}
-#cleanrooms-studio .cs-publication-review-filter-count{color:#84919a;font-size:11px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-review-search{display:block;min-width:0;max-width:100%}
-#cleanrooms-studio .cs-publication-review-input{box-sizing:border-box;width:100%;height:40px;min-height:40px;margin:0;padding:8px 12px;border:1px solid #cbd6dd;border-radius:7px;background:#fff;color:#374e5c;font:inherit;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-publication-review-day-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 0 0;padding:9px 0;border-bottom:1px solid #e0e7eb;color:#6a7e8a;font-size:11px;font-weight:500;line-height:19px}
-#cleanrooms-studio .cs-publication-review-day:first-child&gt;.cs-publication-review-day-title{margin-top:0}
-#cleanrooms-studio .cs-publication-review-week{color:#8b98a0;font-size:10px;white-space:nowrap}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-row{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;width:100%;height:auto!important;min-height:70px!important;margin:0;padding:14px 0!important;border:0;border-bottom:1px solid #edf0f2;border-radius:0;background:transparent;box-shadow:none;color:inherit;text-align:left;font:inherit;line-height:21px;cursor:pointer;transition:background-color 130ms ease}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-row:hover{background:#f8fafb}
-#cleanrooms-studio .cs-publication-review-row-copy{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
-#cleanrooms-studio .cs-publication-review-row-head{display:flex;align-items:center;gap:12px;min-width:0}
-#cleanrooms-studio .cs-publication-review-row-head&gt;strong{color:#354955;font-size:13px;font-weight:600;line-height:21px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-type{display:inline-flex;flex-shrink:0;align-items:center;gap:6px;color:#7b8992;font-size:10px;font-weight:400;line-height:18px}
-#cleanrooms-studio .cs-publication-review-type::before{content:&#x27;&#x27;;width:4px;height:4px;border-radius:50%;background:#9aa8b2}
-#cleanrooms-studio .cs-publication-review-type[data-type=&quot;changed&quot;]::before{background:#a2824d}
-#cleanrooms-studio .cs-publication-review-type[data-type=&quot;added&quot;]::before{background:#6a8ca3}
-#cleanrooms-studio .cs-publication-review-type[data-type=&quot;removed&quot;]::before{background:#a08076}
-#cleanrooms-studio .cs-publication-review-row-summary{display:flex;flex-direction:column;gap:2px;color:#4f6674;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-row-context{color:#8a969e;font-size:11px;line-height:19px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-chevron{flex-shrink:0;color:#9ca8b0;font-size:21px;line-height:24px}
-#cleanrooms-studio .cs-publication-review-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:20px 0 0}
-#cleanrooms-studio .cs-publication-review-pagination&gt;.cs-publication-review-muted{margin-right:auto}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-button{box-sizing:border-box;min-height:40px!important;height:auto!important;margin:0;padding:9px 13px!important;border:1px solid #d2dde4;border-radius:7px;background:#fff;box-shadow:none;color:#4b6575;font:inherit;font-size:12px;font-weight:500;line-height:20px}
-#cleanrooms-studio .cs-publication-review-button:disabled{opacity:.45;cursor:default}
-#cleanrooms-studio .cs-publication-review-back{display:inline-flex;align-items:center;gap:8px;min-height:40px!important;height:40px!important;margin:0 0 20px;padding:0!important;border:0;background:transparent;box-shadow:none;color:#6c818f;font:inherit;font-size:12px}
-#cleanrooms-studio .cs-publication-review-back::before{content:&#x27;←&#x27;;font-size:16px}
-#cleanrooms-studio .cs-publication-review-detail-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 6px}
-#cleanrooms-studio .cs-publication-review-detail-title{margin:0;color:#334a58;font-size:18px;font-weight:600;line-height:26px;letter-spacing:-.2px}
-#cleanrooms-studio .cs-publication-review-detail-context{margin:0 0 24px;color:#7b8a94;font-size:12px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-comparison{table-layout:fixed;width:100%;border-collapse:collapse;margin:0 0 24px;font-size:12px;line-height:20px;text-align:left}
-#cleanrooms-studio .cs-publication-review-comparison :is(th,td){padding:12px 10px;border-bottom:1px solid #e4eaee;font-weight:400;text-align:left;vertical-align:top;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-comparison th:first-child{width:25%;font-size:11px;color:#7b8b95}
-#cleanrooms-studio .cs-publication-review-comparison thead th{background:#f4f7f8;color:#71828e;font-size:11px;font-weight:500}
-#cleanrooms-studio .cs-publication-review-comparison td{color:#5d727f;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-review-comparison td[data-changed=&quot;true&quot;]{color:#846632;background:#fcfaf5}
-#cleanrooms-studio .cs-publication-review-detail-summary{margin:0 0 24px;color:#6d818e;font-size:12px;line-height:22px}
-#cleanrooms-studio .cs-publication-review-instructions{margin:0 0 24px;border-block:1px solid #e5eaee}
-#cleanrooms-studio .cs-publication-review-instructions&gt;summary{padding:14px 0;color:#566f7f;font-size:12px;font-weight:500;line-height:22px;cursor:pointer}
-#cleanrooms-studio .cs-publication-review-instruction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding:6px 0 20px;min-width:0}
-#cleanrooms-studio .cs-publication-review-instruction-grid&gt;section{min-width:0}
-#cleanrooms-studio .cs-publication-review-section-label{margin:0 0 12px;color:#7d8e99;font-size:11px;font-weight:500;line-height:19px}
-#cleanrooms-studio .cs-publication-review-note{color:#5b717f;font-size:12px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-empty{margin:0;padding:24px 0;color:#7d8d97;font-size:12px;line-height:22px}
-#cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible{outline:2px solid #7295ae;outline-offset:3px}
-@media(max-width:600px){
- #cleanrooms-studio .cs-publication-review-filters{gap:2px}
- #cleanrooms-studio .cs-publication-review .cs-publication-review-filter{gap:5px;padding-inline:8px!important;font-size:11px}
- #cleanrooms-studio .cs-publication-review-row-head{gap:8px}
- #cleanrooms-studio .cs-publication-review-comparison :is(th,td){padding:10px 6px;font-size:11px;line-height:19px}
- #cleanrooms-studio .cs-publication-review-instruction-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+/* The review lists actual shift changes, with details available on each row. */
+#cleanrooms-studio .cs-publication-review {
+  min-width:0;
+  color:var(--cs-access-body);
+  font-size:13px;
+  line-height:20px;
 }
-@media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-publication-review-row{transition:none!important}}
+#cleanrooms-studio .cs-publication-review-muted {
+  color:var(--cs-access-muted);
+  font-size:12px;
+}
+#cleanrooms-studio .cs-publication-review-tools {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px 14px;
+  margin-bottom:14px;
+}
+#cleanrooms-studio .cs-publication-review-filters {
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter {
+  min-height:36px;
+  height:auto;
+  padding:5px 9px;
+  border:1px solid transparent;
+  border-radius:6px;
+  background:none;
+  box-shadow:none;
+  color:var(--cs-access-muted);
+  font:inherit;
+  font-weight:600;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter[aria-pressed=&quot;true&quot;] {
+  border-color:var(--cs-access-ink);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-input {
+  box-sizing:border-box;
+  flex:1 1 160px;
+  width:100%;
+  max-width:240px;
+  min-width:0;
+  min-height:36px;
+  margin:0;
+  padding:6px 10px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-ink);
+  font:inherit;
+}
+#cleanrooms-studio .cs-publication-review-day + .cs-publication-review-day {
+  margin-top:12px;
+}
+#cleanrooms-studio .cs-publication-review-day-title {
+  margin:0 0 2px;
+  padding:0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-row {
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:calc(100% + 16px);
+  min-width:0;
+  min-height:44px;
+  height:auto;
+  margin:0 -8px;
+  padding:7px 8px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-row:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-publication-review-row-copy,
+#cleanrooms-studio .cs-publication-review-row-summary {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-row-copy {
+  gap:2px;
+}
+#cleanrooms-studio .cs-publication-review-person {
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-row-summary,
+#cleanrooms-studio .cs-publication-review-row-context {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio .cs-publication-review-row-context,
+#cleanrooms-studio .cs-publication-review-type {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-publication-review-row-meta {
+  display:flex;
+  flex:none;
+  align-items:center;
+  gap:10px;
+}
+#cleanrooms-studio .cs-publication-review-chevron {
+  flex:none;
+  width:5px;
+  height:5px;
+  margin-right:2px;
+  border-top:1px solid currentColor;
+  border-right:1px solid currentColor;
+  color:var(--cs-access-muted);
+  transform:rotate(45deg);
+}
+#cleanrooms-studio .cs-publication-review-pagination {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:16px;
+}
+#cleanrooms-studio .cs-publication-review-pagination &gt; .cs-publication-review-muted {
+  margin-right:auto;
+}
+#cleanrooms-studio .cs-publication-review .cs-publication-review-button {
+  box-sizing:border-box;
+  min-height:40px;
+  height:auto;
+  margin:0;
+  padding:8px 12px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  box-shadow:none;
+  color:var(--cs-access-ink);
+  font:inherit;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-button:disabled {
+  opacity:.45;
+  cursor:default;
+}
+#cleanrooms-studio .cs-publication-review-back {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:40px;
+  margin:0 0 12px;
+  padding:0;
+  border:0;
+  background:none;
+  box-shadow:none;
+  color:var(--cs-access-muted);
+  font:inherit;
+}
+#cleanrooms-studio .cs-publication-review-back::before {
+  content:&#x27;←&#x27;;
+  font-size:16px;
+}
+#cleanrooms-studio .cs-publication-review-detail-head {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:4px;
+}
+#cleanrooms-studio .cs-publication-review-detail-title {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:18px;
+  font-weight:600;
+  line-height:24px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-detail-context,
+#cleanrooms-studio .cs-publication-review-detail-summary {
+  margin:0 0 16px;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review-comparison {
+  table-layout:fixed;
+  width:100%;
+  margin:0 0 16px;
+  border-collapse:collapse;
+  font-size:12px;
+  text-align:left;
+}
+#cleanrooms-studio .cs-publication-review-comparison :is(th,td) {
+  padding:8px 6px;
+  border-bottom:1px solid var(--cs-access-border);
+  font-weight:400;
+  text-align:left;
+  vertical-align:top;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-comparison th:first-child {
+  width:25%;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review-comparison thead th {
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-comparison td {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio .cs-publication-review-comparison td[data-changed=&quot;true&quot;] {
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-instructions {
+  margin:0 0 16px;
+}
+#cleanrooms-studio .cs-publication-review-instructions &gt; summary {
+  padding:8px 0;
+  font-weight:600;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-review-instruction-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px;
+  min-width:0;
+  padding:4px 0 12px;
+}
+#cleanrooms-studio .cs-publication-review-instruction-grid &gt; section {
+  min-width:0;
+}
+#cleanrooms-studio .cs-publication-review-section-label {
+  margin:0 0 6px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-note {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-empty {
+  margin:0;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+@media(max-width:480px) {
+  #cleanrooms-studio .cs-publication-review-instruction-grid {
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+}
 
 /* A fixed reading order makes each request comparable to the next. */
 #cleanrooms-studio .cs-requests-directory{min-width:0;color:#354650;font-size:13px;line-height:21px}
@@ -11187,7 +11398,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:var(--cs-compass-indicator);
 }
 
-/* The editor, review, publication and department views share the same quiet frame. */
+/* The editor, review and department views share the same quiet frame. */
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] :is(
   .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
   .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer
@@ -11197,15 +11408,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   box-shadow:none;
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) :is(
-  .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3,
-  .cs-publication-review-detail-title,.cs-publication-range-title
+  .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3
 ) {
   color:var(--cs-access-ink);
   font-weight:700;
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] :is(
   .cs-series-planning-preview,.cs-series-operation-note,.cs-person-picker-head,.cs-person-footnote,
-  .cs-department-popover-footer,.cs-publication-review-comparison thead th
+  .cs-department-popover-footer
 ) {
   border-color:var(--cs-compass-rule);
   background:var(--cs-access-soft);
@@ -11227,9 +11437,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]):where([data-role=&quot;admin&quot;]) .cs-series-calendar-grid&gt;button[aria-pressed=&quot;true&quot;] {
   outline-color:var(--cs-access-primary);
 }
-#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] :is(
-  .cs-operations-tabs&gt;button,.cs-publication-review .cs-publication-review-filter,.cs-publication-range-preset
-)[aria-pressed=&quot;true&quot;] {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-operations-tabs&gt;button[aria-pressed=&quot;true&quot;] {
   border-color:transparent;
   border-radius:0;
   background:transparent;
@@ -11237,8 +11445,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   box-shadow:inset 0 -2px 0 var(--cs-compass-indicator);
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) :is(
-  .cs-calendar-display-panel,.cs-date-jump-panel,.cs-department-popover,.cs-series-menu-items,
-  .cs-publication-review-comparison :is(th,td),.cs-publication-review .cs-publication-review-row
+  .cs-calendar-display-panel,.cs-date-jump-panel,.cs-department-popover,.cs-series-menu-items
 ) {
   border-color:var(--cs-compass-rule);
 }
@@ -11255,6 +11462,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
   --cs-publication-gutter:28px;
+  --cs-publication-rule:#e2e7ec;
+  --cs-access-soft:#f4f6f8;
+  --cs-access-border:var(--cs-publication-rule);
+  --cs-access-control-edge:#88939d;
+  --cs-access-primary:var(--cs-access-ink);
+  --cs-access-primary-hover:#223746;
+  --cs-compass-selected:#edf1f4;
   width:min(552px,100%);
   height:auto;
   max-height:100%;
@@ -11274,7 +11488,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:inherit;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-head {
-  padding-block:22px 6px;
+  padding-block:22px 18px;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-title {
   margin:0;
@@ -11285,112 +11499,174 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   line-height:1.2;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor &gt; .cs-group-fields {
-  padding:2px var(--cs-publication-gutter) 12px;
+  padding:3px var(--cs-publication-gutter) 8px;
   overflow-x:hidden;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-intro {
-  display:flex;
-  flex-wrap:wrap;
-  align-items:baseline;
-  gap:2px 10px;
+#cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+  --cs-ui-height:40px;
+  --cs-ui-field-color:var(--cs-access-ink);
+  --cs-ui-field-font:14px;
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  align-items:start;
+  gap:16px;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-scope &gt; label,.cs-publication-section-title) {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:14px;
+  font-weight:600;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope {
+  display:grid;
+  gap:7px;
   min-width:0;
 }
-#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
-  margin:0;
-  color:var(--cs-access-body);
-  font-size:14px;
-  font-weight:600;
-  line-height:21px;
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-setup :is(#cs-publication-range-slot select,#cs-publication-scope-select) {
+  --cs-ui-field-inset-end:27px;
+  --cs-ui-field-inset-start:9px;
+  width:100%;
+  background-position:right 8px center;
+  cursor:pointer;
 }
-#cleanrooms-studio .cs-changes-editor :is(#cs-publication-dates,#cs-publication-sites) {
-  margin:0;
-  color:var(--cs-access-muted);
-  font-size:14px;
-  line-height:21px;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-sites {
-  flex-basis:100%;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-summary {
-  margin:24px 0 0;
-  color:var(--cs-access-body);
-  font-size:15px;
-  font-weight:600;
-  line-height:22px;
-  overflow-wrap:anywhere;
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-setup select:disabled {
+  cursor:default;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback {
-  margin:3px 0 0;
+  margin:14px 0 0;
   color:var(--cs-access-muted);
-  font-size:14px;
-  line-height:21px;
+  font-size:13px;
+  line-height:20px;
   overflow-wrap:anywhere;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;ready&quot;] {
-  color:var(--cs-access-primary);
-}
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;warning&quot;] {
-  margin-block-start:10px;
   padding:10px 12px;
-  border-radius:8px;
+  border-radius:6px;
   background:#fbf6ec;
   color:#775210;
   font-weight:600;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure {
-  min-width:0;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-options {
-  margin:18px 0 0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary {
+#cleanrooms-studio .cs-changes-editor #cs-publication-load {
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  min-height:44px;
-  margin-inline:-8px;
-  padding:8px;
-  border-radius:8px;
-  color:var(--cs-access-body);
-  font-size:14px;
-  font-weight:600;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:12px 0 0;
+  color:var(--cs-access-muted);
+  font-size:13px;
   line-height:20px;
-  list-style:none;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load[hidden] {
+  display:none;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load-message {
+  margin:0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related {
+  gap:10px;
+  margin:12px 0 0;
+  padding:9px 10px;
+  border-radius:6px;
+  background:#fbf6ec;
+  color:#775210;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related input {
+  accent-color:var(--cs-access-ink);
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-related-slot &gt; ul {
+  margin:8px 0 0;
+  padding-inline:10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget {
+  min-width:0;
+  margin:18px 0 0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:4px 10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
+  margin:0;
+  font-size:13px;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title &gt; span,.cs-publication-budget-numbers &gt; span,.cs-publication-budget-note) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-overview {
+  justify-content:space-between;
+  margin-top:5px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
+  font-size:15px;
+  font-variant-numeric:tabular-nums;
+  line-height:22px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
+  color:var(--cs-access-body);
+  font-weight:650;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status[data-over=&quot;true&quot;] {color:#9b3227}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-note {margin:3px 0 0}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details summary {
+  width:fit-content;
+  color:var(--cs-access-ink);
+  font-weight:650;
   cursor:pointer;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary::-webkit-details-marker {display:none}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure:is([open],:hover) &gt; summary {
-  background:var(--cs-access-soft);
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods {
+  margin:6px 0 0;
+  padding:0;
+  list-style:none;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-chevron {
-  flex:none;
-  width:7px;
-  height:7px;
-  margin-inline-end:4px;
-  border-inline-end:1.5px solid currentColor;
-  border-block-end:1.5px solid currentColor;
-  color:var(--cs-access-muted);
-  transform:translateY(-2px) rotate(45deg);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure[open] &gt; summary .cs-publication-chevron {
-  transform:translateY(2px) rotate(225deg);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-detail-content {
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods li {
   display:grid;
-  gap:16px;
-  min-width:0;
-  padding:14px 0;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px 8px;
+  padding:5px 0;
+  border-top:1px solid var(--cs-publication-rule);
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-retry {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor #cs-changes-list:not(:empty) {
+  margin-top:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-section-title {
+  margin:0 0 10px;
+  font-size:16px;
+  line-height:22px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-section-title {
+  margin-top:18px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-location-changes {
+  display:grid;
+  gap:8px;
+  margin:0 0 12px;
+  padding:0;
+  list-style:none;
+  color:var(--cs-access-body);
+  font-size:13px;
+  line-height:20px;
+  overflow-wrap:anywhere;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
   margin:0;
   padding:0;
   list-style:none;
-  border-block-end:1px solid var(--cs-compass-rule);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts &gt; li + li {
-  border-block-start:1px solid var(--cs-compass-rule);
+  border-block-start:1px solid var(--cs-publication-rule);
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict {
   display:flex;
@@ -11427,359 +11703,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict:hover {
   background:var(--cs-access-soft);
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-setup {
-  display:grid;
-  grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
-  align-items:start;
-  gap:18px;
-  padding:14px 0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range {
-  gap:8px;
-  margin:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-head {
-  flex-direction:column;
-  align-items:stretch;
-  gap:2px;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-scope &gt; label) {
-  margin:0;
-  color:var(--cs-access-ink);
-  font-size:14px;
-  font-weight:600;
-  line-height:22px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-fields {
-  gap:8px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-field {
-  gap:4px;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-summary {
-  position:absolute;
-  width:1px;
-  height:1px;
-  overflow:hidden;
-  clip-path:inset(50%);
-  white-space:nowrap;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget {
-  min-width:0;
-  margin:18px 0 0;
-  color:var(--cs-access-ink);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
-  display:flex;
-  align-items:baseline;
-  flex-wrap:wrap;
-  gap:4px 10px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
-  margin:0;
-  font-size:13px;
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title &gt; span,.cs-publication-budget-numbers &gt; span,.cs-publication-budget-note) {
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-overview {
-  justify-content:space-between;
-  margin-top:5px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
-  font-size:15px;
-  font-variant-numeric:tabular-nums;
-  line-height:22px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
-  color:var(--cs-access-primary);
-  font-weight:650;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status[data-over=&quot;true&quot;] {color:#9b3227}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-note {margin:3px 0 0}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details {margin-top:6px}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details summary {
-  width:fit-content;
-  color:var(--cs-access-ink);
-  font-weight:650;
-  cursor:pointer;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods {
-  margin:6px 0 0;
-  padding:0;
-  list-style:none;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods li {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:4px 8px;
-  padding:5px 0;
-  border-top:1px solid var(--cs-compass-rule);
-  font-variant-numeric:tabular-nums;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-retry {margin-top:6px}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope {
-  min-width:0;
-  margin:0;
-  padding:0;
-  border:0;
-  background:transparent;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope &gt; label {
-  display:block;
-  margin-bottom:8px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-input,.cs-publication-scope select,.cs-publication-review-input) {
-  box-sizing:border-box;
-  width:100%;
-  min-width:0;
-  height:36px;
-  min-height:36px;
-  padding:0 8px;
-  border:1px solid var(--cs-access-control-edge);
-  border-radius:6px;
-  background:var(--cs-access-surface);
-  color:var(--cs-access-ink);
-  font:inherit;
-  font-size:13px;
-  font-weight:500;
-  box-shadow:none;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-range-input[aria-invalid=&quot;true&quot;] {
-  border-color:#a33c32;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-presets,.cs-publication-review-filters) {
-  display:flex;
-  gap:3px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
-  position:relative;
-  gap:5px;
-  min-width:0;
-  min-height:34px!important;
-  height:34px!important;
-  padding:0 7px!important;
-  border:0;
-  border-radius:6px;
-  background:transparent;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  font-weight:600;
-  box-shadow:none;
-  white-space:nowrap;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter):hover:not(:disabled) {
-  background:var(--cs-access-soft);
-  color:var(--cs-access-ink);
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter)[aria-pressed=&quot;true&quot;] {
-  background:var(--cs-compass-selected);
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more {
-  position:relative;
-  flex:0 0 66px;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more::after {
-  content:&quot;&quot;;
-  position:absolute;
-  top:50%;
-  right:9px;
-  width:6px;
-  height:6px;
-  border-right:1.5px solid currentColor;
-  border-bottom:1.5px solid currentColor;
-  transform:translateY(-70%) rotate(45deg);
-  pointer-events:none;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select {
-  appearance:none;
-  display:block;
-  box-sizing:border-box;
-  width:100%;
-  min-width:0;
-  height:34px!important;
-  min-height:34px!important;
-  padding:0 19px 0 7px!important;
-  border:0;
-  border-radius:6px;
-  background:transparent;
-  box-shadow:none;
-  color:inherit;
-  font:inherit;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:hover:not(:disabled) {
-  background:var(--cs-access-soft);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more[data-selected=&quot;true&quot;] {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more[data-selected=&quot;true&quot;] select {
-  background:var(--cs-compass-selected);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more:has(select:disabled) {
-  opacity:.4;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:disabled {
-  cursor:default;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:focus-visible {
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-conflict,.cs-publication-related input,.cs-publication-budget-details summary):focus-visible {
   outline:2px solid var(--cs-access-blue);
   outline-offset:2px;
-}
-#cleanrooms-studio .cs-changes-editor :is(button,input,select,summary):focus-visible {
-  outline:2px solid var(--cs-access-blue);
-  outline-offset:2px;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load {
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-  min-height:40px;
-  margin:12px 0 0;
-  color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load[hidden] {
-  display:none;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load-message {
-  margin:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-related {
-  gap:10px;
-  margin:12px 0 0;
-  padding:9px 10px;
-  border-radius:6px;
-  background:#fbf6ec;
-  color:#775210;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-related input {
-  accent-color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-related-slot &gt; p {
-  margin:6px 0 0;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  line-height:18px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks {
-  width:100%;
-  margin:0;
-  table-layout:fixed;
-  color:var(--cs-access-body);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
-  padding:8px 10px;
-  border-bottom:1px solid var(--cs-compass-rule);
-  white-space:normal;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks thead th {
-  background:var(--cs-access-soft);
-  color:var(--cs-access-muted);
-  font-weight:700;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(1) {width:26%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {width:13%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(4) {width:23%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks tbody th {
-  color:var(--cs-access-ink);
-  font-weight:650;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-dates {
-  display:block;
-  margin-top:2px;
-  color:var(--cs-access-muted);
-  font-weight:400;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state {
-  display:inline-flex;
-  align-items:baseline;
-  gap:6px;
-  color:var(--cs-access-muted);
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state::before {
-  content:&quot;&quot;;
-  flex:none;
-  width:6px;
-  height:6px;
-  margin-block-start:5px;
-  border-radius:50%;
-  background:currentColor;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state:is([data-state=&quot;ready&quot;],[data-state=&quot;published&quot;]) {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state=&quot;issues&quot;] {
-  color:#a33c32;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state=&quot;open&quot;] {
-  color:#775210;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review {
-  margin:0;
-  color:var(--cs-access-body);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(160px,42%);
-  align-items:end;
-  gap:12px;
-  margin-bottom:12px;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-review-muted,.cs-publication-review-filter-count,.cs-publication-review-week,.cs-publication-review-row-context) {
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-day-title {
-  margin:14px 0 0;
-  padding:4px 8px;
-  border:0;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  font-weight:600;
-}
-#cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-review .cs-publication-review-row {
-  min-height:56px!important;
-  padding:8px!important;
-  border:0;
-  border-radius:8px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row:hover {
-  background:var(--cs-access-soft);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head {
-  flex-wrap:wrap;
-  column-gap:10px;
-  row-gap:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head &gt; strong {
-  color:var(--cs-access-ink);
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type {
-  color:var(--cs-access-muted);
-  font-size:11px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type=&quot;added&quot;]::before {
-  background:var(--cs-compass-indicator);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type=&quot;removed&quot;]::before {
-  background:#a33c32;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions {
   justify-content:flex-end;
@@ -11787,24 +11713,30 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   gap:8px;
   padding-block:14px 22px;
 }
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor:has(.cs-group-fields details[open]) &gt; .cs-editor-actions {
-  box-shadow:0 -1px 0 var(--cs-compass-rule);
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor:has(#cs-changes-list:not(:empty)) &gt; .cs-editor-actions {
+  box-shadow:0 -1px 0 var(--cs-publication-rule);
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-  flex:1 1 150px;
-  min-width:0;
-  margin:0 auto 0 0;
-  color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:19px;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note:empty {display:none}
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
   flex:none;
+  height:40px;
   min-height:40px;
+  padding-inline:14px;
+  border-radius:6px;
   font-size:14px;
   font-weight:600;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish {
+  min-width:92px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:var(--cs-access-surface);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
 }
 @media(max-width:600px) {
   #cleanrooms-studio[data-page] #cs-changes-layer:not([hidden]) {
@@ -11812,44 +11744,25 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     padding:0;
   }
   #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
-    --cs-publication-gutter:22px;
+    --cs-publication-gutter:20px;
     max-height:calc(100% - 20px);
     border-radius:18px 18px 0 0;
   }
   #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
     grid-template-columns:minmax(0,1fr);
-    gap:12px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
-    grid-template-columns:minmax(0,1fr);
-    gap:8px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-review-search {
-    grid-row:1;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
-    padding:6px 4px;
-    font-size:11px;
-    line-height:16px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {
-    width:17%;
   }
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions {
-    flex-wrap:wrap;
     padding-bottom:max(16px,env(safe-area-inset-bottom));
   }
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
+    height:44px;
     min-height:44px;
   }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-    flex-basis:100%;
-  }
 }
-@media(max-width:390px) {
-  #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
-    padding-inline:5px!important;
-    font-size:11px;
+@media(max-width:600px),(pointer:coarse) {
+  #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+    --cs-ui-height:44px;
+    --cs-ui-field-font:16px;
   }
 }
 
@@ -13230,7 +13143,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   &lt;main class=&quot;cs-main&quot;&gt;
     &lt;header class=&quot;cs-page-head&quot;&gt;
       &lt;div class=&quot;cs-title-block&quot;&gt;&lt;span class=&quot;cs-sr&quot; id=&quot;cs-crumb&quot;&gt;Vagtplan&lt;/span&gt;&lt;span class=&quot;cs-compass-context&quot; aria-hidden=&quot;true&quot;&gt;CleanRooms&lt;/span&gt;&lt;h2 id=&quot;cs-title&quot;&gt;Vagtplan&lt;/h2&gt;&lt;div class=&quot;cs-page-description&quot; id=&quot;cs-description&quot;&gt;22 medarbejdere · 3 arbejdssteder&lt;/div&gt;&lt;/div&gt;
-      &lt;div class=&quot;cs-head-actions&quot;&gt;&lt;span class=&quot;cs-draft&quot;&gt;&lt;span class=&quot;cs-draft-dot&quot;&gt;&lt;/span&gt;&lt;span id=&quot;cs-status&quot;&gt;Kladde&lt;/span&gt;&lt;/span&gt;&lt;button id=&quot;cs-review&quot; type=&quot;button&quot; class=&quot;cs-button cs-review-trigger cursor-interaction&quot; aria-label=&quot;Tjek planen&quot;&gt;&lt;i data-lucide=&quot;list-checks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-review-label&quot;&gt;Tjek planen&lt;/span&gt;&lt;span id=&quot;cs-review-count&quot; class=&quot;cs-review-count&quot;&gt;1&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-publish&quot; type=&quot;button&quot; class=&quot;cs-button cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Udgiv plan&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-new&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Opret vagt&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;cs-head-actions&quot;&gt;&lt;span class=&quot;cs-draft&quot;&gt;&lt;span class=&quot;cs-draft-dot&quot;&gt;&lt;/span&gt;&lt;span id=&quot;cs-status&quot;&gt;Kladde&lt;/span&gt;&lt;/span&gt;&lt;button id=&quot;cs-review&quot; type=&quot;button&quot; class=&quot;cs-button cs-review-trigger cursor-interaction&quot; aria-label=&quot;Tjek planen&quot;&gt;&lt;i data-lucide=&quot;list-checks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-review-label&quot;&gt;Tjek planen&lt;/span&gt;&lt;span id=&quot;cs-review-count&quot; class=&quot;cs-review-count&quot;&gt;1&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-publish&quot; type=&quot;button&quot; class=&quot;cs-button cursor-interaction&quot;&gt;Udgiv&lt;/button&gt;&lt;button id=&quot;cs-new&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Opret vagt&lt;/button&gt;&lt;/div&gt;
       &lt;button id=&quot;cs-page-help&quot; type=&quot;button&quot; class=&quot;cs-page-help-trigger&quot; aria-label=&quot;Hjælp til denne side&quot; aria-haspopup=&quot;dialog&quot;&gt;?&lt;/button&gt;
     &lt;/header&gt;
     &lt;div class=&quot;cs-content&quot;&gt;
@@ -13385,26 +13298,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     &lt;section class=&quot;cs-editor cs-group-editor cs-changes-editor&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;cs-changes-title&quot;&gt;
       &lt;header class=&quot;cs-editor-head&quot;&gt;&lt;h3 id=&quot;cs-changes-title&quot;&gt;Udgiv vagtplan&lt;/h3&gt;&lt;button id=&quot;cs-changes-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet&quot; aria-label=&quot;Luk udgivelse&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/header&gt;
       &lt;div class=&quot;cs-group-fields&quot;&gt;
-        &lt;div class=&quot;cs-publication-intro&quot;&gt;
-          &lt;p id=&quot;cs-changes-period&quot;&gt;&lt;/p&gt;
-          &lt;p id=&quot;cs-publication-dates&quot;&gt;&lt;/p&gt;
-          &lt;p id=&quot;cs-publication-sites&quot;&gt;&lt;/p&gt;
+        &lt;div class=&quot;cs-publication-setup&quot;&gt;
+          &lt;div id=&quot;cs-publication-range-slot&quot;&gt;&lt;/div&gt;
+          &lt;div class=&quot;cs-publication-scope&quot;&gt;
+            &lt;label for=&quot;cs-publication-scope-select&quot;&gt;Vælg arbejdssted&lt;/label&gt;
+            &lt;select id=&quot;cs-publication-scope-select&quot;&gt;&lt;/select&gt;
+          &lt;/div&gt;
         &lt;/div&gt;
-        &lt;p id=&quot;cs-publication-summary&quot; class=&quot;cs-publication-summary&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
         &lt;p id=&quot;cs-publication-feedback&quot; class=&quot;cs-publication-feedback&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
         &lt;div id=&quot;cs-publication-load&quot; hidden&gt;&lt;p id=&quot;cs-publication-load-message&quot; role=&quot;status&quot;&gt;&lt;/p&gt;&lt;button id=&quot;cs-publication-retry&quot; type=&quot;button&quot; class=&quot;cs-button&quot; hidden&gt;Prøv igen&lt;/button&gt;&lt;/div&gt;
         &lt;div id=&quot;cs-publication-related-slot&quot; hidden&gt;&lt;/div&gt;
         &lt;section id=&quot;cs-publication-budget&quot; class=&quot;cs-publication-budget&quot; aria-label=&quot;Virksomhedens timebudget&quot; hidden&gt;&lt;/section&gt;
-        &lt;details id=&quot;cs-publication-options&quot; class=&quot;cs-publication-disclosure&quot;&gt;
-          &lt;summary&gt;&lt;span&gt;Ret periode og arbejdssteder&lt;/span&gt;&lt;span class=&quot;cs-publication-chevron&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/summary&gt;
-          &lt;div class=&quot;cs-publication-setup&quot;&gt;
-            &lt;div id=&quot;cs-publication-range-slot&quot;&gt;&lt;/div&gt;
-            &lt;div class=&quot;cs-publication-scope&quot;&gt;&lt;label for=&quot;cs-publication-scope-select&quot;&gt;Arbejdssteder&lt;/label&gt;&lt;select id=&quot;cs-publication-scope-select&quot;&gt;&lt;option value=&quot;selected&quot;&gt;Som i vagtplanen&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Alle arbejdssteder&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/details&gt;
         &lt;div id=&quot;cs-changes-list&quot; class=&quot;cs-changes-list&quot;&gt;&lt;/div&gt;
       &lt;/div&gt;
-      &lt;footer class=&quot;cs-editor-actions&quot;&gt;&lt;p id=&quot;cs-publication-footer-note&quot; class=&quot;cs-publication-footer-note&quot;&gt;&lt;/p&gt;&lt;button id=&quot;cs-changes-cancel&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot;&gt;Luk&lt;/button&gt;&lt;button id=&quot;cs-changes-publish&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary&quot; disabled&gt;Udgiv&lt;/button&gt;&lt;/footer&gt;
+      &lt;footer class=&quot;cs-editor-actions&quot;&gt;&lt;button id=&quot;cs-changes-cancel&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot;&gt;Annuller&lt;/button&gt;&lt;button id=&quot;cs-changes-publish&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary&quot; disabled&gt;Udgiv&lt;/button&gt;&lt;/footer&gt;
     &lt;/section&gt;
   &lt;/div&gt;
 &lt;!-- Insert these three layers inside #cleanrooms-studio, beside the existing dialog layers. --&gt;
@@ -23460,6 +23367,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 (() =&gt; {
   &#x27;use strict&#x27;;
   const DAY=86400000,MAX_WEEKS=52,DEFAULT_MIN=&#x27;2000-01-01&#x27;,DEFAULT_MAX=&#x27;2100-12-31&#x27;;
+  const dateRangeFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, {
+    day:&#x27;numeric&#x27;, month:&#x27;long&#x27;, year:&#x27;numeric&#x27;, timeZone:&#x27;UTC&#x27;
+  });
   const date=value=&gt;new Date(value+&#x27;T12:00:00Z&#x27;);
   const validDate=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;/^\d{4}-\d{2}-\d{2}$/.test(value)&amp;&amp;Number.isFinite(date(value).getTime())&amp;&amp;date(value).toISOString().slice(0,10)===value;
   const addDays=(value,days)=&gt;{if(!validDate(value)||!Number.isSafeInteger(days))throw new TypeError(&#x27;Datoen er ugyldig.&#x27;);const result=date(value);result.setUTCDate(result.getUTCDate()+days);return result.toISOString().slice(0,10);};
@@ -23502,75 +23412,208 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
   function mount({element,onChange=()=&gt;{},onValidityChange=()=&gt;{}}={}) {
     if(!element?.ownerDocument)throw new TypeError(&#x27;Udgivelsesperioden kræver et indholdsfelt.&#x27;);
-    const doc=element.ownerDocument,root=doc.createElement(&#x27;section&#x27;);root.className=&#x27;cs-publication-range&#x27;;root.setAttribute(&#x27;aria-label&#x27;,&#x27;Udgivelsesperiode&#x27;);
-    let options={minDate:DEFAULT_MIN,maxDate:DEFAULT_MAX,disabled:false},value=null,draftFrom=&#x27;&#x27;,draftTo=&#x27;&#x27;,valid=true,disposed=false;
-    const node=(tag,cls,text)=&gt;{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
-    const heading=node(&#x27;div&#x27;,&#x27;cs-publication-range-head&#x27;),label=node(&#x27;h4&#x27;,&#x27;cs-publication-range-title&#x27;,&#x27;Udgivelsesperiode&#x27;),presets=node(&#x27;div&#x27;,&#x27;cs-publication-range-presets&#x27;);presets.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);presets.setAttribute(&#x27;aria-label&#x27;,&#x27;Antal uger&#x27;);
-    const controls=new Map();
-    const startingWeek=()=&gt;validDate(draftFrom)?monday(draftFrom):value?.from;
-    const chooseWeeks=count=&gt;{
-      const from=startingWeek();
-      if(!disposed&amp;&amp;!options.disabled&amp;&amp;from)commit(from,addDays(from,count*7-1),&#x27;preset&#x27;);
+    const doc = element.ownerDocument;
+    const node = (tag, className, text) =&gt; {
+      const el = doc.createElement(tag);
+      if(className)el.className = className;
+      if(text !== undefined)el.textContent = text;
+      return el;
     };
-    for(const count of [1,2,4,8]){const control=node(&#x27;button&#x27;,&#x27;cs-publication-range-preset&#x27;,count+(count===1?&#x27; uge&#x27;:&#x27; uger&#x27;));control.type=&#x27;button&#x27;;control.dataset.publicationRange=&#x27;preset:&#x27;+count;control.addEventListener(&#x27;click&#x27;,()=&gt;{if(!control.disabled)chooseWeeks(count);});controls.set(count,control);presets.append(control);}
-    const more=node(&#x27;div&#x27;,&#x27;cs-publication-range-more&#x27;),select=node(&#x27;select&#x27;,&#x27;cs-publication-range-more-select&#x27;);
-    select.dataset.publicationRange=&#x27;more&#x27;;
-    select.setAttribute(&#x27;aria-label&#x27;,&#x27;Flere ugevalg&#x27;);
-    const placeholder=node(&#x27;option&#x27;,&#x27;&#x27;,&#x27;Flere&#x27;);placeholder.value=&#x27;&#x27;;placeholder.disabled=true;
-    select.append(placeholder);
-    const extraCounts=new Map();
-    for(let count=3;count&lt;=MAX_WEEKS;count++){
-      if(controls.has(count))continue;
-      const option=node(&#x27;option&#x27;,&#x27;&#x27;,count+&#x27; uger&#x27;);option.value=String(count);
-      extraCounts.set(count,option);select.append(option);
-    }
-    select.addEventListener(&#x27;change&#x27;,()=&gt;{
-      const count=Number(select.value),choice=extraCounts.get(count);
-      if(!select.disabled&amp;&amp;choice&amp;&amp;!choice.disabled)chooseWeeks(count);
+    const option = (value, label) =&gt; {
+      const el = node(&#x27;option&#x27;, &#x27;&#x27;, label);
+      el.value = String(value);
+      return el;
+    };
+    const select = (name, label) =&gt; {
+      const el = node(&#x27;select&#x27;, &#x27;cs-publication-range-input&#x27;);
+      el.dataset.publicationRange = name;
+      el.setAttribute(&#x27;aria-label&#x27;, label);
+      return el;
+    };
+
+    const root = node(&#x27;section&#x27;, &#x27;cs-publication-range&#x27;);
+    root.setAttribute(&#x27;aria-label&#x27;, &#x27;Periode&#x27;);
+    const heading = node(&#x27;h4&#x27;, &#x27;cs-publication-range-title&#x27;, &#x27;Periode&#x27;);
+    const fields = node(&#x27;div&#x27;, &#x27;cs-publication-range-fields&#x27;);
+    const week = select(&#x27;week&#x27;, &#x27;Startuge&#x27;);
+    const duration = select(&#x27;duration&#x27;, &#x27;Antal uger&#x27;);
+    const year = select(&#x27;year&#x27;, &#x27;År for startuge&#x27;);
+    const yearField = node(&#x27;label&#x27;, &#x27;cs-publication-range-year&#x27;);
+    yearField.append(node(&#x27;span&#x27;, &#x27;&#x27;, &#x27;År&#x27;), year);
+    yearField.hidden = true;
+    const status = node(&#x27;p&#x27;, &#x27;cs-publication-range-summary&#x27;);
+    status.setAttribute(&#x27;aria-live&#x27;, &#x27;polite&#x27;);
+    const error = node(&#x27;p&#x27;, &#x27;cs-publication-range-error&#x27;);
+    error.setAttribute(&#x27;role&#x27;, &#x27;alert&#x27;);
+    error.hidden = true;
+    fields.append(week, duration);
+    root.append(heading, fields, status, yearField, error);
+    element.replaceChildren(root);
+
+    const durations = Array.from({length:MAX_WEEKS}, (_, index) =&gt; {
+      const count = index + 1;
+      return option(count, count === 1 ? &#x27;1 uge&#x27; : count + &#x27; uger&#x27;);
     });
-    more.append(select);presets.append(more);
-    heading.append(label,presets);
-    const fields=node(&#x27;div&#x27;,&#x27;cs-publication-range-fields&#x27;);
-    const makeField=(name,text)=&gt;{const holder=node(&#x27;label&#x27;,&#x27;cs-publication-range-field&#x27;),input=node(&#x27;input&#x27;,&#x27;cs-publication-range-input&#x27;);input.type=&#x27;date&#x27;;input.dataset.publicationRange=name;input.setAttribute(&#x27;aria-label&#x27;,text);holder.append(node(&#x27;span&#x27;,&#x27;&#x27;,text),input);fields.append(holder);return input;};
-    const start=makeField(&#x27;from&#x27;,&#x27;Fra uge&#x27;),end=makeField(&#x27;to&#x27;,&#x27;Til uge&#x27;);
-    const status=node(&#x27;p&#x27;,&#x27;cs-publication-range-summary&#x27;);status.setAttribute(&#x27;aria-live&#x27;,&#x27;polite&#x27;);
-    const error=node(&#x27;p&#x27;,&#x27;cs-publication-range-error&#x27;);error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);error.hidden=true;
-    root.append(heading,fields,status,error);element.replaceChildren(root);
+    duration.append(...durations);
+    let options = {minDate:DEFAULT_MIN, maxDate:DEFAULT_MAX, disabled:false};
+    let value = null, draftFrom = &#x27;&#x27;, draftCount = 1, valid = true, disposed = false;
+    let menuYear, firstWeek, lastWeek, firstYear, lastYear;
+    let choosingYear = false, awaitingWeek = false, renderError = false, weekMenuKey, yearMenuKey;
+
     function validity(next,message=&#x27;&#x27;) {
-      const changed=valid!==next||error.textContent!==message;valid=next;error.textContent=message;error.hidden=next;start.setAttribute(&#x27;aria-invalid&#x27;,String(!next));end.setAttribute(&#x27;aria-invalid&#x27;,String(!next));
+      const changed = valid !== next || error.textContent !== message;
+      valid = next;
+      error.textContent = message;
+      error.hidden = next;
       if(changed)onValidityChange({valid:next,message});
     }
+
+    function updateBounds() {
+      firstWeek = lastWeek = firstYear = lastYear = undefined;
+      if(!validDate(options.minDate) || !validDate(options.maxDate) || options.minDate &gt; options.maxDate) {
+        throw new TypeError(&#x27;Kalenderens datogrænser er ugyldige.&#x27;);
+      }
+      const first = monday(options.minDate);
+      const last = monday(options.maxDate);
+      firstWeek = first &lt; options.minDate ? addDays(first, 7) : first;
+      lastWeek = addDays(last, 6) &gt; options.maxDate ? addDays(last, -7) : last;
+      if(firstWeek &gt; lastWeek)throw new TypeError(&#x27;Kalenderen indeholder ingen hele uger.&#x27;);
+      firstYear = weekNumber(firstWeek).year;
+      lastYear = weekNumber(lastWeek).year;
+    }
+
+    function weeksAvailable(from) {
+      if(!validDate(from) || !firstWeek || from &lt; firstWeek || from &gt; lastWeek || monday(from) !== from)return 0;
+      return Math.min(MAX_WEEKS, Math.floor((date(lastWeek) - date(from)) / (7 * DAY)) + 1);
+    }
+
+    function renderWeekMenu() {
+      const key = JSON.stringify([menuYear, firstWeek, lastWeek]);
+      if(key === weekMenuKey)return;
+      weekMenuKey = key;
+      const placeholder = option(&#x27;&#x27;, &#x27;Vælg uge&#x27;);
+      placeholder.disabled = true;
+      const groups = [placeholder];
+      for(let candidate = Math.max(firstYear, menuYear - 1); candidate &lt;= Math.min(lastYear, menuYear + 1); candidate++) {
+        const group = node(&#x27;optgroup&#x27;);
+        group.label = String(candidate);
+        const yearStart = monday(String(candidate).padStart(4, &#x27;0&#x27;) + &#x27;-01-04&#x27;);
+        let start = yearStart &lt; firstWeek ? firstWeek : yearStart;
+        while(start &lt;= lastWeek &amp;&amp; weekNumber(start).year === candidate) {
+          group.append(option(start, &#x27;Uge &#x27; + weekNumber(start).week));
+          start = addDays(start, 7);
+        }
+        groups.push(group);
+      }
+      if(firstYear &lt; menuYear - 1 || lastYear &gt; menuYear + 1)groups.push(option(&#x27;other-year&#x27;, &#x27;Vælg andet år…&#x27;));
+      week.replaceChildren(...groups);
+    }
+
+    function renderYearMenu() {
+      const key = JSON.stringify([firstYear, lastYear]);
+      if(key === yearMenuKey)return;
+      yearMenuKey = key;
+      const placeholder = option(&#x27;&#x27;, &#x27;Vælg år&#x27;);
+      placeholder.disabled = true;
+      const choices = [placeholder];
+      for(let candidate = firstYear; candidate &lt;= lastYear; candidate++)choices.push(option(candidate, candidate));
+      year.replaceChildren(...choices);
+    }
+
     function sync() {
       if(disposed)return;
-      start.value=draftFrom;end.value=draftTo;start.disabled=end.disabled=options.disabled===true;
-      const min=validDate(options.minDate)?options.minDate:DEFAULT_MIN,max=validDate(options.maxDate)?options.maxDate:DEFAULT_MAX,first=monday(min),minimum=first&lt;min?addDays(first,7):first,last=monday(max),maximum=addDays(last,6)&gt;max?addDays(last,-7):last;
-      start.min=end.min=minimum;start.max=end.max=maximum;
-      const from=startingWeek(),selectedCount=valid&amp;&amp;value?countWeeks(value.from,value.to):0;
-      const availableWeeks=from&amp;&amp;from&gt;=minimum&amp;&amp;from&lt;=maximum?Math.min(MAX_WEEKS,1+Math.round((date(maximum)-date(from))/(7*DAY))):0;
-      for(const [count,control]of controls){const allowed=count&lt;=availableWeeks;control.disabled=options.disabled===true||!allowed;control.setAttribute(&#x27;aria-pressed&#x27;,String(selectedCount===count));control.title=allowed?&#x27;&#x27;:&#x27;Perioden ligger uden for kalenderen.&#x27;;}
-      for(const [count,option]of extraCounts)option.disabled=count&gt;availableWeeks;
-      select.disabled=options.disabled===true||availableWeeks&lt;3;
-      select.value=extraCounts.has(selectedCount)?String(selectedCount):&#x27;&#x27;;
-      more.dataset.selected=String(select.value!==&#x27;&#x27;);
-      status.textContent=valid&amp;&amp;value?summary(value):&#x27;Ret perioden, før du udgiver.&#x27;;
+      renderWeekMenu();
+      const available = weeksAvailable(draftFrom);
+      durations.forEach((item, index) =&gt; { item.disabled = Boolean(available) &amp;&amp; index &gt;= available; });
+      week.value = draftFrom;
+      duration.value = draftCount ? String(draftCount) : &#x27;&#x27;;
+      week.disabled = duration.disabled = year.disabled = options.disabled === true || firstYear === undefined;
+      week.setAttribute(&#x27;aria-invalid&#x27;, String(!valid &amp;&amp; !available));
+      duration.setAttribute(&#x27;aria-invalid&#x27;, String(!valid &amp;&amp; Boolean(available)));
+      yearField.hidden = !choosingYear;
+      if(choosingYear) {
+        renderYearMenu();
+        year.value = awaitingWeek ? String(menuYear) : &#x27;&#x27;;
+      }
+      status.hidden = !valid || !value;
+      const text = status.hidden ? &#x27;&#x27; : dateRangeFormat.formatRange(date(value.from), date(value.to));
+      if(status.textContent !== text)status.textContent = text;
     }
-    function commit(from,to,source) {
-      draftFrom=from;draftTo=to;
-      let next;try{next=normalize({from,to,minDate:options.minDate,maxDate:options.maxDate});}
-      catch(problem){validity(false,problem.message);sync();return;}
-      const changed=!value||value.from!==next.from||value.to!==next.to;
-      value=next;draftFrom=value.from;draftTo=monday(value.to);validity(true);sync();
-      if(changed&amp;&amp;!disposed)onChange({...value},{source});
+
+    function commit(source) {
+      const available = weeksAvailable(draftFrom);
+      if(!available) {
+        validity(false, awaitingWeek ? &#x27;Vælg en uge i &#x27; + menuYear + &#x27;.&#x27; : &#x27;Vælg en startuge.&#x27;);
+      } else if(!Number.isInteger(draftCount) || draftCount &lt; 1 || draftCount &gt; MAX_WEEKS) {
+        validity(false, &#x27;Vælg antal uger.&#x27;);
+      } else if(draftCount &gt; available) {
+        validity(false, &#x27;Vælg færre uger for at holde perioden inden for kalenderen.&#x27;);
+      } else {
+        const next = {from:draftFrom, to:addDays(draftFrom, draftCount * 7 - 1)};
+        const changed = !value || value.from !== next.from || value.to !== next.to;
+        value = next;
+        validity(true);
+        sync();
+        if(changed &amp;&amp; !disposed)onChange({...value}, {source});
+        return;
+      }
+      sync();
     }
-    start.addEventListener(&#x27;change&#x27;,()=&gt;{if(!disposed&amp;&amp;!options.disabled)commit(start.value,end.value,&#x27;date&#x27;);});
-    end.addEventListener(&#x27;change&#x27;,()=&gt;{if(!disposed&amp;&amp;!options.disabled)commit(start.value,end.value,&#x27;date&#x27;);});
+
+    week.addEventListener(&#x27;change&#x27;, () =&gt; {
+      if(disposed || options.disabled)return;
+      if(week.value === &#x27;other-year&#x27;) {
+        choosingYear = true;
+        sync();
+        year.focus?.({preventScroll:true});
+        return;
+      }
+      draftFrom = week.value;
+      if(weeksAvailable(draftFrom)) {
+        menuYear = weekNumber(draftFrom).year;
+        choosingYear = awaitingWeek = false;
+      }
+      commit(&#x27;week&#x27;);
+    });
+    duration.addEventListener(&#x27;change&#x27;, () =&gt; {
+      if(disposed || options.disabled)return;
+      draftCount = Number(duration.value);
+      commit(&#x27;duration&#x27;);
+    });
+    year.addEventListener(&#x27;change&#x27;, () =&gt; {
+      if(disposed || options.disabled || !choosingYear)return;
+      const selected = Number(year.value);
+      if(!Number.isInteger(selected) || selected &lt; firstYear || selected &gt; lastYear)return;
+      menuYear = selected;
+      draftFrom = &#x27;&#x27;;
+      awaitingWeek = true;
+      commit(&#x27;year&#x27;);
+      week.focus?.({preventScroll:true});
+    });
+
     function render(next={}) {
-      if(disposed)return;options={...options,...next};
-      try{
-        const from=next.from??value?.from??monday(new Date().toISOString().slice(0,10)),to=next.to??value?.to??from,range=normalize({...options,from,to});
-        const changed=!value||value.from!==range.from||value.to!==range.to;
-        if(changed){value=range;draftFrom=value.from;draftTo=monday(value.to);validity(true);}
-      }catch(problem){validity(false,problem.message);}
+      if(disposed)return;
+      options = {...options, ...next};
+      try {
+        updateBounds();
+        const from = next.from ?? value?.from ?? monday(new Date().toISOString().slice(0, 10));
+        const to = next.to ?? value?.to ?? from;
+        const range = normalize({...options, from, to});
+        const changed = !value || value.from !== range.from || value.to !== range.to;
+        if(changed || renderError) {
+          value = range;
+          draftFrom = range.from;
+          draftCount = countWeeks(range.from, range.to);
+          menuYear = weekNumber(range.from).year;
+          choosingYear = awaitingWeek = false;
+          validity(true);
+        }
+        renderError = false;
+      } catch(problem) {
+        menuYear ??= firstYear;
+        renderError = true;
+        validity(false, problem.message);
+      }
       sync();
     }
     return {render,dispose(){disposed=true;element.replaceChildren();},get value(){return value?{...value}:null;},get valid(){return valid;}};
@@ -23876,12 +23919,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   &#x27;use strict&#x27;;
   const TYPES={changed:&#x27;Ændret&#x27;,added:&#x27;Ny vagt&#x27;,removed:&#x27;Aflyst&#x27;};
   const FILTERS=[[&#x27;all&#x27;,&#x27;Alle&#x27;],[&#x27;changed&#x27;,&#x27;Ændrede&#x27;],[&#x27;added&#x27;,&#x27;Nye&#x27;],[&#x27;removed&#x27;,&#x27;Aflyste&#x27;]];
+  const PAGE_SIZE=20,SEARCH_THRESHOLD=6;
   const array=value=&gt;Array.isArray(value)?value:[];
   const validDate=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;/^\d{4}-\d{2}-\d{2}$/.test(value)&amp;&amp;Number.isFinite(new Date(value+&#x27;T12:00:00Z&#x27;).getTime())&amp;&amp;new Date(value+&#x27;T12:00:00Z&#x27;).toISOString().slice(0,10)===value;
   const dateFormat=new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{weekday:&#x27;short&#x27;,day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
   const personOrder=new Intl.Collator(&#x27;da-DK&#x27;);
   const dateLabel=value=&gt;validDate(value)?dateFormat.format(new Date(value+&#x27;T12:00:00Z&#x27;)):&#x27;Dato mangler&#x27;;
-  const weekNumber=value=&gt;{if(!validDate(value))return null;const date=new Date(value+&#x27;T12:00:00Z&#x27;);date.setUTCDate(date.getUTCDate()+3-((date.getUTCDay()+6)%7));const year=date.getUTCFullYear(),first=new Date(Date.UTC(year,0,4,12));first.setUTCDate(first.getUTCDate()+3-((first.getUTCDay()+6)%7));return 1+Math.round((date-first)/604800000);};
   const clock=shift=&gt;shift?.start&amp;&amp;shift?.end?shift.start+&#x27;–&#x27;+shift.end+(shift.end&lt;shift.start?&#x27; +1 dag&#x27;:&#x27;&#x27;):&#x27;Tid mangler&#x27;;
   const valueFor=(shift,key)=&gt;key===&#x27;plannedBreakMinutes&#x27;?shift?.[key]??0:key===&#x27;note&#x27;||key===&#x27;noteRich&#x27;?shift?.[key]??&#x27;&#x27;:key===&#x27;site&#x27;&amp;&amp;shift?.[key]!==undefined?String(shift[key]):shift?.[key];
   const changed=(entry,key)=&gt;valueFor(entry.before,key)!==valueFor(entry.after,key);
@@ -23891,16 +23934,25 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!element?.ownerDocument)throw new TypeError(&#x27;Ændringsoversigten kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,page=doc.createElement(&#x27;section&#x27;);page.className=&#x27;cs-publication-review&#x27;;page.setAttribute(&#x27;aria-label&#x27;,&#x27;Ændringer til udgivelse&#x27;);element.replaceChildren(page);
     let filter=&#x27;all&#x27;,query=&#x27;&#x27;,pageIndex=0,selectedId=null,scopeKey=null,instructionsOpen=false,disposed=false;
-    let entries=[],counts={},people=new Map(),sites=new Map(),searchIndex=new Map();
+    let entries=[],counts={},people=new Map(),sites=new Map(),searchIndex=new Map(),scopeSite=null;
     const node=(tag,cls,text)=&gt;{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=String(text);return el;};
     const button=(label,action,key,cls=&#x27;cs-publication-review-button&#x27;)=&gt;{const el=node(&#x27;button&#x27;,cls,label);el.type=&#x27;button&#x27;;if(key)el.dataset.publicationReviewFocus=key;el.addEventListener(&#x27;click&#x27;,()=&gt;{if(!disposed)action();});return el;};
     const personName=id=&gt;!id?&#x27;Ledig vagt&#x27;:people.get(id)||&#x27;Medarbejder&#x27;;
     const siteName=shift=&gt;shift?.siteName||sites.get(String(shift?.site))||&#x27;Ukendt arbejdssted&#x27;;
     const current=entry=&gt;entry.after||entry.before;
     const person=entry=&gt;personName(current(entry)?.person);
-    const status=entry=&gt;{const el=node(&#x27;span&#x27;,&#x27;cs-publication-review-type&#x27;,TYPES[entry.type]);el.dataset.type=entry.type;return el;};
+    const status=entry=&gt;node(&#x27;span&#x27;,&#x27;cs-publication-review-type&#x27;,entry.type===&#x27;added&#x27;?&#x27;Ny&#x27;:TYPES[entry.type]);
+    function rowContext(entry){
+      const shift=current(entry);
+      const timeChanged=entry.type===&#x27;changed&#x27;&amp;&amp;(changed(entry,&#x27;start&#x27;)||changed(entry,&#x27;end&#x27;));
+      const siteChanged=entry.type===&#x27;changed&#x27;&amp;&amp;changed(entry,&#x27;site&#x27;);
+      const parts=[];
+      if(!timeChanged)parts.push(clock(shift));
+      if(!siteChanged&amp;&amp;String(shift.site)!==scopeSite)parts.push(siteName(shift));
+      return parts.join(&#x27; · &#x27;);
+    }
     function differences(entry){
-      if(entry.type!==&#x27;changed&#x27;)return [clock(current(entry))+&#x27; · &#x27;+siteName(current(entry))];
+      if(entry.type!==&#x27;changed&#x27;)return [];
       const out=[];
       if(changed(entry,&#x27;date&#x27;))out.push(&#x27;Dato: &#x27;+dateLabel(entry.before?.date)+&#x27; → &#x27;+dateLabel(entry.after?.date));
       if(changed(entry,&#x27;start&#x27;)||changed(entry,&#x27;end&#x27;))out.push(clock(entry.before)+&#x27; → &#x27;+clock(entry.after));
@@ -23913,32 +23965,89 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function open(entry){selectedId=String(entry.id);instructionsOpen=false;paint(&#x27;back&#x27;);}
     function close(){const previous=selectedId;selectedId=null;instructionsOpen=false;paint(&#x27;change:&#x27;+previous);}
     function searchText(entry){
-      if(!searchIndex.has(entry))searchIndex.set(entry,[person(entry),...(entry.before?[personName(entry.before.person),siteName(entry.before)]:[]),...(entry.after?[personName(entry.after.person),siteName(entry.after)]:[]),dateLabel(current(entry)?.date),...differences(entry)].join(&#x27; &#x27;).toLocaleLowerCase(&#x27;da-DK&#x27;));
+      if(!searchIndex.has(entry))searchIndex.set(entry,[person(entry),...(entry.before?[personName(entry.before.person),siteName(entry.before),clock(entry.before)]:[]),...(entry.after?[personName(entry.after.person),siteName(entry.after),clock(entry.after)]:[]),dateLabel(current(entry)?.date),...differences(entry)].join(&#x27; &#x27;).toLocaleLowerCase(&#x27;da-DK&#x27;));
       return searchIndex.get(entry);
     }
     function renderTools(body){
-      const tools=node(&#x27;div&#x27;,&#x27;cs-publication-review-tools&#x27;),filters=node(&#x27;div&#x27;,&#x27;cs-publication-review-filters&#x27;);filters.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);filters.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrer ændringer&#x27;);
-      for(const [key,label]of FILTERS){const count=counts[key],control=button(&#x27;&#x27;,()=&gt;{filter=key;pageIndex=0;paint(&#x27;filter:&#x27;+key);},&#x27;filter:&#x27;+key,&#x27;cs-publication-review-filter&#x27;);control.setAttribute(&#x27;aria-pressed&#x27;,String(filter===key));control.setAttribute(&#x27;aria-label&#x27;,label+&#x27; · &#x27;+count);control.append(node(&#x27;span&#x27;,&#x27;&#x27;,label),node(&#x27;span&#x27;,&#x27;cs-publication-review-filter-count&#x27;,count));filters.append(control);}tools.append(filters);
-      const search=node(&#x27;label&#x27;,&#x27;cs-publication-review-search&#x27;),input=node(&#x27;input&#x27;,&#x27;cs-publication-review-input&#x27;);input.type=&#x27;search&#x27;;input.value=query;input.placeholder=&#x27;Søg i ændringer&#x27;;input.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i ændringer&#x27;);input.dataset.publicationReviewFocus=&#x27;search&#x27;;input.addEventListener(&#x27;input&#x27;,()=&gt;{query=input.value;pageIndex=0;paint(&#x27;search&#x27;);});search.append(input);tools.append(search);body.append(tools);
+      const availableFilters=FILTERS.filter(([key])=&gt;counts[key]&gt;0);
+      const showSearch=entries.length&gt;SEARCH_THRESHOLD||Boolean(query);
+      const showFilters=availableFilters.length&gt;2&amp;&amp;(entries.length&gt;SEARCH_THRESHOLD||filter!==&#x27;all&#x27;);
+      if(!showSearch&amp;&amp;!showFilters)return;
+
+      const tools=node(&#x27;div&#x27;,&#x27;cs-publication-review-tools&#x27;);
+      if(showFilters){
+        const filters=node(&#x27;div&#x27;,&#x27;cs-publication-review-filters&#x27;);
+        filters.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);
+        filters.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrer ændringer&#x27;);
+        for(const [key,label]of availableFilters){
+          const control=button(label,()=&gt;{filter=key;pageIndex=0;paint(&#x27;filter:&#x27;+key);},&#x27;filter:&#x27;+key,&#x27;cs-publication-review-filter&#x27;);
+          control.setAttribute(&#x27;aria-pressed&#x27;,String(filter===key));
+          filters.append(control);
+        }
+        tools.append(filters);
+      }
+      if(showSearch){
+        const search=node(&#x27;input&#x27;,&#x27;cs-publication-review-input&#x27;);
+        search.type=&#x27;search&#x27;;
+        search.value=query;
+        search.placeholder=&#x27;Søg i ændringer&#x27;;
+        search.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i ændringer&#x27;);
+        search.dataset.publicationReviewFocus=&#x27;search&#x27;;
+        search.addEventListener(&#x27;input&#x27;,()=&gt;{query=search.value;pageIndex=0;paint(&#x27;search&#x27;);});
+        tools.append(search);
+      }
+      body.append(tools);
     }
     function renderList(body){
-      const term=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;);renderTools(body);
+      if(!counts[filter])filter=&#x27;all&#x27;;
+      const term=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;);
+      renderTools(body);
       const matching=entries.filter(entry=&gt;(filter===&#x27;all&#x27;||entry.type===filter)&amp;&amp;(!term||searchText(entry).includes(term)));
-      const size=20,totalPages=Math.max(1,Math.ceil(matching.length/size));pageIndex=Math.min(pageIndex,totalPages-1);
+      const totalPages=Math.max(1,Math.ceil(matching.length/PAGE_SIZE));
+      pageIndex=Math.min(pageIndex,totalPages-1);
       if(!matching.length){body.append(node(&#x27;p&#x27;,&#x27;cs-publication-review-empty&#x27;,entries.length?&#x27;Ingen ændringer matcher dit valg.&#x27;:&#x27;Ingen ændringer i den valgte periode.&#x27;));return;}
       const list=node(&#x27;div&#x27;,&#x27;cs-publication-review-list&#x27;);let lastDate=null,group;
-      for(const entry of matching.slice(pageIndex*size,(pageIndex+1)*size)){
-        const shift=current(entry),day=shift?.date||&#x27;&#x27;;
-        if(lastDate!==day){lastDate=day;group=node(&#x27;section&#x27;,&#x27;cs-publication-review-day&#x27;);const label=dateLabel(day),week=weekNumber(day),heading=node(&#x27;h5&#x27;,&#x27;cs-publication-review-day-title&#x27;);heading.append(node(&#x27;span&#x27;,&#x27;&#x27;,label));if(week)heading.append(node(&#x27;span&#x27;,&#x27;cs-publication-review-week&#x27;,&#x27;Uge &#x27;+week));group.append(heading);list.append(group);}
-        const row=button(&#x27;&#x27;,()=&gt;open(entry),&#x27;change:&#x27;+String(entry.id),&#x27;cs-publication-review-row&#x27;);row.dataset.changeId=String(entry.id);row.dataset.type=entry.type;
-        const copy=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-copy&#x27;),head=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-head&#x27;);head.append(node(&#x27;strong&#x27;,&#x27;&#x27;,person(entry)),status(entry));copy.append(head);
-        const parts=differences(entry),summary=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-summary&#x27;);for(const part of parts)summary.append(node(&#x27;span&#x27;,&#x27;&#x27;,part));copy.append(summary);
-        if(entry.type===&#x27;changed&#x27;)copy.append(node(&#x27;span&#x27;,&#x27;cs-publication-review-row-context&#x27;,clock(shift)+&#x27; · &#x27;+siteName(shift)));
-        const arrow=node(&#x27;span&#x27;,&#x27;cs-publication-review-chevron&#x27;,&#x27;›&#x27;);arrow.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);row.append(copy,arrow);row.setAttribute(&#x27;aria-label&#x27;,TYPES[entry.type]+&#x27;. &#x27;+person(entry)+&#x27;. &#x27;+dateLabel(day)+&#x27;. &#x27;+parts.join(&#x27;. &#x27;));group.append(row);
+      const first=pageIndex*PAGE_SIZE;
+      for(const entry of matching.slice(first,first+PAGE_SIZE)){
+        const day=current(entry)?.date||&#x27;&#x27;;
+        if(lastDate!==day){
+          lastDate=day;
+          group=node(&#x27;section&#x27;,&#x27;cs-publication-review-day&#x27;);
+          group.append(node(&#x27;h5&#x27;,&#x27;cs-publication-review-day-title&#x27;,dateLabel(day)));
+          list.append(group);
+        }
+        const row=button(&#x27;&#x27;,()=&gt;open(entry),&#x27;change:&#x27;+String(entry.id),&#x27;cs-publication-review-row&#x27;);
+        row.dataset.changeId=String(entry.id);
+        row.dataset.type=entry.type;
+        const copy=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-copy&#x27;);
+        copy.append(node(&#x27;strong&#x27;,&#x27;cs-publication-review-person&#x27;,person(entry)));
+        const parts=differences(entry);
+        if(parts.length){
+          const summary=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-summary&#x27;);
+          for(const part of parts)summary.append(node(&#x27;span&#x27;,&#x27;&#x27;,part));
+          copy.append(summary);
+        }
+        const context=rowContext(entry);
+        if(context)copy.append(node(&#x27;span&#x27;,&#x27;cs-publication-review-row-context&#x27;,context));
+        const meta=node(&#x27;span&#x27;,&#x27;cs-publication-review-row-meta&#x27;);
+        const arrow=node(&#x27;span&#x27;,&#x27;cs-publication-review-chevron&#x27;);
+        arrow.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+        meta.append(status(entry),arrow);
+        row.append(copy,meta);
+        row.setAttribute(&#x27;aria-label&#x27;,[TYPES[entry.type],person(entry),dateLabel(day),...parts,context].filter(Boolean).join(&#x27;. &#x27;));
+        group.append(row);
       }
       body.append(list);
-      const foot=node(&#x27;div&#x27;,&#x27;cs-publication-review-pagination&#x27;);foot.append(node(&#x27;span&#x27;,&#x27;cs-publication-review-muted&#x27;,(pageIndex*size+1)+&#x27;–&#x27;+Math.min((pageIndex+1)*size,matching.length)+&#x27; af &#x27;+matching.length));
-      if(totalPages&gt;1){const previous=button(&#x27;Forrige&#x27;,()=&gt;{pageIndex--;paint(&#x27;page:previous&#x27;);},&#x27;page:previous&#x27;),next=button(&#x27;Næste&#x27;,()=&gt;{pageIndex++;paint(&#x27;page:next&#x27;);},&#x27;page:next&#x27;);previous.disabled=pageIndex===0;next.disabled=pageIndex===totalPages-1;foot.append(previous,next);}body.append(foot);
+      if(totalPages===1)return;
+      const foot=node(&#x27;div&#x27;,&#x27;cs-publication-review-pagination&#x27;);
+      const position=node(&#x27;span&#x27;,&#x27;cs-publication-review-muted&#x27;,(first+1)+&#x27;–&#x27;+Math.min(first+PAGE_SIZE,matching.length)+&#x27; af &#x27;+matching.length);
+      position.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);
+      const previous=button(&#x27;Forrige&#x27;,()=&gt;{pageIndex--;paint(pageIndex===0?&#x27;page:next&#x27;:&#x27;page:previous&#x27;);},&#x27;page:previous&#x27;);
+      const next=button(&#x27;Næste&#x27;,()=&gt;{pageIndex++;paint(pageIndex===totalPages-1?&#x27;page:previous&#x27;:&#x27;page:next&#x27;);},&#x27;page:next&#x27;);
+      previous.disabled=pageIndex===0;
+      next.disabled=pageIndex===totalPages-1;
+      foot.append(position,previous,next);
+      body.append(foot);
     }
     function renderInstructions(body,entry){
       const hasContent=shift=&gt;Boolean(shift?.note||shift?.noteRich);if(!hasContent(entry.before)&amp;&amp;!hasContent(entry.after))return;
@@ -23967,7 +24076,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       page.replaceChildren();
       const body=node(&#x27;div&#x27;,&#x27;cs-publication-review-body&#x27;);page.append(body);const entry=selectedId===null?null:entries.find(item=&gt;String(item.id)===selectedId);
       if(selectedId!==null&amp;&amp;entry)renderDetail(body,entry);else{selectedId=null;renderList(body);}
-      if(key){const target=[...page.querySelectorAll(&#x27;[data-publication-review-focus]&#x27;)].find(el=&gt;el.dataset.publicationReviewFocus===key);target?.focus?.({preventScroll:true});if(target?.dataset.publicationReviewFocus===&#x27;search&#x27;&amp;&amp;selection&amp;&amp;typeof target.setSelectionRange===&#x27;function&#x27;)try{target.setSelectionRange(...selection);}catch{}}
+      if(key){
+        const target=[...page.querySelectorAll(&#x27;[data-publication-review-focus]&#x27;)].find(el=&gt;el.dataset.publicationReviewFocus===key)
+          ||page.querySelector(&#x27;.cs-publication-review-row&#x27;);
+        target?.focus?.({preventScroll:true});
+        if(target?.dataset.publicationReviewFocus===&#x27;search&#x27;&amp;&amp;selection&amp;&amp;typeof target.setSelectionRange===&#x27;function&#x27;){
+          try{target.setSelectionRange(...selection);}catch{}
+        }
+      }
     }
     let options={};
     return {
@@ -23979,6 +24095,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         options={...options,...next};
         people=new Map(array(options.people).map(person=&gt;[person.id||person.personId,person.name]));
         sites=new Map(array(options.sites).flatMap((site,index)=&gt;site?[[String(site.index??index),site.name]]:[]));
+        scopeSite=options.scopeSiteIds?.length===1?String(options.scopeSiteIds[0]):null;
         entries=array(options.changes).filter(entry=&gt;entry&amp;&amp;Object.hasOwn(TYPES,entry.type)&amp;&amp;entry.id!==undefined&amp;&amp;(entry.before||entry.after));
         entries.sort((a,b)=&gt;String(current(a)?.date||&#x27;&#x27;).localeCompare(String(current(b)?.date||&#x27;&#x27;))||String(current(a)?.start||&#x27;&#x27;).localeCompare(String(current(b)?.start||&#x27;&#x27;))||personOrder.compare(person(a),person(b))||String(a.id).localeCompare(String(b.id)));
         counts={all:entries.length,added:0,changed:0,removed:0};
@@ -24380,7 +24497,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const leaveRequests = PlanData.leaveRequests();
   const dayNames = [&#x27;Mandag&#x27;,&#x27;Tirsdag&#x27;,&#x27;Onsdag&#x27;,&#x27;Torsdag&#x27;,&#x27;Fredag&#x27;,&#x27;Lørdag&#x27;,&#x27;Søndag&#x27;];
   const plannerWeekFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
-  const publicationPeriodFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;long&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
   const state = {page:&#x27;schedule&#x27;,group:&#x27;people&#x27;,view:&#x27;week&#x27;,zoom:1,calendarLayoutVersion:2,day:2,onlyOpen:false,week:0,pageIndex:0,search:&#x27;&#x27;,site:&#x27;all&#x27;,edits:{},deleted:[],series:[{...initialSeries,weekdays:[1,3]}],weekPlans:{},requests:{},leaveDecisions:{},coverageRules:Coverage?.defaultRules() || [],demoSession:null,demoReturnPage:&#x27;schedule&#x27;,storageVersion:1,role:&#x27;admin&#x27;,employeePerson:&#x27;p0&#x27;,employeeWeek:anchor,employeeDate:anchor,employeeView:&#x27;month&#x27;,employeeCalendarVersion:1,employeeShift:null,checklistProgress:{},employeeExamplesVersion:0};
   const design = {rowHeight:78,showAvatars:true};
   const pageSize = 7;
@@ -24433,9 +24549,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const timePaging={context:&#x27;&#x27;,page:0,cursors:[null],offsets:[0],nextCursor:null,generation:null,filter:{queue:&#x27;all&#x27;,search:&#x27;&#x27;,scope:&#x27;real&#x27;}};
   const timePageCache=new Map();let timeFilterTimer=null,timeFilterWaiters=[];
   const timeState={entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:&#x27;&#x27;,canManage:false,canViewPayroll:false};
-  let publicationBusy=false,includeRelatedPublication=false,publicationAllSites=false,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
+  let publicationBusy=false,includeRelatedPublication=false,publicationSiteSelection=null,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
   let publicationCanSubmit=false,publicationRead=null,publicationBudget=null,publicationResume=null;
-  let publicationReviewDetails=null,publicationRangeError=&#x27;&#x27;,publicationSubmitError=&#x27;&#x27;,publicationFeedback={};
+  let publicationSubmitError=&#x27;&#x27;,publicationFeedback={};
   const calendarBudgetCache=new Map();
   let calendarBudgetRequest=null,calendarBudgetError=null;
   const planningCostCache=new Map();
@@ -25094,9 +25210,57 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const baseline=published.length?[...published.flatMap(slot=&gt;slot.shifts),...plan.baseline.filter(shift=&gt;!publishedSites.has(shift.site))]:plan.baseline;
     return Changes.diff(baseline,shiftsInRange(first,addDays(first,6)));
   }
-  function publicationScope(review=false){
-    const siteIds=publicationAllSites?allowedSiteIndices():state.site!==&#x27;all&#x27;?[Number(state.site)]:selectedDepartment()?.siteIds||allowedSiteIndices();
-    return {from:review&amp;&amp;publicationRange?publicationRange.from:dates()[0],to:review&amp;&amp;publicationRange?publicationRange.to:dates()[6],siteIds,includeDependencies:includeRelatedPublication};
+  function publicationSiteChoices() {
+    const allowed = allowedSiteIndices();
+    const department = selectedDepartment();
+    const departmentSites = department ? allowed.filter(site =&gt; department.siteIds.includes(site)) : allowed;
+    const choices = new Map(allowed.map(site =&gt; [String(site), {label: sites[site].name, siteIds: [site]}]));
+    let initial = &#x27;all&#x27;;
+    if (department &amp;&amp; departmentSites.length === 1) {
+      initial = String(departmentSites[0]);
+    } else if (department &amp;&amp; departmentSites.length &gt; 1 &amp;&amp; departmentSites.length &lt; allowed.length) {
+      initial = &#x27;department&#x27;;
+      choices.set(initial, {label: &#x27;Alle arbejdssteder i &#x27; + department.name, siteIds: departmentSites});
+    } else if (!departmentSites.length) {
+      initial = &#x27;&#x27;;
+    }
+    choices.set(&#x27;all&#x27;, {label: &#x27;Alle arbejdssteder&#x27;, siteIds: allowed});
+    if (state.site !== &#x27;all&#x27;) initial = choices.has(state.site) ? state.site : &#x27;&#x27;;
+    return {choices, initial};
+  }
+  function publicationScope(review = false) {
+    const {choices, initial} = publicationSiteChoices();
+    const siteIds = choices.get(review ? publicationSiteSelection ?? initial : initial)?.siteIds ?? [];
+    const week = dates();
+    const range = review &amp;&amp; publicationRange ? publicationRange : {from: week[0], to: week[6]};
+    return {...range, siteIds, includeDependencies: review &amp;&amp; includeRelatedPublication};
+  }
+  function renderPublicationSiteSelect() {
+    const {choices, initial} = publicationSiteChoices();
+    const select = q(&#x27;#cs-publication-scope-select&#x27;);
+    const requested = publicationSiteSelection ?? initial;
+    const selection = choices.get(requested)?.siteIds.length ? requested : &#x27;&#x27;;
+    const options = [...choices];
+    if (!selection) options.unshift([&#x27;&#x27;, {label: &#x27;Vælg arbejdssted&#x27;, siteIds: []}]);
+    const optionsKey = JSON.stringify(options);
+    if (select.dataset.choices !== optionsKey) {
+      select.replaceChildren(...options.map(([value, choice]) =&gt; {
+        const option = node(&#x27;option&#x27;, null, choice.label);
+        option.value = value;
+        option.disabled = !choice.siteIds.length;
+        return option;
+      }));
+      select.dataset.choices = optionsKey;
+    }
+    select.value = selection;
+    select.disabled = publicationBusy || !choices.get(&#x27;all&#x27;).siteIds.length;
+  }
+  function changePublicationSite(value) {
+    if (!publicationSiteChoices().choices.get(value)?.siteIds.length) return;
+    publicationSiteSelection = value;
+    includeRelatedPublication = false;
+    publicationSubmitError = &#x27;&#x27;;
+    renderChanges();
   }
   function publicationStatus(review=false){return Publication.scopeStatus(state,publicationScope(review));}
   function activityValue(field,value){
@@ -26946,7 +27110,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-changes-toggle&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Gennemgå ændringer i uge &#x27; + weekNumber(dates()[0]));
     q(&#x27;#cs-planning-tools&#x27;).hidden = !isSchedule;
     q(&#x27;#cs-selection-toggle&#x27;).hidden = isDay;
-    if (isSchedule) renderPublicationTrigger();
     q(&#x27;.cs-review-label&#x27;).textContent = &#x27;Overblik&#x27;; q(&#x27;#cs-review&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Driftsoverblik for alle afdelinger i uge &#x27; + weekNumber(dates()[0]) + (header.drift===null?&#x27;&#x27;:&#x27; · &#x27; + header.drift + &#x27; punkter&#x27;)); q(&#x27;#cs-review&#x27;).title = &#x27;Driftsoverblik for alle afdelinger i uge &#x27; + weekNumber(dates()[0]); q(&#x27;#cs-publish&#x27;).disabled = publicationBusy||!cloudLoaded;
     q(&#x27;#cs-leave-count&#x27;).textContent = String(pendingLeaveCount());
     visibleShifts = [];
@@ -27629,9 +27792,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const button=q(&#x27;#cs-changes-publish&#x27;),waiting=publicationBusy||planningReadBusy||publicationBudget?.state===&#x27;loading&#x27;;
     const unsaved=cloudStatus.state!==&#x27;saved&#x27;;
     button.disabled=!publicationCanSubmit||!publicationRangeValid||waiting||Boolean(planningReadBlocked)||unsaved;
+    const action=publicationBusy?&#x27;Udgiver…&#x27;:&#x27;Udgiv&#x27;;
+    if(button.textContent!==action)button.textContent=action;
     const feedback=q(&#x27;#cs-publication-feedback&#x27;);
-    const feedbackState=publicationRangeError||publicationSubmitError?
-      {state:&#x27;warning&#x27;,message:publicationRangeError||publicationSubmitError}:
+    const feedbackState=publicationSubmitError?
+      {state:&#x27;warning&#x27;,message:publicationSubmitError}:
       !planningReadBlocked&amp;&amp;cloudStatus.state===&#x27;error&#x27;?
         {state:&#x27;warning&#x27;,message:&#x27;Planen er ikke gemt. Luk udgivelsen, og vælg Prøv igen ved fejlbeskeden.&#x27;}:
         !publicationBusy&amp;&amp;cloudStatus.state===&#x27;saving&#x27;?
@@ -27640,9 +27805,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(feedback.textContent!==message)feedback.textContent=message;
     feedback.hidden=!message;
     feedback.dataset.state=feedbackState.state||&#x27;muted&#x27;;
-    const note=q(&#x27;#cs-publication-footer-note&#x27;);
-    note.textContent=publicationCanSubmit&amp;&amp;publicationRangeValid&amp;&amp;!publicationSubmitError&amp;&amp;!unsaved?&#x27;Berørte medarbejdere får besked ved udgivelse.&#x27;:&#x27;&#x27;;
-    note.hidden=!note.textContent;
   }
   function paintEditorBudgetImpact() {
     const element=q(&#x27;#cs-edit-budget-impact&#x27;),calculator=globalThis.CleanRoomsPlanningBudgetImpact;
@@ -27833,28 +27995,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-publication-load-message&#x27;).textContent=message;
     q(&#x27;#cs-publication-retry&#x27;).hidden=!retry;
     load.hidden=!message;
-    if(message){
-      q(&#x27;#cs-publication-related-slot&#x27;).hidden=true;
-      q(&#x27;#cs-changes-list&#x27;).replaceChildren();
-      q(&#x27;#cs-publication-summary&#x27;).hidden=true;
-    }
-  }
-  const publicationCount=(count,singular,plural)=&gt;count.toLocaleString(&#x27;da-DK&#x27;)+&#x27; &#x27;+(count===1?singular:plural);
-  function paintPublicationScope(scopes, weekCount) {
-    const runs=[];
-    for(const part of scopes){
-      const previous=runs.at(-1);
-      if(previous&amp;&amp;addDays(previous.to,1)===part.from)previous.to=part.to;
-      else runs.push({from:part.from,to:part.to});
-    }
-    const start=weekNumber(runs[0].from),end=weekNumber(runs.at(-1).to);
-    q(&#x27;#cs-changes-period&#x27;).textContent=weekCount===1?&#x27;Uge &#x27;+start:
-      runs.length===1?&#x27;Uge &#x27;+start+&#x27;–&#x27;+end:publicationCount(weekCount,&#x27;uge&#x27;,&#x27;uger&#x27;);
-    q(&#x27;#cs-publication-dates&#x27;).textContent=runs.map(part=&gt;publicationPeriodFormat.formatRange(date(part.from),date(part.to))).join(&#x27; · &#x27;);
-    const names=[...new Set(scopes.flatMap(part=&gt;part.siteIds))].map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;);
-    const siteLabel=q(&#x27;#cs-publication-sites&#x27;);
-    siteLabel.textContent=names.join(&#x27; · &#x27;);
-    siteLabel.hidden=!names.length;
+    if(!message)return;
+    const related=q(&#x27;#cs-publication-related-slot&#x27;);
+    related.hidden=true;
+    related.replaceChildren();
+    q(&#x27;#cs-changes-list&#x27;).replaceChildren();
   }
   function showPublicationShift(shift,existsInDraft) {
     if(shift.date&lt;addDays(anchor,-364)||shift.date&gt;addDays(anchor,370)){navigateTo(shift.date);return;}
@@ -27862,62 +28007,41 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const department=selectedDepartment();
     if(department&amp;&amp;!department.siteIds.includes(shift.site))state.departmentId=&#x27;all&#x27;;
     if(!navigateTo(shift.date))return;
+    if(publicationResume)publicationResume.calendar=publicationCalendarContext();
     if(existsInDraft)globalThis.CleanRoomsCalendar.revealDay(shift.date);
     render();scrollCalendarTo(shift.date);
     const target=[...root.querySelectorAll(&#x27;[data-shift]&#x27;)].find(item=&gt;item.dataset.shift===String(shift.id));
     (target||q(&#x27;.cs-board-scroll&#x27;))?.focus({preventScroll:true});target?.scrollIntoView({block:&#x27;nearest&#x27;,inline:&#x27;nearest&#x27;});
   }
-  function renderPublicationWeeks(scope,scopes,issues) {
-    const table=node(&#x27;table&#x27;,&#x27;cs-publication-weeks&#x27;),head=node(&#x27;thead&#x27;),headRow=node(&#x27;tr&#x27;),body=node(&#x27;tbody&#x27;);
-    table.setAttribute(&#x27;aria-label&#x27;,&#x27;Uger til udgivelse&#x27;);
-    for(const label of [&#x27;Uge&#x27;,&#x27;Vagter&#x27;,&#x27;Ændringer&#x27;,&#x27;Status&#x27;]){
-      const cell=node(&#x27;th&#x27;,null,label);cell.scope=&#x27;col&#x27;;headRow.append(cell);
-    }
-    head.append(headRow);
-    for(const week of globalThis.CleanRoomsPublicationRange.overview(state,scope,scopes)){
-      const issueCount=issues.get(week.from)?.size??0,row=node(&#x27;tr&#x27;);
-      const weekCell=node(&#x27;th&#x27;);weekCell.scope=&#x27;row&#x27;;
-      weekCell.append(node(&#x27;strong&#x27;,null,&#x27;Uge &#x27;+week.week),node(&#x27;span&#x27;,&#x27;cs-publication-week-dates&#x27;,shortDate(week.from)+&#x27; – &#x27;+shortDate(week.to)));
-      const detail=[
-        week.added?week.added+(week.added===1?&#x27; ny&#x27;:&#x27; nye&#x27;):&#x27;&#x27;,week.changed?week.changed+(week.changed===1?&#x27; ændret&#x27;:&#x27; ændrede&#x27;):&#x27;&#x27;,
-        week.removed?week.removed+(week.removed===1?&#x27; aflyst&#x27;:&#x27; aflyste&#x27;):&#x27;&#x27;,week.locationChanges.length?&#x27;Arbejdssted opdateret&#x27;:&#x27;&#x27;
-      ].filter(Boolean).join(&#x27; · &#x27;);
-      const stateCell=node(&#x27;td&#x27;),label=node(&#x27;span&#x27;,&#x27;cs-publication-week-state&#x27;);
-      label.dataset.state=issueCount?&#x27;issues&#x27;:week.published?&#x27;published&#x27;:week.openCount?&#x27;open&#x27;:&#x27;ready&#x27;;
-      label.textContent=issueCount?issueCount+(issueCount===1?&#x27; vagt med konflikt&#x27;:&#x27; vagter med konflikt&#x27;):week.published?&#x27;Udgivet&#x27;:week.openCount?week.openCount+(week.openCount===1?&#x27; ledig&#x27;:&#x27; ledige&#x27;):&#x27;Klar&#x27;;
-      stateCell.append(label);
-      row.append(weekCell,node(&#x27;td&#x27;,null,String(week.shiftCount)),node(&#x27;td&#x27;,null,detail||&#x27;—&#x27;),stateCell);
-      body.append(row);
-    }
-    table.append(head,body);
-    return table;
-  }
   function renderChanges() {
-    const range=globalThis.CleanRoomsPublicationRange,scope=publicationScope(true),button=q(&#x27;#cs-changes-publish&#x27;);
+    const range=globalThis.CleanRoomsPublicationRange,scope=publicationScope(true);
     publicationCanSubmit=false;
     publicationFeedback={};
     updatePublicationButton();
-    const weeks=range.countWeeks(scope.from,scope.to);
-    paintPublicationScope([scope],weeks);
-    q(&#x27;#cs-publication-scope-select&#x27;).value=publicationAllSites?&#x27;all&#x27;:&#x27;selected&#x27;;
+    renderPublicationSiteSelect();
     if(!publicationRangeView)publicationRangeView=range.mount({
       element:q(&#x27;#cs-publication-range-slot&#x27;),
       onChange:value=&gt;{publicationRange=value;includeRelatedPublication=false;publicationSubmitError=&#x27;&#x27;;renderChanges();},
-      onValidityChange:({valid,message})=&gt;{
+      onValidityChange:({valid})=&gt;{
         publicationRangeValid=valid;
-        publicationRangeError=valid?&#x27;&#x27;:message;
+        q(&#x27;#cs-changes-list&#x27;).hidden=!valid;
+        const related=q(&#x27;#cs-publication-related-slot&#x27;);
+        related.hidden=!valid||!related.children.length;
         q(&#x27;#cs-publication-budget&#x27;).hidden=!valid||Boolean(state.demoSession)||!publicationScope(true).siteIds.length||!publicationBudget;
         updatePublicationButton();
       }
     });
     publicationRangeView.render({...scope,minDate:PlanData.minDate,maxDate:PlanData.maxDate,disabled:publicationBusy});
-    button.textContent=weeks===1?&#x27;Udgiv uge &#x27;+weekNumber(scope.from):&#x27;Udgiv &#x27;+publicationCount(weeks,&#x27;uge&#x27;,&#x27;uger&#x27;);
     renderPublicationBudget(scope);
-    if(!scope.siteIds.length){showPublicationLoading(&#x27;Vælg mindst ét arbejdssted for at gennemgå planen.&#x27;);return;}
+    if(!scope.siteIds.length){
+      const select=q(&#x27;#cs-publication-scope-select&#x27;);
+      showPublicationLoading(select.disabled?&#x27;Der er ingen arbejdssteder at udgive for.&#x27;:&#x27;Vælg et arbejdssted.&#x27;);
+      return;
+    }
     const projection=publicationProjection(),key=JSON.stringify(projection);
     if(!publicationScopeReady()){
       if(planningReadBlocked===key||planningReadBlocked===&#x27;full&#x27;){showPublicationLoading(&#x27;Planen for perioden kunne ikke hentes.&#x27;,true);return;}
-      showPublicationLoading(&#x27;Henter vagter for perioden…&#x27;);
+      showPublicationLoading(&#x27;Henter ændringer…&#x27;);
       if(!publicationRead){
         const request=planningReadBusy
           ?planningReadPromise
@@ -27933,12 +28057,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     showPublicationLoading(&#x27;&#x27;);
     const status=Publication.scopeStatus(state,scope),changes=status.changes;
-    const affectedWeeks=status.scopes.length;
-    if(scope.includeDependencies)paintPublicationScope(status.scopes,affectedWeeks);
     if(scope.includeDependencies)renderPublicationBudget(scope,status.scopes);
     const relatedSlot=q(&#x27;#cs-publication-related-slot&#x27;);
     relatedSlot.replaceChildren();
-    relatedSlot.hidden=!status.dependencies.length;
+    relatedSlot.hidden=!publicationRangeValid||!status.dependencies.length;
     if(status.dependencies.length){
       const related=node(&#x27;label&#x27;,&#x27;cs-publication-related&#x27;),checkbox=node(&#x27;input&#x27;);
       checkbox.type=&#x27;checkbox&#x27;;checkbox.checked=includeRelatedPublication;
@@ -27946,36 +28068,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         includeRelatedPublication=checkbox.checked;publicationSubmitError=&#x27;&#x27;;renderChanges();
         (relatedSlot.hidden?q(&#x27;#cs-changes-close&#x27;):relatedSlot.querySelector(&#x27;input&#x27;))?.focus({preventScroll:true});
       });
-      const periods=status.dependencies.map(part=&gt;&#x27;uge &#x27;+weekNumber(part.from)+&#x27; (&#x27;+part.siteIds.map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;).join(&#x27;, &#x27;)+&#x27;)&#x27;);
-      related.append(checkbox,node(&#x27;span&#x27;,null,&#x27;Medtag relaterede uger og arbejdssteder&#x27;));
-      relatedSlot.append(related,node(&#x27;p&#x27;,null,&#x27;Flyttede vagter kræver udgivelse af både den gamle og den nye placering. Det berører &#x27;+periods.join(&#x27; · &#x27;)+&#x27;.&#x27;));
+      const periods=status.dependencies.map(part=&gt;{
+        const {week,year}=range.weekNumber(part.from);
+        const names=part.siteIds.map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;);
+        return &#x27;Uge &#x27;+week+&#x27;, &#x27;+year+&#x27; · &#x27;+names.join(&#x27;, &#x27;);
+      });
+      related.append(checkbox,node(&#x27;span&#x27;,null,&#x27;Medtag også de flyttede vagters andre uger eller arbejdssteder&#x27;));
+      const locations=node(&#x27;ul&#x27;,&#x27;cs-publication-location-changes&#x27;);
+      locations.append(...periods.map(period=&gt;node(&#x27;li&#x27;,null,period)));
+      relatedSlot.append(related,locations);
     }
     const issues=publicationIssues(status.scopes);
-    const totals={added:0,changed:0,removed:0};
-    for(const entry of changes)totals[entry.type]++;
-    const summary=q(&#x27;#cs-publication-summary&#x27;);
-    summary.textContent=[
-      publicationCount(status.count,&#x27;vagt i planen&#x27;,&#x27;vagter i planen&#x27;),
-      totals.added&amp;&amp;publicationCount(totals.added,&#x27;ny&#x27;,&#x27;nye&#x27;),
-      totals.changed&amp;&amp;publicationCount(totals.changed,&#x27;ændret&#x27;,&#x27;ændrede&#x27;),
-      totals.removed&amp;&amp;publicationCount(totals.removed,&#x27;aflyst&#x27;,&#x27;aflyste&#x27;),
-      status.locationChanges.length&amp;&amp;&#x27;Arbejdsstedsoplysninger opdateret&#x27;
-    ].filter(Boolean).join(&#x27; · &#x27;);
-    summary.hidden=false;
     const list=q(&#x27;#cs-changes-list&#x27;);
-    if(!publicationReviewDetails){
-      publicationReviewDetails=node(&#x27;details&#x27;,&#x27;cs-publication-disclosure&#x27;);
-      publicationReviewDetails.id=&#x27;cs-publication-details&#x27;;
-      publicationReviewDetails.open=Boolean(publicationResume?.detailsOpen);
-      const label=node(&#x27;summary&#x27;),chevron=node(&#x27;span&#x27;,&#x27;cs-publication-chevron&#x27;);
-      chevron.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-      label.append(node(&#x27;span&#x27;),chevron);
-      publicationReviewDetails.append(label,node(&#x27;div&#x27;,&#x27;cs-publication-detail-content&#x27;));
-    }
-    const label=publicationReviewDetails.querySelector(&#x27;summary&#x27;).children[0];
-    label.textContent=issues.size?(changes.length?&#x27;Se konflikter og ændringer&#x27;:&#x27;Se konflikter&#x27;):
-      changes.length?&#x27;Se ændringer (&#x27;+changes.length.toLocaleString(&#x27;da-DK&#x27;)+&#x27;)&#x27;:&#x27;Se ugeoversigt&#x27;;
-    const content=publicationReviewDetails.querySelector(&#x27;.cs-publication-detail-content&#x27;);
     const sections=[];
     if(issues.size){
       const conflicts=node(&#x27;ul&#x27;,&#x27;cs-publication-conflicts&#x27;);
@@ -27985,7 +28089,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }
       sections.push(conflicts);
     }
-    if(affectedWeeks&gt;1||issues.size||status.locationChanges.length)sections.push(renderPublicationWeeks(scope,status.scopes,issues));
+    if(changes.length||status.locationChanges.length)sections.push(node(&#x27;h4&#x27;,&#x27;cs-publication-section-title&#x27;,&#x27;Ændringer&#x27;));
+    if(status.locationChanges.length){
+      const locations=node(&#x27;ul&#x27;,&#x27;cs-publication-location-changes&#x27;);
+      for(const site of new Set(status.locationChanges.map(item=&gt;item.site))){
+        locations.append(node(&#x27;li&#x27;,null,(sites[site]?.name||&#x27;Arbejdssted&#x27;)+&#x27; · Oplysninger opdateret&#x27;));
+      }
+      sections.push(locations);
+    }
     if(!publicationReviewElement){
       publicationReviewElement=node(&#x27;section&#x27;,&#x27;cs-publication-review-slot&#x27;);
       publicationReviewView=globalThis.CleanRoomsPublicationReview.mount({element:publicationReviewElement,onOpenChange:entry=&gt;{
@@ -27994,55 +28105,45 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }});
     }
     if(changes.length)sections.push(publicationReviewElement);
-    publicationReviewDetails.hidden=!sections.length;
     const reviewFocus=publicationReviewElement.contains?.(document.activeElement)?document.activeElement:null;
-    content.replaceChildren(...sections);
-    if(list.children[0]!==publicationReviewDetails)list.replaceChildren(publicationReviewDetails);
+    list.replaceChildren(...sections);
     reviewFocus?.focus({preventScroll:true});
     if(publicationResume?.review){publicationReviewView.restore?.(publicationResume.review);publicationResume.review=null;}
-    publicationReviewView.render({changes,people:staff,sites,scopeKey:JSON.stringify([scope.from,scope.to,scope.siteIds,scope.includeDependencies])});
-    button.textContent=status.published?&#x27;Allerede udgivet&#x27;:affectedWeeks===1?&#x27;Udgiv uge &#x27;+weekNumber(status.scopes[0].from):&#x27;Udgiv &#x27;+publicationCount(affectedWeeks,&#x27;uge&#x27;,&#x27;uger&#x27;);
+    const scopeSiteIds=q(&#x27;#cs-publication-scope-select&#x27;).value===&#x27;all&#x27;?[]:
+      [...new Set(status.scopes.flatMap(part=&gt;part.siteIds))];
+    publicationReviewView.render({changes,people:staff,sites,scopeSiteIds,scopeKey:JSON.stringify([scope.from,scope.to,scope.siteIds,scope.includeDependencies])});
     const dependenciesMissing=status.dependencies.length&amp;&amp;!includeRelatedPublication;
     publicationFeedback=issues.size?{state:&#x27;warning&#x27;,message:&#x27;Ret overlap eller vagter under godkendt fravær, før du udgiver.&#x27;}:
-      status.published?{state:&#x27;ready&#x27;,message:&#x27;Planen er allerede udgivet for perioden.&#x27;}:
-      status.openCount?{state:&#x27;muted&#x27;,message:publicationCount(status.openCount,&#x27;ledig vagt udgives uden medarbejder.&#x27;,&#x27;ledige vagter udgives uden medarbejder.&#x27;)}:{};
+      status.published?{state:&#x27;muted&#x27;,message:&#x27;Allerede udgivet.&#x27;}:
+      !status.count&amp;&amp;!changes.length?{state:&#x27;muted&#x27;,message:&#x27;Ingen vagter i perioden.&#x27;}:{};
     publicationCanSubmit=!status.published&amp;&amp;!dependenciesMissing&amp;&amp;!issues.size;
     updatePublicationButton();
     if(publicationResume&amp;&amp;!publicationResume.scrollRestored){const resume=publicationResume;resume.scrollRestored=true;Promise.resolve().then(()=&gt;{if(publicationResume===resume&amp;&amp;!q(&#x27;#cs-changes-layer&#x27;).hidden)q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop=resume.scrollTop||0;});}
   }
   function publicationContextKey(){return JSON.stringify([chatWorkspaceId,sessionViewer?.userId,state.role]);}
+  function publicationCalendarContext(){return JSON.stringify([dates()[0],state.departmentId,state.site]);}
   function resumablePublicationReview() {
     const candidate = publicationResume;
-    if (candidate?.key !== publicationContextKey()) return null;
+    if (candidate?.key !== publicationContextKey() || candidate.calendar !== publicationCalendarContext()) return null;
     const departmentExists = candidate.departmentId === &#x27;all&#x27; || state.organization?.departments.some(item =&gt; item.id === candidate.departmentId);
-    const siteExists = candidate.site === &#x27;all&#x27; || sites[Number(candidate.site)];
+    const siteExists = candidate.site === &#x27;all&#x27; || allowedSite(Number(candidate.site));
     return departmentExists &amp;&amp; siteExists ? candidate : null;
   }
-  function renderPublicationTrigger() {
-    const week = dates(), range = resumablePublicationReview()?.range ?? {from:week[0],to:week[6]};
-    const differsFromCurrentWeek = range.from !== week[0] || range.to !== week[6];
-    const coversMultipleWeeks = range.to &gt; addDays(range.from,6);
-    const button = q(&#x27;#cs-publish&#x27;);
-    const offersMoreWeeks = coversMultipleWeeks || (!differsFromCurrentWeek &amp;&amp; button.dataset.state === &#x27;published&#x27;);
-    q(&#x27;#cs-publish span&#x27;).textContent = offersMoreWeeks ? &#x27;Udgiv flere uger&#x27; : &#x27;Udgiv uge &#x27; + weekNumber(range.from);
-    const description = &#x27;Gennemgå perioden &#x27; + publicationPeriodFormat.formatRange(date(range.from),date(range.to));
-    button.title = description;
-    button.setAttribute(&#x27;aria-description&#x27;,description);
-  }
-  function openChanges(trigger = q(&#x27;#cs-changes-toggle&#x27;),showDetails = false) {
-    if(!confirmEditorLeave(()=&gt;openChanges(trigger,showDetails)))return false;
+  function openChanges(trigger = q(&#x27;#cs-changes-toggle&#x27;)) {
+    if(!confirmEditorLeave(()=&gt;openChanges(trigger)))return false;
     closeOperationsSheets();
     closeEditor({force:true}); closeGroupEditor(false); closeBulkEditor(false); closeReview();
     const resume=resumablePublicationReview();publicationResume=resume;if(resume)resume.scrollRestored=false;
     if(resume){state.departmentId=resume.departmentId;state.site=resume.site;q(&#x27;#cs-site-filter&#x27;).value=state.site;}
-    publicationAllSites=resume?.allSites||false;includeRelatedPublication=resume?.related||false;publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;
-    publicationRangeError=&#x27;&#x27;;publicationSubmitError=&#x27;&#x27;;publicationReviewDetails=null;
-    if(showDetails)publicationResume={...resume,detailsOpen:true};
-    q(&#x27;#cs-publication-options&#x27;).open=Boolean(resume?.optionsOpen);
+    publicationSiteSelection=resume?.siteSelection??null;
+    includeRelatedPublication=resume?.related||false;
+    publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};
+    publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;publicationSubmitError=&#x27;&#x27;;
     publicationRangeView?.dispose?.();publicationRangeView=null;
     publicationReviewView?.dispose?.();publicationReviewView=null;publicationReviewElement=null;
     changesTrigger=trigger;
     q(&#x27;#cs-changes-layer&#x27;).hidden=false;
+    q(&#x27;#cs-changes-list&#x27;).hidden=false;
     q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop=resume?.scrollTop||0;
     renderChanges();
     q(&#x27;#cs-changes-close&#x27;).focus({preventScroll:true});
@@ -28050,10 +28151,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function closeChanges(restoreFocus = true) {
     releasePlanningHold(&#x27;publication&#x27;);
     const wasOpen = !q(&#x27;#cs-changes-layer&#x27;).hidden;
-    if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,detailsOpen:publicationReviewDetails?.open===true,optionsOpen:q(&#x27;#cs-publication-options&#x27;).open===true,scrollTop:q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop||0};
+    if(wasOpen)publicationResume={
+      key:publicationContextKey(),calendar:publicationCalendarContext(),departmentId:state.departmentId,site:state.site,
+      range:publicationRange?{...publicationRange}:null,siteSelection:publicationSiteSelection,related:includeRelatedPublication,
+      review:publicationReviewView?.capture?.()||null,scrollTop:q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop||0
+    };
     q(&#x27;#cs-changes-layer&#x27;).hidden = true;
-    publicationAllSites=false;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
-    if (wasOpen &amp;&amp; state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
+    publicationSiteSelection=null;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
     if(wasOpen&amp;&amp;restoreFocus){const target=changesTrigger?.isConnected?changesTrigger:q(&#x27;#cs-changes-toggle&#x27;);target.focus({preventScroll:true});}
   }
   async function publishReviewedWeek() {
@@ -28066,7 +28170,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       return;
     }
     publicationSubmitError=&#x27;&#x27;;publicationBusy=true;root.inert=true;updatePublicationButton();
-    q(&#x27;#cs-changes-publish&#x27;).textContent=&#x27;Udgiver…&#x27;;
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
     if(!result.ok){
@@ -28078,10 +28181,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     const trigger=changesTrigger;
     closeChanges(false);publicationResume=null;
-    if (state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
     lastUndo=null;clearSelection(false);await initializeCloud();
-    const publishedWeeks=expanded.scopes.length;
-    notify(publishedWeeks+(publishedWeeks===1?&#x27; uge&#x27;:&#x27; uger&#x27;)+&#x27; udgivet. Medarbejdernes beskeder er gemt.&#x27;);
+    notify(&#x27;Vagtplanen er udgivet.&#x27;);
     (trigger?.isConnected?trigger:q(&#x27;#cs-changes-toggle&#x27;)).focus({preventScroll:true});
   }
   function editorError(message) { q(&#x27;#cs-edit-error&#x27;).hidden = false; q(&#x27;#cs-edit-error&#x27;).textContent = message; q(&#x27;#cs-edit-error&#x27;).scrollIntoView({block:&#x27;nearest&#x27;}); }
@@ -28258,10 +28359,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   q(&#x27;#cs-bulk-form&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; { if (event.key === &#x27;Enter&#x27; &amp;&amp; (event.ctrlKey || event.metaKey)) saveBulk(event); });
   [&#x27;#cs-bulk-close&#x27;,&#x27;#cs-bulk-backdrop&#x27;,&#x27;#cs-bulk-cancel&#x27;].forEach(selector =&gt; q(selector).addEventListener(&#x27;click&#x27;,() =&gt; closeBulkEditor()));
   q(&#x27;#cs-bulk-layer&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; trapDialog(event,q(&#x27;.cs-bulk-editor&#x27;),closeBulkEditor));
-  q(&#x27;#cs-changes-toggle&#x27;).addEventListener(&#x27;click&#x27;,event =&gt; openChanges(event.currentTarget,true));
-  q(&#x27;#cs-publication-scope-select&#x27;).addEventListener(&#x27;change&#x27;,event=&gt;{
-    publicationAllSites=event.currentTarget.value===&#x27;all&#x27;;includeRelatedPublication=false;publicationSubmitError=&#x27;&#x27;;renderChanges();
-  });
+  q(&#x27;#cs-changes-toggle&#x27;).addEventListener(&#x27;click&#x27;,event =&gt; openChanges(event.currentTarget));
+  q(&#x27;#cs-publication-scope-select&#x27;).addEventListener(&#x27;change&#x27;,event=&gt;changePublicationSite(event.currentTarget.value));
   q(&#x27;#cs-publication-retry&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{
     if(cloudStatus.conflict){closeChanges(false);retryCloud();return;}
     planningReadBlocked=&#x27;&#x27;;
@@ -28369,6 +28468,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
+
 
 
 

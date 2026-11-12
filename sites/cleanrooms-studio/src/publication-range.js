@@ -2,6 +2,9 @@
 (() => {
   'use strict';
   const DAY=86400000,MAX_WEEKS=52,DEFAULT_MIN='2000-01-01',DEFAULT_MAX='2100-12-31';
+  const dateRangeFormat = new Intl.DateTimeFormat('da-DK', {
+    day:'numeric', month:'long', year:'numeric', timeZone:'UTC'
+  });
   const date=value=>new Date(value+'T12:00:00Z');
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(date(value).getTime())&&date(value).toISOString().slice(0,10)===value;
   const addDays=(value,days)=>{if(!validDate(value)||!Number.isSafeInteger(days))throw new TypeError('Datoen er ugyldig.');const result=date(value);result.setUTCDate(result.getUTCDate()+days);return result.toISOString().slice(0,10);};
@@ -44,75 +47,208 @@
 
   function mount({element,onChange=()=>{},onValidityChange=()=>{}}={}) {
     if(!element?.ownerDocument)throw new TypeError('Udgivelsesperioden kræver et indholdsfelt.');
-    const doc=element.ownerDocument,root=doc.createElement('section');root.className='cs-publication-range';root.setAttribute('aria-label','Udgivelsesperiode');
-    let options={minDate:DEFAULT_MIN,maxDate:DEFAULT_MAX,disabled:false},value=null,draftFrom='',draftTo='',valid=true,disposed=false;
-    const node=(tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
-    const heading=node('div','cs-publication-range-head'),label=node('h4','cs-publication-range-title','Udgivelsesperiode'),presets=node('div','cs-publication-range-presets');presets.setAttribute('role','group');presets.setAttribute('aria-label','Antal uger');
-    const controls=new Map();
-    const startingWeek=()=>validDate(draftFrom)?monday(draftFrom):value?.from;
-    const chooseWeeks=count=>{
-      const from=startingWeek();
-      if(!disposed&&!options.disabled&&from)commit(from,addDays(from,count*7-1),'preset');
+    const doc = element.ownerDocument;
+    const node = (tag, className, text) => {
+      const el = doc.createElement(tag);
+      if(className)el.className = className;
+      if(text !== undefined)el.textContent = text;
+      return el;
     };
-    for(const count of [1,2,4,8]){const control=node('button','cs-publication-range-preset',count+(count===1?' uge':' uger'));control.type='button';control.dataset.publicationRange='preset:'+count;control.addEventListener('click',()=>{if(!control.disabled)chooseWeeks(count);});controls.set(count,control);presets.append(control);}
-    const more=node('div','cs-publication-range-more'),select=node('select','cs-publication-range-more-select');
-    select.dataset.publicationRange='more';
-    select.setAttribute('aria-label','Flere ugevalg');
-    const placeholder=node('option','','Flere');placeholder.value='';placeholder.disabled=true;
-    select.append(placeholder);
-    const extraCounts=new Map();
-    for(let count=3;count<=MAX_WEEKS;count++){
-      if(controls.has(count))continue;
-      const option=node('option','',count+' uger');option.value=String(count);
-      extraCounts.set(count,option);select.append(option);
-    }
-    select.addEventListener('change',()=>{
-      const count=Number(select.value),choice=extraCounts.get(count);
-      if(!select.disabled&&choice&&!choice.disabled)chooseWeeks(count);
+    const option = (value, label) => {
+      const el = node('option', '', label);
+      el.value = String(value);
+      return el;
+    };
+    const select = (name, label) => {
+      const el = node('select', 'cs-publication-range-input');
+      el.dataset.publicationRange = name;
+      el.setAttribute('aria-label', label);
+      return el;
+    };
+
+    const root = node('section', 'cs-publication-range');
+    root.setAttribute('aria-label', 'Periode');
+    const heading = node('h4', 'cs-publication-range-title', 'Periode');
+    const fields = node('div', 'cs-publication-range-fields');
+    const week = select('week', 'Startuge');
+    const duration = select('duration', 'Antal uger');
+    const year = select('year', 'År for startuge');
+    const yearField = node('label', 'cs-publication-range-year');
+    yearField.append(node('span', '', 'År'), year);
+    yearField.hidden = true;
+    const status = node('p', 'cs-publication-range-summary');
+    status.setAttribute('aria-live', 'polite');
+    const error = node('p', 'cs-publication-range-error');
+    error.setAttribute('role', 'alert');
+    error.hidden = true;
+    fields.append(week, duration);
+    root.append(heading, fields, status, yearField, error);
+    element.replaceChildren(root);
+
+    const durations = Array.from({length:MAX_WEEKS}, (_, index) => {
+      const count = index + 1;
+      return option(count, count === 1 ? '1 uge' : count + ' uger');
     });
-    more.append(select);presets.append(more);
-    heading.append(label,presets);
-    const fields=node('div','cs-publication-range-fields');
-    const makeField=(name,text)=>{const holder=node('label','cs-publication-range-field'),input=node('input','cs-publication-range-input');input.type='date';input.dataset.publicationRange=name;input.setAttribute('aria-label',text);holder.append(node('span','',text),input);fields.append(holder);return input;};
-    const start=makeField('from','Fra uge'),end=makeField('to','Til uge');
-    const status=node('p','cs-publication-range-summary');status.setAttribute('aria-live','polite');
-    const error=node('p','cs-publication-range-error');error.setAttribute('role','alert');error.hidden=true;
-    root.append(heading,fields,status,error);element.replaceChildren(root);
+    duration.append(...durations);
+    let options = {minDate:DEFAULT_MIN, maxDate:DEFAULT_MAX, disabled:false};
+    let value = null, draftFrom = '', draftCount = 1, valid = true, disposed = false;
+    let menuYear, firstWeek, lastWeek, firstYear, lastYear;
+    let choosingYear = false, awaitingWeek = false, renderError = false, weekMenuKey, yearMenuKey;
+
     function validity(next,message='') {
-      const changed=valid!==next||error.textContent!==message;valid=next;error.textContent=message;error.hidden=next;start.setAttribute('aria-invalid',String(!next));end.setAttribute('aria-invalid',String(!next));
+      const changed = valid !== next || error.textContent !== message;
+      valid = next;
+      error.textContent = message;
+      error.hidden = next;
       if(changed)onValidityChange({valid:next,message});
     }
+
+    function updateBounds() {
+      firstWeek = lastWeek = firstYear = lastYear = undefined;
+      if(!validDate(options.minDate) || !validDate(options.maxDate) || options.minDate > options.maxDate) {
+        throw new TypeError('Kalenderens datogrænser er ugyldige.');
+      }
+      const first = monday(options.minDate);
+      const last = monday(options.maxDate);
+      firstWeek = first < options.minDate ? addDays(first, 7) : first;
+      lastWeek = addDays(last, 6) > options.maxDate ? addDays(last, -7) : last;
+      if(firstWeek > lastWeek)throw new TypeError('Kalenderen indeholder ingen hele uger.');
+      firstYear = weekNumber(firstWeek).year;
+      lastYear = weekNumber(lastWeek).year;
+    }
+
+    function weeksAvailable(from) {
+      if(!validDate(from) || !firstWeek || from < firstWeek || from > lastWeek || monday(from) !== from)return 0;
+      return Math.min(MAX_WEEKS, Math.floor((date(lastWeek) - date(from)) / (7 * DAY)) + 1);
+    }
+
+    function renderWeekMenu() {
+      const key = JSON.stringify([menuYear, firstWeek, lastWeek]);
+      if(key === weekMenuKey)return;
+      weekMenuKey = key;
+      const placeholder = option('', 'Vælg uge');
+      placeholder.disabled = true;
+      const groups = [placeholder];
+      for(let candidate = Math.max(firstYear, menuYear - 1); candidate <= Math.min(lastYear, menuYear + 1); candidate++) {
+        const group = node('optgroup');
+        group.label = String(candidate);
+        const yearStart = monday(String(candidate).padStart(4, '0') + '-01-04');
+        let start = yearStart < firstWeek ? firstWeek : yearStart;
+        while(start <= lastWeek && weekNumber(start).year === candidate) {
+          group.append(option(start, 'Uge ' + weekNumber(start).week));
+          start = addDays(start, 7);
+        }
+        groups.push(group);
+      }
+      if(firstYear < menuYear - 1 || lastYear > menuYear + 1)groups.push(option('other-year', 'Vælg andet år…'));
+      week.replaceChildren(...groups);
+    }
+
+    function renderYearMenu() {
+      const key = JSON.stringify([firstYear, lastYear]);
+      if(key === yearMenuKey)return;
+      yearMenuKey = key;
+      const placeholder = option('', 'Vælg år');
+      placeholder.disabled = true;
+      const choices = [placeholder];
+      for(let candidate = firstYear; candidate <= lastYear; candidate++)choices.push(option(candidate, candidate));
+      year.replaceChildren(...choices);
+    }
+
     function sync() {
       if(disposed)return;
-      start.value=draftFrom;end.value=draftTo;start.disabled=end.disabled=options.disabled===true;
-      const min=validDate(options.minDate)?options.minDate:DEFAULT_MIN,max=validDate(options.maxDate)?options.maxDate:DEFAULT_MAX,first=monday(min),minimum=first<min?addDays(first,7):first,last=monday(max),maximum=addDays(last,6)>max?addDays(last,-7):last;
-      start.min=end.min=minimum;start.max=end.max=maximum;
-      const from=startingWeek(),selectedCount=valid&&value?countWeeks(value.from,value.to):0;
-      const availableWeeks=from&&from>=minimum&&from<=maximum?Math.min(MAX_WEEKS,1+Math.round((date(maximum)-date(from))/(7*DAY))):0;
-      for(const [count,control]of controls){const allowed=count<=availableWeeks;control.disabled=options.disabled===true||!allowed;control.setAttribute('aria-pressed',String(selectedCount===count));control.title=allowed?'':'Perioden ligger uden for kalenderen.';}
-      for(const [count,option]of extraCounts)option.disabled=count>availableWeeks;
-      select.disabled=options.disabled===true||availableWeeks<3;
-      select.value=extraCounts.has(selectedCount)?String(selectedCount):'';
-      more.dataset.selected=String(select.value!=='');
-      status.textContent=valid&&value?summary(value):'Ret perioden, før du udgiver.';
+      renderWeekMenu();
+      const available = weeksAvailable(draftFrom);
+      durations.forEach((item, index) => { item.disabled = Boolean(available) && index >= available; });
+      week.value = draftFrom;
+      duration.value = draftCount ? String(draftCount) : '';
+      week.disabled = duration.disabled = year.disabled = options.disabled === true || firstYear === undefined;
+      week.setAttribute('aria-invalid', String(!valid && !available));
+      duration.setAttribute('aria-invalid', String(!valid && Boolean(available)));
+      yearField.hidden = !choosingYear;
+      if(choosingYear) {
+        renderYearMenu();
+        year.value = awaitingWeek ? String(menuYear) : '';
+      }
+      status.hidden = !valid || !value;
+      const text = status.hidden ? '' : dateRangeFormat.formatRange(date(value.from), date(value.to));
+      if(status.textContent !== text)status.textContent = text;
     }
-    function commit(from,to,source) {
-      draftFrom=from;draftTo=to;
-      let next;try{next=normalize({from,to,minDate:options.minDate,maxDate:options.maxDate});}
-      catch(problem){validity(false,problem.message);sync();return;}
-      const changed=!value||value.from!==next.from||value.to!==next.to;
-      value=next;draftFrom=value.from;draftTo=monday(value.to);validity(true);sync();
-      if(changed&&!disposed)onChange({...value},{source});
+
+    function commit(source) {
+      const available = weeksAvailable(draftFrom);
+      if(!available) {
+        validity(false, awaitingWeek ? 'Vælg en uge i ' + menuYear + '.' : 'Vælg en startuge.');
+      } else if(!Number.isInteger(draftCount) || draftCount < 1 || draftCount > MAX_WEEKS) {
+        validity(false, 'Vælg antal uger.');
+      } else if(draftCount > available) {
+        validity(false, 'Vælg færre uger for at holde perioden inden for kalenderen.');
+      } else {
+        const next = {from:draftFrom, to:addDays(draftFrom, draftCount * 7 - 1)};
+        const changed = !value || value.from !== next.from || value.to !== next.to;
+        value = next;
+        validity(true);
+        sync();
+        if(changed && !disposed)onChange({...value}, {source});
+        return;
+      }
+      sync();
     }
-    start.addEventListener('change',()=>{if(!disposed&&!options.disabled)commit(start.value,end.value,'date');});
-    end.addEventListener('change',()=>{if(!disposed&&!options.disabled)commit(start.value,end.value,'date');});
+
+    week.addEventListener('change', () => {
+      if(disposed || options.disabled)return;
+      if(week.value === 'other-year') {
+        choosingYear = true;
+        sync();
+        year.focus?.({preventScroll:true});
+        return;
+      }
+      draftFrom = week.value;
+      if(weeksAvailable(draftFrom)) {
+        menuYear = weekNumber(draftFrom).year;
+        choosingYear = awaitingWeek = false;
+      }
+      commit('week');
+    });
+    duration.addEventListener('change', () => {
+      if(disposed || options.disabled)return;
+      draftCount = Number(duration.value);
+      commit('duration');
+    });
+    year.addEventListener('change', () => {
+      if(disposed || options.disabled || !choosingYear)return;
+      const selected = Number(year.value);
+      if(!Number.isInteger(selected) || selected < firstYear || selected > lastYear)return;
+      menuYear = selected;
+      draftFrom = '';
+      awaitingWeek = true;
+      commit('year');
+      week.focus?.({preventScroll:true});
+    });
+
     function render(next={}) {
-      if(disposed)return;options={...options,...next};
-      try{
-        const from=next.from??value?.from??monday(new Date().toISOString().slice(0,10)),to=next.to??value?.to??from,range=normalize({...options,from,to});
-        const changed=!value||value.from!==range.from||value.to!==range.to;
-        if(changed){value=range;draftFrom=value.from;draftTo=monday(value.to);validity(true);}
-      }catch(problem){validity(false,problem.message);}
+      if(disposed)return;
+      options = {...options, ...next};
+      try {
+        updateBounds();
+        const from = next.from ?? value?.from ?? monday(new Date().toISOString().slice(0, 10));
+        const to = next.to ?? value?.to ?? from;
+        const range = normalize({...options, from, to});
+        const changed = !value || value.from !== range.from || value.to !== range.to;
+        if(changed || renderError) {
+          value = range;
+          draftFrom = range.from;
+          draftCount = countWeeks(range.from, range.to);
+          menuYear = weekNumber(range.from).year;
+          choosingYear = awaitingWeek = false;
+          validity(true);
+        }
+        renderError = false;
+      } catch(problem) {
+        menuYear ??= firstYear;
+        renderError = true;
+        validity(false, problem.message);
+      }
       sync();
     }
     return {render,dispose(){disposed=true;element.replaceChildren();},get value(){return value?{...value}:null;},get valid(){return valid;}};

@@ -1,58 +1,272 @@
-/* A short change list leads to a focused comparison instead of repeated before/after cards. */
-#cleanrooms-studio .cs-publication-review{min-width:0;margin:24px 0 0;color:#3d515e;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-muted{color:#7c8991;font-size:11px;line-height:19px}
-#cleanrooms-studio .cs-publication-review-tools{display:flex;flex-direction:column;gap:12px;margin:0 0 22px}
-#cleanrooms-studio .cs-publication-review-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-filter{display:inline-flex;align-items:center;gap:7px;min-height:40px!important;height:40px!important;margin:0;padding:8px 12px!important;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:#6d7d87;font:inherit;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-filter[aria-pressed="true"]{border-color:#dce4e9;background:#f3f6f8;color:#354e5d}
-#cleanrooms-studio .cs-publication-review-filter-count{color:#84919a;font-size:11px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-review-search{display:block;min-width:0;max-width:100%}
-#cleanrooms-studio .cs-publication-review-input{box-sizing:border-box;width:100%;height:40px;min-height:40px;margin:0;padding:8px 12px;border:1px solid #cbd6dd;border-radius:7px;background:#fff;color:#374e5c;font:inherit;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-publication-review-day-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 0 0;padding:9px 0;border-bottom:1px solid #e0e7eb;color:#6a7e8a;font-size:11px;font-weight:500;line-height:19px}
-#cleanrooms-studio .cs-publication-review-day:first-child>.cs-publication-review-day-title{margin-top:0}
-#cleanrooms-studio .cs-publication-review-week{color:#8b98a0;font-size:10px;white-space:nowrap}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-row{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;width:100%;height:auto!important;min-height:70px!important;margin:0;padding:14px 0!important;border:0;border-bottom:1px solid #edf0f2;border-radius:0;background:transparent;box-shadow:none;color:inherit;text-align:left;font:inherit;line-height:21px;cursor:pointer;transition:background-color 130ms ease}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-row:hover{background:#f8fafb}
-#cleanrooms-studio .cs-publication-review-row-copy{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
-#cleanrooms-studio .cs-publication-review-row-head{display:flex;align-items:center;gap:12px;min-width:0}
-#cleanrooms-studio .cs-publication-review-row-head>strong{color:#354955;font-size:13px;font-weight:600;line-height:21px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-type{display:inline-flex;flex-shrink:0;align-items:center;gap:6px;color:#7b8992;font-size:10px;font-weight:400;line-height:18px}
-#cleanrooms-studio .cs-publication-review-type::before{content:'';width:4px;height:4px;border-radius:50%;background:#9aa8b2}
-#cleanrooms-studio .cs-publication-review-type[data-type="changed"]::before{background:#a2824d}
-#cleanrooms-studio .cs-publication-review-type[data-type="added"]::before{background:#6a8ca3}
-#cleanrooms-studio .cs-publication-review-type[data-type="removed"]::before{background:#a08076}
-#cleanrooms-studio .cs-publication-review-row-summary{display:flex;flex-direction:column;gap:2px;color:#4f6674;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-row-context{color:#8a969e;font-size:11px;line-height:19px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-chevron{flex-shrink:0;color:#9ca8b0;font-size:21px;line-height:24px}
-#cleanrooms-studio .cs-publication-review-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:20px 0 0}
-#cleanrooms-studio .cs-publication-review-pagination>.cs-publication-review-muted{margin-right:auto}
-#cleanrooms-studio .cs-publication-review .cs-publication-review-button{box-sizing:border-box;min-height:40px!important;height:auto!important;margin:0;padding:9px 13px!important;border:1px solid #d2dde4;border-radius:7px;background:#fff;box-shadow:none;color:#4b6575;font:inherit;font-size:12px;font-weight:500;line-height:20px}
-#cleanrooms-studio .cs-publication-review-button:disabled{opacity:.45;cursor:default}
-#cleanrooms-studio .cs-publication-review-back{display:inline-flex;align-items:center;gap:8px;min-height:40px!important;height:40px!important;margin:0 0 20px;padding:0!important;border:0;background:transparent;box-shadow:none;color:#6c818f;font:inherit;font-size:12px}
-#cleanrooms-studio .cs-publication-review-back::before{content:'←';font-size:16px}
-#cleanrooms-studio .cs-publication-review-detail-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 6px}
-#cleanrooms-studio .cs-publication-review-detail-title{margin:0;color:#334a58;font-size:18px;font-weight:600;line-height:26px;letter-spacing:-.2px}
-#cleanrooms-studio .cs-publication-review-detail-context{margin:0 0 24px;color:#7b8a94;font-size:12px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-comparison{table-layout:fixed;width:100%;border-collapse:collapse;margin:0 0 24px;font-size:12px;line-height:20px;text-align:left}
-#cleanrooms-studio .cs-publication-review-comparison :is(th,td){padding:12px 10px;border-bottom:1px solid #e4eaee;font-weight:400;text-align:left;vertical-align:top;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-comparison th:first-child{width:25%;font-size:11px;color:#7b8b95}
-#cleanrooms-studio .cs-publication-review-comparison thead th{background:#f4f7f8;color:#71828e;font-size:11px;font-weight:500}
-#cleanrooms-studio .cs-publication-review-comparison td{color:#5d727f;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-publication-review-comparison td[data-changed="true"]{color:#846632;background:#fcfaf5}
-#cleanrooms-studio .cs-publication-review-detail-summary{margin:0 0 24px;color:#6d818e;font-size:12px;line-height:22px}
-#cleanrooms-studio .cs-publication-review-instructions{margin:0 0 24px;border-block:1px solid #e5eaee}
-#cleanrooms-studio .cs-publication-review-instructions>summary{padding:14px 0;color:#566f7f;font-size:12px;font-weight:500;line-height:22px;cursor:pointer}
-#cleanrooms-studio .cs-publication-review-instruction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding:6px 0 20px;min-width:0}
-#cleanrooms-studio .cs-publication-review-instruction-grid>section{min-width:0}
-#cleanrooms-studio .cs-publication-review-section-label{margin:0 0 12px;color:#7d8e99;font-size:11px;font-weight:500;line-height:19px}
-#cleanrooms-studio .cs-publication-review-note{color:#5b717f;font-size:12px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-publication-review-empty{margin:0;padding:24px 0;color:#7d8d97;font-size:12px;line-height:22px}
-#cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible{outline:2px solid #7295ae;outline-offset:3px}
-@media(max-width:600px){
- #cleanrooms-studio .cs-publication-review-filters{gap:2px}
- #cleanrooms-studio .cs-publication-review .cs-publication-review-filter{gap:5px;padding-inline:8px!important;font-size:11px}
- #cleanrooms-studio .cs-publication-review-row-head{gap:8px}
- #cleanrooms-studio .cs-publication-review-comparison :is(th,td){padding:10px 6px;font-size:11px;line-height:19px}
- #cleanrooms-studio .cs-publication-review-instruction-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+/* The review lists actual shift changes, with details available on each row. */
+#cleanrooms-studio .cs-publication-review {
+  min-width:0;
+  color:var(--cs-access-body);
+  font-size:13px;
+  line-height:20px;
 }
-@media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-publication-review-row{transition:none!important}}
+#cleanrooms-studio .cs-publication-review-muted {
+  color:var(--cs-access-muted);
+  font-size:12px;
+}
+#cleanrooms-studio .cs-publication-review-tools {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px 14px;
+  margin-bottom:14px;
+}
+#cleanrooms-studio .cs-publication-review-filters {
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter {
+  min-height:36px;
+  height:auto;
+  padding:5px 9px;
+  border:1px solid transparent;
+  border-radius:6px;
+  background:none;
+  box-shadow:none;
+  color:var(--cs-access-muted);
+  font:inherit;
+  font-weight:600;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter[aria-pressed="true"] {
+  border-color:var(--cs-access-ink);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-filter:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-input {
+  box-sizing:border-box;
+  flex:1 1 160px;
+  width:100%;
+  max-width:240px;
+  min-width:0;
+  min-height:36px;
+  margin:0;
+  padding:6px 10px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  color:var(--cs-access-ink);
+  font:inherit;
+}
+#cleanrooms-studio .cs-publication-review-day + .cs-publication-review-day {
+  margin-top:12px;
+}
+#cleanrooms-studio .cs-publication-review-day-title {
+  margin:0 0 2px;
+  padding:0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-row {
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:calc(100% + 16px);
+  min-width:0;
+  min-height:44px;
+  height:auto;
+  margin:0 -8px;
+  padding:7px 8px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+#cleanrooms-studio[data-page][data-role] .cs-publication-review .cs-publication-review-row:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-publication-review-row-copy,
+#cleanrooms-studio .cs-publication-review-row-summary {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-row-copy {
+  gap:2px;
+}
+#cleanrooms-studio .cs-publication-review-person {
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-row-summary,
+#cleanrooms-studio .cs-publication-review-row-context {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio .cs-publication-review-row-context,
+#cleanrooms-studio .cs-publication-review-type {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-publication-review-row-meta {
+  display:flex;
+  flex:none;
+  align-items:center;
+  gap:10px;
+}
+#cleanrooms-studio .cs-publication-review-chevron {
+  flex:none;
+  width:5px;
+  height:5px;
+  margin-right:2px;
+  border-top:1px solid currentColor;
+  border-right:1px solid currentColor;
+  color:var(--cs-access-muted);
+  transform:rotate(45deg);
+}
+#cleanrooms-studio .cs-publication-review-pagination {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:16px;
+}
+#cleanrooms-studio .cs-publication-review-pagination > .cs-publication-review-muted {
+  margin-right:auto;
+}
+#cleanrooms-studio .cs-publication-review .cs-publication-review-button {
+  box-sizing:border-box;
+  min-height:40px;
+  height:auto;
+  margin:0;
+  padding:8px 12px;
+  border:1px solid var(--cs-access-control-edge);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  box-shadow:none;
+  color:var(--cs-access-ink);
+  font:inherit;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-button:disabled {
+  opacity:.45;
+  cursor:default;
+}
+#cleanrooms-studio .cs-publication-review-back {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:40px;
+  margin:0 0 12px;
+  padding:0;
+  border:0;
+  background:none;
+  box-shadow:none;
+  color:var(--cs-access-muted);
+  font:inherit;
+}
+#cleanrooms-studio .cs-publication-review-back::before {
+  content:'←';
+  font-size:16px;
+}
+#cleanrooms-studio .cs-publication-review-detail-head {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:4px;
+}
+#cleanrooms-studio .cs-publication-review-detail-title {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:18px;
+  font-weight:600;
+  line-height:24px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-detail-context,
+#cleanrooms-studio .cs-publication-review-detail-summary {
+  margin:0 0 16px;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review-comparison {
+  table-layout:fixed;
+  width:100%;
+  margin:0 0 16px;
+  border-collapse:collapse;
+  font-size:12px;
+  text-align:left;
+}
+#cleanrooms-studio .cs-publication-review-comparison :is(th,td) {
+  padding:8px 6px;
+  border-bottom:1px solid var(--cs-access-border);
+  font-weight:400;
+  text-align:left;
+  vertical-align:top;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-comparison th:first-child {
+  width:25%;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review-comparison thead th {
+  color:var(--cs-access-muted);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-comparison td {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio .cs-publication-review-comparison td[data-changed="true"] {
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-instructions {
+  margin:0 0 16px;
+}
+#cleanrooms-studio .cs-publication-review-instructions > summary {
+  padding:8px 0;
+  font-weight:600;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-review-instruction-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px;
+  min-width:0;
+  padding:4px 0 12px;
+}
+#cleanrooms-studio .cs-publication-review-instruction-grid > section {
+  min-width:0;
+}
+#cleanrooms-studio .cs-publication-review-section-label {
+  margin:0 0 6px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-review-note {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-review-empty {
+  margin:0;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:2px;
+}
+@media(max-width:480px) {
+  #cleanrooms-studio .cs-publication-review-instruction-grid {
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+}

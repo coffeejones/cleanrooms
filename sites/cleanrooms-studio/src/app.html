@@ -34,7 +34,7 @@
   <main class="cs-main">
     <header class="cs-page-head">
       <div class="cs-title-block"><span class="cs-sr" id="cs-crumb">Vagtplan</span><span class="cs-compass-context" aria-hidden="true">CleanRooms</span><h2 id="cs-title">Vagtplan</h2><div class="cs-page-description" id="cs-description">22 medarbejdere · 3 arbejdssteder</div></div>
-      <div class="cs-head-actions"><span class="cs-draft"><span class="cs-draft-dot"></span><span id="cs-status">Kladde</span></span><button id="cs-review" type="button" class="cs-button cs-review-trigger cursor-interaction" aria-label="Tjek planen"><i data-lucide="list-checks" aria-hidden="true"></i><span class="cs-review-label">Tjek planen</span><span id="cs-review-count" class="cs-review-count">1</span></button><button id="cs-publish" type="button" class="cs-button cursor-interaction"><i data-lucide="check" aria-hidden="true"></i><span>Udgiv plan</span></button><button id="cs-new" type="button" class="cs-button cs-primary cursor-interaction"><i data-lucide="plus" aria-hidden="true"></i>Opret vagt</button></div>
+      <div class="cs-head-actions"><span class="cs-draft"><span class="cs-draft-dot"></span><span id="cs-status">Kladde</span></span><button id="cs-review" type="button" class="cs-button cs-review-trigger cursor-interaction" aria-label="Tjek planen"><i data-lucide="list-checks" aria-hidden="true"></i><span class="cs-review-label">Tjek planen</span><span id="cs-review-count" class="cs-review-count">1</span></button><button id="cs-publish" type="button" class="cs-button cursor-interaction">Udgiv</button><button id="cs-new" type="button" class="cs-button cs-primary cursor-interaction"><i data-lucide="plus" aria-hidden="true"></i>Opret vagt</button></div>
       <button id="cs-page-help" type="button" class="cs-page-help-trigger" aria-label="Hjælp til denne side" aria-haspopup="dialog">?</button>
     </header>
     <div class="cs-content">
@@ -189,26 +189,20 @@
     <section class="cs-editor cs-group-editor cs-changes-editor" role="dialog" aria-modal="true" aria-labelledby="cs-changes-title">
       <header class="cs-editor-head"><h3 id="cs-changes-title">Udgiv vagtplan</h3><button id="cs-changes-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk udgivelse"><i data-lucide="x" aria-hidden="true"></i></button></header>
       <div class="cs-group-fields">
-        <div class="cs-publication-intro">
-          <p id="cs-changes-period"></p>
-          <p id="cs-publication-dates"></p>
-          <p id="cs-publication-sites"></p>
+        <div class="cs-publication-setup">
+          <div id="cs-publication-range-slot"></div>
+          <div class="cs-publication-scope">
+            <label for="cs-publication-scope-select">Vælg arbejdssted</label>
+            <select id="cs-publication-scope-select"></select>
+          </div>
         </div>
-        <p id="cs-publication-summary" class="cs-publication-summary" role="status" hidden></p>
         <p id="cs-publication-feedback" class="cs-publication-feedback" role="status" hidden></p>
         <div id="cs-publication-load" hidden><p id="cs-publication-load-message" role="status"></p><button id="cs-publication-retry" type="button" class="cs-button" hidden>Prøv igen</button></div>
         <div id="cs-publication-related-slot" hidden></div>
         <section id="cs-publication-budget" class="cs-publication-budget" aria-label="Virksomhedens timebudget" hidden></section>
-        <details id="cs-publication-options" class="cs-publication-disclosure">
-          <summary><span>Ret periode og arbejdssteder</span><span class="cs-publication-chevron" aria-hidden="true"></span></summary>
-          <div class="cs-publication-setup">
-            <div id="cs-publication-range-slot"></div>
-            <div class="cs-publication-scope"><label for="cs-publication-scope-select">Arbejdssteder</label><select id="cs-publication-scope-select"><option value="selected">Som i vagtplanen</option><option value="all">Alle arbejdssteder</option></select></div>
-          </div>
-        </details>
         <div id="cs-changes-list" class="cs-changes-list"></div>
       </div>
-      <footer class="cs-editor-actions"><p id="cs-publication-footer-note" class="cs-publication-footer-note"></p><button id="cs-changes-cancel" type="button" class="cs-button cs-quiet">Luk</button><button id="cs-changes-publish" type="button" class="cs-button cs-primary" disabled>Udgiv</button></footer>
+      <footer class="cs-editor-actions"><button id="cs-changes-cancel" type="button" class="cs-button cs-quiet">Annuller</button><button id="cs-changes-publish" type="button" class="cs-button cs-primary" disabled>Udgiv</button></footer>
     </section>
   </div>
 <!-- Insert these three layers inside #cleanrooms-studio, beside the existing dialog layers. -->

@@ -302,7 +302,7 @@ test('publication review blocks newly approved absence without creating or chang
     assert.equal(app.control('#cs-changes-layer').hidden,false);
     assert.equal(app.control('#cs-changes-publish').disabled,true);
     assert.match(app.control('#cs-publication-feedback').textContent,/godkendt fravær/);
-    assert.match(app.control('#cs-changes-list').textContent,/vagter med konflikt/);
+    assert.match(app.control('#cs-changes-list').textContent,/Godkendt fravær/);
     await app.publishReviewedWeek();
     assert.equal(app.getOperationOpenings().length,0,'Review keeps the conflict in context rather than unexpectedly opening another panel.');
     assert.deepEqual(plain(app.snapshot()),before);

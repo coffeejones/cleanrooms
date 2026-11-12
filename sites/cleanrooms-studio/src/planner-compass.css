@@ -537,7 +537,7 @@
   background:var(--cs-compass-indicator);
 }
 
-/* The editor, review, publication and department views share the same quiet frame. */
+/* The editor, review and department views share the same quiet frame. */
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
   .cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,
   .cs-editor-actions,.cs-review-footer,.cs-operations-footer,.cs-department-footer
@@ -547,15 +547,14 @@
   box-shadow:none;
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(
-  .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3,
-  .cs-publication-review-detail-title,.cs-publication-range-title
+  .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3
 ) {
   color:var(--cs-access-ink);
   font-weight:700;
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
   .cs-series-planning-preview,.cs-series-operation-note,.cs-person-picker-head,.cs-person-footnote,
-  .cs-department-popover-footer,.cs-publication-review-comparison thead th
+  .cs-department-popover-footer
 ) {
   border-color:var(--cs-compass-rule);
   background:var(--cs-access-soft);
@@ -577,9 +576,7 @@
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]):where([data-role="admin"]) .cs-series-calendar-grid>button[aria-pressed="true"] {
   outline-color:var(--cs-access-primary);
 }
-#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
-  .cs-operations-tabs>button,.cs-publication-review .cs-publication-review-filter,.cs-publication-range-preset
-)[aria-pressed="true"] {
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-operations-tabs>button[aria-pressed="true"] {
   border-color:transparent;
   border-radius:0;
   background:transparent;
@@ -587,8 +584,7 @@
   box-shadow:inset 0 -2px 0 var(--cs-compass-indicator);
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(
-  .cs-calendar-display-panel,.cs-date-jump-panel,.cs-department-popover,.cs-series-menu-items,
-  .cs-publication-review-comparison :is(th,td),.cs-publication-review .cs-publication-review-row
+  .cs-calendar-display-panel,.cs-date-jump-panel,.cs-department-popover,.cs-series-menu-items
 ) {
   border-color:var(--cs-compass-rule);
 }
@@ -605,6 +601,13 @@
 }
 #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
   --cs-publication-gutter:28px;
+  --cs-publication-rule:#e2e7ec;
+  --cs-access-soft:#f4f6f8;
+  --cs-access-border:var(--cs-publication-rule);
+  --cs-access-control-edge:#88939d;
+  --cs-access-primary:var(--cs-access-ink);
+  --cs-access-primary-hover:#223746;
+  --cs-compass-selected:#edf1f4;
   width:min(552px,100%);
   height:auto;
   max-height:100%;
@@ -624,7 +627,7 @@
   background:inherit;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor > .cs-editor-head {
-  padding-block:22px 6px;
+  padding-block:22px 18px;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-title {
   margin:0;
@@ -635,112 +638,174 @@
   line-height:1.2;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor > .cs-group-fields {
-  padding:2px var(--cs-publication-gutter) 12px;
+  padding:3px var(--cs-publication-gutter) 8px;
   overflow-x:hidden;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-intro {
-  display:flex;
-  flex-wrap:wrap;
-  align-items:baseline;
-  gap:2px 10px;
+#cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+  --cs-ui-height:40px;
+  --cs-ui-field-color:var(--cs-access-ink);
+  --cs-ui-field-font:14px;
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  align-items:start;
+  gap:16px;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-scope > label,.cs-publication-section-title) {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:14px;
+  font-weight:600;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-scope {
+  display:grid;
+  gap:7px;
   min-width:0;
 }
-#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
-  margin:0;
-  color:var(--cs-access-body);
-  font-size:14px;
-  font-weight:600;
-  line-height:21px;
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-setup :is(#cs-publication-range-slot select,#cs-publication-scope-select) {
+  --cs-ui-field-inset-end:27px;
+  --cs-ui-field-inset-start:9px;
+  width:100%;
+  background-position:right 8px center;
+  cursor:pointer;
 }
-#cleanrooms-studio .cs-changes-editor :is(#cs-publication-dates,#cs-publication-sites) {
-  margin:0;
-  color:var(--cs-access-muted);
-  font-size:14px;
-  line-height:21px;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-sites {
-  flex-basis:100%;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-summary {
-  margin:24px 0 0;
-  color:var(--cs-access-body);
-  font-size:15px;
-  font-weight:600;
-  line-height:22px;
-  overflow-wrap:anywhere;
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-setup select:disabled {
+  cursor:default;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback {
-  margin:3px 0 0;
+  margin:14px 0 0;
   color:var(--cs-access-muted);
-  font-size:14px;
-  line-height:21px;
+  font-size:13px;
+  line-height:20px;
   overflow-wrap:anywhere;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state="ready"] {
-  color:var(--cs-access-primary);
-}
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state="warning"] {
-  margin-block-start:10px;
   padding:10px 12px;
-  border-radius:8px;
+  border-radius:6px;
   background:#fbf6ec;
   color:#775210;
   font-weight:600;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure {
-  min-width:0;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-options {
-  margin:18px 0 0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure > summary {
+#cleanrooms-studio .cs-changes-editor #cs-publication-load {
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  min-height:44px;
-  margin-inline:-8px;
-  padding:8px;
-  border-radius:8px;
-  color:var(--cs-access-body);
-  font-size:14px;
-  font-weight:600;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:12px 0 0;
+  color:var(--cs-access-muted);
+  font-size:13px;
   line-height:20px;
-  list-style:none;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load[hidden] {
+  display:none;
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-load-message {
+  margin:0;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related {
+  gap:10px;
+  margin:12px 0 0;
+  padding:9px 10px;
+  border-radius:6px;
+  background:#fbf6ec;
+  color:#775210;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-related input {
+  accent-color:var(--cs-access-ink);
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-related-slot > ul {
+  margin:8px 0 0;
+  padding-inline:10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget {
+  min-width:0;
+  margin:18px 0 0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:4px 10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
+  margin:0;
+  font-size:13px;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title > span,.cs-publication-budget-numbers > span,.cs-publication-budget-note) {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-overview {
+  justify-content:space-between;
+  margin-top:5px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
+  font-size:15px;
+  font-variant-numeric:tabular-nums;
+  line-height:22px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
+  color:var(--cs-access-body);
+  font-weight:650;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status[data-over="true"] {color:#9b3227}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-note {margin:3px 0 0}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details summary {
+  width:fit-content;
+  color:var(--cs-access-ink);
+  font-weight:650;
   cursor:pointer;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure > summary::-webkit-details-marker {display:none}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure:is([open],:hover) > summary {
-  background:var(--cs-access-soft);
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods {
+  margin:6px 0 0;
+  padding:0;
+  list-style:none;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-chevron {
-  flex:none;
-  width:7px;
-  height:7px;
-  margin-inline-end:4px;
-  border-inline-end:1.5px solid currentColor;
-  border-block-end:1.5px solid currentColor;
-  color:var(--cs-access-muted);
-  transform:translateY(-2px) rotate(45deg);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure[open] > summary .cs-publication-chevron {
-  transform:translateY(2px) rotate(225deg);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-detail-content {
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods li {
   display:grid;
-  gap:16px;
-  min-width:0;
-  padding:14px 0;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px 8px;
+  padding:5px 0;
+  border-top:1px solid var(--cs-publication-rule);
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-budget-retry {margin-top:6px}
+#cleanrooms-studio .cs-changes-editor #cs-changes-list:not(:empty) {
+  margin-top:20px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-section-title {
+  margin:0 0 10px;
+  font-size:16px;
+  line-height:22px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-section-title {
+  margin-top:18px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-location-changes {
+  display:grid;
+  gap:8px;
+  margin:0 0 12px;
+  padding:0;
+  list-style:none;
+  color:var(--cs-access-body);
+  font-size:13px;
+  line-height:20px;
+  overflow-wrap:anywhere;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
   margin:0;
   padding:0;
   list-style:none;
-  border-block-end:1px solid var(--cs-compass-rule);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts > li + li {
-  border-block-start:1px solid var(--cs-compass-rule);
+  border-block-start:1px solid var(--cs-publication-rule);
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict {
   display:flex;
@@ -777,359 +842,9 @@
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict:hover {
   background:var(--cs-access-soft);
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-setup {
-  display:grid;
-  grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
-  align-items:start;
-  gap:18px;
-  padding:14px 0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range {
-  gap:8px;
-  margin:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-head {
-  flex-direction:column;
-  align-items:stretch;
-  gap:2px;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-scope > label) {
-  margin:0;
-  color:var(--cs-access-ink);
-  font-size:14px;
-  font-weight:600;
-  line-height:22px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-fields {
-  gap:8px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-field {
-  gap:4px;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-summary {
-  position:absolute;
-  width:1px;
-  height:1px;
-  overflow:hidden;
-  clip-path:inset(50%);
-  white-space:nowrap;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget {
-  min-width:0;
-  margin:18px 0 0;
-  color:var(--cs-access-ink);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
-  display:flex;
-  align-items:baseline;
-  flex-wrap:wrap;
-  gap:4px 10px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
-  margin:0;
-  font-size:13px;
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title > span,.cs-publication-budget-numbers > span,.cs-publication-budget-note) {
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-overview {
-  justify-content:space-between;
-  margin-top:5px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
-  font-size:15px;
-  font-variant-numeric:tabular-nums;
-  line-height:22px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
-  color:var(--cs-access-primary);
-  font-weight:650;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-status[data-over="true"] {color:#9b3227}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-note {margin:3px 0 0}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details {margin-top:6px}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-details summary {
-  width:fit-content;
-  color:var(--cs-access-ink);
-  font-weight:650;
-  cursor:pointer;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods {
-  margin:6px 0 0;
-  padding:0;
-  list-style:none;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-periods li {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:4px 8px;
-  padding:5px 0;
-  border-top:1px solid var(--cs-compass-rule);
-  font-variant-numeric:tabular-nums;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-budget-retry {margin-top:6px}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope {
-  min-width:0;
-  margin:0;
-  padding:0;
-  border:0;
-  background:transparent;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope > label {
-  display:block;
-  margin-bottom:8px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-input,.cs-publication-scope select,.cs-publication-review-input) {
-  box-sizing:border-box;
-  width:100%;
-  min-width:0;
-  height:36px;
-  min-height:36px;
-  padding:0 8px;
-  border:1px solid var(--cs-access-control-edge);
-  border-radius:6px;
-  background:var(--cs-access-surface);
-  color:var(--cs-access-ink);
-  font:inherit;
-  font-size:13px;
-  font-weight:500;
-  box-shadow:none;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-range-input[aria-invalid="true"] {
-  border-color:#a33c32;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-presets,.cs-publication-review-filters) {
-  display:flex;
-  gap:3px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
-  position:relative;
-  gap:5px;
-  min-width:0;
-  min-height:34px!important;
-  height:34px!important;
-  padding:0 7px!important;
-  border:0;
-  border-radius:6px;
-  background:transparent;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  font-weight:600;
-  box-shadow:none;
-  white-space:nowrap;
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter):hover:not(:disabled) {
-  background:var(--cs-access-soft);
-  color:var(--cs-access-ink);
-}
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter)[aria-pressed="true"] {
-  background:var(--cs-compass-selected);
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more {
-  position:relative;
-  flex:0 0 66px;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more::after {
-  content:"";
-  position:absolute;
-  top:50%;
-  right:9px;
-  width:6px;
-  height:6px;
-  border-right:1.5px solid currentColor;
-  border-bottom:1.5px solid currentColor;
-  transform:translateY(-70%) rotate(45deg);
-  pointer-events:none;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select {
-  appearance:none;
-  display:block;
-  box-sizing:border-box;
-  width:100%;
-  min-width:0;
-  height:34px!important;
-  min-height:34px!important;
-  padding:0 19px 0 7px!important;
-  border:0;
-  border-radius:6px;
-  background:transparent;
-  box-shadow:none;
-  color:inherit;
-  font:inherit;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:hover:not(:disabled) {
-  background:var(--cs-access-soft);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more[data-selected="true"] {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more[data-selected="true"] select {
-  background:var(--cs-compass-selected);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-range-more:has(select:disabled) {
-  opacity:.4;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:disabled {
-  cursor:default;
-}
-#cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:focus-visible {
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-conflict,.cs-publication-related input,.cs-publication-budget-details summary):focus-visible {
   outline:2px solid var(--cs-access-blue);
   outline-offset:2px;
-}
-#cleanrooms-studio .cs-changes-editor :is(button,input,select,summary):focus-visible {
-  outline:2px solid var(--cs-access-blue);
-  outline-offset:2px;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load {
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-  min-height:40px;
-  margin:12px 0 0;
-  color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load[hidden] {
-  display:none;
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-load-message {
-  margin:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-related {
-  gap:10px;
-  margin:12px 0 0;
-  padding:9px 10px;
-  border-radius:6px;
-  background:#fbf6ec;
-  color:#775210;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-related input {
-  accent-color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor #cs-publication-related-slot > p {
-  margin:6px 0 0;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  line-height:18px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks {
-  width:100%;
-  margin:0;
-  table-layout:fixed;
-  color:var(--cs-access-body);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
-  padding:8px 10px;
-  border-bottom:1px solid var(--cs-compass-rule);
-  white-space:normal;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks thead th {
-  background:var(--cs-access-soft);
-  color:var(--cs-access-muted);
-  font-weight:700;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(1) {width:26%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {width:13%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(4) {width:23%}
-#cleanrooms-studio .cs-changes-editor .cs-publication-weeks tbody th {
-  color:var(--cs-access-ink);
-  font-weight:650;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-dates {
-  display:block;
-  margin-top:2px;
-  color:var(--cs-access-muted);
-  font-weight:400;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state {
-  display:inline-flex;
-  align-items:baseline;
-  gap:6px;
-  color:var(--cs-access-muted);
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state::before {
-  content:"";
-  flex:none;
-  width:6px;
-  height:6px;
-  margin-block-start:5px;
-  border-radius:50%;
-  background:currentColor;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state:is([data-state="ready"],[data-state="published"]) {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state="issues"] {
-  color:#a33c32;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-week-state[data-state="open"] {
-  color:#775210;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review {
-  margin:0;
-  color:var(--cs-access-body);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(160px,42%);
-  align-items:end;
-  gap:12px;
-  margin-bottom:12px;
-}
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-review-muted,.cs-publication-review-filter-count,.cs-publication-review-week,.cs-publication-review-row-context) {
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-day-title {
-  margin:14px 0 0;
-  padding:4px 8px;
-  border:0;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  font-weight:600;
-}
-#cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-review .cs-publication-review-row {
-  min-height:56px!important;
-  padding:8px!important;
-  border:0;
-  border-radius:8px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row:hover {
-  background:var(--cs-access-soft);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head {
-  flex-wrap:wrap;
-  column-gap:10px;
-  row-gap:0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head > strong {
-  color:var(--cs-access-ink);
-  font-weight:600;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type {
-  color:var(--cs-access-muted);
-  font-size:11px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type="added"]::before {
-  background:var(--cs-compass-indicator);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type="removed"]::before {
-  background:#a33c32;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor > .cs-editor-actions {
   justify-content:flex-end;
@@ -1137,24 +852,30 @@
   gap:8px;
   padding-block:14px 22px;
 }
-#cleanrooms-studio[data-page][data-role] .cs-changes-editor:has(.cs-group-fields details[open]) > .cs-editor-actions {
-  box-shadow:0 -1px 0 var(--cs-compass-rule);
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor:has(#cs-changes-list:not(:empty)) > .cs-editor-actions {
+  box-shadow:0 -1px 0 var(--cs-publication-rule);
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-  flex:1 1 150px;
-  min-width:0;
-  margin:0 auto 0 0;
-  color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:19px;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note:empty {display:none}
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor > .cs-editor-actions > .cs-button {
   flex:none;
+  height:40px;
   min-height:40px;
+  padding-inline:14px;
+  border-radius:6px;
   font-size:14px;
   font-weight:600;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish {
+  min-width:92px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish:not(:disabled) {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:var(--cs-access-surface);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor #cs-changes-publish:hover:not(:disabled) {
+  border-color:var(--cs-access-primary-hover);
+  background:var(--cs-access-primary-hover);
 }
 @media(max-width:600px) {
   #cleanrooms-studio[data-page] #cs-changes-layer:not([hidden]) {
@@ -1162,43 +883,24 @@
     padding:0;
   }
   #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
-    --cs-publication-gutter:22px;
+    --cs-publication-gutter:20px;
     max-height:calc(100% - 20px);
     border-radius:18px 18px 0 0;
   }
   #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
     grid-template-columns:minmax(0,1fr);
-    gap:12px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
-    grid-template-columns:minmax(0,1fr);
-    gap:8px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-review-search {
-    grid-row:1;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks :is(th,td) {
-    padding:6px 4px;
-    font-size:11px;
-    line-height:16px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {
-    width:17%;
   }
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor > .cs-editor-actions {
-    flex-wrap:wrap;
     padding-bottom:max(16px,env(safe-area-inset-bottom));
   }
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor > .cs-editor-actions > .cs-button {
+    height:44px;
     min-height:44px;
   }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-    flex-basis:100%;
-  }
 }
-@media(max-width:390px) {
-  #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
-    padding-inline:5px!important;
-    font-size:11px;
+@media(max-width:600px),(pointer:coarse) {
+  #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
+    --cs-ui-height:44px;
+    --cs-ui-field-font:16px;
   }
 }

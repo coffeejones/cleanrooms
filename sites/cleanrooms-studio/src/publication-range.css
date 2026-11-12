@@ -1,21 +1,32 @@
-/* One quiet control group selects the same full weeks that the server publishes. */
-#cleanrooms-studio .cs-publication-range{display:flex;flex-direction:column;gap:12px;min-width:0;padding:0;margin:0 0 20px;border:0}
-#cleanrooms-studio .cs-publication-range-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
-#cleanrooms-studio .cs-publication-range-title{margin:0;color:#344650;font-size:14px;font-weight:600;line-height:22px}
-#cleanrooms-studio .cs-publication-range-presets{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-#cleanrooms-studio .cs-publication-range-preset{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:40px;min-height:40px;padding:6px 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:#687984;font:inherit;font-size:12px;font-weight:500;line-height:22px;cursor:pointer;transition:background-color 140ms ease,color 140ms ease,border-color 140ms ease}
-#cleanrooms-studio .cs-publication-range-preset:hover:not(:disabled){background:#f3f6f8;color:#334955}
-#cleanrooms-studio .cs-publication-range-preset[aria-pressed="true"]{border-color:#d5dfe5;background:#eef3f6;color:#334f60}
-#cleanrooms-studio .cs-publication-range-preset:disabled{opacity:.4;cursor:default}
-#cleanrooms-studio .cs-publication-range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
-#cleanrooms-studio .cs-publication-range-field{display:flex;flex-direction:column;gap:7px;min-width:0;color:#697a84;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-input{box-sizing:border-box;display:block;width:100%;min-width:0;height:40px;min-height:40px;margin:0;padding:0 12px;border:1px solid #cbd5dc;border-radius:7px;background:#fff;color:#374d5a;font:inherit;font-size:13px;line-height:normal;font-variant-numeric:tabular-nums;transition:border-color 140ms ease,box-shadow 140ms ease}
-#cleanrooms-studio .cs-publication-range-input::-webkit-datetime-edit{display:flex;align-items:center;height:100%;padding:0}
-#cleanrooms-studio .cs-publication-range-input:disabled{opacity:.55;cursor:default}
-#cleanrooms-studio :is(.cs-publication-range-input,.cs-publication-range-preset):focus-visible{outline:2px solid #7194ab;outline-offset:3px}
-#cleanrooms-studio .cs-publication-range-input[aria-invalid="true"]{border-color:#c89067}
-#cleanrooms-studio .cs-publication-range-summary{margin:0;color:#7a8790;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-error{margin:0;color:#96632d;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-publication-range-error[hidden]{display:none}
-@media(max-width:600px){#cleanrooms-studio .cs-publication-range-head{align-items:flex-start;flex-direction:column;gap:10px}#cleanrooms-studio .cs-publication-range-presets{width:100%;gap:6px}#cleanrooms-studio .cs-publication-range-preset{flex:1;min-height:40px;height:40px}#cleanrooms-studio .cs-publication-range-fields{gap:12px}}
-@media(prefers-reduced-motion:reduce){#cleanrooms-studio :is(.cs-publication-range-input,.cs-publication-range-preset){transition:none}}
+/* A start week and a duration select full weeks for publication. */
+#cleanrooms-studio .cs-publication-range {
+  display:grid;
+  gap:7px;
+  min-width:0;
+  margin:0;
+}
+#cleanrooms-studio .cs-publication-range-fields {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+#cleanrooms-studio .cs-publication-range-input {
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio :is(.cs-publication-range-summary,.cs-publication-range-year,.cs-publication-range-error) {
+  margin:0;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio .cs-publication-range-year {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  width:fit-content;
+  max-width:100%;
+}
+#cleanrooms-studio .cs-publication-range-error {
+  color:#775210;
+}

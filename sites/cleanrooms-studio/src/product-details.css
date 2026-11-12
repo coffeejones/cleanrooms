@@ -11,10 +11,6 @@
 #cleanrooms-studio .cs-nav-button{flex-shrink:0}
 #cleanrooms-studio .cs-workspace-copy{min-width:0}
 #cleanrooms-studio .cs-workspace-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#cleanrooms-studio .cs-publication-scope{margin:0 0 20px;padding:16px;background:#f4f6f8;border:1px solid #dce2e7;border-radius:9px}
-#cleanrooms-studio .cs-publication-scope>label:first-child{display:grid;gap:8px;font-size:12px;font-weight:600;color:#344350}
-#cleanrooms-studio .cs-publication-scope select{width:100%;height:40px;padding:0 10px;background:#fff;border:1px solid #bcc8d1;border-radius:7px;color:#25303b;font:inherit}
-#cleanrooms-studio .cs-publication-scope p{margin:9px 0 0;font-size:12px;line-height:1.6;color:#5c6b77;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-publication-related{display:flex;align-items:flex-start;gap:9px;margin-top:16px;font-size:12px;font-weight:500;line-height:1.6;color:#704d16}
 #cleanrooms-studio .cs-publication-related input{margin:3px 0;accent-color:#365f83;flex:none}
 #cleanrooms-studio .cs-exceptions-field{display:flex;align-items:flex-start;gap:10px;padding:13px;background:#f3f6f8;border:1px solid #d8e0e6;border-radius:8px}
@@ -68,6 +64,5 @@
  #cleanrooms-studio[data-page="activity"] .cs-content{padding:14px}
  #cleanrooms-studio .cs-activity-intro{padding:19px}
  #cleanrooms-studio .cs-activity-intro h3{font-size:18px}
- #cleanrooms-studio .cs-publication-scope{padding:12px}
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-save-indicator::before{animation:none}}

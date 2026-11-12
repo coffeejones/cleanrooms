@@ -3,12 +3,12 @@
   'use strict';
   const TYPES={changed:'Ændret',added:'Ny vagt',removed:'Aflyst'};
   const FILTERS=[['all','Alle'],['changed','Ændrede'],['added','Nye'],['removed','Aflyste']];
+  const PAGE_SIZE=20,SEARCH_THRESHOLD=6;
   const array=value=>Array.isArray(value)?value:[];
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(new Date(value+'T12:00:00Z').getTime())&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
   const dateFormat=new Intl.DateTimeFormat('da-DK',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   const personOrder=new Intl.Collator('da-DK');
   const dateLabel=value=>validDate(value)?dateFormat.format(new Date(value+'T12:00:00Z')):'Dato mangler';
-  const weekNumber=value=>{if(!validDate(value))return null;const date=new Date(value+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+3-((date.getUTCDay()+6)%7));const year=date.getUTCFullYear(),first=new Date(Date.UTC(year,0,4,12));first.setUTCDate(first.getUTCDate()+3-((first.getUTCDay()+6)%7));return 1+Math.round((date-first)/604800000);};
   const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':''):'Tid mangler';
   const valueFor=(shift,key)=>key==='plannedBreakMinutes'?shift?.[key]??0:key==='note'||key==='noteRich'?shift?.[key]??'':key==='site'&&shift?.[key]!==undefined?String(shift[key]):shift?.[key];
   const changed=(entry,key)=>valueFor(entry.before,key)!==valueFor(entry.after,key);
@@ -18,16 +18,25 @@
     if(!element?.ownerDocument)throw new TypeError('Ændringsoversigten kræver et indholdsfelt.');
     const doc=element.ownerDocument,page=doc.createElement('section');page.className='cs-publication-review';page.setAttribute('aria-label','Ændringer til udgivelse');element.replaceChildren(page);
     let filter='all',query='',pageIndex=0,selectedId=null,scopeKey=null,instructionsOpen=false,disposed=false;
-    let entries=[],counts={},people=new Map(),sites=new Map(),searchIndex=new Map();
+    let entries=[],counts={},people=new Map(),sites=new Map(),searchIndex=new Map(),scopeSite=null;
     const node=(tag,cls,text)=>{const el=doc.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=String(text);return el;};
     const button=(label,action,key,cls='cs-publication-review-button')=>{const el=node('button',cls,label);el.type='button';if(key)el.dataset.publicationReviewFocus=key;el.addEventListener('click',()=>{if(!disposed)action();});return el;};
     const personName=id=>!id?'Ledig vagt':people.get(id)||'Medarbejder';
     const siteName=shift=>shift?.siteName||sites.get(String(shift?.site))||'Ukendt arbejdssted';
     const current=entry=>entry.after||entry.before;
     const person=entry=>personName(current(entry)?.person);
-    const status=entry=>{const el=node('span','cs-publication-review-type',TYPES[entry.type]);el.dataset.type=entry.type;return el;};
+    const status=entry=>node('span','cs-publication-review-type',entry.type==='added'?'Ny':TYPES[entry.type]);
+    function rowContext(entry){
+      const shift=current(entry);
+      const timeChanged=entry.type==='changed'&&(changed(entry,'start')||changed(entry,'end'));
+      const siteChanged=entry.type==='changed'&&changed(entry,'site');
+      const parts=[];
+      if(!timeChanged)parts.push(clock(shift));
+      if(!siteChanged&&String(shift.site)!==scopeSite)parts.push(siteName(shift));
+      return parts.join(' · ');
+    }
     function differences(entry){
-      if(entry.type!=='changed')return [clock(current(entry))+' · '+siteName(current(entry))];
+      if(entry.type!=='changed')return [];
       const out=[];
       if(changed(entry,'date'))out.push('Dato: '+dateLabel(entry.before?.date)+' → '+dateLabel(entry.after?.date));
       if(changed(entry,'start')||changed(entry,'end'))out.push(clock(entry.before)+' → '+clock(entry.after));
@@ -40,32 +49,89 @@
     function open(entry){selectedId=String(entry.id);instructionsOpen=false;paint('back');}
     function close(){const previous=selectedId;selectedId=null;instructionsOpen=false;paint('change:'+previous);}
     function searchText(entry){
-      if(!searchIndex.has(entry))searchIndex.set(entry,[person(entry),...(entry.before?[personName(entry.before.person),siteName(entry.before)]:[]),...(entry.after?[personName(entry.after.person),siteName(entry.after)]:[]),dateLabel(current(entry)?.date),...differences(entry)].join(' ').toLocaleLowerCase('da-DK'));
+      if(!searchIndex.has(entry))searchIndex.set(entry,[person(entry),...(entry.before?[personName(entry.before.person),siteName(entry.before),clock(entry.before)]:[]),...(entry.after?[personName(entry.after.person),siteName(entry.after),clock(entry.after)]:[]),dateLabel(current(entry)?.date),...differences(entry)].join(' ').toLocaleLowerCase('da-DK'));
       return searchIndex.get(entry);
     }
     function renderTools(body){
-      const tools=node('div','cs-publication-review-tools'),filters=node('div','cs-publication-review-filters');filters.setAttribute('role','group');filters.setAttribute('aria-label','Filtrer ændringer');
-      for(const [key,label]of FILTERS){const count=counts[key],control=button('',()=>{filter=key;pageIndex=0;paint('filter:'+key);},'filter:'+key,'cs-publication-review-filter');control.setAttribute('aria-pressed',String(filter===key));control.setAttribute('aria-label',label+' · '+count);control.append(node('span','',label),node('span','cs-publication-review-filter-count',count));filters.append(control);}tools.append(filters);
-      const search=node('label','cs-publication-review-search'),input=node('input','cs-publication-review-input');input.type='search';input.value=query;input.placeholder='Søg i ændringer';input.setAttribute('aria-label','Søg i ændringer');input.dataset.publicationReviewFocus='search';input.addEventListener('input',()=>{query=input.value;pageIndex=0;paint('search');});search.append(input);tools.append(search);body.append(tools);
+      const availableFilters=FILTERS.filter(([key])=>counts[key]>0);
+      const showSearch=entries.length>SEARCH_THRESHOLD||Boolean(query);
+      const showFilters=availableFilters.length>2&&(entries.length>SEARCH_THRESHOLD||filter!=='all');
+      if(!showSearch&&!showFilters)return;
+
+      const tools=node('div','cs-publication-review-tools');
+      if(showFilters){
+        const filters=node('div','cs-publication-review-filters');
+        filters.setAttribute('role','group');
+        filters.setAttribute('aria-label','Filtrer ændringer');
+        for(const [key,label]of availableFilters){
+          const control=button(label,()=>{filter=key;pageIndex=0;paint('filter:'+key);},'filter:'+key,'cs-publication-review-filter');
+          control.setAttribute('aria-pressed',String(filter===key));
+          filters.append(control);
+        }
+        tools.append(filters);
+      }
+      if(showSearch){
+        const search=node('input','cs-publication-review-input');
+        search.type='search';
+        search.value=query;
+        search.placeholder='Søg i ændringer';
+        search.setAttribute('aria-label','Søg i ændringer');
+        search.dataset.publicationReviewFocus='search';
+        search.addEventListener('input',()=>{query=search.value;pageIndex=0;paint('search');});
+        tools.append(search);
+      }
+      body.append(tools);
     }
     function renderList(body){
-      const term=query.trim().toLocaleLowerCase('da-DK');renderTools(body);
+      if(!counts[filter])filter='all';
+      const term=query.trim().toLocaleLowerCase('da-DK');
+      renderTools(body);
       const matching=entries.filter(entry=>(filter==='all'||entry.type===filter)&&(!term||searchText(entry).includes(term)));
-      const size=20,totalPages=Math.max(1,Math.ceil(matching.length/size));pageIndex=Math.min(pageIndex,totalPages-1);
+      const totalPages=Math.max(1,Math.ceil(matching.length/PAGE_SIZE));
+      pageIndex=Math.min(pageIndex,totalPages-1);
       if(!matching.length){body.append(node('p','cs-publication-review-empty',entries.length?'Ingen ændringer matcher dit valg.':'Ingen ændringer i den valgte periode.'));return;}
       const list=node('div','cs-publication-review-list');let lastDate=null,group;
-      for(const entry of matching.slice(pageIndex*size,(pageIndex+1)*size)){
-        const shift=current(entry),day=shift?.date||'';
-        if(lastDate!==day){lastDate=day;group=node('section','cs-publication-review-day');const label=dateLabel(day),week=weekNumber(day),heading=node('h5','cs-publication-review-day-title');heading.append(node('span','',label));if(week)heading.append(node('span','cs-publication-review-week','Uge '+week));group.append(heading);list.append(group);}
-        const row=button('',()=>open(entry),'change:'+String(entry.id),'cs-publication-review-row');row.dataset.changeId=String(entry.id);row.dataset.type=entry.type;
-        const copy=node('span','cs-publication-review-row-copy'),head=node('span','cs-publication-review-row-head');head.append(node('strong','',person(entry)),status(entry));copy.append(head);
-        const parts=differences(entry),summary=node('span','cs-publication-review-row-summary');for(const part of parts)summary.append(node('span','',part));copy.append(summary);
-        if(entry.type==='changed')copy.append(node('span','cs-publication-review-row-context',clock(shift)+' · '+siteName(shift)));
-        const arrow=node('span','cs-publication-review-chevron','›');arrow.setAttribute('aria-hidden','true');row.append(copy,arrow);row.setAttribute('aria-label',TYPES[entry.type]+'. '+person(entry)+'. '+dateLabel(day)+'. '+parts.join('. '));group.append(row);
+      const first=pageIndex*PAGE_SIZE;
+      for(const entry of matching.slice(first,first+PAGE_SIZE)){
+        const day=current(entry)?.date||'';
+        if(lastDate!==day){
+          lastDate=day;
+          group=node('section','cs-publication-review-day');
+          group.append(node('h5','cs-publication-review-day-title',dateLabel(day)));
+          list.append(group);
+        }
+        const row=button('',()=>open(entry),'change:'+String(entry.id),'cs-publication-review-row');
+        row.dataset.changeId=String(entry.id);
+        row.dataset.type=entry.type;
+        const copy=node('span','cs-publication-review-row-copy');
+        copy.append(node('strong','cs-publication-review-person',person(entry)));
+        const parts=differences(entry);
+        if(parts.length){
+          const summary=node('span','cs-publication-review-row-summary');
+          for(const part of parts)summary.append(node('span','',part));
+          copy.append(summary);
+        }
+        const context=rowContext(entry);
+        if(context)copy.append(node('span','cs-publication-review-row-context',context));
+        const meta=node('span','cs-publication-review-row-meta');
+        const arrow=node('span','cs-publication-review-chevron');
+        arrow.setAttribute('aria-hidden','true');
+        meta.append(status(entry),arrow);
+        row.append(copy,meta);
+        row.setAttribute('aria-label',[TYPES[entry.type],person(entry),dateLabel(day),...parts,context].filter(Boolean).join('. '));
+        group.append(row);
       }
       body.append(list);
-      const foot=node('div','cs-publication-review-pagination');foot.append(node('span','cs-publication-review-muted',(pageIndex*size+1)+'–'+Math.min((pageIndex+1)*size,matching.length)+' af '+matching.length));
-      if(totalPages>1){const previous=button('Forrige',()=>{pageIndex--;paint('page:previous');},'page:previous'),next=button('Næste',()=>{pageIndex++;paint('page:next');},'page:next');previous.disabled=pageIndex===0;next.disabled=pageIndex===totalPages-1;foot.append(previous,next);}body.append(foot);
+      if(totalPages===1)return;
+      const foot=node('div','cs-publication-review-pagination');
+      const position=node('span','cs-publication-review-muted',(first+1)+'–'+Math.min(first+PAGE_SIZE,matching.length)+' af '+matching.length);
+      position.setAttribute('role','status');
+      const previous=button('Forrige',()=>{pageIndex--;paint(pageIndex===0?'page:next':'page:previous');},'page:previous');
+      const next=button('Næste',()=>{pageIndex++;paint(pageIndex===totalPages-1?'page:previous':'page:next');},'page:next');
+      previous.disabled=pageIndex===0;
+      next.disabled=pageIndex===totalPages-1;
+      foot.append(position,previous,next);
+      body.append(foot);
     }
     function renderInstructions(body,entry){
       const hasContent=shift=>Boolean(shift?.note||shift?.noteRich);if(!hasContent(entry.before)&&!hasContent(entry.after))return;
@@ -94,7 +160,14 @@
       page.replaceChildren();
       const body=node('div','cs-publication-review-body');page.append(body);const entry=selectedId===null?null:entries.find(item=>String(item.id)===selectedId);
       if(selectedId!==null&&entry)renderDetail(body,entry);else{selectedId=null;renderList(body);}
-      if(key){const target=[...page.querySelectorAll('[data-publication-review-focus]')].find(el=>el.dataset.publicationReviewFocus===key);target?.focus?.({preventScroll:true});if(target?.dataset.publicationReviewFocus==='search'&&selection&&typeof target.setSelectionRange==='function')try{target.setSelectionRange(...selection);}catch{}}
+      if(key){
+        const target=[...page.querySelectorAll('[data-publication-review-focus]')].find(el=>el.dataset.publicationReviewFocus===key)
+          ||page.querySelector('.cs-publication-review-row');
+        target?.focus?.({preventScroll:true});
+        if(target?.dataset.publicationReviewFocus==='search'&&selection&&typeof target.setSelectionRange==='function'){
+          try{target.setSelectionRange(...selection);}catch{}
+        }
+      }
     }
     let options={};
     return {
@@ -106,6 +179,7 @@
         options={...options,...next};
         people=new Map(array(options.people).map(person=>[person.id||person.personId,person.name]));
         sites=new Map(array(options.sites).flatMap((site,index)=>site?[[String(site.index??index),site.name]]:[]));
+        scopeSite=options.scopeSiteIds?.length===1?String(options.scopeSiteIds[0]):null;
         entries=array(options.changes).filter(entry=>entry&&Object.hasOwn(TYPES,entry.type)&&entry.id!==undefined&&(entry.before||entry.after));
         entries.sort((a,b)=>String(current(a)?.date||'').localeCompare(String(current(b)?.date||''))||String(current(a)?.start||'').localeCompare(String(current(b)?.start||''))||personOrder.compare(person(a),person(b))||String(a.id).localeCompare(String(b.id)));
         counts={all:entries.length,added:0,changed:0,removed:0};

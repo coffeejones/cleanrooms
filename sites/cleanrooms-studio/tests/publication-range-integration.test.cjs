@@ -27,7 +27,8 @@ function application({secondWeekConflict=false,cold=false,budget=false}={}){
  vm.runInContext(source.slice(0,boundary)+`
    render=()=>{};closeOperationsSheets=()=>{};closeEditor=()=>{};closeGroupEditor=()=>{};closeBulkEditor=()=>{};closeReview=()=>{};clearSelection=()=>{};notify=value=>notices.push(value);initializeCloud=async()=>reloads.push(true);
    persistence=publicationStub;cloudLoaded=true;cloudCapabilities={plan:true};
-   globalThis.rangeIntegration={state,openChanges,closeChanges,renderChanges,publicationScope,publicationStatus,publishReviewedWeek,renderCloudStatus,
+   globalThis.rangeIntegration={state,openChanges,closeChanges,renderChanges,publicationScope,publicationStatus,publishReviewedWeek,renderCloudStatus,changePublicationSite,
+    limitSites:siteIds=>{cloudCapabilities={plan:true,scopeRestricted:true,allowedSiteIds:siteIds};},
     setCloudState:value=>{cloudStatus={state:value};renderCloudStatus();}};
  })();`,context,{filename:'app.js (multiweek publication integration)'});
  const app=context.rangeIntegration,one={id:'one',person:'p0',site:0,date:'2026-11-03',start:'07:00',end:'15:00',note:''},two={id:'two',person:'p1',site:0,date:'2026-11-10',start:'07:00',end:'15:00',note:''};
@@ -41,25 +42,46 @@ function application({secondWeekConflict=false,cold=false,budget=false}={}){
 
 test('an already published current week still opens a review that can extend into an unpublished week',async()=>{
  const app=application();assert.equal(app.publicationStatus().published,true);app.openChanges();assert.equal(app.control('#cs-changes-layer').hidden,false);assert.equal(app.control('#cs-changes-publish').disabled,true);
- assert.equal(app.control('#cs-changes-period').textContent,'Uge 45');assert.equal(app.control('#cs-publication-options').open,false);
- app.rangeField('preset:2').click();assert.deepEqual(plain(app.publicationScope(true)),{from:'2026-11-02',to:'2026-11-15',siteIds:[0,1,2],includeDependencies:false});assert.equal(app.publicationStatus().published,true,'calendar status remains scoped to the current week');assert.equal(app.control('#cs-changes-publish').disabled,false);assert.equal(app.control('#cs-changes-publish').textContent,'Udgiv 2 uger');
+ assert.equal(app.rangeField('week').value,'2026-11-02');assert.equal(app.rangeField('duration').value,'1');
+ app.change('duration','2');assert.deepEqual(plain(app.publicationScope(true)),{from:'2026-11-02',to:'2026-11-15',siteIds:[0,1,2],includeDependencies:false});assert.equal(app.publicationStatus().published,true,'calendar status remains scoped to the current week');assert.equal(app.control('#cs-changes-publish').disabled,false);assert.equal(app.control('#cs-changes-publish').textContent,'Udgiv');
+ const changes=app.control('#cs-changes-list');
+ assert.deepEqual(changes.querySelectorAll('.cs-publication-review-row').map(row=>row.dataset.changeId),['two']);
+ assert.equal(changes.querySelector('table'),null,'the changed shifts are visible without a weekly table');
  await app.publishReviewedWeek();assert.equal(app.publications.length,1);assert.equal(app.publications[0].scope.to,'2026-11-15');assert.equal(app.reloads.length,1);assert.equal(app.root.inert,false);
 });
+test('the site selector defaults to all authorised worksites, then applies an explicit site to review and publish',async()=>{
+ const app=application();app.limitSites([0,2]);app.openChanges();
+ const select=app.control('#cs-publication-scope-select');
+ assert.equal(select.value,'all');
+ assert.deepEqual(select.children.map(item=>item.value),['0','2','all']);
+ assert.equal(select.children.at(-1).textContent,'Alle arbejdssteder');
+ assert.deepEqual(plain(app.publicationScope(true).siteIds),[0,2]);
+ app.changePublicationSite('1');
+ assert.equal(select.value,'all','an inaccessible site cannot become the scope');
+ app.changePublicationSite('2');
+ assert.equal(select.value,'2');
+ assert.deepEqual(plain(app.publicationScope(true).siteIds),[2]);
+ assert.deepEqual(plain(app.publicationScope().siteIds),[0,2]);
+ app.closeChanges();app.state.site='0';app.openChanges();
+ assert.equal(select.value,'0','a new calendar filter supersedes the previous review');
+ app.change('duration','2');
+ await app.publishReviewedWeek();
+ assert.deepEqual(app.publications[0].scope.siteIds,[0]);
+});
 test('invalid range drafts block the actual publish action and restoring the previous scope enables review again',async()=>{
- const app=application();app.openChanges();app.rangeField('preset:2').click();app.change('from','2026-12-07');assert.equal(app.control('#cs-changes-publish').disabled,true);await app.publishReviewedWeek();assert.equal(app.publications.length,0);
- assert.match(app.control('#cs-publication-feedback').textContent,/Slutugen skal ligge efter/);
- app.change('from','2026-11-02');assert.equal(app.control('#cs-changes-publish').disabled,false,'correcting an invalid input to the exact prior valid scope must not leave publish disabled');await app.publishReviewedWeek();assert.equal(app.publications.length,1);
+ const app=application();app.openChanges();app.change('duration','2');app.change('duration','');assert.equal(app.control('#cs-changes-publish').disabled,true);await app.publishReviewedWeek();assert.equal(app.publications.length,0);
+ const inlineError=app.control('#cs-publication-range-slot').querySelector('.cs-publication-range-error');
+ assert.match(inlineError.textContent,/Vælg antal uger/);
+ app.change('duration','2');assert.equal(app.control('#cs-changes-publish').disabled,false,'correcting an invalid input to the exact prior valid scope must not leave publish disabled');await app.publishReviewedWeek();assert.equal(app.publications.length,1);
 });
 test('save state updates cannot reopen publication while an invalid period is still being edited',()=>{
- const app=application();app.openChanges();app.rangeField('preset:2').click();app.setCloudState('saving');assert.equal(app.control('#cs-changes-publish').disabled,true);app.setCloudState('saved');assert.equal(app.control('#cs-changes-publish').disabled,false);app.change('to','');app.setCloudState('saved');assert.equal(app.control('#cs-changes-publish').disabled,true);
+ const app=application();app.openChanges();app.change('duration','2');app.setCloudState('saving');assert.equal(app.control('#cs-changes-publish').disabled,true);app.setCloudState('saved');assert.equal(app.control('#cs-changes-publish').disabled,false);app.change('duration','');app.setCloudState('saved');assert.equal(app.control('#cs-changes-publish').disabled,true);
 });
 test('a conflict in a later selected week blocks the whole publication before any server write',async()=>{
- const app=application({secondWeekConflict:true});app.openChanges();app.rangeField('preset:2').click();
+ const app=application({secondWeekConflict:true});app.openChanges();app.change('duration','2');
  assert.equal(app.control('#cs-changes-publish').disabled,true);
  assert.match(app.control('#cs-publication-feedback').textContent,/Ret overlap/);
- const details=app.control('#cs-changes-list').querySelector('details');
- assert.equal(details.open,false);
- assert.ok(details.querySelector('.cs-publication-conflict'),'the review links directly to an affected shift');
+ assert.ok(app.control('#cs-changes-list').querySelector('.cs-publication-conflict'),'the review links directly to an affected shift');
  await app.publishReviewedWeek();
  assert.equal(app.publications.length,0);assert.equal(app.control('#cs-changes-layer').hidden,false);
 });
@@ -68,20 +90,19 @@ test('range controls are immediately available and a delayed review never displa
  const settle=()=>new Promise(resolve=>setImmediate(resolve));
  app.openChanges();
  assert.equal(app.control('#cs-publication-load').hidden,false);
- assert.equal(app.rangeField('preset:4').disabled,false);
+ assert.equal(app.rangeField('duration').disabled,false);
  assert.equal(app.control('#cs-changes-publish').disabled,true);
- app.rangeField('preset:4').click();
+ app.change('duration','4');
  assert.equal(app.loads.length,1);
  app.loads[0].finish();
  await settle();
  assert.equal(app.loads.length,2);
  assert.equal(app.loads[1].scope.to,'2026-11-29');
  assert.equal(app.control('#cs-changes-list').children.length,0);
- assert.equal(app.control('#cs-publication-summary').hidden,true);
  app.loads[1].finish();
  await settle();
  assert.equal(app.control('#cs-publication-load').hidden,true);
- assert.equal(app.control('#cs-changes-publish').textContent,'Udgiv 4 uger');
+ assert.equal(app.control('#cs-changes-publish').textContent,'Udgiv');
  assert.equal(app.control('#cs-changes-publish').disabled,false);
 });
 
@@ -89,7 +110,7 @@ test('budget results from an earlier period never replace the current review',as
  const app=application({budget:true});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));
  app.openChanges();
- app.rangeField('preset:4').click();
+ app.change('duration','4');
  assert.equal(app.control('#cs-changes-publish').disabled,true);
  assert.deepEqual(app.budgetLoads.map(({name,scope})=>[name,scope.to]),[
    ['publicationBudgetRead','2026-11-08'],['publicationBudgetRead','2026-11-29']

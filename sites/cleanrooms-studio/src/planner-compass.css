@@ -605,8 +605,6 @@
   --cs-access-soft:#f4f6f8;
   --cs-access-border:var(--cs-publication-rule);
   --cs-access-control-edge:#88939d;
-  --cs-access-primary:var(--cs-access-ink);
-  --cs-access-primary-hover:#223746;
   --cs-compass-selected:#edf1f4;
   width:min(552px,100%);
   height:auto;
@@ -780,13 +778,21 @@
 #cleanrooms-studio .cs-changes-editor #cs-changes-list:not(:empty) {
   margin-top:20px;
 }
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes {
+  background:var(--cs-access-soft);
+  border-radius:10px;
+  padding:14px 16px 10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes .cs-publication-review {
+  --cs-access-soft:var(--cs-compass-selected);
+}
 #cleanrooms-studio .cs-changes-editor .cs-publication-section-title {
   margin:0 0 10px;
   font-size:16px;
   line-height:22px;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-section-title {
-  margin-top:18px;
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-changes {
+  margin-top:12px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-location-changes {
   display:grid;
@@ -798,6 +804,9 @@
   font-size:13px;
   line-height:20px;
   overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes > :last-child {
+  margin-bottom:0;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
   margin:0;

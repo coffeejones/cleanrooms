@@ -11466,8 +11466,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   --cs-access-soft:#f4f6f8;
   --cs-access-border:var(--cs-publication-rule);
   --cs-access-control-edge:#88939d;
-  --cs-access-primary:var(--cs-access-ink);
-  --cs-access-primary-hover:#223746;
   --cs-compass-selected:#edf1f4;
   width:min(552px,100%);
   height:auto;
@@ -11641,13 +11639,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor #cs-changes-list:not(:empty) {
   margin-top:20px;
 }
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes {
+  background:var(--cs-access-soft);
+  border-radius:10px;
+  padding:14px 16px 10px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes .cs-publication-review {
+  --cs-access-soft:var(--cs-compass-selected);
+}
 #cleanrooms-studio .cs-changes-editor .cs-publication-section-title {
   margin:0 0 10px;
   font-size:16px;
   line-height:22px;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-section-title {
-  margin-top:18px;
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts + .cs-publication-changes {
+  margin-top:12px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-location-changes {
   display:grid;
@@ -11659,6 +11665,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-size:13px;
   line-height:20px;
   overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-changes &gt; :last-child {
+  margin-bottom:0;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
   margin:0;
@@ -28089,14 +28098,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }
       sections.push(conflicts);
     }
-    if(changes.length||status.locationChanges.length)sections.push(node(&#x27;h4&#x27;,&#x27;cs-publication-section-title&#x27;,&#x27;Ændringer&#x27;));
-    if(status.locationChanges.length){
-      const locations=node(&#x27;ul&#x27;,&#x27;cs-publication-location-changes&#x27;);
-      for(const site of new Set(status.locationChanges.map(item=&gt;item.site))){
-        locations.append(node(&#x27;li&#x27;,null,(sites[site]?.name||&#x27;Arbejdssted&#x27;)+&#x27; · Oplysninger opdateret&#x27;));
-      }
-      sections.push(locations);
-    }
     if(!publicationReviewElement){
       publicationReviewElement=node(&#x27;section&#x27;,&#x27;cs-publication-review-slot&#x27;);
       publicationReviewView=globalThis.CleanRoomsPublicationReview.mount({element:publicationReviewElement,onOpenChange:entry=&gt;{
@@ -28104,8 +28105,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         if(shift)showPublicationShift(shift,Boolean(entry.after));
       }});
     }
-    if(changes.length)sections.push(publicationReviewElement);
     const reviewFocus=publicationReviewElement.contains?.(document.activeElement)?document.activeElement:null;
+    if(changes.length||status.locationChanges.length){
+      const panel=node(&#x27;div&#x27;,&#x27;cs-publication-changes&#x27;);
+      panel.append(node(&#x27;h4&#x27;,&#x27;cs-publication-section-title&#x27;,&#x27;Ændringer&#x27;));
+      if(status.locationChanges.length){
+        const locations=node(&#x27;ul&#x27;,&#x27;cs-publication-location-changes&#x27;);
+        for(const site of new Set(status.locationChanges.map(item=&gt;item.site))){
+          locations.append(node(&#x27;li&#x27;,null,(sites[site]?.name||&#x27;Arbejdssted&#x27;)+&#x27; · Oplysninger opdateret&#x27;));
+        }
+        panel.append(locations);
+      }
+      if(changes.length)panel.append(publicationReviewElement);
+      sections.push(panel);
+    }
     list.replaceChildren(...sections);
     reviewFocus?.focus({preventScroll:true});
     if(publicationResume?.review){publicationReviewView.restore?.(publicationResume.review);publicationResume.review=null;}
@@ -28468,6 +28481,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

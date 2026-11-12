@@ -3631,14 +3631,6 @@
       }
       sections.push(conflicts);
     }
-    if(changes.length||status.locationChanges.length)sections.push(node('h4','cs-publication-section-title','Ændringer'));
-    if(status.locationChanges.length){
-      const locations=node('ul','cs-publication-location-changes');
-      for(const site of new Set(status.locationChanges.map(item=>item.site))){
-        locations.append(node('li',null,(sites[site]?.name||'Arbejdssted')+' · Oplysninger opdateret'));
-      }
-      sections.push(locations);
-    }
     if(!publicationReviewElement){
       publicationReviewElement=node('section','cs-publication-review-slot');
       publicationReviewView=globalThis.CleanRoomsPublicationReview.mount({element:publicationReviewElement,onOpenChange:entry=>{
@@ -3646,8 +3638,20 @@
         if(shift)showPublicationShift(shift,Boolean(entry.after));
       }});
     }
-    if(changes.length)sections.push(publicationReviewElement);
     const reviewFocus=publicationReviewElement.contains?.(document.activeElement)?document.activeElement:null;
+    if(changes.length||status.locationChanges.length){
+      const panel=node('div','cs-publication-changes');
+      panel.append(node('h4','cs-publication-section-title','Ændringer'));
+      if(status.locationChanges.length){
+        const locations=node('ul','cs-publication-location-changes');
+        for(const site of new Set(status.locationChanges.map(item=>item.site))){
+          locations.append(node('li',null,(sites[site]?.name||'Arbejdssted')+' · Oplysninger opdateret'));
+        }
+        panel.append(locations);
+      }
+      if(changes.length)panel.append(publicationReviewElement);
+      sections.push(panel);
+    }
     list.replaceChildren(...sections);
     reviewFocus?.focus({preventScroll:true});
     if(publicationResume?.review){publicationReviewView.restore?.(publicationResume.review);publicationResume.review=null;}

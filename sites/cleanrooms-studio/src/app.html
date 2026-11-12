@@ -185,20 +185,30 @@
     </section>
   </div>
   <div id="cs-changes-layer" class="cs-group-layer cs-changes-layer" hidden>
-    <button id="cs-changes-backdrop" type="button" class="cs-backdrop" aria-label="Luk ændringsoversigt"></button>
+    <button id="cs-changes-backdrop" type="button" class="cs-backdrop" aria-label="Luk udgivelse"></button>
     <section class="cs-editor cs-group-editor cs-changes-editor" role="dialog" aria-modal="true" aria-labelledby="cs-changes-title">
-      <header class="cs-editor-head"><div><h3 id="cs-changes-title">Udgiv plan</h3><p id="cs-changes-period" class="cs-editor-caption"></p></div><button id="cs-changes-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk udgivelse"><i data-lucide="x" aria-hidden="true"></i></button></header>
+      <header class="cs-editor-head"><h3 id="cs-changes-title">Udgiv vagtplan</h3><button id="cs-changes-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk udgivelse"><i data-lucide="x" aria-hidden="true"></i></button></header>
       <div class="cs-group-fields">
-        <div class="cs-publication-setup">
-          <div id="cs-publication-range-slot"></div>
-          <div class="cs-publication-scope"><label for="cs-publication-scope-select">Arbejdssteder</label><select id="cs-publication-scope-select"><option value="selected">Fra vagtplanens valg</option><option value="all">Alle arbejdssteder</option></select><p id="cs-publication-sites"></p></div>
+        <div class="cs-publication-intro">
+          <p id="cs-changes-period"></p>
+          <p id="cs-publication-dates"></p>
+          <p id="cs-publication-sites"></p>
         </div>
-        <section id="cs-publication-budget" class="cs-publication-budget" aria-label="Virksomhedens timebudget" hidden></section>
+        <p id="cs-publication-summary" class="cs-publication-summary" role="status" hidden></p>
+        <p id="cs-publication-feedback" class="cs-publication-feedback" role="status" hidden></p>
         <div id="cs-publication-load" hidden><p id="cs-publication-load-message" role="status"></p><button id="cs-publication-retry" type="button" class="cs-button" hidden>Prøv igen</button></div>
         <div id="cs-publication-related-slot" hidden></div>
+        <section id="cs-publication-budget" class="cs-publication-budget" aria-label="Virksomhedens timebudget" hidden></section>
+        <details id="cs-publication-options" class="cs-publication-disclosure">
+          <summary><span>Ret periode og arbejdssteder</span><span class="cs-publication-chevron" aria-hidden="true"></span></summary>
+          <div class="cs-publication-setup">
+            <div id="cs-publication-range-slot"></div>
+            <div class="cs-publication-scope"><label for="cs-publication-scope-select">Arbejdssteder</label><select id="cs-publication-scope-select"><option value="selected">Som i vagtplanen</option><option value="all">Alle arbejdssteder</option></select></div>
+          </div>
+        </details>
         <div id="cs-changes-list" class="cs-changes-list"></div>
       </div>
-      <footer class="cs-editor-actions"><p id="cs-publication-footer-note" class="cs-publication-footer-note" role="status"></p><button id="cs-changes-cancel" type="button" class="cs-button cs-quiet">Luk</button><button id="cs-changes-publish" type="button" class="cs-button cs-primary" disabled>Udgiv 1 uge</button></footer>
+      <footer class="cs-editor-actions"><p id="cs-publication-footer-note" class="cs-publication-footer-note"></p><button id="cs-changes-cancel" type="button" class="cs-button cs-quiet">Luk</button><button id="cs-changes-publish" type="button" class="cs-button cs-primary" disabled>Udgiv</button></footer>
     </section>
   </div>
 <!-- Insert these three layers inside #cleanrooms-studio, beside the existing dialog layers. -->

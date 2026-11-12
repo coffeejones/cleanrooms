@@ -37,7 +37,10 @@ test('draft assignment, instructions, movement and deletion leave published occu
 });
 
 test('published locations remain frozen until an explicit publication includes their scope',()=>{
-  const saved=publish(studio()),draft=structuredClone(saved);draft.organization.sites[0].name='Draft arbejdssted';draft.organization.sites[0].address='DRAFT ADDRESS';
+  const saved=publish(studio()),draft=structuredClone(saved);
+  Object.assign(draft.organization.sites[0],{_directoryVersion:2,worksiteInfo:{parking:'Ny parkering'}});
+  assert.equal(Publication.scopeStatus(draft,week).published,true,'live worksite details and directory versions do not need a new publication');
+  draft.organization.sites[0].name='Draft arbejdssted';draft.organization.sites[0].address='DRAFT ADDRESS';
   assert.equal(Publication.publishedSites(draft,'p0')[0].name,'Kontor Nord');
   const status=Publication.scopeStatus(draft,week);assert.equal(status.published,false);assert.equal(status.locationChanges.length,1);
   assert.equal(Publication.publishedSites(publish(draft),'p0')[0].name,'Draft arbejdssted');

@@ -8119,12 +8119,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio .cs-publication-weeks :is(th,td){padding:10px 6px;font-size:11px;line-height:18px}
 }
 
-/* The period is stated once; the review table gets the remaining panel space. */
-#cleanrooms-studio .cs-group-editor.cs-changes-editor{width:min(680px,100%)}
-#cleanrooms-studio #cs-changes-period{display:none}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope{padding:0;margin:0 0 20px;border:0;border-radius:0;background:transparent}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope&gt;p{margin-bottom:0}
-
 /* A short change list leads to a focused comparison instead of repeated before/after cards. */
 #cleanrooms-studio .cs-publication-review{min-width:0;margin:24px 0 0;color:#3d515e;font-size:13px;line-height:21px}
 #cleanrooms-studio .cs-publication-review-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 16px}
@@ -11255,9 +11249,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:var(--cs-compass-selected);
 }
 
-/* The publication sheet uses one scroll area between the title and actions. */
+/* The publication dialog grows with the review and keeps its actions in view. */
+#cleanrooms-studio[data-page] #cs-changes-layer:not([hidden]) {
+  display:grid;
+  grid-template:minmax(0,1fr) / minmax(0,1fr);
+  place-items:center;
+  padding:24px;
+}
 #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
-  width:min(744px,100%);
+  width:min(660px,100%);
+  height:auto;
+  max-height:100%;
+  margin:0;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:12px;
+  box-shadow:0 16px 52px rgb(16 38 35 / .16);
   font-family:var(--cs-compass-font);
   color:var(--cs-access-body);
 }
@@ -11265,7 +11271,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   flex:none;
   padding:12px var(--cs-overlay-gutter,24px);
   border-color:var(--cs-compass-rule);
-  background:var(--cs-access-soft);
+  background:var(--cs-access-surface);
 }
 #cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-title {
   margin:0;
@@ -11274,25 +11280,151 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-weight:700;
   line-height:24px;
 }
-#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
-  display:block;
-  margin:2px 0 0;
-  color:var(--cs-access-muted);
-  font-size:12px;
-  line-height:18px;
-}
 #cleanrooms-studio[data-page] .cs-changes-editor &gt; .cs-group-fields {
-  padding:18px var(--cs-overlay-gutter,24px) 24px;
+  padding:20px var(--cs-overlay-gutter,24px) 24px;
   overflow-x:hidden;
   scrollbar-gutter:stable;
 }
+#cleanrooms-studio .cs-changes-editor .cs-publication-intro {
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:clamp(24px,4vw,30px);
+  font-weight:700;
+  letter-spacing:-.55px;
+  line-height:1.2;
+}
+#cleanrooms-studio .cs-changes-editor :is(#cs-publication-dates,#cs-publication-sites) {
+  margin:0;
+  color:var(--cs-access-muted);
+  font-size:13px;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-summary {
+  margin:14px 0 0;
+  color:var(--cs-access-ink);
+  font-size:14px;
+  font-weight:650;
+  line-height:21px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-feedback {
+  margin:8px 0 0;
+  color:var(--cs-access-muted);
+  font-size:13px;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;ready&quot;] {
+  color:var(--cs-access-primary);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;warning&quot;] {
+  padding:8px 10px;
+  border-inline-start:2px solid #b68037;
+  background:#fbf6ec;
+  color:#775210;
+  font-weight:600;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure {
+  min-width:0;
+  border-block-end:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio .cs-changes-editor #cs-publication-options {
+  margin:16px 0 0;
+  border-block-start:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:44px;
+  padding:8px 2px;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:650;
+  line-height:20px;
+  list-style:none;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary::-webkit-details-marker {display:none}
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary:hover {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-chevron {
+  flex:none;
+  width:7px;
+  height:7px;
+  margin-inline-end:4px;
+  border-inline-end:1.5px solid currentColor;
+  border-block-end:1.5px solid currentColor;
+  color:var(--cs-access-muted);
+  transform:translateY(-2px) rotate(45deg);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure[open] &gt; summary .cs-publication-chevron {
+  transform:translateY(2px) rotate(225deg);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-detail-content {
+  display:grid;
+  gap:14px;
+  min-width:0;
+  padding:4px 0 14px;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
+  margin:0;
+  padding:0;
+  list-style:none;
+  border-block-end:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflicts &gt; li + li {
+  border-block-start:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+  height:auto;
+  min-height:44px;
+  padding:8px 4px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--cs-access-ink);
+  font:inherit;
+  font-size:13px;
+  line-height:20px;
+  text-align:start;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-conflict::after {
+  content:&quot;&quot;;
+  flex:none;
+  width:6px;
+  height:6px;
+  margin-inline-end:4px;
+  border-inline-end:1.5px solid currentColor;
+  border-block-start:1.5px solid currentColor;
+  color:var(--cs-access-muted);
+  transform:rotate(45deg);
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor .cs-publication-conflict:hover {
+  background:var(--cs-access-soft);
+}
 #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
   display:grid;
-  grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
   align-items:start;
-  gap:20px;
-  padding-bottom:18px;
-  border-bottom:1px solid var(--cs-compass-rule);
+  gap:16px;
+  padding:4px 0 14px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range {
   gap:8px;
@@ -11303,7 +11435,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   align-items:stretch;
   gap:2px;
 }
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-overview h4,.cs-publication-review-title,.cs-publication-scope &gt; label) {
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-review-title,.cs-publication-scope &gt; label) {
   margin:0;
   color:var(--cs-access-ink);
   font-size:14px;
@@ -11327,8 +11459,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget {
   min-width:0;
-  margin:14px 0 0;
-  padding:12px 14px;
+  margin:12px 0 0;
+  padding:9px 12px;
   border:1px solid var(--cs-compass-rule);
   border-radius:6px;
   background:var(--cs-access-soft);
@@ -11356,9 +11488,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   margin-top:5px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget-numbers strong {
-  font-size:17px;
+  font-size:15px;
   font-variant-numeric:tabular-nums;
-  line-height:24px;
+  line-height:22px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget-status {
   color:var(--cs-access-primary);
@@ -11391,7 +11523,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor .cs-publication-scope {
   min-width:0;
   margin:0;
-  padding:0 0 0 20px;
+  padding:0 0 0 16px;
   border:0;
   border-left:1px solid var(--cs-compass-rule);
   background:transparent;
@@ -11399,11 +11531,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor .cs-publication-scope &gt; label {
   display:block;
   margin-bottom:8px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope p {
-  margin-top:8px;
-  color:var(--cs-access-muted);
-  line-height:18px;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-input,.cs-publication-scope select,.cs-publication-review-input) {
   box-sizing:border-box;
@@ -11515,8 +11642,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor #cs-publication-load {
   display:flex;
   align-items:center;
-  gap:10px;
-  min-height:52px;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:40px;
   margin:12px 0 0;
   color:var(--cs-access-muted);
   font-size:13px;
@@ -11546,29 +11674,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-size:12px;
   line-height:18px;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-overview {
-  margin:18px 0 0;
-}
-#cleanrooms-studio .cs-changes-editor .cs-changes-summary {
-  gap:4px 18px;
-  margin:6px 0 10px;
-  padding:0;
-  border:0;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-metric {
-  display:inline-flex;
-  align-items:baseline;
-  gap:5px;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-metric strong {
-  color:var(--cs-access-ink);
-  font-size:14px;
-  font-weight:700;
-}
 #cleanrooms-studio .cs-changes-editor .cs-publication-weeks {
   width:100%;
-  margin:8px 0 0;
+  margin:0;
   table-layout:fixed;
   color:var(--cs-access-body);
 }
@@ -11596,24 +11704,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-muted);
   font-weight:400;
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-overview-head {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-#cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-jump {
-  padding:4px 0;
-  border:0;
-  background:transparent;
-  color:var(--cs-compass-green,#00684a);
-  font:inherit;
-  font-weight:650;
-  cursor:pointer;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-jump:hover {
-  text-decoration:underline;
-}
 #cleanrooms-studio .cs-changes-editor .cs-publication-week-state {
   display:inline-flex;
   align-items:baseline;
@@ -11640,7 +11730,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:#775210;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review {
-  margin:20px 0 0;
+  margin:0;
   color:var(--cs-access-body);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-head {
@@ -11696,16 +11786,28 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   align-items:center;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-  flex:1 1 auto;
+  flex:1 1 180px;
+  min-width:0;
   margin:0 auto 0 0;
   color:var(--cs-access-muted);
   font-size:12px;
   line-height:18px;
+  overflow-wrap:anywhere;
 }
+#cleanrooms-studio .cs-changes-editor .cs-publication-footer-note:empty {display:none}
 #cleanrooms-studio .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
   flex:none;
 }
 @media(max-width:600px) {
+  #cleanrooms-studio[data-page] #cs-changes-layer:not([hidden]) {
+    align-items:end;
+    padding:0;
+  }
+  #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
+    max-height:calc(100% - 20px);
+    border-width:1px 0 0;
+    border-radius:14px 14px 0 0;
+  }
   #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
     grid-template-columns:minmax(0,1fr);
     gap:12px;
@@ -11729,17 +11831,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio .cs-changes-editor .cs-publication-weeks th:nth-child(2) {
     width:17%;
   }
+  #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions {
+    flex-wrap:wrap;
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
+  }
+  #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
+    flex-basis:100%;
+  }
 }
 @media(max-width:390px) {
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
     padding-inline:5px!important;
     font-size:11px;
-  }
-  #cleanrooms-studio .cs-changes-editor &gt; .cs-editor-actions {
-    flex-wrap:wrap;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-    flex-basis:100%;
   }
 }
 
@@ -13271,20 +13374,30 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     &lt;/section&gt;
   &lt;/div&gt;
   &lt;div id=&quot;cs-changes-layer&quot; class=&quot;cs-group-layer cs-changes-layer&quot; hidden&gt;
-    &lt;button id=&quot;cs-changes-backdrop&quot; type=&quot;button&quot; class=&quot;cs-backdrop&quot; aria-label=&quot;Luk ændringsoversigt&quot;&gt;&lt;/button&gt;
+    &lt;button id=&quot;cs-changes-backdrop&quot; type=&quot;button&quot; class=&quot;cs-backdrop&quot; aria-label=&quot;Luk udgivelse&quot;&gt;&lt;/button&gt;
     &lt;section class=&quot;cs-editor cs-group-editor cs-changes-editor&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;cs-changes-title&quot;&gt;
-      &lt;header class=&quot;cs-editor-head&quot;&gt;&lt;div&gt;&lt;h3 id=&quot;cs-changes-title&quot;&gt;Udgiv plan&lt;/h3&gt;&lt;p id=&quot;cs-changes-period&quot; class=&quot;cs-editor-caption&quot;&gt;&lt;/p&gt;&lt;/div&gt;&lt;button id=&quot;cs-changes-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet&quot; aria-label=&quot;Luk udgivelse&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/header&gt;
+      &lt;header class=&quot;cs-editor-head&quot;&gt;&lt;h3 id=&quot;cs-changes-title&quot;&gt;Udgiv vagtplan&lt;/h3&gt;&lt;button id=&quot;cs-changes-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet&quot; aria-label=&quot;Luk udgivelse&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/header&gt;
       &lt;div class=&quot;cs-group-fields&quot;&gt;
-        &lt;div class=&quot;cs-publication-setup&quot;&gt;
-          &lt;div id=&quot;cs-publication-range-slot&quot;&gt;&lt;/div&gt;
-          &lt;div class=&quot;cs-publication-scope&quot;&gt;&lt;label for=&quot;cs-publication-scope-select&quot;&gt;Arbejdssteder&lt;/label&gt;&lt;select id=&quot;cs-publication-scope-select&quot;&gt;&lt;option value=&quot;selected&quot;&gt;Fra vagtplanens valg&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Alle arbejdssteder&lt;/option&gt;&lt;/select&gt;&lt;p id=&quot;cs-publication-sites&quot;&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;cs-publication-intro&quot;&gt;
+          &lt;p id=&quot;cs-changes-period&quot;&gt;&lt;/p&gt;
+          &lt;p id=&quot;cs-publication-dates&quot;&gt;&lt;/p&gt;
+          &lt;p id=&quot;cs-publication-sites&quot;&gt;&lt;/p&gt;
         &lt;/div&gt;
-        &lt;section id=&quot;cs-publication-budget&quot; class=&quot;cs-publication-budget&quot; aria-label=&quot;Virksomhedens timebudget&quot; hidden&gt;&lt;/section&gt;
+        &lt;p id=&quot;cs-publication-summary&quot; class=&quot;cs-publication-summary&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
+        &lt;p id=&quot;cs-publication-feedback&quot; class=&quot;cs-publication-feedback&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
         &lt;div id=&quot;cs-publication-load&quot; hidden&gt;&lt;p id=&quot;cs-publication-load-message&quot; role=&quot;status&quot;&gt;&lt;/p&gt;&lt;button id=&quot;cs-publication-retry&quot; type=&quot;button&quot; class=&quot;cs-button&quot; hidden&gt;Prøv igen&lt;/button&gt;&lt;/div&gt;
         &lt;div id=&quot;cs-publication-related-slot&quot; hidden&gt;&lt;/div&gt;
+        &lt;section id=&quot;cs-publication-budget&quot; class=&quot;cs-publication-budget&quot; aria-label=&quot;Virksomhedens timebudget&quot; hidden&gt;&lt;/section&gt;
+        &lt;details id=&quot;cs-publication-options&quot; class=&quot;cs-publication-disclosure&quot;&gt;
+          &lt;summary&gt;&lt;span&gt;Ret periode og arbejdssteder&lt;/span&gt;&lt;span class=&quot;cs-publication-chevron&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/summary&gt;
+          &lt;div class=&quot;cs-publication-setup&quot;&gt;
+            &lt;div id=&quot;cs-publication-range-slot&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;cs-publication-scope&quot;&gt;&lt;label for=&quot;cs-publication-scope-select&quot;&gt;Arbejdssteder&lt;/label&gt;&lt;select id=&quot;cs-publication-scope-select&quot;&gt;&lt;option value=&quot;selected&quot;&gt;Som i vagtplanen&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Alle arbejdssteder&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/details&gt;
         &lt;div id=&quot;cs-changes-list&quot; class=&quot;cs-changes-list&quot;&gt;&lt;/div&gt;
       &lt;/div&gt;
-      &lt;footer class=&quot;cs-editor-actions&quot;&gt;&lt;p id=&quot;cs-publication-footer-note&quot; class=&quot;cs-publication-footer-note&quot; role=&quot;status&quot;&gt;&lt;/p&gt;&lt;button id=&quot;cs-changes-cancel&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot;&gt;Luk&lt;/button&gt;&lt;button id=&quot;cs-changes-publish&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary&quot; disabled&gt;Udgiv 1 uge&lt;/button&gt;&lt;/footer&gt;
+      &lt;footer class=&quot;cs-editor-actions&quot;&gt;&lt;p id=&quot;cs-publication-footer-note&quot; class=&quot;cs-publication-footer-note&quot;&gt;&lt;/p&gt;&lt;button id=&quot;cs-changes-cancel&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot;&gt;Luk&lt;/button&gt;&lt;button id=&quot;cs-changes-publish&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary&quot; disabled&gt;Udgiv&lt;/button&gt;&lt;/footer&gt;
     &lt;/section&gt;
   &lt;/div&gt;
 &lt;!-- Insert these three layers inside #cleanrooms-studio, beside the existing dialog layers. --&gt;
@@ -20438,6 +20551,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const Departments=globalThis.CleanRoomsDepartments||(typeof require===&#x27;function&#x27;?require(&#x27;./department-model.js&#x27;):null);
   const Series=globalThis.CleanRoomsSeries||(typeof require===&#x27;function&#x27;?require(&#x27;./series-engine.js&#x27;):null);
   const MAX_RECORDS=100,MAX_SLOTS=10000;
+  const PUBLISHED_LOCATION_FIELDS=[&#x27;id&#x27;,&#x27;name&#x27;,&#x27;address&#x27;,&#x27;color&#x27;];
   const record=value=&gt;Boolean(value&amp;&amp;typeof value===&#x27;object&#x27;&amp;&amp;!Array.isArray(value));
   const clone=value=&gt;JSON.parse(JSON.stringify(value));
   const stable=value=&gt;JSON.stringify(value===undefined?null:Array.isArray(value)?value.map(item=&gt;JSON.parse(stable(item))):record(value)?Object.fromEntries(Object.keys(value).sort().map(key=&gt;[key,JSON.parse(stable(value[key]))])):value);
@@ -20477,7 +20591,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     for(const [key,slot]of Object.entries(value.slots)){
       if(!record(slot)||!validDate(slot.from)||monday(slot.from)!==slot.from||slot.to!==add(slot.from,6)||!Number.isInteger(slot.site)||slot.site&lt;0||slot.site&gt;=2000||key!==slotKey(slot.from,slot.site)
         ||!actorValid(slot.actor)||!timestamp(slot.at)||typeof slot.publicationId!==&#x27;string&#x27;||!record(slot.location)||slot.location.index!==slot.site
-        ||![&#x27;id&#x27;,&#x27;name&#x27;,&#x27;address&#x27;,&#x27;color&#x27;].every(field=&gt;typeof slot.location[field]===&#x27;string&#x27;)||!Array.isArray(slot.shifts)){errors.push(&#x27;En udgivet uge eller et arbejdssted er ugyldigt.&#x27;);continue;}
+        ||!PUBLISHED_LOCATION_FIELDS.every(field=&gt;typeof slot.location[field]===&#x27;string&#x27;)||!Array.isArray(slot.shifts)){errors.push(&#x27;En udgivet uge eller et arbejdssted er ugyldigt.&#x27;);continue;}
       for(const shift of slot.shifts){if(!validShift(shift,slot)||ids.has(shift?.id))errors.push(&#x27;En udgivet vagt er ugyldig eller forekommer flere gange.&#x27;);if(record(shift))ids.add(shift.id);}
     }
     for(const item of value.records){
@@ -20568,7 +20682,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   function compareScope(studio,publications,keys){
     const before=[...keys.keys()].flatMap(key=&gt;publications.slots[key]?.shifts||[]),after=draftFor(studio,keys),changes=Changes.diff(before,after);
-    const locations=sitesFor(studio),locationChanges=[...keys].filter(([key,slot])=&gt;publications.slots[key]&amp;&amp;!same(locationDetails(publications.slots[key].location),{index:slot.site,...locationDetails(locations[slot.site])})).map(([,slot])=&gt;({from:slot.from,site:slot.site}));
+    // Directory metadata and live worksite instructions do not change the published location.
+    const locations=sitesFor(studio),locationChanges=[...keys].filter(([key,slot])=&gt;{
+      const previous=publications.slots[key]?.location,current=locations[slot.site];
+      return previous&amp;&amp;PUBLISHED_LOCATION_FIELDS.some(field=&gt;previous[field]!==current[field]);
+    }).map(([,slot])=&gt;({from:slot.from,site:slot.site}));
     const hasPublished=[...keys.keys()].every(key=&gt;Boolean(publications.slots[key]));
     return {published:hasPublished&amp;&amp;!changes.length&amp;&amp;!locationChanges.length,hasPublished,changed:changes.length,changes,locationChanges,count:after.length,openCount:after.filter(shift=&gt;!shift.person).length};
   }
@@ -24310,6 +24428,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const timeState={entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:&#x27;&#x27;,canManage:false,canViewPayroll:false};
   let publicationBusy=false,includeRelatedPublication=false,publicationAllSites=false,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
   let publicationCanSubmit=false,publicationRead=null,publicationBudget=null,publicationResume=null;
+  let publicationReviewDetails=null,publicationRangeError=&#x27;&#x27;,publicationSubmitError=&#x27;&#x27;,publicationFeedback={};
   const calendarBudgetCache=new Map();
   let calendarBudgetRequest=null,calendarBudgetError=null;
   const planningCostCache=new Map();
@@ -27500,7 +27619,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if (showDemoChanges) openChanges(q(&#x27;#cs-changes-toggle&#x27;));
   }
   function updatePublicationButton() {
-    q(&#x27;#cs-changes-publish&#x27;).disabled=!publicationCanSubmit||!publicationRangeValid||publicationBusy||planningReadBusy||publicationBudget?.state===&#x27;loading&#x27;||Boolean(planningReadBlocked)||cloudStatus.state!==&#x27;saved&#x27;;
+    const button=q(&#x27;#cs-changes-publish&#x27;),waiting=publicationBusy||planningReadBusy||publicationBudget?.state===&#x27;loading&#x27;;
+    const unsaved=cloudStatus.state!==&#x27;saved&#x27;;
+    button.disabled=!publicationCanSubmit||!publicationRangeValid||waiting||Boolean(planningReadBlocked)||unsaved;
+    const feedback=q(&#x27;#cs-publication-feedback&#x27;);
+    const feedbackState=publicationRangeError||publicationSubmitError?
+      {state:&#x27;warning&#x27;,message:publicationRangeError||publicationSubmitError}:
+      !planningReadBlocked&amp;&amp;cloudStatus.state===&#x27;error&#x27;?
+        {state:&#x27;warning&#x27;,message:&#x27;Planen er ikke gemt. Luk udgivelsen, og vælg Prøv igen ved fejlbeskeden.&#x27;}:
+        !publicationBusy&amp;&amp;cloudStatus.state===&#x27;saving&#x27;?
+          {state:&#x27;muted&#x27;,message:&#x27;Venter på, at ændringerne bliver gemt.&#x27;}:publicationFeedback;
+    const message=feedbackState.message||&#x27;&#x27;;
+    if(feedback.textContent!==message)feedback.textContent=message;
+    feedback.hidden=!message;
+    feedback.dataset.state=feedbackState.state||&#x27;muted&#x27;;
+    const note=q(&#x27;#cs-publication-footer-note&#x27;);
+    note.textContent=publicationCanSubmit&amp;&amp;publicationRangeValid&amp;&amp;!publicationSubmitError&amp;&amp;!unsaved?&#x27;Berørte medarbejdere får besked ved udgivelse.&#x27;:&#x27;&#x27;;
+    note.hidden=!note.textContent;
   }
   function paintEditorBudgetImpact() {
     const element=q(&#x27;#cs-edit-budget-impact&#x27;),calculator=globalThis.CleanRoomsPlanningBudgetImpact;
@@ -27646,8 +27781,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     element.hidden=false;
     const configured=state.workspaceSettings?.workHoursBudget;
     if(!Roster.validWorkHoursBudget(configured)){
-      if(publicationBudget?.state!==&#x27;unset&#x27;)view.render(element,{state:&#x27;unset&#x27;});
-      publicationBudget={state:&#x27;unset&#x27;};
+      element.hidden=true;
+      publicationBudget=null;
       return;
     }
     if(scope.includeDependencies&amp;&amp;!reviewedScopes){element.hidden=true;return;}
@@ -27675,13 +27810,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const shifts=scopes.flatMap(part=&gt;shiftsInRange(part.from,part.to).filter(shift=&gt;part.siteIds.includes(shift.site)));
     const leave=leaveDateIndex();
     const affected=new Map();
-    const mark=shift=&gt;{
+    const mark=(shift,reason)=&gt;{
       const week=staffingMonday(shift.date);
-      if(!affected.has(week))affected.set(week,new Set());
-      affected.get(week).add(shift.id);
+      if(!affected.has(week))affected.set(week,new Map());
+      const entries=affected.get(week);
+      if(!entries.has(shift.id))entries.set(shift.id,{shift,reasons:new Set()});
+      entries.get(shift.id).reasons.add(reason);
     };
-    for(const issue of Engine.conflicts(shifts,publicationNeighbors(scopes)))mark(issue.shift);
-    for(const shift of shifts)if(Engine.shiftDates(shift).some(day=&gt;leave.get(shift.person)?.has(day)))mark(shift);
+    for(const issue of Engine.conflicts(shifts,publicationNeighbors(scopes)))mark(issue.shift,&#x27;Overlap&#x27;);
+    for(const shift of shifts)if(Engine.shiftDates(shift).some(day=&gt;leave.get(shift.person)?.has(day)))mark(shift,&#x27;Godkendt fravær&#x27;);
     return affected;
   }
   function showPublicationLoading(message,retry=false) {
@@ -27692,75 +27829,45 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(message){
       q(&#x27;#cs-publication-related-slot&#x27;).hidden=true;
       q(&#x27;#cs-changes-list&#x27;).replaceChildren();
-      q(&#x27;#cs-publication-footer-note&#x27;).textContent=&#x27;&#x27;;
+      q(&#x27;#cs-publication-summary&#x27;).hidden=true;
     }
   }
-  function renderChanges() {
-    const range=globalThis.CleanRoomsPublicationRange,scope=publicationScope(true),button=q(&#x27;#cs-changes-publish&#x27;);
-    publicationCanSubmit=false;
-    updatePublicationButton();
-    q(&#x27;#cs-changes-period&#x27;).textContent=range.summary(scope);
-    q(&#x27;#cs-publication-scope-select&#x27;).value=publicationAllSites?&#x27;all&#x27;:&#x27;selected&#x27;;
-    const scopeNames=scope.siteIds.slice(0,3).map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;);
-    if(scope.siteIds.length&gt;scopeNames.length)scopeNames.push(&#x27;+&#x27;+(scope.siteIds.length-scopeNames.length)+&#x27; flere&#x27;);
-    q(&#x27;#cs-publication-sites&#x27;).textContent=scopeNames.join(&#x27; · &#x27;);
-    if(!publicationRangeView)publicationRangeView=range.mount({
-      element:q(&#x27;#cs-publication-range-slot&#x27;),
-      onChange:value=&gt;{publicationRange=value;includeRelatedPublication=false;renderChanges();},
-      onValidityChange:({valid})=&gt;{publicationRangeValid=valid;q(&#x27;#cs-publication-budget&#x27;).hidden=!valid||Boolean(state.demoSession)||!publicationScope(true).siteIds.length;updatePublicationButton();}
-    });
-    publicationRangeView.render({...scope,minDate:PlanData.minDate,maxDate:PlanData.maxDate,disabled:publicationBusy});
-    const weeks=range.countWeeks(scope.from,scope.to);
-    button.textContent=&#x27;Udgiv &#x27;+weeks+(weeks===1?&#x27; uge&#x27;:&#x27; uger&#x27;);
-    renderPublicationBudget(scope);
-    if(!scope.siteIds.length){showPublicationLoading(&#x27;Vælg mindst ét arbejdssted for at gennemgå planen.&#x27;);return;}
-    const projection=publicationProjection(),key=JSON.stringify(projection);
-    if(!publicationScopeReady()){
-      if(planningReadBlocked===key||planningReadBlocked===&#x27;full&#x27;){showPublicationLoading(&#x27;Planen for perioden kunne ikke hentes.&#x27;,true);return;}
-      showPublicationLoading(&#x27;Henter ugeoverblik og ændringer…&#x27;);
-      if(!publicationRead){
-        const request=planningReadBusy
-          ?planningReadPromise
-          :withPlanningScope(projection,()=&gt;true,&#x27;publication&#x27;);
-        publicationRead=request;
-        void request.finally(()=&gt;{
-          if(publicationRead!==request)return;
-          publicationRead=null;
-          if(!q(&#x27;#cs-changes-layer&#x27;).hidden)renderChanges();
-        });
-      }
-      return;
+  const publicationCount=(count,singular,plural)=&gt;count.toLocaleString(&#x27;da-DK&#x27;)+&#x27; &#x27;+(count===1?singular:plural);
+  function paintPublicationScope(scopes, weekCount) {
+    const runs=[];
+    for(const part of scopes){
+      const previous=runs.at(-1);
+      if(previous&amp;&amp;addDays(previous.to,1)===part.from)previous.to=part.to;
+      else runs.push({from:part.from,to:part.to});
     }
-    showPublicationLoading(&#x27;&#x27;);
-    const status=Publication.scopeStatus(state,scope),changes=status.changes;
-    if(scope.includeDependencies)renderPublicationBudget(scope,status.scopes);
-    const relatedSlot=q(&#x27;#cs-publication-related-slot&#x27;);
-    relatedSlot.replaceChildren();
-    relatedSlot.hidden=!status.dependencies.length;
-    if(status.dependencies.length){
-      const related=node(&#x27;label&#x27;,&#x27;cs-publication-related&#x27;),checkbox=node(&#x27;input&#x27;);
-      checkbox.type=&#x27;checkbox&#x27;;checkbox.checked=includeRelatedPublication;
-      checkbox.addEventListener(&#x27;change&#x27;,()=&gt;{includeRelatedPublication=checkbox.checked;renderChanges();if(!relatedSlot.hidden)relatedSlot.querySelector(&#x27;input&#x27;)?.focus({preventScroll:true});});
-      const periods=status.dependencies.map(part=&gt;&#x27;uge &#x27;+weekNumber(part.from)+&#x27; (&#x27;+part.siteIds.map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;).join(&#x27;, &#x27;)+&#x27;)&#x27;);
-      related.append(checkbox,node(&#x27;span&#x27;,null,&#x27;Medtag relaterede uger og arbejdssteder&#x27;));
-      relatedSlot.append(related,node(&#x27;p&#x27;,null,&#x27;Flyttede vagter kræver udgivelse af både den gamle og den nye placering. Det berører &#x27;+periods.join(&#x27; · &#x27;)+&#x27;.&#x27;));
-    }
-    const issues=publicationIssues(status.scopes);
-    const totals={added:0,changed:0,removed:0};
-    for(const entry of changes)totals[entry.type]++;
-    const list=q(&#x27;#cs-changes-list&#x27;),overview=node(&#x27;section&#x27;,&#x27;cs-publication-overview&#x27;),summary=node(&#x27;div&#x27;,&#x27;cs-changes-summary&#x27;);
-    summary.id=&#x27;cs-changes-summary&#x27;;
-    for(const [type,label,count] of [[&#x27;shifts&#x27;,&#x27;Vagter i planen&#x27;,status.count],[&#x27;added&#x27;,&#x27;Nye&#x27;,totals.added],[&#x27;changed&#x27;,&#x27;Ændrede&#x27;,totals.changed],[&#x27;removed&#x27;,&#x27;Aflyste&#x27;,totals.removed]]){
-      const metric=node(&#x27;div&#x27;,&#x27;cs-publication-metric&#x27;);
-      metric.dataset.type=type;metric.append(node(&#x27;strong&#x27;,null,count.toLocaleString(&#x27;da-DK&#x27;)),node(&#x27;span&#x27;,null,label));summary.append(metric);
-    }
+    const start=weekNumber(runs[0].from),end=weekNumber(runs.at(-1).to);
+    q(&#x27;#cs-changes-period&#x27;).textContent=weekCount===1?&#x27;Uge &#x27;+start:
+      runs.length===1?&#x27;Uge &#x27;+start+&#x27;–&#x27;+end:publicationCount(weekCount,&#x27;uge&#x27;,&#x27;uger&#x27;);
+    q(&#x27;#cs-publication-dates&#x27;).textContent=runs.map(part=&gt;publicationPeriodFormat.formatRange(date(part.from),date(part.to))).join(&#x27; · &#x27;);
+    const names=[...new Set(scopes.flatMap(part=&gt;part.siteIds))].map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;);
+    const siteLabel=q(&#x27;#cs-publication-sites&#x27;);
+    siteLabel.textContent=names.join(&#x27; · &#x27;);
+    siteLabel.hidden=!names.length;
+  }
+  function showPublicationShift(shift,existsInDraft) {
+    if(shift.date&lt;addDays(anchor,-364)||shift.date&gt;addDays(anchor,370)){navigateTo(shift.date);return;}
+    closeChanges(false);state.view=&#x27;week&#x27;;
+    const department=selectedDepartment();
+    if(department&amp;&amp;!department.siteIds.includes(shift.site))state.departmentId=&#x27;all&#x27;;
+    if(!navigateTo(shift.date))return;
+    if(existsInDraft)globalThis.CleanRoomsCalendar.revealDay(shift.date);
+    render();scrollCalendarTo(shift.date);
+    const target=[...root.querySelectorAll(&#x27;[data-shift]&#x27;)].find(item=&gt;item.dataset.shift===String(shift.id));
+    (target||q(&#x27;.cs-board-scroll&#x27;))?.focus({preventScroll:true});target?.scrollIntoView({block:&#x27;nearest&#x27;,inline:&#x27;nearest&#x27;});
+  }
+  function renderPublicationWeeks(scope,scopes,issues) {
     const table=node(&#x27;table&#x27;,&#x27;cs-publication-weeks&#x27;),head=node(&#x27;thead&#x27;),headRow=node(&#x27;tr&#x27;),body=node(&#x27;tbody&#x27;);
     table.setAttribute(&#x27;aria-label&#x27;,&#x27;Uger til udgivelse&#x27;);
     for(const label of [&#x27;Uge&#x27;,&#x27;Vagter&#x27;,&#x27;Ændringer&#x27;,&#x27;Status&#x27;]){
       const cell=node(&#x27;th&#x27;,null,label);cell.scope=&#x27;col&#x27;;headRow.append(cell);
     }
     head.append(headRow);
-    for(const week of range.overview(state,scope,status.scopes)){
+    for(const week of globalThis.CleanRoomsPublicationRange.overview(state,scope,scopes)){
       const issueCount=issues.get(week.from)?.size??0,row=node(&#x27;tr&#x27;);
       const weekCell=node(&#x27;th&#x27;);weekCell.scope=&#x27;row&#x27;;
       weekCell.append(node(&#x27;strong&#x27;,null,&#x27;Uge &#x27;+week.week),node(&#x27;span&#x27;,&#x27;cs-publication-week-dates&#x27;,shortDate(week.from)+&#x27; – &#x27;+shortDate(week.to)));
@@ -27776,39 +27883,122 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       body.append(row);
     }
     table.append(head,body);
-    const heading=node(&#x27;div&#x27;,&#x27;cs-publication-overview-head&#x27;);
-    heading.append(node(&#x27;h4&#x27;,null,&#x27;Ugeoverblik&#x27;));
-    if(changes.length){
-      const jump=node(&#x27;button&#x27;,&#x27;cs-publication-jump&#x27;,&#x27;Se ændringer&#x27;);
-      jump.type=&#x27;button&#x27;;
-      jump.addEventListener(&#x27;click&#x27;,()=&gt;{
-        const title=publicationReviewElement?.querySelector(&#x27;h4&#x27;);
-        if(!title)return;
-        title.tabIndex=-1;
-        title.focus({preventScroll:true});
-        title.scrollIntoView({block:&#x27;start&#x27;});
-      });
-      heading.append(jump);
+    return table;
+  }
+  function renderChanges() {
+    const range=globalThis.CleanRoomsPublicationRange,scope=publicationScope(true),button=q(&#x27;#cs-changes-publish&#x27;);
+    publicationCanSubmit=false;
+    publicationFeedback={};
+    updatePublicationButton();
+    const weeks=range.countWeeks(scope.from,scope.to);
+    paintPublicationScope([scope],weeks);
+    q(&#x27;#cs-publication-scope-select&#x27;).value=publicationAllSites?&#x27;all&#x27;:&#x27;selected&#x27;;
+    if(!publicationRangeView)publicationRangeView=range.mount({
+      element:q(&#x27;#cs-publication-range-slot&#x27;),
+      onChange:value=&gt;{publicationRange=value;includeRelatedPublication=false;publicationSubmitError=&#x27;&#x27;;renderChanges();},
+      onValidityChange:({valid,message})=&gt;{
+        publicationRangeValid=valid;
+        publicationRangeError=valid?&#x27;&#x27;:message;
+        q(&#x27;#cs-publication-budget&#x27;).hidden=!valid||Boolean(state.demoSession)||!publicationScope(true).siteIds.length||!publicationBudget;
+        updatePublicationButton();
+      }
+    });
+    publicationRangeView.render({...scope,minDate:PlanData.minDate,maxDate:PlanData.maxDate,disabled:publicationBusy});
+    button.textContent=weeks===1?&#x27;Udgiv uge &#x27;+weekNumber(scope.from):&#x27;Udgiv &#x27;+publicationCount(weeks,&#x27;uge&#x27;,&#x27;uger&#x27;);
+    renderPublicationBudget(scope);
+    if(!scope.siteIds.length){showPublicationLoading(&#x27;Vælg mindst ét arbejdssted for at gennemgå planen.&#x27;);return;}
+    const projection=publicationProjection(),key=JSON.stringify(projection);
+    if(!publicationScopeReady()){
+      if(planningReadBlocked===key||planningReadBlocked===&#x27;full&#x27;){showPublicationLoading(&#x27;Planen for perioden kunne ikke hentes.&#x27;,true);return;}
+      showPublicationLoading(&#x27;Henter vagter for perioden…&#x27;);
+      if(!publicationRead){
+        const request=planningReadBusy
+          ?planningReadPromise
+          :withPlanningScope(projection,()=&gt;true,&#x27;publication&#x27;);
+        publicationRead=request;
+        void request.finally(()=&gt;{
+          if(publicationRead!==request)return;
+          publicationRead=null;
+          if(!q(&#x27;#cs-changes-layer&#x27;).hidden)renderChanges();
+        });
+      }
+      return;
     }
-    overview.append(heading,summary,table);list.replaceChildren(overview);
+    showPublicationLoading(&#x27;&#x27;);
+    const status=Publication.scopeStatus(state,scope),changes=status.changes;
+    const affectedWeeks=status.scopes.length;
+    if(scope.includeDependencies)paintPublicationScope(status.scopes,affectedWeeks);
+    if(scope.includeDependencies)renderPublicationBudget(scope,status.scopes);
+    const relatedSlot=q(&#x27;#cs-publication-related-slot&#x27;);
+    relatedSlot.replaceChildren();
+    relatedSlot.hidden=!status.dependencies.length;
+    if(status.dependencies.length){
+      const related=node(&#x27;label&#x27;,&#x27;cs-publication-related&#x27;),checkbox=node(&#x27;input&#x27;);
+      checkbox.type=&#x27;checkbox&#x27;;checkbox.checked=includeRelatedPublication;
+      checkbox.addEventListener(&#x27;change&#x27;,()=&gt;{
+        includeRelatedPublication=checkbox.checked;publicationSubmitError=&#x27;&#x27;;renderChanges();
+        (relatedSlot.hidden?q(&#x27;#cs-changes-close&#x27;):relatedSlot.querySelector(&#x27;input&#x27;))?.focus({preventScroll:true});
+      });
+      const periods=status.dependencies.map(part=&gt;&#x27;uge &#x27;+weekNumber(part.from)+&#x27; (&#x27;+part.siteIds.map(site=&gt;sites[site]?.name||&#x27;Arbejdssted&#x27;).join(&#x27;, &#x27;)+&#x27;)&#x27;);
+      related.append(checkbox,node(&#x27;span&#x27;,null,&#x27;Medtag relaterede uger og arbejdssteder&#x27;));
+      relatedSlot.append(related,node(&#x27;p&#x27;,null,&#x27;Flyttede vagter kræver udgivelse af både den gamle og den nye placering. Det berører &#x27;+periods.join(&#x27; · &#x27;)+&#x27;.&#x27;));
+    }
+    const issues=publicationIssues(status.scopes);
+    const totals={added:0,changed:0,removed:0};
+    for(const entry of changes)totals[entry.type]++;
+    const summary=q(&#x27;#cs-publication-summary&#x27;);
+    summary.textContent=[
+      publicationCount(status.count,&#x27;vagt i planen&#x27;,&#x27;vagter i planen&#x27;),
+      totals.added&amp;&amp;publicationCount(totals.added,&#x27;ny&#x27;,&#x27;nye&#x27;),
+      totals.changed&amp;&amp;publicationCount(totals.changed,&#x27;ændret&#x27;,&#x27;ændrede&#x27;),
+      totals.removed&amp;&amp;publicationCount(totals.removed,&#x27;aflyst&#x27;,&#x27;aflyste&#x27;),
+      status.locationChanges.length&amp;&amp;&#x27;Arbejdsstedsoplysninger opdateret&#x27;
+    ].filter(Boolean).join(&#x27; · &#x27;);
+    summary.hidden=false;
+    const list=q(&#x27;#cs-changes-list&#x27;);
+    if(!publicationReviewDetails){
+      publicationReviewDetails=node(&#x27;details&#x27;,&#x27;cs-publication-disclosure&#x27;);
+      publicationReviewDetails.id=&#x27;cs-publication-details&#x27;;
+      publicationReviewDetails.open=Boolean(publicationResume?.detailsOpen);
+      const label=node(&#x27;summary&#x27;),chevron=node(&#x27;span&#x27;,&#x27;cs-publication-chevron&#x27;);
+      chevron.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+      label.append(node(&#x27;span&#x27;),chevron);
+      publicationReviewDetails.append(label,node(&#x27;div&#x27;,&#x27;cs-publication-detail-content&#x27;));
+    }
+    const label=publicationReviewDetails.querySelector(&#x27;summary&#x27;).children[0];
+    label.textContent=issues.size?(changes.length?&#x27;Se konflikter og ændringer&#x27;:&#x27;Se konflikter&#x27;):
+      changes.length?&#x27;Se ændringer (&#x27;+changes.length.toLocaleString(&#x27;da-DK&#x27;)+&#x27;)&#x27;:&#x27;Se ugeoversigt&#x27;;
+    const content=publicationReviewDetails.querySelector(&#x27;.cs-publication-detail-content&#x27;);
+    const sections=[];
+    if(issues.size){
+      const conflicts=node(&#x27;ul&#x27;,&#x27;cs-publication-conflicts&#x27;);
+      for(const [,entries] of [...issues].sort(([a],[b])=&gt;a.localeCompare(b)))for(const {shift,reasons} of entries.values()){
+        const row=node(&#x27;li&#x27;),link=node(&#x27;button&#x27;,&#x27;cs-publication-conflict&#x27;,personName(shift.person)+&#x27; · &#x27;+shortDate(shift.date)+&#x27; · &#x27;+clockLabel(shift)+&#x27; · &#x27;+[...reasons].join(&#x27; og &#x27;));
+        link.type=&#x27;button&#x27;;link.addEventListener(&#x27;click&#x27;,()=&gt;showPublicationShift(shift,true));row.append(link);conflicts.append(row);
+      }
+      sections.push(conflicts);
+    }
+    if(affectedWeeks&gt;1||issues.size||status.locationChanges.length)sections.push(renderPublicationWeeks(scope,status.scopes,issues));
     if(!publicationReviewElement){
       publicationReviewElement=node(&#x27;section&#x27;,&#x27;cs-publication-review-slot&#x27;);
       publicationReviewView=globalThis.CleanRoomsPublicationReview.mount({element:publicationReviewElement,onOpenChange:entry=&gt;{
-        const shift=entry.after||entry.before;if(!shift)return;
-        closeChanges(false);state.view=&#x27;week&#x27;;navigateTo(shift.date);
-        if(entry.after)globalThis.CleanRoomsCalendar.revealDay(shift.date);
-        render();scrollCalendarTo(shift.date);
-        const target=[...root.querySelectorAll(&#x27;[data-shift]&#x27;)].find(item=&gt;item.dataset.shift===String(entry.id));
-        (target||q(&#x27;.cs-board-scroll&#x27;))?.focus({preventScroll:true});target?.scrollIntoView({block:&#x27;nearest&#x27;,inline:&#x27;nearest&#x27;});
+        const shift=entry.after||entry.before;
+        if(shift)showPublicationShift(shift,Boolean(entry.after));
       }});
     }
-    list.append(publicationReviewElement);
+    if(changes.length)sections.push(publicationReviewElement);
+    publicationReviewDetails.hidden=!sections.length;
+    const reviewFocus=publicationReviewElement.contains?.(document.activeElement)?document.activeElement:null;
+    content.replaceChildren(...sections);
+    if(list.children[0]!==publicationReviewDetails)list.replaceChildren(publicationReviewDetails);
+    reviewFocus?.focus({preventScroll:true});
     if(publicationResume?.review){publicationReviewView.restore?.(publicationResume.review);publicationResume.review=null;}
     publicationReviewView.render({changes,people:staff,sites,scopeKey:JSON.stringify([scope.from,scope.to,scope.siteIds,scope.includeDependencies])});
-    const affectedWeeks=status.scopes.length;
-    button.textContent=status.published?&#x27;Allerede udgivet&#x27;:&#x27;Udgiv &#x27;+affectedWeeks+(affectedWeeks===1?&#x27; uge&#x27;:&#x27; uger&#x27;);
+    button.textContent=status.published?&#x27;Allerede udgivet&#x27;:affectedWeeks===1?&#x27;Udgiv uge &#x27;+weekNumber(status.scopes[0].from):&#x27;Udgiv &#x27;+publicationCount(affectedWeeks,&#x27;uge&#x27;,&#x27;uger&#x27;);
     const dependenciesMissing=status.dependencies.length&amp;&amp;!includeRelatedPublication;
-    q(&#x27;#cs-publication-footer-note&#x27;).textContent=issues.size?&#x27;Ret overlap eller godkendt fravær i de markerede uger.&#x27;:dependenciesMissing?&#x27;Medtag de relaterede uger og arbejdssteder.&#x27;:status.published?&#x27;Planen er allerede udgivet for perioden.&#x27;:&#x27;Berørte medarbejdere får besked ved udgivelse.&#x27;;
+    publicationFeedback=issues.size?{state:&#x27;warning&#x27;,message:&#x27;Ret overlap eller vagter under godkendt fravær, før du udgiver.&#x27;}:
+      status.published?{state:&#x27;ready&#x27;,message:&#x27;Planen er allerede udgivet for perioden.&#x27;}:
+      status.openCount?{state:&#x27;muted&#x27;,message:publicationCount(status.openCount,&#x27;ledig vagt udgives uden medarbejder.&#x27;,&#x27;ledige vagter udgives uden medarbejder.&#x27;)}:{};
     publicationCanSubmit=!status.published&amp;&amp;!dependenciesMissing&amp;&amp;!issues.size;
     updatePublicationButton();
     if(publicationResume&amp;&amp;!publicationResume.scrollRestored){const resume=publicationResume;resume.scrollRestored=true;Promise.resolve().then(()=&gt;{if(publicationResume===resume&amp;&amp;!q(&#x27;#cs-changes-layer&#x27;).hidden)q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop=resume.scrollTop||0;});}
@@ -27832,13 +28022,16 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     button.title = description;
     button.setAttribute(&#x27;aria-description&#x27;,description);
   }
-  function openChanges(trigger = q(&#x27;#cs-changes-toggle&#x27;)) {
-    if(!confirmEditorLeave(()=&gt;openChanges(trigger)))return false;
+  function openChanges(trigger = q(&#x27;#cs-changes-toggle&#x27;),showDetails = false) {
+    if(!confirmEditorLeave(()=&gt;openChanges(trigger,showDetails)))return false;
     closeOperationsSheets();
     closeEditor({force:true}); closeGroupEditor(false); closeBulkEditor(false); closeReview();
     const resume=resumablePublicationReview();publicationResume=resume;if(resume)resume.scrollRestored=false;
     if(resume){state.departmentId=resume.departmentId;state.site=resume.site;q(&#x27;#cs-site-filter&#x27;).value=state.site;}
     publicationAllSites=resume?.allSites||false;includeRelatedPublication=resume?.related||false;publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;
+    publicationRangeError=&#x27;&#x27;;publicationSubmitError=&#x27;&#x27;;publicationReviewDetails=null;
+    if(showDetails)publicationResume={...resume,detailsOpen:true};
+    q(&#x27;#cs-publication-options&#x27;).open=Boolean(resume?.optionsOpen);
     publicationRangeView?.dispose?.();publicationRangeView=null;
     publicationReviewView?.dispose?.();publicationReviewView=null;publicationReviewElement=null;
     changesTrigger=trigger;
@@ -27850,14 +28043,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function closeChanges(restoreFocus = true) {
     releasePlanningHold(&#x27;publication&#x27;);
     const wasOpen = !q(&#x27;#cs-changes-layer&#x27;).hidden;
-    if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,scrollTop:q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop||0};
+    if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,detailsOpen:publicationReviewDetails?.open===true,optionsOpen:q(&#x27;#cs-publication-options&#x27;).open===true,scrollTop:q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop||0};
     q(&#x27;#cs-changes-layer&#x27;).hidden = true;
     publicationAllSites=false;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
     if (wasOpen &amp;&amp; state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
     if(wasOpen&amp;&amp;restoreFocus){const target=changesTrigger?.isConnected?changesTrigger:q(&#x27;#cs-changes-toggle&#x27;);target.focus({preventScroll:true});}
   }
   async function publishReviewedWeek() {
-    if(!publicationCanSubmit||publicationBusy||!cloudLoaded||!persistence||planningReadBusy||planningReadBlocked||publicationBudget?.state===&#x27;loading&#x27;)return;
+    if(!publicationCanSubmit||publicationBusy||!cloudLoaded||!persistence||planningReadBusy||planningReadBlocked||publicationBudget?.state===&#x27;loading&#x27;||cloudStatus.state!==&#x27;saved&#x27;)return;
     if(!publicationScopeReady()){renderChanges();return;}
     if(!publicationRangeValid||publicationRangeView?.valid===false)return;
     const scope=publicationScope(true),expanded=Publication.expandScope(state,scope);
@@ -27865,17 +28058,24 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       renderChanges();
       return;
     }
-    publicationBusy=true;root.inert=true;updatePublicationButton();
+    publicationSubmitError=&#x27;&#x27;;publicationBusy=true;root.inert=true;updatePublicationButton();
     q(&#x27;#cs-changes-publish&#x27;).textContent=&#x27;Udgiver…&#x27;;
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
-    if(!result.ok){notify(result.message||&#x27;Udgivelsen kunne ikke gemmes. Kladden er bevaret.&#x27;);renderChanges();return;}
+    if(!result.ok){
+      publicationSubmitError=result.message||&#x27;Udgivelsen kunne ikke gemmes. Kladden er bevaret.&#x27;;
+      renderChanges();
+      const button=q(&#x27;#cs-changes-publish&#x27;);
+      (button.disabled?q(&#x27;#cs-changes-close&#x27;):button).focus({preventScroll:true});
+      return;
+    }
+    const trigger=changesTrigger;
     closeChanges(false);publicationResume=null;
     if (state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
     lastUndo=null;clearSelection(false);await initializeCloud();
     const publishedWeeks=expanded.scopes.length;
     notify(publishedWeeks+(publishedWeeks===1?&#x27; uge&#x27;:&#x27; uger&#x27;)+&#x27; udgivet. Medarbejdernes beskeder er gemt.&#x27;);
-    q(&#x27;#cs-changes-toggle&#x27;).focus({preventScroll:true});
+    (trigger?.isConnected?trigger:q(&#x27;#cs-changes-toggle&#x27;)).focus({preventScroll:true});
   }
   function editorError(message) { q(&#x27;#cs-edit-error&#x27;).hidden = false; q(&#x27;#cs-edit-error&#x27;).textContent = message; q(&#x27;#cs-edit-error&#x27;).scrollIntoView({block:&#x27;nearest&#x27;}); }
   function restoredSeriesMetadata(previous,current) {
@@ -28051,9 +28251,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   q(&#x27;#cs-bulk-form&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; { if (event.key === &#x27;Enter&#x27; &amp;&amp; (event.ctrlKey || event.metaKey)) saveBulk(event); });
   [&#x27;#cs-bulk-close&#x27;,&#x27;#cs-bulk-backdrop&#x27;,&#x27;#cs-bulk-cancel&#x27;].forEach(selector =&gt; q(selector).addEventListener(&#x27;click&#x27;,() =&gt; closeBulkEditor()));
   q(&#x27;#cs-bulk-layer&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; trapDialog(event,q(&#x27;.cs-bulk-editor&#x27;),closeBulkEditor));
-  q(&#x27;#cs-changes-toggle&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; openChanges());
+  q(&#x27;#cs-changes-toggle&#x27;).addEventListener(&#x27;click&#x27;,event =&gt; openChanges(event.currentTarget,true));
   q(&#x27;#cs-publication-scope-select&#x27;).addEventListener(&#x27;change&#x27;,event=&gt;{
-    publicationAllSites=event.currentTarget.value===&#x27;all&#x27;;includeRelatedPublication=false;renderChanges();
+    publicationAllSites=event.currentTarget.value===&#x27;all&#x27;;includeRelatedPublication=false;publicationSubmitError=&#x27;&#x27;;renderChanges();
   });
   q(&#x27;#cs-publication-retry&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{
     if(cloudStatus.conflict){closeChanges(false);retryCloud();return;}
@@ -28162,6 +28362,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
+
+
 
 
 

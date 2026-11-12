@@ -41,11 +41,13 @@ function application({secondWeekConflict=false,cold=false,budget=false}={}){
 
 test('an already published current week still opens a review that can extend into an unpublished week',async()=>{
  const app=application();assert.equal(app.publicationStatus().published,true);app.openChanges();assert.equal(app.control('#cs-changes-layer').hidden,false);assert.equal(app.control('#cs-changes-publish').disabled,true);
+ assert.equal(app.control('#cs-changes-period').textContent,'Uge 45');assert.equal(app.control('#cs-publication-options').open,false);
  app.rangeField('preset:2').click();assert.deepEqual(plain(app.publicationScope(true)),{from:'2026-11-02',to:'2026-11-15',siteIds:[0,1,2],includeDependencies:false});assert.equal(app.publicationStatus().published,true,'calendar status remains scoped to the current week');assert.equal(app.control('#cs-changes-publish').disabled,false);assert.equal(app.control('#cs-changes-publish').textContent,'Udgiv 2 uger');
  await app.publishReviewedWeek();assert.equal(app.publications.length,1);assert.equal(app.publications[0].scope.to,'2026-11-15');assert.equal(app.reloads.length,1);assert.equal(app.root.inert,false);
 });
 test('invalid range drafts block the actual publish action and restoring the previous scope enables review again',async()=>{
  const app=application();app.openChanges();app.rangeField('preset:2').click();app.change('from','2026-12-07');assert.equal(app.control('#cs-changes-publish').disabled,true);await app.publishReviewedWeek();assert.equal(app.publications.length,0);
+ assert.match(app.control('#cs-publication-feedback').textContent,/Slutugen skal ligge efter/);
  app.change('from','2026-11-02');assert.equal(app.control('#cs-changes-publish').disabled,false,'correcting an invalid input to the exact prior valid scope must not leave publish disabled');await app.publishReviewedWeek();assert.equal(app.publications.length,1);
 });
 test('save state updates cannot reopen publication while an invalid period is still being edited',()=>{
@@ -54,7 +56,10 @@ test('save state updates cannot reopen publication while an invalid period is st
 test('a conflict in a later selected week blocks the whole publication before any server write',async()=>{
  const app=application({secondWeekConflict:true});app.openChanges();app.rangeField('preset:2').click();
  assert.equal(app.control('#cs-changes-publish').disabled,true);
- assert.match(app.control('#cs-publication-footer-note').textContent,/Ret overlap eller godkendt fravær/);
+ assert.match(app.control('#cs-publication-feedback').textContent,/Ret overlap/);
+ const details=app.control('#cs-changes-list').querySelector('details');
+ assert.equal(details.open,false);
+ assert.ok(details.querySelector('.cs-publication-conflict'),'the review links directly to an affected shift');
  await app.publishReviewedWeek();
  assert.equal(app.publications.length,0);assert.equal(app.control('#cs-changes-layer').hidden,false);
 });
@@ -72,6 +77,7 @@ test('range controls are immediately available and a delayed review never displa
  assert.equal(app.loads.length,2);
  assert.equal(app.loads[1].scope.to,'2026-11-29');
  assert.equal(app.control('#cs-changes-list').children.length,0);
+ assert.equal(app.control('#cs-publication-summary').hidden,true);
  app.loads[1].finish();
  await settle();
  assert.equal(app.control('#cs-publication-load').hidden,true);

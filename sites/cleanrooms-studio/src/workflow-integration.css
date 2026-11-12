@@ -39,9 +39,3 @@
  #cleanrooms-studio[data-page="workflow"] .cs-workflow-host{padding-right:4px}
  #cleanrooms-studio .cs-publication-weeks :is(th,td){padding:10px 6px;font-size:11px;line-height:18px}
 }
-
-/* The period is stated once; the review table gets the remaining panel space. */
-#cleanrooms-studio .cs-group-editor.cs-changes-editor{width:min(680px,100%)}
-#cleanrooms-studio #cs-changes-period{display:none}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope{padding:0;margin:0 0 20px;border:0;border-radius:0;background:transparent}
-#cleanrooms-studio .cs-changes-editor .cs-publication-scope>p{margin-bottom:0}

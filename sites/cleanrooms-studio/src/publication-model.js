@@ -7,6 +7,7 @@
   const Departments=globalThis.CleanRoomsDepartments||(typeof require==='function'?require('./department-model.js'):null);
   const Series=globalThis.CleanRoomsSeries||(typeof require==='function'?require('./series-engine.js'):null);
   const MAX_RECORDS=100,MAX_SLOTS=10000;
+  const PUBLISHED_LOCATION_FIELDS=['id','name','address','color'];
   const record=value=>Boolean(value&&typeof value==='object'&&!Array.isArray(value));
   const clone=value=>JSON.parse(JSON.stringify(value));
   const stable=value=>JSON.stringify(value===undefined?null:Array.isArray(value)?value.map(item=>JSON.parse(stable(item))):record(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,JSON.parse(stable(value[key]))])):value);
@@ -46,7 +47,7 @@
     for(const [key,slot]of Object.entries(value.slots)){
       if(!record(slot)||!validDate(slot.from)||monday(slot.from)!==slot.from||slot.to!==add(slot.from,6)||!Number.isInteger(slot.site)||slot.site<0||slot.site>=2000||key!==slotKey(slot.from,slot.site)
         ||!actorValid(slot.actor)||!timestamp(slot.at)||typeof slot.publicationId!=='string'||!record(slot.location)||slot.location.index!==slot.site
-        ||!['id','name','address','color'].every(field=>typeof slot.location[field]==='string')||!Array.isArray(slot.shifts)){errors.push('En udgivet uge eller et arbejdssted er ugyldigt.');continue;}
+        ||!PUBLISHED_LOCATION_FIELDS.every(field=>typeof slot.location[field]==='string')||!Array.isArray(slot.shifts)){errors.push('En udgivet uge eller et arbejdssted er ugyldigt.');continue;}
       for(const shift of slot.shifts){if(!validShift(shift,slot)||ids.has(shift?.id))errors.push('En udgivet vagt er ugyldig eller forekommer flere gange.');if(record(shift))ids.add(shift.id);}
     }
     for(const item of value.records){
@@ -137,7 +138,11 @@
   }
   function compareScope(studio,publications,keys){
     const before=[...keys.keys()].flatMap(key=>publications.slots[key]?.shifts||[]),after=draftFor(studio,keys),changes=Changes.diff(before,after);
-    const locations=sitesFor(studio),locationChanges=[...keys].filter(([key,slot])=>publications.slots[key]&&!same(locationDetails(publications.slots[key].location),{index:slot.site,...locationDetails(locations[slot.site])})).map(([,slot])=>({from:slot.from,site:slot.site}));
+    // Directory metadata and live worksite instructions do not change the published location.
+    const locations=sitesFor(studio),locationChanges=[...keys].filter(([key,slot])=>{
+      const previous=publications.slots[key]?.location,current=locations[slot.site];
+      return previous&&PUBLISHED_LOCATION_FIELDS.some(field=>previous[field]!==current[field]);
+    }).map(([,slot])=>({from:slot.from,site:slot.site}));
     const hasPublished=[...keys.keys()].every(key=>Boolean(publications.slots[key]));
     return {published:hasPublished&&!changes.length&&!locationChanges.length,hasPublished,changed:changes.length,changes,locationChanges,count:after.length,openCount:after.filter(shift=>!shift.person).length};
   }

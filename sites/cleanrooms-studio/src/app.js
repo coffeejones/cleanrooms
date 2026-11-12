@@ -94,6 +94,7 @@
   let publicationBusy=false,includeRelatedPublication=false,publicationSiteSelection=null,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
   let publicationCanSubmit=false,publicationRead=null,publicationBudget=null,publicationResume=null;
   let publicationSubmitError='',publicationFeedback={};
+  let publicationSiteCombo=null;
   const calendarBudgetCache=new Map();
   let calendarBudgetRequest=null,calendarBudgetError=null;
   const planningCostCache=new Map();
@@ -796,6 +797,12 @@
     }
     select.value = selection;
     select.disabled = publicationBusy || !choices.get('all').siteIds.length;
+    if(!publicationSiteCombo){
+      publicationSiteCombo=globalThis.CleanRoomsPublicationCombobox?.enhance(select, {
+        labelElement:q('#cs-publication-scope-label')
+      });
+    }
+    publicationSiteCombo?.sync();
   }
   function changePublicationSite(value) {
     if (!publicationSiteChoices().choices.get(value)?.siteIds.length) return;
@@ -3697,6 +3704,8 @@
   function closeChanges(restoreFocus = true) {
     releasePlanningHold('publication');
     const wasOpen = !q('#cs-changes-layer').hidden;
+    publicationRangeView?.close?.();
+    publicationSiteCombo?.close();
     if(wasOpen)publicationResume={
       key:publicationContextKey(),calendar:publicationCalendarContext(),departmentId:state.departmentId,site:state.site,
       range:publicationRange?{...publicationRange}:null,siteSelection:publicationSiteSelection,related:includeRelatedPublication,
@@ -3715,6 +3724,8 @@
       renderChanges();
       return;
     }
+    publicationRangeView?.close?.();
+    publicationSiteCombo?.close();
     publicationSubmitError='';publicationBusy=true;root.inert=true;updatePublicationButton();
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
@@ -3913,7 +3924,9 @@
     renderChanges();
   });
   ['#cs-changes-close','#cs-changes-backdrop','#cs-changes-cancel'].forEach(selector => q(selector).addEventListener('click',() => closeChanges()));
-  q('#cs-changes-layer').addEventListener('keydown',event => trapDialog(event,q('.cs-changes-editor'),closeChanges));
+  q('#cs-changes-layer').addEventListener('keydown',event => {
+    if(!event.defaultPrevented&&!event.isComposing)trapDialog(event,q('.cs-changes-editor'),closeChanges);
+  });
   q('#cs-changes-publish').addEventListener('click',publishReviewedWeek);
   root.addEventListener('keydown',event => { if (!event.defaultPrevented && event.key === 'Escape' && selectionMode && q('#cs-bulk-layer').hidden && q('#cs-group-layer').hidden && q('#cs-editor-layer').hidden && q('#cs-changes-layer').hidden && q('#cs-review-layer').hidden) { event.preventDefault(); clearSelection(); q('#cs-selection-toggle').focus({preventScroll:true}); } });
   root.addEventListener('keydown',event=>{if(event.key==='Escape'&&plannerDetailBusy){event.preventDefault();cancelPlannerDetails();}});

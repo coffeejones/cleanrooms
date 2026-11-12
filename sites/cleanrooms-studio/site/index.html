@@ -11775,6 +11775,174 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
 }
 
+/* The field keeps the shared form scale; the popup has its own scroll area. */
+#cleanrooms-studio .cs-publication-combobox {
+  --cs-publication-toggle-width:34px;
+  --cs-ui-field-inset-start:10px;
+  --cs-ui-field-inset-end:var(--cs-publication-toggle-width);
+  position:relative;
+  min-width:0;
+}
+#cleanrooms-studio .cs-publication-combobox-input {
+  display:block;
+  width:100%;
+  margin:0;
+  font-variant-numeric:tabular-nums;
+  text-overflow:ellipsis;
+}
+#cleanrooms-studio .cs-publication-combobox-input:focus {
+  text-overflow:clip;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle {
+  position:absolute;
+  inset-block-start:0;
+  inset-inline-end:0;
+  display:grid;
+  place-items:center;
+  width:var(--cs-publication-toggle-width);
+  height:var(--cs-ui-height,40px);
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:var(--cs-ui-radius,6px);
+  background:transparent;
+  color:var(--cs-access-muted);
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle::before {
+  content:&quot;&quot;;
+  width:7px;
+  height:7px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);
+}
+#cleanrooms-studio .cs-publication-combobox[data-open=&quot;true&quot;] .cs-publication-combobox-toggle::before {
+  transform:translateY(2px) rotate(225deg);
+}
+#cleanrooms-studio .cs-publication-combobox-toggle:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:-3px;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle:disabled {
+  cursor:default;
+}
+
+#cleanrooms-studio .cs-publication-combobox-menu {
+  max-height:16rem;
+  margin:5px 0 0;
+  padding:4px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  border:1px solid var(--cs-publication-rule,#d4dce3);
+  border-radius:8px;
+  background:var(--cs-access-surface);
+  box-shadow:0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio .cs-publication-combobox-menu[popover] {
+  position:fixed;
+  inset:auto;
+  margin:0;
+}
+#cleanrooms-studio .cs-publication-combobox-list {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+#cleanrooms-studio .cs-publication-combobox-group + .cs-publication-combobox-group {
+  margin-top:4px;
+}
+#cleanrooms-studio .cs-publication-combobox-group-label {
+  display:block;
+  margin:0;
+  padding:6px 9px 4px;
+  color:var(--cs-access-muted);
+  font-size:11px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-publication-combobox-option {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:38px;
+  padding:7px 9px;
+  border-radius:5px;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  line-height:18px;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-combobox-option-copy {
+  display:grid;
+  gap:2px;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-combobox-option-meta {
+  color:var(--cs-access-muted);
+  font-size:11px;
+  font-weight:400;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-selected=&quot;true&quot;] {
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-combobox-option::after {
+  content:&quot;&quot;;
+  flex:none;
+  width:5px;
+  height:9px;
+  margin-inline:3px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:translateY(-1px) rotate(45deg);
+  visibility:hidden;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-selected=&quot;true&quot;]::after {
+  visibility:visible;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-disabled=&quot;true&quot;] {
+  color:var(--cs-access-disabled);
+  cursor:default;
+}
+@media (hover:hover) {
+  #cleanrooms-studio .cs-publication-combobox-option:not([aria-disabled=&quot;true&quot;],[data-active=&quot;true&quot;]):hover {
+    background:var(--cs-access-soft);
+  }
+}
+#cleanrooms-studio .cs-publication-combobox-option[data-active=&quot;true&quot;] {
+  background:var(--cs-compass-selected,#edf1f4);
+}
+#cleanrooms-studio .cs-publication-combobox-empty {
+  margin:0;
+  padding:10px 9px;
+  color:var(--cs-access-muted);
+  font-size:13px;
+  line-height:19px;
+  overflow-wrap:anywhere;
+}
+
+@media (max-width:600px),(pointer:coarse) {
+  #cleanrooms-studio .cs-publication-combobox {
+    --cs-ui-height:44px;
+    --cs-ui-field-font:16px;
+  }
+  #cleanrooms-studio .cs-publication-combobox-option {
+    min-height:44px;
+  }
+}
+@media (forced-colors:active) {
+  #cleanrooms-studio .cs-publication-combobox-option[data-active=&quot;true&quot;] {
+    outline:1px solid Highlight;
+    outline-offset:-1px;
+  }
+}
+
 /* The personal workspace follows the same materials as the planner. */
 #cleanrooms-studio[data-role=&quot;employee&quot;] #cs-employee-root {
   background:var(--cs-access-surface);
@@ -13310,7 +13478,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         &lt;div class=&quot;cs-publication-setup&quot;&gt;
           &lt;div id=&quot;cs-publication-range-slot&quot;&gt;&lt;/div&gt;
           &lt;div class=&quot;cs-publication-scope&quot;&gt;
-            &lt;label for=&quot;cs-publication-scope-select&quot;&gt;Vælg arbejdssted&lt;/label&gt;
+            &lt;label id=&quot;cs-publication-scope-label&quot; for=&quot;cs-publication-scope-select&quot;&gt;Vælg arbejdssted&lt;/label&gt;
             &lt;select id=&quot;cs-publication-scope-select&quot;&gt;&lt;/select&gt;
           &lt;/div&gt;
         &lt;/div&gt;
@@ -23372,12 +23540,361 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   globalThis.CleanRoomsShiftWorkflowView=api;
 })();
 
+/* Search and choose a value from an existing publication select. */
+(() =&gt; {
+  &#x27;use strict&#x27;;
+
+  let nextId = 0;
+  const fold = text =&gt; String(text).toLocaleLowerCase(&#x27;da-DK&#x27;)
+    .normalize(&#x27;NFD&#x27;).replace(/\p{Diacritic}/gu, &#x27;&#x27;).replaceAll(&#x27;ø&#x27;, &#x27;o&#x27;).replaceAll(&#x27;æ&#x27;, &#x27;ae&#x27;);
+
+  function enhance(select, {label, labelElement, describeOption} = {}) {
+    const doc = select.ownerDocument;
+    const win = doc.defaultView;
+    const prefix = &#x27;cs-publication-combobox-&#x27; + ++nextId;
+    const node = (tag, name, text) =&gt; {
+      const element = doc.createElement(tag);
+      element.className = &#x27;cs-publication-combobox&#x27; + (name ? &#x27;-&#x27; + name : &#x27;&#x27;);
+      if (text !== undefined) element.textContent = text;
+      return element;
+    };
+    const wrapper = node(&#x27;div&#x27;, &#x27;&#x27;);
+    const input = node(&#x27;input&#x27;, &#x27;input&#x27;);
+    const toggle = node(&#x27;button&#x27;, &#x27;toggle&#x27;);
+    const menu = node(&#x27;div&#x27;, &#x27;menu&#x27;);
+    const list = node(&#x27;div&#x27;, &#x27;list&#x27;);
+    const empty = node(&#x27;p&#x27;, &#x27;empty&#x27;, &#x27;Ingen resultater&#x27;);
+    const name = label || select.getAttribute(&#x27;aria-label&#x27;) || labelElement?.textContent || &#x27;Vælg&#x27;;
+    const scrollArea = select.closest(&#x27;.cs-group-fields&#x27;);
+    const wasHidden = select.hidden;
+    const labelFor = labelElement?.getAttribute(&#x27;for&#x27;);
+    const canFloat = typeof menu.showPopover === &#x27;function&#x27;;
+    let open = false;
+    let disposed = false;
+    let query = &#x27;&#x27;;
+    let rows = [];
+    let active = -1;
+
+    input.id = prefix;
+    input.type = &#x27;text&#x27;;
+    input.autocomplete = &#x27;off&#x27;;
+    input.autocapitalize = &#x27;none&#x27;;
+    input.spellcheck = false;
+    input.placeholder = name;
+    input.setAttribute(&#x27;role&#x27;, &#x27;combobox&#x27;);
+    input.setAttribute(&#x27;aria-label&#x27;, name);
+    input.setAttribute(&#x27;aria-autocomplete&#x27;, &#x27;list&#x27;);
+    input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+    input.setAttribute(&#x27;aria-controls&#x27;, prefix + &#x27;-list&#x27;);
+    toggle.type = &#x27;button&#x27;;
+    toggle.tabIndex = -1;
+    toggle.setAttribute(&#x27;aria-label&#x27;, &#x27;Vis valgmuligheder for &#x27; + name.toLocaleLowerCase(&#x27;da-DK&#x27;));
+    toggle.setAttribute(&#x27;aria-controls&#x27;, prefix + &#x27;-list&#x27;);
+    toggle.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+    list.id = prefix + &#x27;-list&#x27;;
+    list.setAttribute(&#x27;role&#x27;, &#x27;listbox&#x27;);
+    list.setAttribute(&#x27;aria-label&#x27;, name);
+    empty.setAttribute(&#x27;role&#x27;, &#x27;status&#x27;);
+    menu.hidden = empty.hidden = true;
+    if (canFloat) menu.setAttribute(&#x27;popover&#x27;, &#x27;manual&#x27;);
+    menu.append(list, empty);
+    wrapper.append(input, toggle, menu);
+    select.after(wrapper);
+    select.hidden = true;
+    labelElement?.setAttribute(&#x27;for&#x27;, input.id);
+
+    function selectedOption() {
+      return select.selectedOptions[0];
+    }
+
+    function resetInput() {
+      const selected = selectedOption();
+      input.value = selected?.value ? selected.label : &#x27;&#x27;;
+    }
+
+    function positionMenu() {
+      if (!open || !menu.hasAttribute(&#x27;popover&#x27;)) return;
+      const viewport = win.visualViewport;
+      const left = viewport?.offsetLeft ?? 0;
+      const top = viewport?.offsetTop ?? 0;
+      const width = viewport?.width ?? win.innerWidth;
+      const height = viewport?.height ?? win.innerHeight;
+      const rect = input.getBoundingClientRect();
+      const inset = 8;
+      const gap = 5;
+      const menuWidth = Math.max(0, Math.min(Math.max(rect.width, describeOption ? 228 : 176), width - inset * 2));
+      const below = top + height - rect.bottom - gap - inset;
+      const above = rect.top - top - gap - inset;
+      const flip = below &lt; 188 &amp;&amp; above &gt; below;
+      const clamp = (value, min, max) =&gt; Math.min(Math.max(value, min), max);
+      menu.style.width = menuWidth + &#x27;px&#x27;;
+      menu.style.left = clamp(rect.left, left + inset, left + width - inset - menuWidth) + &#x27;px&#x27;;
+      menu.style.top = flip ? &#x27;auto&#x27; : clamp(rect.bottom + gap, top + inset, top + height - inset) + &#x27;px&#x27;;
+      menu.style.bottom = flip ? win.innerHeight - clamp(rect.top - gap, top + inset, top + height - inset) + &#x27;px&#x27; : &#x27;auto&#x27;;
+      menu.style.maxHeight = Math.max(0, Math.min(288, flip ? above : below)) + &#x27;px&#x27;;
+    }
+
+    function reveal(row, center) {
+      if (!row) return;
+      const bounds = menu.getBoundingClientRect();
+      const target = row.getBoundingClientRect();
+      if (center) menu.scrollTop += target.top - bounds.top - (bounds.height - target.height) / 2;
+      else if (target.top &lt; bounds.top) menu.scrollTop -= bounds.top - target.top;
+      else if (target.bottom &gt; bounds.bottom) menu.scrollTop += target.bottom - bounds.bottom;
+    }
+
+    function highlight(index, center = false) {
+      rows[active]?.element.removeAttribute(&#x27;data-active&#x27;);
+      active = index;
+      const row = rows[index]?.element;
+      if (!row) {
+        input.removeAttribute(&#x27;aria-activedescendant&#x27;);
+        return;
+      }
+      row.dataset.active = &#x27;true&#x27;;
+      input.setAttribute(&#x27;aria-activedescendant&#x27;, row.id);
+      reveal(row, center);
+    }
+
+    function renderOptions(preferredValue, center = false) {
+      const words = fold(query).trim().split(/\s+/).filter(Boolean);
+      const groups = new Map();
+      const elements = [];
+      rows = [];
+      active = -1;
+      for (const option of select.options) {
+        const group = option.parentElement;
+        const grouped = group?.tagName === &#x27;OPTGROUP&#x27;;
+        if (option.disabled || option.hidden || (grouped &amp;&amp; (group.disabled || group.hidden))) continue;
+        const groupLabel = grouped ? group.label : &#x27;&#x27;;
+        const meta = describeOption?.(option);
+        const labelText = fold(option.label + &#x27; &#x27; + groupLabel);
+        const searchable = labelText + (meta ? &#x27; &#x27; + fold(meta) : &#x27;&#x27;);
+        if (!words.every(word =&gt; searchable.includes(word))) continue;
+
+        const row = node(&#x27;div&#x27;, &#x27;option&#x27;);
+        const copy = node(&#x27;span&#x27;, &#x27;option-copy&#x27;);
+        copy.append(node(&#x27;span&#x27;, &#x27;option-label&#x27;, option.label));
+        if (meta) copy.append(node(&#x27;span&#x27;, &#x27;option-meta&#x27;, meta));
+        row.id = prefix + &#x27;-option-&#x27; + rows.length;
+        row.setAttribute(&#x27;role&#x27;, &#x27;option&#x27;);
+        row.setAttribute(&#x27;aria-selected&#x27;, String(option.selected));
+        row.append(copy);
+        row.addEventListener(&#x27;click&#x27;, () =&gt; choose(option));
+        const labelWords = labelText.match(/[\p{L}\p{N}]+/gu) || [];
+        const exactMatch = words.length &gt; 0 &amp;&amp; words.every(word =&gt; labelWords.includes(word));
+        rows.push({element: row, option, exactMatch});
+
+        if (grouped) {
+          if (!groups.has(group)) {
+            const container = node(&#x27;div&#x27;, &#x27;group&#x27;);
+            const heading = node(&#x27;div&#x27;, &#x27;group-label&#x27;, groupLabel);
+            heading.id = prefix + &#x27;-group-&#x27; + groups.size;
+            container.setAttribute(&#x27;role&#x27;, &#x27;group&#x27;);
+            container.setAttribute(&#x27;aria-labelledby&#x27;, heading.id);
+            container.append(heading);
+            groups.set(group, container);
+            elements.push(container);
+          }
+          groups.get(group).append(row);
+        } else {
+          elements.push(row);
+        }
+      }
+      list.replaceChildren(...elements);
+      empty.hidden = Boolean(rows.length);
+      positionMenu();
+      const group = selectedOption()?.parentElement;
+      const sameGroup = item =&gt; item.option.parentElement === group;
+      const bestMatch = [
+        rows.findIndex(item =&gt; item.option.value === preferredValue),
+        rows.findIndex(item =&gt; item.exactMatch &amp;&amp; sameGroup(item)),
+        rows.findIndex(item =&gt; item.exactMatch),
+        rows.findIndex(item =&gt; item.option.value === select.value),
+        rows.findIndex(sameGroup)
+      ].find(index =&gt; index &gt;= 0);
+      highlight(bestMatch ?? (rows.length ? 0 : -1), center);
+    }
+
+    function outside(event) {
+      if (!wrapper.contains(event.target)) close();
+    }
+
+    function reposition(event) {
+      if (event.target?.nodeType &amp;&amp; menu.contains(event.target)) return;
+      if (scrollArea &amp;&amp; event.target === scrollArea) {
+        const field = input.getBoundingClientRect();
+        const bounds = scrollArea.getBoundingClientRect();
+        if (field.bottom &lt;= bounds.top || field.top &gt;= bounds.bottom) {
+          close();
+          return;
+        }
+      }
+      positionMenu();
+    }
+
+    function watchMenu(listen) {
+      const method = listen ? &#x27;addEventListener&#x27; : &#x27;removeEventListener&#x27;;
+      doc[method](&#x27;pointerdown&#x27;, outside, true);
+      doc[method](&#x27;focusin&#x27;, outside, true);
+      win[method](&#x27;resize&#x27;, reposition);
+      win[method](&#x27;scroll&#x27;, reposition, true);
+      win.visualViewport?.[method](&#x27;resize&#x27;, positionMenu);
+      win.visualViewport?.[method](&#x27;scroll&#x27;, positionMenu);
+    }
+
+    function openMenu(term = &#x27;&#x27;) {
+      if (open || disposed || input.disabled) return;
+      open = true;
+      query = term;
+      menu.hidden = false;
+      wrapper.dataset.open = &#x27;true&#x27;;
+      input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;true&#x27;);
+      toggle.setAttribute(&#x27;aria-expanded&#x27;, &#x27;true&#x27;);
+      if (menu.hasAttribute(&#x27;popover&#x27;)) {
+        try {
+          menu.showPopover();
+        } catch {
+          menu.removeAttribute(&#x27;popover&#x27;);
+        }
+      }
+      watchMenu(true);
+      renderOptions(undefined, true);
+    }
+
+    function close() {
+      if (!open) return;
+      open = false;
+      query = &#x27;&#x27;;
+      watchMenu(false);
+      if (menu.hasAttribute(&#x27;popover&#x27;)) menu.hidePopover();
+      menu.hidden = true;
+      wrapper.removeAttribute(&#x27;data-open&#x27;);
+      input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+      toggle.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+      input.removeAttribute(&#x27;aria-activedescendant&#x27;);
+      list.replaceChildren();
+      rows = [];
+      active = -1;
+      resetInput();
+    }
+
+    function choose(option) {
+      if (!open || select.disabled || option.disabled || option.parentElement?.disabled || !select.contains(option)) return;
+      close();
+      input.focus({preventScroll: true});
+      if (select.value !== option.value) {
+        select.value = option.value;
+        select.dispatchEvent(new win.Event(&#x27;change&#x27;, {bubbles: true}));
+      }
+      sync();
+    }
+
+    function sync() {
+      if (disposed) return;
+      input.disabled = toggle.disabled = select.disabled;
+      for (const attribute of [&#x27;aria-invalid&#x27;, &#x27;aria-describedby&#x27;]) {
+        const value = select.getAttribute(attribute);
+        if (value === null) input.removeAttribute(attribute);
+        else input.setAttribute(attribute, value);
+      }
+      if (input.disabled) close();
+      if (open) renderOptions(rows[active]?.option.value);
+      else resetInput();
+    }
+
+    function focus({open: showMenu = false} = {}) {
+      if (disposed || input.disabled) return;
+      input.focus();
+      if (showMenu &amp;&amp; !open) {
+        input.select();
+        openMenu();
+      }
+    }
+
+    function changeQuery(event) {
+      if (event.isComposing) return;
+      if (!open) openMenu(input.value);
+      else {
+        query = input.value;
+        menu.scrollTop = 0;
+        renderOptions();
+      }
+    }
+
+    input.addEventListener(&#x27;focus&#x27;, () =&gt; { if (!open) input.select(); });
+    input.addEventListener(&#x27;click&#x27;, () =&gt; {
+      if (open) return;
+      input.select();
+      openMenu();
+    });
+    input.addEventListener(&#x27;input&#x27;, changeQuery);
+    input.addEventListener(&#x27;compositionend&#x27;, changeQuery);
+    input.addEventListener(&#x27;blur&#x27;, event =&gt; {
+      if (event.relatedTarget &amp;&amp; !wrapper.contains(event.relatedTarget)) close();
+    });
+    input.addEventListener(&#x27;keydown&#x27;, event =&gt; {
+      if (event.isComposing) return;
+      switch (event.key) {
+        case &#x27;Escape&#x27;:
+          if (!open) return;
+          event.preventDefault();
+          close();
+          input.select();
+          break;
+        case &#x27;Tab&#x27;:
+          close();
+          break;
+        case &#x27;ArrowDown&#x27;:
+        case &#x27;ArrowUp&#x27;:
+          event.preventDefault();
+          if (!open) openMenu();
+          else if (rows.length) highlight(Math.min(rows.length - 1, Math.max(0, active + (event.key === &#x27;ArrowDown&#x27; ? 1 : -1))));
+          break;
+        case &#x27;Enter&#x27;:
+          event.preventDefault();
+          if (!open) openMenu();
+          else if (rows[active]) choose(rows[active].option);
+          break;
+      }
+    });
+    // Keep focus on the text input when selecting an option with a pointer.
+    toggle.addEventListener(&#x27;mousedown&#x27;, event =&gt; event.preventDefault());
+    menu.addEventListener(&#x27;mousedown&#x27;, event =&gt; event.preventDefault());
+    toggle.addEventListener(&#x27;click&#x27;, () =&gt; {
+      if (open) close();
+      else focus({open: true});
+    });
+
+    sync();
+    return {
+      sync, focus, close,
+      dispose() {
+        if (disposed) return;
+        close();
+        disposed = true;
+        wrapper.remove();
+        select.hidden = wasHidden;
+        if (labelFor != null) labelElement.setAttribute(&#x27;for&#x27;, labelFor);
+        else labelElement?.removeAttribute(&#x27;for&#x27;);
+      }
+    };
+  }
+
+  const api = Object.freeze({enhance});
+  globalThis.CleanRoomsPublicationCombobox = api;
+  if (typeof module !== &#x27;undefined&#x27; &amp;&amp; module.exports) module.exports = api;
+})();
+
 /* Whole-week publication ranges, shared by the dialog and its review summary. */
 (() =&gt; {
   &#x27;use strict&#x27;;
   const DAY=86400000,MAX_WEEKS=52,DEFAULT_MIN=&#x27;2000-01-01&#x27;,DEFAULT_MAX=&#x27;2100-12-31&#x27;;
   const dateRangeFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, {
     day:&#x27;numeric&#x27;, month:&#x27;long&#x27;, year:&#x27;numeric&#x27;, timeZone:&#x27;UTC&#x27;
+  });
+  const weekOptionFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, {
+    day:&#x27;numeric&#x27;, month:&#x27;short&#x27;, timeZone:&#x27;UTC&#x27;
   });
   const date=value=&gt;new Date(value+&#x27;T12:00:00Z&#x27;);
   const validDate=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;/^\d{4}-\d{2}-\d{2}$/.test(value)&amp;&amp;Number.isFinite(date(value).getTime())&amp;&amp;date(value).toISOString().slice(0,10)===value;
@@ -23447,17 +23964,33 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const week = select(&#x27;week&#x27;, &#x27;Startuge&#x27;);
     const duration = select(&#x27;duration&#x27;, &#x27;Antal uger&#x27;);
     const year = select(&#x27;year&#x27;, &#x27;År for startuge&#x27;);
-    const yearField = node(&#x27;label&#x27;, &#x27;cs-publication-range-year&#x27;);
+    const yearField = node(&#x27;div&#x27;, &#x27;cs-publication-range-year&#x27;);
     yearField.append(node(&#x27;span&#x27;, &#x27;&#x27;, &#x27;År&#x27;), year);
     yearField.hidden = true;
     const status = node(&#x27;p&#x27;, &#x27;cs-publication-range-summary&#x27;);
+    status.id = &#x27;cs-publication-range-dates&#x27;;
     status.setAttribute(&#x27;aria-live&#x27;, &#x27;polite&#x27;);
+    week.setAttribute(&#x27;aria-describedby&#x27;, status.id);
+    duration.setAttribute(&#x27;aria-describedby&#x27;, status.id);
     const error = node(&#x27;p&#x27;, &#x27;cs-publication-range-error&#x27;);
     error.setAttribute(&#x27;role&#x27;, &#x27;alert&#x27;);
     error.hidden = true;
     fields.append(week, duration);
     root.append(heading, fields, status, yearField, error);
     element.replaceChildren(root);
+    const combobox = globalThis.CleanRoomsPublicationCombobox;
+    const weekCombo = combobox?.enhance(week, {
+      describeOption: item =&gt; validDate(item.value)
+        ? weekOptionFormat.formatRange(date(item.value), date(addDays(item.value, 6)))
+        : &#x27;&#x27;
+    });
+    const durationCombo = combobox?.enhance(duration);
+    const yearCombo = combobox?.enhance(year);
+    const combos = [weekCombo, durationCombo, yearCombo];
+    function focusWeekField(control, combo) {
+      if(combo)combo.focus({open:true});
+      else control.focus?.({preventScroll:true});
+    }
 
     const durations = Array.from({length:MAX_WEEKS}, (_, index) =&gt; {
       const count = index + 1;
@@ -23547,6 +24080,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       status.hidden = !valid || !value;
       const text = status.hidden ? &#x27;&#x27; : dateRangeFormat.formatRange(date(value.from), date(value.to));
       if(status.textContent !== text)status.textContent = text;
+      for(const combo of combos)combo?.sync();
     }
 
     function commit(source) {
@@ -23574,7 +24108,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(week.value === &#x27;other-year&#x27;) {
         choosingYear = true;
         sync();
-        year.focus?.({preventScroll:true});
+        focusWeekField(year, yearCombo);
         return;
       }
       draftFrom = week.value;
@@ -23597,7 +24131,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       draftFrom = &#x27;&#x27;;
       awaitingWeek = true;
       commit(&#x27;year&#x27;);
-      week.focus?.({preventScroll:true});
+      focusWeekField(week, weekCombo);
     });
 
     function render(next={}) {
@@ -23625,7 +24159,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }
       sync();
     }
-    return {render,dispose(){disposed=true;element.replaceChildren();},get value(){return value?{...value}:null;},get valid(){return valid;}};
+    return {
+      render,
+      close(){for(const combo of combos)combo?.close();},
+      dispose(){disposed=true;for(const combo of combos)combo?.dispose();element.replaceChildren();},
+      get value(){return value?{...value}:null;},
+      get valid(){return valid;}
+    };
   }
   const api=Object.freeze({MAX_WEEKS,validDate,addDays,normalize,countWeeks,weekNumber,summary,overview,mount});
   globalThis.CleanRoomsPublicationRange=api;
@@ -24561,6 +25101,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   let publicationBusy=false,includeRelatedPublication=false,publicationSiteSelection=null,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
   let publicationCanSubmit=false,publicationRead=null,publicationBudget=null,publicationResume=null;
   let publicationSubmitError=&#x27;&#x27;,publicationFeedback={};
+  let publicationSiteCombo=null;
   const calendarBudgetCache=new Map();
   let calendarBudgetRequest=null,calendarBudgetError=null;
   const planningCostCache=new Map();
@@ -25263,6 +25804,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     select.value = selection;
     select.disabled = publicationBusy || !choices.get(&#x27;all&#x27;).siteIds.length;
+    if(!publicationSiteCombo){
+      publicationSiteCombo=globalThis.CleanRoomsPublicationCombobox?.enhance(select, {
+        labelElement:q(&#x27;#cs-publication-scope-label&#x27;)
+      });
+    }
+    publicationSiteCombo?.sync();
   }
   function changePublicationSite(value) {
     if (!publicationSiteChoices().choices.get(value)?.siteIds.length) return;
@@ -28164,6 +28711,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function closeChanges(restoreFocus = true) {
     releasePlanningHold(&#x27;publication&#x27;);
     const wasOpen = !q(&#x27;#cs-changes-layer&#x27;).hidden;
+    publicationRangeView?.close?.();
+    publicationSiteCombo?.close();
     if(wasOpen)publicationResume={
       key:publicationContextKey(),calendar:publicationCalendarContext(),departmentId:state.departmentId,site:state.site,
       range:publicationRange?{...publicationRange}:null,siteSelection:publicationSiteSelection,related:includeRelatedPublication,
@@ -28182,6 +28731,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       renderChanges();
       return;
     }
+    publicationRangeView?.close?.();
+    publicationSiteCombo?.close();
     publicationSubmitError=&#x27;&#x27;;publicationBusy=true;root.inert=true;updatePublicationButton();
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
@@ -28380,7 +28931,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     renderChanges();
   });
   [&#x27;#cs-changes-close&#x27;,&#x27;#cs-changes-backdrop&#x27;,&#x27;#cs-changes-cancel&#x27;].forEach(selector =&gt; q(selector).addEventListener(&#x27;click&#x27;,() =&gt; closeChanges()));
-  q(&#x27;#cs-changes-layer&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; trapDialog(event,q(&#x27;.cs-changes-editor&#x27;),closeChanges));
+  q(&#x27;#cs-changes-layer&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; {
+    if(!event.defaultPrevented&amp;&amp;!event.isComposing)trapDialog(event,q(&#x27;.cs-changes-editor&#x27;),closeChanges);
+  });
   q(&#x27;#cs-changes-publish&#x27;).addEventListener(&#x27;click&#x27;,publishReviewedWeek);
   root.addEventListener(&#x27;keydown&#x27;,event =&gt; { if (!event.defaultPrevented &amp;&amp; event.key === &#x27;Escape&#x27; &amp;&amp; selectionMode &amp;&amp; q(&#x27;#cs-bulk-layer&#x27;).hidden &amp;&amp; q(&#x27;#cs-group-layer&#x27;).hidden &amp;&amp; q(&#x27;#cs-editor-layer&#x27;).hidden &amp;&amp; q(&#x27;#cs-changes-layer&#x27;).hidden &amp;&amp; q(&#x27;#cs-review-layer&#x27;).hidden) { event.preventDefault(); clearSelection(); q(&#x27;#cs-selection-toggle&#x27;).focus({preventScroll:true}); } });
   root.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;&amp;&amp;plannerDetailBusy){event.preventDefault();cancelPlannerDetails();}});
@@ -28481,6 +29034,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
 
 
 

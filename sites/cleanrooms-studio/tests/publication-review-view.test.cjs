@@ -46,12 +46,34 @@ test('filters and search on larger lists find both former and new assignees or w
  await sample.input('Emma Nielsen');assert.equal(sample.rows().length,1);await sample.input('Klinikken');assert.equal(sample.rows().length,1);await sample.input('Ingen');assert.equal(sample.rows().length,0);assert.match(sample.host.textContent,/Ingen ændringer matcher/);
  await sample.input('');await sample.key('filter:removed').click();assert.equal(sample.rows().length,1);assert.match(sample.rows()[0].textContent,/Aflyst/);assert.equal(sample.rows()[0].textContent.includes('→'),false);
 });
-test('long publication ranges use twenty rows per page without hiding cancellation filters',async()=>{
- const records=[...newShifts(46),change({id:'gone',type:'removed',before:shift({id:'gone'}),after:null})],sample=fixture(records);
+test('53 changes paginate in groups of twenty and search and filters cover every page',async()=>{
+ const cancellation=change({id:'gone',type:'removed',before:shift({id:'gone',site:1,date:'2026-11-04'}),after:null});
+ const sample=fixture([...newShifts(52),cancellation]);
+ const pageLabel=()=>sample.byClass('cs-publication-review-muted')?.textContent;
  assert.equal(sample.key('filter:changed'),undefined);
- assert.equal(sample.rows().length,20);assert.equal(sample.key('page:previous').disabled,true);await sample.key('page:next').click();assert.equal(sample.rows().length,20);await sample.key('page:next').click();assert.equal(sample.rows().length,7);assert.equal(sample.key('page:next').disabled,true);
+ assert.equal(sample.rows().length,20);
+ assert.equal(pageLabel(),'1–20 af 53');
+ assert.equal(sample.key('page:previous').disabled,true);
+ assert.equal(sample.key('change:gone'),undefined);
+ await sample.key('page:next').click();
+ assert.equal(sample.rows().length,20);
+ assert.equal(pageLabel(),'21–40 af 53');
+ await sample.key('page:next').click();
+ assert.equal(sample.rows().length,13);
+ assert.equal(pageLabel(),'41–53 af 53');
+ assert.equal(sample.rows().at(-1).dataset.changeId,'gone');
+ assert.equal(sample.key('page:next').disabled,true);
  assert.equal(sample.doc.activeElement.dataset.publicationReviewFocus,'page:previous');
- await sample.key('filter:removed').click();assert.equal(sample.rows().length,1);assert.equal(sample.rows()[0].dataset.changeId,'gone');assert.equal(sample.key('page:next'),undefined);
+ await sample.key('page:previous').click();
+ await sample.key('page:previous').click();
+ await sample.input('Klinikken');
+ assert.deepEqual(sample.rows().map(row=>row.dataset.changeId),['gone']);
+ assert.equal(pageLabel(),undefined);
+ await sample.input('');
+ assert.equal(pageLabel(),'1–20 af 53');
+ await sample.key('filter:removed').click();
+ assert.deepEqual(sample.rows().map(row=>row.dataset.changeId),['gone']);
+ assert.equal(sample.key('page:next'),undefined);
 });
 test('focused comparisons contain only changed rows and preserve list focus on return',async()=>{
  const entry=change(),sample=fixture([entry]);await sample.key('change:shift-a').click();assert.equal(sample.doc.activeElement.dataset.publicationReviewFocus,'back');

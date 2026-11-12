@@ -1,0 +1,167 @@
+/* The field keeps the shared form scale; the popup has its own scroll area. */
+#cleanrooms-studio .cs-publication-combobox {
+  --cs-publication-toggle-width:34px;
+  --cs-ui-field-inset-start:10px;
+  --cs-ui-field-inset-end:var(--cs-publication-toggle-width);
+  position:relative;
+  min-width:0;
+}
+#cleanrooms-studio .cs-publication-combobox-input {
+  display:block;
+  width:100%;
+  margin:0;
+  font-variant-numeric:tabular-nums;
+  text-overflow:ellipsis;
+}
+#cleanrooms-studio .cs-publication-combobox-input:focus {
+  text-overflow:clip;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle {
+  position:absolute;
+  inset-block-start:0;
+  inset-inline-end:0;
+  display:grid;
+  place-items:center;
+  width:var(--cs-publication-toggle-width);
+  height:var(--cs-ui-height,40px);
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:var(--cs-ui-radius,6px);
+  background:transparent;
+  color:var(--cs-access-muted);
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle::before {
+  content:"";
+  width:7px;
+  height:7px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);
+}
+#cleanrooms-studio .cs-publication-combobox[data-open="true"] .cs-publication-combobox-toggle::before {
+  transform:translateY(2px) rotate(225deg);
+}
+#cleanrooms-studio .cs-publication-combobox-toggle:focus-visible {
+  outline:2px solid var(--cs-access-blue);
+  outline-offset:-3px;
+}
+#cleanrooms-studio .cs-publication-combobox-toggle:disabled {
+  cursor:default;
+}
+
+#cleanrooms-studio .cs-publication-combobox-menu {
+  max-height:16rem;
+  margin:5px 0 0;
+  padding:4px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  border:1px solid var(--cs-publication-rule,#d4dce3);
+  border-radius:8px;
+  background:var(--cs-access-surface);
+  box-shadow:0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio .cs-publication-combobox-menu[popover] {
+  position:fixed;
+  inset:auto;
+  margin:0;
+}
+#cleanrooms-studio .cs-publication-combobox-list {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+#cleanrooms-studio .cs-publication-combobox-group + .cs-publication-combobox-group {
+  margin-top:4px;
+}
+#cleanrooms-studio .cs-publication-combobox-group-label {
+  display:block;
+  margin:0;
+  padding:6px 9px 4px;
+  color:var(--cs-access-muted);
+  font-size:11px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-publication-combobox-option {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:38px;
+  padding:7px 9px;
+  border-radius:5px;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  line-height:18px;
+  cursor:pointer;
+}
+#cleanrooms-studio .cs-publication-combobox-option-copy {
+  display:grid;
+  gap:2px;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-publication-combobox-option-meta {
+  color:var(--cs-access-muted);
+  font-size:11px;
+  font-weight:400;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-selected="true"] {
+  font-weight:600;
+}
+#cleanrooms-studio .cs-publication-combobox-option::after {
+  content:"";
+  flex:none;
+  width:5px;
+  height:9px;
+  margin-inline:3px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:translateY(-1px) rotate(45deg);
+  visibility:hidden;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-selected="true"]::after {
+  visibility:visible;
+}
+#cleanrooms-studio .cs-publication-combobox-option[aria-disabled="true"] {
+  color:var(--cs-access-disabled);
+  cursor:default;
+}
+@media (hover:hover) {
+  #cleanrooms-studio .cs-publication-combobox-option:not([aria-disabled="true"],[data-active="true"]):hover {
+    background:var(--cs-access-soft);
+  }
+}
+#cleanrooms-studio .cs-publication-combobox-option[data-active="true"] {
+  background:var(--cs-compass-selected,#edf1f4);
+}
+#cleanrooms-studio .cs-publication-combobox-empty {
+  margin:0;
+  padding:10px 9px;
+  color:var(--cs-access-muted);
+  font-size:13px;
+  line-height:19px;
+  overflow-wrap:anywhere;
+}
+
+@media (max-width:600px),(pointer:coarse) {
+  #cleanrooms-studio .cs-publication-combobox {
+    --cs-ui-height:44px;
+    --cs-ui-field-font:16px;
+  }
+  #cleanrooms-studio .cs-publication-combobox-option {
+    min-height:44px;
+  }
+}
+@media (forced-colors:active) {
+  #cleanrooms-studio .cs-publication-combobox-option[data-active="true"] {
+    outline:1px solid Highlight;
+    outline-offset:-1px;
+  }
+}

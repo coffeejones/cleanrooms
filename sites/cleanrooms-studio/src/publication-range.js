@@ -5,6 +5,9 @@
   const dateRangeFormat = new Intl.DateTimeFormat('da-DK', {
     day:'numeric', month:'long', year:'numeric', timeZone:'UTC'
   });
+  const weekOptionFormat = new Intl.DateTimeFormat('da-DK', {
+    day:'numeric', month:'short', timeZone:'UTC'
+  });
   const date=value=>new Date(value+'T12:00:00Z');
   const validDate=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(date(value).getTime())&&date(value).toISOString().slice(0,10)===value;
   const addDays=(value,days)=>{if(!validDate(value)||!Number.isSafeInteger(days))throw new TypeError('Datoen er ugyldig.');const result=date(value);result.setUTCDate(result.getUTCDate()+days);return result.toISOString().slice(0,10);};
@@ -73,17 +76,33 @@
     const week = select('week', 'Startuge');
     const duration = select('duration', 'Antal uger');
     const year = select('year', 'År for startuge');
-    const yearField = node('label', 'cs-publication-range-year');
+    const yearField = node('div', 'cs-publication-range-year');
     yearField.append(node('span', '', 'År'), year);
     yearField.hidden = true;
     const status = node('p', 'cs-publication-range-summary');
+    status.id = 'cs-publication-range-dates';
     status.setAttribute('aria-live', 'polite');
+    week.setAttribute('aria-describedby', status.id);
+    duration.setAttribute('aria-describedby', status.id);
     const error = node('p', 'cs-publication-range-error');
     error.setAttribute('role', 'alert');
     error.hidden = true;
     fields.append(week, duration);
     root.append(heading, fields, status, yearField, error);
     element.replaceChildren(root);
+    const combobox = globalThis.CleanRoomsPublicationCombobox;
+    const weekCombo = combobox?.enhance(week, {
+      describeOption: item => validDate(item.value)
+        ? weekOptionFormat.formatRange(date(item.value), date(addDays(item.value, 6)))
+        : ''
+    });
+    const durationCombo = combobox?.enhance(duration);
+    const yearCombo = combobox?.enhance(year);
+    const combos = [weekCombo, durationCombo, yearCombo];
+    function focusWeekField(control, combo) {
+      if(combo)combo.focus({open:true});
+      else control.focus?.({preventScroll:true});
+    }
 
     const durations = Array.from({length:MAX_WEEKS}, (_, index) => {
       const count = index + 1;
@@ -173,6 +192,7 @@
       status.hidden = !valid || !value;
       const text = status.hidden ? '' : dateRangeFormat.formatRange(date(value.from), date(value.to));
       if(status.textContent !== text)status.textContent = text;
+      for(const combo of combos)combo?.sync();
     }
 
     function commit(source) {
@@ -200,7 +220,7 @@
       if(week.value === 'other-year') {
         choosingYear = true;
         sync();
-        year.focus?.({preventScroll:true});
+        focusWeekField(year, yearCombo);
         return;
       }
       draftFrom = week.value;
@@ -223,7 +243,7 @@
       draftFrom = '';
       awaitingWeek = true;
       commit('year');
-      week.focus?.({preventScroll:true});
+      focusWeekField(week, weekCombo);
     });
 
     function render(next={}) {
@@ -251,7 +271,13 @@
       }
       sync();
     }
-    return {render,dispose(){disposed=true;element.replaceChildren();},get value(){return value?{...value}:null;},get valid(){return valid;}};
+    return {
+      render,
+      close(){for(const combo of combos)combo?.close();},
+      dispose(){disposed=true;for(const combo of combos)combo?.dispose();element.replaceChildren();},
+      get value(){return value?{...value}:null;},
+      get valid(){return valid;}
+    };
   }
   const api=Object.freeze({MAX_WEEKS,validDate,addDays,normalize,countWeeks,weekNumber,summary,overview,mount});
   globalThis.CleanRoomsPublicationRange=api;

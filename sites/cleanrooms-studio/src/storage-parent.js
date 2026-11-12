@@ -23,7 +23,7 @@
   window.addEventListener('message',event => {
     if (event.source !== app.contentWindow) return;
     if (event.data?.type === 'cleanrooms-open-account') {
-      location.assign('/');
+      location.assign('/#konto');
       return;
     }
     if (event.data?.type !== 'cleanrooms-storage-connect' || !event.ports?.[0]) return;

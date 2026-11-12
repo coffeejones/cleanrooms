@@ -1,7 +1,5 @@
 /* A short change list leads to a focused comparison instead of repeated before/after cards. */
 #cleanrooms-studio .cs-publication-review{min-width:0;margin:24px 0 0;color:#3d515e;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 16px}
-#cleanrooms-studio .cs-publication-review-title{margin:0;color:#354853;font-size:15px;font-weight:600;line-height:23px}
 #cleanrooms-studio .cs-publication-review-muted{color:#7c8991;font-size:11px;line-height:19px}
 #cleanrooms-studio .cs-publication-review-tools{display:flex;flex-direction:column;gap:12px;margin:0 0 22px}
 #cleanrooms-studio .cs-publication-review-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
@@ -51,7 +49,6 @@
 #cleanrooms-studio .cs-publication-review-empty{margin:0;padding:24px 0;color:#7d8d97;font-size:12px;line-height:22px}
 #cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible{outline:2px solid #7295ae;outline-offset:3px}
 @media(max-width:600px){
- #cleanrooms-studio .cs-publication-review-head{align-items:flex-start;flex-direction:column;gap:4px}
  #cleanrooms-studio .cs-publication-review-filters{gap:2px}
  #cleanrooms-studio .cs-publication-review .cs-publication-review-filter{gap:5px;padding-inline:8px!important;font-size:11px}
  #cleanrooms-studio .cs-publication-review-row-head{gap:8px}

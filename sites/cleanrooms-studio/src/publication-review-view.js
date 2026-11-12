@@ -46,7 +46,7 @@
     function renderTools(body){
       const tools=node('div','cs-publication-review-tools'),filters=node('div','cs-publication-review-filters');filters.setAttribute('role','group');filters.setAttribute('aria-label','Filtrer ændringer');
       for(const [key,label]of FILTERS){const count=counts[key],control=button('',()=>{filter=key;pageIndex=0;paint('filter:'+key);},'filter:'+key,'cs-publication-review-filter');control.setAttribute('aria-pressed',String(filter===key));control.setAttribute('aria-label',label+' · '+count);control.append(node('span','',label),node('span','cs-publication-review-filter-count',count));filters.append(control);}tools.append(filters);
-      const search=node('label','cs-publication-review-search'),input=node('input','cs-publication-review-input');input.type='search';input.value=query;input.placeholder='Søg medarbejder eller arbejdssted';input.setAttribute('aria-label','Søg i ændringer');input.dataset.publicationReviewFocus='search';input.addEventListener('input',()=>{query=input.value;pageIndex=0;paint('search');});search.append(input);tools.append(search);body.append(tools);
+      const search=node('label','cs-publication-review-search'),input=node('input','cs-publication-review-input');input.type='search';input.value=query;input.placeholder='Søg i ændringer';input.setAttribute('aria-label','Søg i ændringer');input.dataset.publicationReviewFocus='search';input.addEventListener('input',()=>{query=input.value;pageIndex=0;paint('search');});search.append(input);tools.append(search);body.append(tools);
     }
     function renderList(body){
       const term=query.trim().toLocaleLowerCase('da-DK');renderTools(body);
@@ -91,7 +91,7 @@
     }
     function paint(focusKey){
       if(disposed)return;const active=doc.activeElement,key=focusKey||(element.contains?.(active)?active?.dataset?.publicationReviewFocus:null),selection=active?.dataset?.publicationReviewFocus==='search'?[active.selectionStart,active.selectionEnd]:null;
-      page.replaceChildren();const head=node('div','cs-publication-review-head');head.append(node('h4','cs-publication-review-title','Ændringer'),node('span','cs-publication-review-muted','Klik på en vagt for at se detaljerne.'));page.append(head);
+      page.replaceChildren();
       const body=node('div','cs-publication-review-body');page.append(body);const entry=selectedId===null?null:entries.find(item=>String(item.id)===selectedId);
       if(selectedId!==null&&entry)renderDetail(body,entry);else{selectedId=null;renderList(body);}
       if(key){const target=[...page.querySelectorAll('[data-publication-review-focus]')].find(el=>el.dataset.publicationReviewFocus===key);target?.focus?.({preventScroll:true});if(target?.dataset.publicationReviewFocus==='search'&&selection&&typeof target.setSelectionRange==='function')try{target.setSelectionRange(...selection);}catch{}}

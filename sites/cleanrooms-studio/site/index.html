@@ -8121,8 +8121,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 /* A short change list leads to a focused comparison instead of repeated before/after cards. */
 #cleanrooms-studio .cs-publication-review{min-width:0;margin:24px 0 0;color:#3d515e;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-publication-review-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 16px}
-#cleanrooms-studio .cs-publication-review-title{margin:0;color:#354853;font-size:15px;font-weight:600;line-height:23px}
 #cleanrooms-studio .cs-publication-review-muted{color:#7c8991;font-size:11px;line-height:19px}
 #cleanrooms-studio .cs-publication-review-tools{display:flex;flex-direction:column;gap:12px;margin:0 0 22px}
 #cleanrooms-studio .cs-publication-review-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
@@ -8172,7 +8170,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-publication-review-empty{margin:0;padding:24px 0;color:#7d8d97;font-size:12px;line-height:22px}
 #cleanrooms-studio .cs-publication-review :is(button,input,summary):focus-visible{outline:2px solid #7295ae;outline-offset:3px}
 @media(max-width:600px){
- #cleanrooms-studio .cs-publication-review-head{align-items:flex-start;flex-direction:column;gap:4px}
  #cleanrooms-studio .cs-publication-review-filters{gap:2px}
  #cleanrooms-studio .cs-publication-review .cs-publication-review-filter{gap:5px;padding-inline:8px!important;font-size:11px}
  #cleanrooms-studio .cs-publication-review-row-head{gap:8px}
@@ -11201,7 +11198,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) :is(
   .cs-editor-head h3,.cs-review-head h3,.cs-operations-head h3,.cs-department-head h3,
-  .cs-publication-review-title,.cs-publication-review-detail-title,.cs-publication-range-title
+  .cs-publication-review-detail-title,.cs-publication-range-title
 ) {
   color:var(--cs-access-ink);
   font-weight:700;
@@ -11257,86 +11254,95 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   padding:24px;
 }
 #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
-  width:min(660px,100%);
+  --cs-publication-gutter:28px;
+  width:min(552px,100%);
   height:auto;
   max-height:100%;
   margin:0;
-  border:1px solid var(--cs-compass-rule);
-  border-radius:12px;
-  box-shadow:0 16px 52px rgb(16 38 35 / .16);
+  border:0;
+  border-radius:16px;
+  background:var(--cs-access-surface);
+  box-shadow:0 20px 60px rgb(0 30 43 / .17),0 3px 10px rgb(0 30 43 / .06);
   font-family:var(--cs-compass-font);
   color:var(--cs-access-body);
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; :is(.cs-editor-head,.cs-editor-actions) {
   flex:none;
-  padding:12px var(--cs-overlay-gutter,24px);
-  border-color:var(--cs-compass-rule);
-  background:var(--cs-access-surface);
+  min-height:0;
+  padding-inline:var(--cs-publication-gutter);
+  border:0;
+  background:inherit;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-head {
+  padding-block:22px 6px;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-title {
   margin:0;
   color:var(--cs-access-ink);
-  font-size:18px;
-  font-weight:700;
-  line-height:24px;
+  font-size:clamp(21px,4vw,25px);
+  font-weight:600;
+  letter-spacing:-.035em;
+  line-height:1.2;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor &gt; .cs-group-fields {
-  padding:20px var(--cs-overlay-gutter,24px) 24px;
+  padding:2px var(--cs-publication-gutter) 12px;
   overflow-x:hidden;
-  scrollbar-gutter:stable;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-intro {
-  display:grid;
-  gap:4px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:2px 10px;
   min-width:0;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor #cs-changes-period {
   margin:0;
-  color:var(--cs-access-ink);
-  font-size:clamp(24px,4vw,30px);
-  font-weight:700;
-  letter-spacing:-.55px;
-  line-height:1.2;
+  color:var(--cs-access-body);
+  font-size:14px;
+  font-weight:600;
+  line-height:21px;
 }
 #cleanrooms-studio .cs-changes-editor :is(#cs-publication-dates,#cs-publication-sites) {
   margin:0;
   color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:20px;
-  overflow-wrap:anywhere;
-}
-#cleanrooms-studio .cs-changes-editor .cs-publication-summary {
-  margin:14px 0 0;
-  color:var(--cs-access-ink);
   font-size:14px;
-  font-weight:650;
   line-height:21px;
   overflow-wrap:anywhere;
 }
+#cleanrooms-studio .cs-changes-editor #cs-publication-sites {
+  flex-basis:100%;
+}
+#cleanrooms-studio .cs-changes-editor .cs-publication-summary {
+  margin:24px 0 0;
+  color:var(--cs-access-body);
+  font-size:15px;
+  font-weight:600;
+  line-height:22px;
+  overflow-wrap:anywhere;
+}
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback {
-  margin:8px 0 0;
+  margin:3px 0 0;
   color:var(--cs-access-muted);
-  font-size:13px;
-  line-height:20px;
+  font-size:14px;
+  line-height:21px;
   overflow-wrap:anywhere;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;ready&quot;] {
   color:var(--cs-access-primary);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-feedback[data-state=&quot;warning&quot;] {
-  padding:8px 10px;
-  border-inline-start:2px solid #b68037;
+  margin-block-start:10px;
+  padding:10px 12px;
+  border-radius:8px;
   background:#fbf6ec;
   color:#775210;
   font-weight:600;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-disclosure {
   min-width:0;
-  border-block-end:1px solid var(--cs-compass-rule);
 }
 #cleanrooms-studio .cs-changes-editor #cs-publication-options {
-  margin:16px 0 0;
-  border-block-start:1px solid var(--cs-compass-rule);
+  margin:18px 0 0;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary {
   display:flex;
@@ -11344,16 +11350,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   justify-content:space-between;
   gap:12px;
   min-height:44px;
-  padding:8px 2px;
-  color:var(--cs-access-ink);
-  font-size:13px;
-  font-weight:650;
+  margin-inline:-8px;
+  padding:8px;
+  border-radius:8px;
+  color:var(--cs-access-body);
+  font-size:14px;
+  font-weight:600;
   line-height:20px;
   list-style:none;
   cursor:pointer;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary::-webkit-details-marker {display:none}
-#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure &gt; summary:hover {
+#cleanrooms-studio .cs-changes-editor .cs-publication-disclosure:is([open],:hover) &gt; summary {
   background:var(--cs-access-soft);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-chevron {
@@ -11371,9 +11379,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-detail-content {
   display:grid;
-  gap:14px;
+  gap:16px;
   min-width:0;
-  padding:4px 0 14px;
+  padding:14px 0;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-conflicts {
   margin:0;
@@ -11421,10 +11429,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
   display:grid;
-  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+  grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
   align-items:start;
-  gap:16px;
-  padding:4px 0 14px;
+  gap:18px;
+  padding:14px 0;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range {
   gap:8px;
@@ -11435,11 +11443,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   align-items:stretch;
   gap:2px;
 }
-#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-review-title,.cs-publication-scope &gt; label) {
+#cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-title,.cs-publication-scope &gt; label) {
   margin:0;
   color:var(--cs-access-ink);
   font-size:14px;
-  font-weight:700;
+  font-weight:600;
   line-height:22px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range-fields {
@@ -11459,14 +11467,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget {
   min-width:0;
-  margin:12px 0 0;
-  padding:9px 12px;
-  border:1px solid var(--cs-compass-rule);
-  border-radius:6px;
-  background:var(--cs-access-soft);
+  margin:18px 0 0;
   color:var(--cs-access-ink);
-  font-size:12px;
-  line-height:18px;
+  font-size:13px;
+  line-height:20px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget[hidden] {display:none}
 #cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title,.cs-publication-budget-overview,.cs-publication-budget-numbers) {
@@ -11478,7 +11482,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor .cs-publication-budget-title h4 {
   margin:0;
   font-size:13px;
-  font-weight:700;
+  font-weight:600;
 }
 #cleanrooms-studio .cs-changes-editor :is(.cs-publication-budget-title &gt; span,.cs-publication-budget-numbers &gt; span,.cs-publication-budget-note) {
   color:var(--cs-access-muted);
@@ -11523,9 +11527,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor .cs-publication-scope {
   min-width:0;
   margin:0;
-  padding:0 0 0 16px;
+  padding:0;
   border:0;
-  border-left:1px solid var(--cs-compass-rule);
   background:transparent;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-scope &gt; label {
@@ -11553,8 +11556,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor :is(.cs-publication-range-presets,.cs-publication-review-filters) {
   display:flex;
-  gap:2px;
-  border-bottom:1px solid var(--cs-compass-rule);
+  gap:3px;
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter) {
   position:relative;
@@ -11562,13 +11564,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   min-width:0;
   min-height:34px!important;
   height:34px!important;
-  padding:0 9px!important;
+  padding:0 7px!important;
   border:0;
-  border-radius:0;
+  border-radius:6px;
   background:transparent;
   color:var(--cs-access-muted);
   font-size:12px;
-  font-weight:650;
+  font-weight:600;
   box-shadow:none;
   white-space:nowrap;
 }
@@ -11577,19 +11579,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-ink);
 }
 #cleanrooms-studio[data-page][data-role] .cs-changes-editor :is(.cs-publication-range-preset,.cs-publication-review .cs-publication-review-filter)[aria-pressed=&quot;true&quot;] {
+  background:var(--cs-compass-selected);
   color:var(--cs-access-primary);
-  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range-more {
   position:relative;
-  flex:0 0 76px;
+  flex:0 0 66px;
   color:var(--cs-access-muted);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range-more::after {
   content:&quot;&quot;;
   position:absolute;
   top:50%;
-  right:11px;
+  right:9px;
   width:6px;
   height:6px;
   border-right:1.5px solid currentColor;
@@ -11605,15 +11607,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   min-width:0;
   height:34px!important;
   min-height:34px!important;
-  padding:0 23px 0 9px!important;
+  padding:0 19px 0 7px!important;
   border:0;
-  border-radius:0;
+  border-radius:6px;
   background:transparent;
   box-shadow:none;
   color:inherit;
   font:inherit;
   font-size:12px;
-  font-weight:650;
+  font-weight:600;
   cursor:pointer;
 }
 #cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more-select:hover:not(:disabled) {
@@ -11623,7 +11625,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-primary);
 }
 #cleanrooms-studio[data-page][data-role] #cs-publication-range-slot .cs-publication-range-more[data-selected=&quot;true&quot;] select {
-  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
+  background:var(--cs-compass-selected);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-range-more:has(select:disabled) {
   opacity:.4;
@@ -11733,12 +11735,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   margin:0;
   color:var(--cs-access-body);
 }
-#cleanrooms-studio .cs-changes-editor .cs-publication-review-head {
-  margin-bottom:8px;
-}
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(160px,36%);
+  grid-template-columns:minmax(0,1fr) minmax(160px,42%);
   align-items:end;
   gap:12px;
   margin-bottom:12px;
@@ -11747,17 +11746,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-muted);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-day-title {
-  margin:12px 0 0;
-  padding:6px 8px;
-  border-bottom-color:var(--cs-compass-rule);
-  background:var(--cs-access-soft);
+  margin:14px 0 0;
+  padding:4px 8px;
+  border:0;
   color:var(--cs-access-muted);
-  font-weight:650;
+  font-size:12px;
+  font-weight:600;
 }
 #cleanrooms-studio[data-page] .cs-changes-editor .cs-publication-review .cs-publication-review-row {
   min-height:56px!important;
   padding:8px!important;
-  border-color:var(--cs-compass-rule);
+  border:0;
+  border-radius:8px;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-row:hover {
   background:var(--cs-access-soft);
@@ -11769,7 +11769,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-row-head &gt; strong {
   color:var(--cs-access-ink);
-  font-weight:700;
+  font-weight:600;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-type {
   color:var(--cs-access-muted);
@@ -11781,22 +11781,30 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-changes-editor .cs-publication-review-type[data-type=&quot;removed&quot;]::before {
   background:#a33c32;
 }
-#cleanrooms-studio .cs-changes-editor &gt; .cs-editor-actions {
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions {
   justify-content:flex-end;
   align-items:center;
+  gap:8px;
+  padding-block:14px 22px;
+}
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor:has(.cs-group-fields details[open]) &gt; .cs-editor-actions {
+  box-shadow:0 -1px 0 var(--cs-compass-rule);
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
-  flex:1 1 180px;
+  flex:1 1 150px;
   min-width:0;
   margin:0 auto 0 0;
   color:var(--cs-access-muted);
-  font-size:12px;
-  line-height:18px;
+  font-size:13px;
+  line-height:19px;
   overflow-wrap:anywhere;
 }
 #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note:empty {display:none}
-#cleanrooms-studio .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
+#cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
   flex:none;
+  min-height:40px;
+  font-size:14px;
+  font-weight:600;
 }
 @media(max-width:600px) {
   #cleanrooms-studio[data-page] #cs-changes-layer:not([hidden]) {
@@ -11804,17 +11812,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     padding:0;
   }
   #cleanrooms-studio[data-page] .cs-group-editor.cs-changes-editor {
+    --cs-publication-gutter:22px;
     max-height:calc(100% - 20px);
-    border-width:1px 0 0;
-    border-radius:14px 14px 0 0;
+    border-radius:18px 18px 0 0;
   }
   #cleanrooms-studio .cs-changes-editor .cs-publication-setup {
     grid-template-columns:minmax(0,1fr);
     gap:12px;
-  }
-  #cleanrooms-studio .cs-changes-editor .cs-publication-scope {
-    padding-left:0;
-    border-left:0;
   }
   #cleanrooms-studio .cs-changes-editor .cs-publication-review-tools {
     grid-template-columns:minmax(0,1fr);
@@ -11833,7 +11837,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
   #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions {
     flex-wrap:wrap;
-    padding-bottom:max(12px,env(safe-area-inset-bottom));
+    padding-bottom:max(16px,env(safe-area-inset-bottom));
+  }
+  #cleanrooms-studio[data-page][data-role] .cs-changes-editor &gt; .cs-editor-actions &gt; .cs-button {
+    min-height:44px;
   }
   #cleanrooms-studio .cs-changes-editor .cs-publication-footer-note {
     flex-basis:100%;
@@ -23912,7 +23919,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function renderTools(body){
       const tools=node(&#x27;div&#x27;,&#x27;cs-publication-review-tools&#x27;),filters=node(&#x27;div&#x27;,&#x27;cs-publication-review-filters&#x27;);filters.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);filters.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrer ændringer&#x27;);
       for(const [key,label]of FILTERS){const count=counts[key],control=button(&#x27;&#x27;,()=&gt;{filter=key;pageIndex=0;paint(&#x27;filter:&#x27;+key);},&#x27;filter:&#x27;+key,&#x27;cs-publication-review-filter&#x27;);control.setAttribute(&#x27;aria-pressed&#x27;,String(filter===key));control.setAttribute(&#x27;aria-label&#x27;,label+&#x27; · &#x27;+count);control.append(node(&#x27;span&#x27;,&#x27;&#x27;,label),node(&#x27;span&#x27;,&#x27;cs-publication-review-filter-count&#x27;,count));filters.append(control);}tools.append(filters);
-      const search=node(&#x27;label&#x27;,&#x27;cs-publication-review-search&#x27;),input=node(&#x27;input&#x27;,&#x27;cs-publication-review-input&#x27;);input.type=&#x27;search&#x27;;input.value=query;input.placeholder=&#x27;Søg medarbejder eller arbejdssted&#x27;;input.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i ændringer&#x27;);input.dataset.publicationReviewFocus=&#x27;search&#x27;;input.addEventListener(&#x27;input&#x27;,()=&gt;{query=input.value;pageIndex=0;paint(&#x27;search&#x27;);});search.append(input);tools.append(search);body.append(tools);
+      const search=node(&#x27;label&#x27;,&#x27;cs-publication-review-search&#x27;),input=node(&#x27;input&#x27;,&#x27;cs-publication-review-input&#x27;);input.type=&#x27;search&#x27;;input.value=query;input.placeholder=&#x27;Søg i ændringer&#x27;;input.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i ændringer&#x27;);input.dataset.publicationReviewFocus=&#x27;search&#x27;;input.addEventListener(&#x27;input&#x27;,()=&gt;{query=input.value;pageIndex=0;paint(&#x27;search&#x27;);});search.append(input);tools.append(search);body.append(tools);
     }
     function renderList(body){
       const term=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;);renderTools(body);
@@ -23957,7 +23964,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function paint(focusKey){
       if(disposed)return;const active=doc.activeElement,key=focusKey||(element.contains?.(active)?active?.dataset?.publicationReviewFocus:null),selection=active?.dataset?.publicationReviewFocus===&#x27;search&#x27;?[active.selectionStart,active.selectionEnd]:null;
-      page.replaceChildren();const head=node(&#x27;div&#x27;,&#x27;cs-publication-review-head&#x27;);head.append(node(&#x27;h4&#x27;,&#x27;cs-publication-review-title&#x27;,&#x27;Ændringer&#x27;),node(&#x27;span&#x27;,&#x27;cs-publication-review-muted&#x27;,&#x27;Klik på en vagt for at se detaljerne.&#x27;));page.append(head);
+      page.replaceChildren();
       const body=node(&#x27;div&#x27;,&#x27;cs-publication-review-body&#x27;);page.append(body);const entry=selectedId===null?null:entries.find(item=&gt;String(item.id)===selectedId);
       if(selectedId!==null&amp;&amp;entry)renderDetail(body,entry);else{selectedId=null;renderList(body);}
       if(key){const target=[...page.querySelectorAll(&#x27;[data-publication-review-focus]&#x27;)].find(el=&gt;el.dataset.publicationReviewFocus===key);target?.focus?.({preventScroll:true});if(target?.dataset.publicationReviewFocus===&#x27;search&#x27;&amp;&amp;selection&amp;&amp;typeof target.setSelectionRange===&#x27;function&#x27;)try{target.setSelectionRange(...selection);}catch{}}
@@ -28362,6 +28369,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
 
 
 

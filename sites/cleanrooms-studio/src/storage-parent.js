@@ -22,8 +22,8 @@
   });
   window.addEventListener('message',event => {
     if (event.source !== app.contentWindow) return;
-    if (event.data?.type === 'cleanrooms-open-companies') {
-      location.assign('/virksomheder');
+    if (event.data?.type === 'cleanrooms-open-account') {
+      location.assign('/');
       return;
     }
     if (event.data?.type !== 'cleanrooms-storage-connect' || !event.ports?.[0]) return;

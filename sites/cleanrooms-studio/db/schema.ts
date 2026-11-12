@@ -1,4 +1,4 @@
-import { integer, primaryKey, real, sqliteTable, text, uniqueIndex, index, foreignKey } from 'drizzle-orm/sqlite-core';
+import { check, integer, primaryKey, real, sqliteTable, text, uniqueIndex, index, foreignKey } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 export const workspaceEmployeePreferences = sqliteTable('workspace_employee_preferences', {
@@ -110,6 +110,38 @@ export const workspaceCompanySignups = sqliteTable('workspace_company_signups', 
   companyName: text('company_name').notNull(),
   siteName: text('site_name').notNull(),
 }, table => [primaryKey({ columns: [table.siteUserId, table.requestId] })]);
+
+export const workspaceWebCredentials = sqliteTable('workspace_web_credentials', {
+  userId: text('user_id').primaryKey().notNull().references(() => workspaceMembers.userId),
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id),
+  email: text('email').notNull().unique(),
+  passwordSalt: text('password_salt').notNull(),
+  passwordHash: text('password_hash').notNull(),
+  passwordScheme: text('password_scheme').notNull(),
+  siteUserId: text('site_user_id'),
+  signupRequestId: text('signup_request_id'),
+  signupFingerprint: text('signup_fingerprint'),
+  version: integer('version').notNull().default(1),
+  createdAt: integer('created_at').notNull(),
+  revokedAt: integer('revoked_at'),
+}, table => [
+  check('workspace_web_credential_version_valid', sql`${table.version} >= 1`),
+  check('workspace_web_credential_site_owner_valid', sql`${table.siteUserId} IS NULL OR ${table.siteUserId} = ${table.userId}`),
+  check('workspace_web_credential_signup_metadata_valid', sql`(${table.signupRequestId} IS NULL) = (${table.signupFingerprint} IS NULL)`),
+]);
+
+export const workspaceWebSessions = sqliteTable('workspace_web_sessions', {
+  tokenHash: text('token_hash').primaryKey().notNull(),
+  userId: text('user_id').notNull().references(() => workspaceWebCredentials.userId),
+  credentialVersion: integer('credential_version').notNull(),
+  expiresAt: integer('expires_at').notNull(),
+}, table => [index('workspace_web_sessions_expiry').on(table.expiresAt)]);
+
+export const workspaceWebAuthAttempts = sqliteTable('workspace_web_auth_attempts', {
+  scopeHash: text('scope_hash').primaryKey().notNull(),
+  attempts: integer('attempts').notNull(),
+  expiresAt: integer('expires_at').notNull(),
+}, table => [index('workspace_web_auth_attempts_expiry').on(table.expiresAt)]);
 
 export const workspaceInvites = sqliteTable('workspace_invites', {
   id: text('id').primaryKey().notNull(),

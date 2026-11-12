@@ -267,6 +267,13 @@
       "when": 1794258000005,
       "tag": "0037_company_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1794258000006,
+      "tag": "0038_web_auth",
+      "breakpoints": true
     }
   ]
 }

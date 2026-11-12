@@ -3707,10 +3707,10 @@
   root.querySelectorAll('[data-employee-workspace]').forEach(button=>button.addEventListener('click',()=>openEmployeeWorkspace(button.dataset.employeeWorkspace)));
   q('#cs-open-admin').addEventListener('click',() => setRole('admin'));
   q('#cs-chat-nav').addEventListener('click',openChat);
-  q('#cs-companies-nav').addEventListener('click',() => {
-    if(editorHasDirtyDraft()||timeView?.hasDraft){notify('Gem eller luk din kladde, før du skifter virksomhed.');return;}
-    if(publicationBusy||timeView?.busy||timeBusy||leaveBusy||persistence?.hasPendingPlanSave){notify('Vent til ændringen er gemt, før du skifter virksomhed.');return;}
-    window.parent.postMessage({type:'cleanrooms-open-companies'},'*');
+  q('#cs-account-home').addEventListener('click',() => {
+    if(editorHasDirtyDraft()||timeView?.hasDraft){notify('Gem eller luk din kladde, før du åbner forsiden.');return;}
+    if(publicationBusy||timeView?.busy||timeBusy||leaveBusy||persistence?.hasPendingPlanSave){notify('Vent til ændringen er gemt, før du åbner forsiden.');return;}
+    window.parent.postMessage({type:'cleanrooms-open-account'},'*');
   });
   q('#cs-employee-person').addEventListener('change',() => { clearChat();state.employeePerson = q('#cs-employee-person').value; state.employeeShift = null; clearWorkflow(); render(); save(); });
   q('#cs-storage-retry').addEventListener('click',retryCloud);

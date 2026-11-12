@@ -4,7 +4,7 @@ import Directory from '../src/directory-records.js';
 import { employeeReferenceGuard } from './directory-references.mjs';
 import { StudioError } from './studio-store.mjs';
 
-const passwordScheme = 'scrypt-n16384-r8-p5-v1';
+export const passwordScheme = 'scrypt-n16384-r8-p5-v1';
 const scryptOptions = { N: 16384, r: 8, p: 5, maxmem: 32 * 1024 * 1024 };
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const attemptWindowMs = 15 * 60_000;
@@ -50,7 +50,7 @@ export function normalizeMobileEmail(value) {
   return /^[^\s@\u0000-\u001f\u007f]+@[^\s@\u0000-\u001f\u007f]+\.[^\s@\u0000-\u001f\u007f]+$/.test(email) ? email : null;
 }
 
-function validPasswordInput(value) {
+export function validPasswordInput(value) {
   return typeof value === 'string' && value.length > 0 && value.length <= 256 && Buffer.byteLength(value, 'utf8') <= 512;
 }
 
@@ -75,13 +75,13 @@ function derivePassword(password, salt) {
   });
 }
 
-async function passwordRecord(password) {
+export async function passwordRecord(password) {
   const salt = randomBytes(16);
   const hash = await derivePassword(password, salt);
   return { salt: salt.toString('hex'), hash: hash.toString('hex') };
 }
 
-async function verifiesPassword(password, credential) {
+export async function verifiesPassword(password, credential) {
   const known = credential?.password_scheme === passwordScheme
     && /^[a-f0-9]{32}$/.test(credential.password_salt) && /^[a-f0-9]{64}$/.test(credential.password_hash);
   const salt = known ? Buffer.from(credential.password_salt, 'hex') : Buffer.alloc(16);

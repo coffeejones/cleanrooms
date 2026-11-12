@@ -12991,7 +12991,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       &lt;button id=&quot;cs-accounts-nav&quot; type=&quot;button&quot; data-page=&quot;accounts&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Brugere og roller&quot; hidden&gt;&lt;i data-lucide=&quot;shield-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Brugere og roller&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Brugere&lt;/span&gt;&lt;/button&gt;
       &lt;button type=&quot;button&quot; data-page=&quot;activity&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Historik&quot;&gt;&lt;i data-lucide=&quot;history&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Historik&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Historik&lt;/span&gt;&lt;/button&gt;
       &lt;button id=&quot;cs-open-employee&quot; type=&quot;button&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Medarbejdervisning&quot;&gt;&lt;i data-lucide=&quot;user-round&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Mine vagter&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Mine&lt;/span&gt;&lt;/button&gt;
-      &lt;button id=&quot;cs-companies-nav&quot; type=&quot;button&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Virksomheder&quot; title=&quot;Virksomheder&quot;&gt;&lt;i data-lucide=&quot;building-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Virksomheder&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Firmaer&lt;/span&gt;&lt;/button&gt;
+      &lt;button id=&quot;cs-account-home&quot; type=&quot;button&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Min konto&quot; title=&quot;Min konto&quot;&gt;&lt;i data-lucide=&quot;circle-user-round&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Min konto&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Konto&lt;/span&gt;&lt;/button&gt;
       &lt;button id=&quot;cs-messages-nav&quot; type=&quot;button&quot; data-employee-workspace=&quot;messages&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Beskeder&quot; hidden&gt;&lt;i data-lucide=&quot;bell&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Beskeder&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Beskeder&lt;/span&gt;&lt;span id=&quot;cs-messages-count&quot; class=&quot;cs-nav-count&quot; hidden&gt;0&lt;/span&gt;&lt;/button&gt;
       &lt;button id=&quot;cs-exchanges-nav&quot; type=&quot;button&quot; data-employee-workspace=&quot;exchanges&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Vagtbytte og ledige vagter&quot; hidden&gt;&lt;i data-lucide=&quot;arrow-left-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Vagtbytte&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Vagtbytte&lt;/span&gt;&lt;/button&gt;
     &lt;/nav&gt;
@@ -27803,10 +27803,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   root.querySelectorAll(&#x27;[data-employee-workspace]&#x27;).forEach(button=&gt;button.addEventListener(&#x27;click&#x27;,()=&gt;openEmployeeWorkspace(button.dataset.employeeWorkspace)));
   q(&#x27;#cs-open-admin&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; setRole(&#x27;admin&#x27;));
   q(&#x27;#cs-chat-nav&#x27;).addEventListener(&#x27;click&#x27;,openChat);
-  q(&#x27;#cs-companies-nav&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; {
-    if(editorHasDirtyDraft()||timeView?.hasDraft){notify(&#x27;Gem eller luk din kladde, før du skifter virksomhed.&#x27;);return;}
-    if(publicationBusy||timeView?.busy||timeBusy||leaveBusy||persistence?.hasPendingPlanSave){notify(&#x27;Vent til ændringen er gemt, før du skifter virksomhed.&#x27;);return;}
-    window.parent.postMessage({type:&#x27;cleanrooms-open-companies&#x27;},&#x27;*&#x27;);
+  q(&#x27;#cs-account-home&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; {
+    if(editorHasDirtyDraft()||timeView?.hasDraft){notify(&#x27;Gem eller luk din kladde, før du åbner forsiden.&#x27;);return;}
+    if(publicationBusy||timeView?.busy||timeBusy||leaveBusy||persistence?.hasPendingPlanSave){notify(&#x27;Vent til ændringen er gemt, før du åbner forsiden.&#x27;);return;}
+    window.parent.postMessage({type:&#x27;cleanrooms-open-account&#x27;},&#x27;*&#x27;);
   });
   q(&#x27;#cs-employee-person&#x27;).addEventListener(&#x27;change&#x27;,() =&gt; { clearChat();state.employeePerson = q(&#x27;#cs-employee-person&#x27;).value; state.employeeShift = null; clearWorkflow(); render(); save(); });
   q(&#x27;#cs-storage-retry&#x27;).addEventListener(&#x27;click&#x27;,retryCloud);
@@ -28011,6 +28011,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 
@@ -29136,8 +29138,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   });
   window.addEventListener('message',event => {
     if (event.source !== app.contentWindow) return;
-    if (event.data?.type === 'cleanrooms-open-companies') {
-      location.assign('/virksomheder');
+    if (event.data?.type === 'cleanrooms-open-account') {
+      location.assign('/');
       return;
     }
     if (event.data?.type !== 'cleanrooms-storage-connect' || !event.ports?.[0]) return;

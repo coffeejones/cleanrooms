@@ -1,8 +1,8 @@
-import html from '../site/index.html?raw';
-import { createStaticDocument } from '../lib/static-document.mjs';
+import { env } from 'cloudflare:workers';
+import { webHome } from '../lib/web-entry-flow.mjs';
 
-const document = createStaticDocument(html);
+export const dynamic = 'force-dynamic';
 
 export function GET(request: Request) {
-  return document(request);
+  return webHome(request, env.DB);
 }

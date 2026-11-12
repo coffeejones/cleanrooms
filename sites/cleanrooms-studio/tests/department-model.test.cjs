@@ -80,6 +80,16 @@ test('removing or reordering legacy worksite indices is invalid',()=>{
   assert.deepEqual(Departments.validate(renamed),[],'Stable IDs, rather than display text, identify legacy positions.');
 });
 
+test('new organizations can start with one worksite and accept restricted directory projections',()=>{
+  const site={id:'site-new',name:'Nyt arbejdssted',address:'',color:Departments.COLORS[0]};
+  const organization={version:1,sites:[site],departments:[]};
+  assert.deepEqual(Departments.validate(organization),[]);
+
+  const placeholder={...Departments.defaultOrganization().sites[1],restricted:true};
+  assert.deepEqual(Departments.validate({...organization,sites:[site,placeholder]}),[]);
+  assert.ok(Departments.validate({...organization,sites:[site,{...placeholder,restricted:false}]}).length);
+});
+
 test('creating departments can link existing worksites or intentionally contain no worksites',()=>{
   const original=freeze(Departments.defaultOrganization()),before=JSON.stringify(original);
   const linked=Departments.propose(original,freeze(draft({siteIds:[2,0]})));

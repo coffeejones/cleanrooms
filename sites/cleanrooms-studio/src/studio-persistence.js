@@ -212,7 +212,7 @@
       });}catch(error){if(accessAtStart!==accessEpoch)return superseded();throw error;}
       if(accessAtStart!==accessEpoch)return superseded();
       const identityChanged=typeof lastLoaded?.accessIdentity==='string'&&typeof result.accessIdentity==='string'&&result.accessIdentity!==lastLoaded.accessIdentity;
-      const revoked=lastLoaded!==null&&(result.status===401||result.status===403&&['membership_changed','membership_disabled','membership_required','membership_invalid','role_invalid','department_scope_invalid','department_scope_unavailable','department_scope_changed','department_person_forbidden','department_site_forbidden','department_forbidden','department_scope_forbidden','department_directory_forbidden'].includes(result.error));
+      const revoked=lastLoaded!==null&&(result.status===401||result.status===403&&['membership_changed','membership_disabled','membership_required','membership_invalid','company_access_denied','role_invalid','department_scope_invalid','department_scope_unavailable','department_scope_changed','department_person_forbidden','department_site_forbidden','department_forbidden','department_scope_forbidden','department_directory_forbidden'].includes(result.error));
       if(identityChanged||revoked){invalidateAccess();return superseded();}
       return result;
     }

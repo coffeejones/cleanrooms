@@ -1,4 +1,4 @@
-/* Sites identity selects one durable workspace; client snapshots never grant access. */
+/* Sites identity authorizes a durable workspace; client snapshots never grant access. */
 import {StudioError,MAX_BODY_BYTES,readStudio,readRawStudio,readStudioWindow,projectStudioWindow,readStudioSelection,projectStudioSelection,splitSnapshot,writeStudio,validateStudio} from './studio-store.mjs';
 import Departments from '../src/department-model.js';
 import {storedAccessScope,loadDepartmentAccess,isScoped,siteAllowed,departmentAllowed,assertSiteAccess,assertPersonAccess,assertDirectoryKeysAccess,validateGrantScope,assertTargetScope,grantScopeGuard,accessGuard,projectOrganization,projectStudioAccess,sitePredicate,personPredicate,jsonSitePredicate} from './department-access.mjs';
@@ -43,6 +43,7 @@ import {ensureTimeEntries} from './time-entry-store.mjs';
 import {assertPersonalPayrollHistory,payrollRevisionStatements} from './payroll-history.mjs';
 import {planningReceipt,preparePlanningSubmission} from './planning-write.mjs';
 import {issueMobileCredential,listMobileCredentials,normalizeMobileEmail,prepareMobileCredentialCreate,readMobileCredential,revealMobileStartCode,revokeMobileCredential} from './mobile-auth-store.mjs';
+import {resolveCompanyPrincipal} from './company-signup-store.mjs';
 
 export const MAX_ACCOUNT_BODY_BYTES=64*1024;
 export const MAX_PAYROLL_BODY_BYTES=512*1024;
@@ -160,6 +161,11 @@ export function principalFromRequest(request) {
   return {userId,email:address,name:name.trim()};
 }
 
+async function selectedCompanyPrincipal(db, principal, request) {
+  const workspaceId = request.headers.get('X-CleanRooms-Workspace');
+  return workspaceId === null ? principal : resolveCompanyPrincipal(db, principal, workspaceId);
+}
+
 function member(row) {
   if(!row)return null;
   let preferences={};try{preferences=JSON.parse(row.preferences||'{}');}catch{}
@@ -250,7 +256,7 @@ export async function resolveWorkspace(db,principal,options={}) {
   if(!current) {
     // Existing production ownership is the only HTTP bootstrap authority.
     const legacy=await first(db,'SELECT revision FROM studio_states WHERE owner_id = ? AND revision > 0',principal.userId);
-    if(!legacy)fail(403,'membership_required','Du skal inviteres af en administrator for at bruge CleanRooms.');
+    if(!legacy)fail(403,'membership_required','Vælg en virksomhed under Virksomheder, eller bed om en invitation.');
     const stamp=now(),id='ws-'+crypto.randomUUID();
     const saved=await readStudio(db,principal.userId),initialPreferences=extractPreferences(saved.studio||{});
     await db.batch([
@@ -337,7 +343,7 @@ export function employeeProjection(studio,personId) {
   return {person:sharedData(person),shifts,sites,progress,leaveRequests,minDate:Data.minDate,maxDate:Data.maxDate};
 }
 
-function response(body,status=200,extraHeaders={}) {return Response.json(body,{status,headers:{'Cache-Control':'no-store, private','Vary':'oai-authenticated-user-id','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',...extraHeaders}});}
+function response(body,status=200,extraHeaders={}) {return Response.json(body,{status,headers:{'Cache-Control':'no-store, private','Vary':'oai-authenticated-user-id, X-CleanRooms-Workspace','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',...extraHeaders}});}
 function errorResponse(error) {
   if(error instanceof StudioError&&error.status===429){const requestId=error.requestId||crypto.randomUUID(),retryAfter=Number.isSafeInteger(error.retryAfterSeconds)&&error.retryAfterSeconds>0?Math.min(error.retryAfterSeconds,3600):60;return response({error:error.code,message:error.message,requestId},429,{'Retry-After':String(retryAfter),'X-Request-ID':requestId});}
   if(error instanceof StudioError||error instanceof PlanningStoreError||error instanceof DirectoryError||Number.isInteger(error?.status)&&/^(directory_|employee_|department_)/.test(error?.code||''))return response({error:error.code,message:error.message,...(error.conflicts?{conflicts:error.conflicts}:{})},error.status);
@@ -489,14 +495,14 @@ async function saveScopedPlanning({db,context,principal,payload,projection,onCon
 
 async function handleWorkspaceStudioRequestInternal(request,storage,onContext) {
   try {
-    const principal=principalFromRequest(request);
+    const signedIn=principalFromRequest(request);
     if(!['GET','PUT'].includes(request.method))return response({error:'method_not_allowed'},405);
     if(request.method==='PUT')sameOrigin(request);
     const payload=request.method==='PUT'?await requestJSON(request,MAX_BODY_BYTES):null;
     if(payload?.instructions!==undefined&&payload.instructions!=='deferred')fail(400,'invalid_calendar_window','Kalenderens instruktionsvisning er ugyldig.');
     const projection=requestedCalendar(request,payload);
     const fastCommand=request.method==='PUT'&&payload?.commandReceipt==='records'&&record(payload?.planning)&&payload.planning.metadataChanged===false;
-    const db=await database(storage);let context=await resolveWorkspace(db,principal,{metadataOnly:request.method==='GET'&&Boolean(projection)||fastCommand,employeeOnly:request.method==='GET'});const initialCaps=capabilities(context);onContext(context);
+    const db=await database(storage),principal=await selectedCompanyPrincipal(db,signedIn,request);let context=await resolveWorkspace(db,principal,{metadataOnly:request.method==='GET'&&Boolean(projection)||fastCommand,employeeOnly:request.method==='GET'});const initialCaps=capabilities(context);onContext(context);
     if(request.method==='GET') {
       if(projection&&initialCaps.plan)return response(await calendarPage(db,context,projection,new URL(request.url).searchParams.get('cursor'),new URL(request.url).searchParams.get('instructions')));
       if(!initialCaps.plan){
@@ -641,9 +647,9 @@ async function handleWorkspaceStudioRequestInternal(request,storage,onContext) {
 async function handleDirectoryRequestInternal(request,storage,onContext){
   try{
     if(request.method!=='POST')return response({error:'method_not_allowed'},405);
-    sameOrigin(request);const principal=principalFromRequest(request),payload=await requestJSON(request,MAX_BODY_BYTES);
+    sameOrigin(request);const signedIn=principalFromRequest(request),payload=await requestJSON(request,MAX_BODY_BYTES);
     if(!record(payload)||!['read','write'].includes(payload.action))fail(400,'directory_request_invalid','Vælg en gyldig handling.');
-    const db=await database(storage);
+    const db=await database(storage),principal=await selectedCompanyPrincipal(db,signedIn,request);
     let context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true}),caps=capabilities(context);onContext(context);
     if(payload.action==='read'){
       if(Object.keys(payload).some(key=>!['action','kind','ids','cursor','limit','catalog'].includes(key))||payload.catalog!==undefined&&typeof payload.catalog!=='boolean')fail(400,'directory_request_invalid','Oversigtens afgrænsning er ugyldig.');
@@ -1111,14 +1117,15 @@ async function manageMobileCredential(db,context,principal,payload,caps,secret) 
 
 async function handleAccountsRequestInternal(request,storage,secret,addressLookupToken,onContext) {
   try {
-    const principal=principalFromRequest(request);
+    const signedIn=principalFromRequest(request);
     if(request.method!=='POST')return response({error:'method_not_allowed'},405);
     sameOrigin(request);const payload=await requestJSON(request,MAX_BODY_BYTES);
     if(!record(payload)||typeof payload.action!=='string')fail(400,'invalid_request','Vælg en gyldig kontohandling.');
     const limit=payload.action==='payrollExportProfileSave'?2*1024*1024:payload.action==='checklist'?MAX_BODY_BYTES:['payrollSave','timeWrite','leaveCreate'].includes(payload.action)?MAX_PAYROLL_BODY_BYTES:['payrollPolicyPreview','payrollPolicySave','payrollPersonPolicySave'].includes(payload.action)?MAX_PAYROLL_POLICY_BODY_BYTES:MAX_ACCOUNT_BODY_BYTES;
     if(encode.encode(JSON.stringify(payload)).byteLength>limit)fail(413,'body_too_large','Kontohandlingen indeholder for mange data.');
     const db=await database(storage);
-    if(payload.action==='acceptInvite')return response(await acceptInvite(db,principal,payload));
+    if(payload.action==='acceptInvite')return response(await acceptInvite(db,signedIn,payload));
+    const principal=await selectedCompanyPrincipal(db,signedIn,request);
     if(payload.action==='siteAddressLookup'){
       const context=await resolveWorkspace(db,principal,{metadataOnly:true,directoryOnly:true});onContext(context);
       if(!capabilities(context).manageSiteGps)fail(403,'site_gps_forbidden','Kun en administrator kan ændre GPS-indstillinger for arbejdssteder.');

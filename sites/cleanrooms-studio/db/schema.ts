@@ -35,6 +35,11 @@ export const workspaces = sqliteTable('workspaces', {
   createdAt: text('created_at').notNull(),
 });
 
+export const workspacePlans = sqliteTable('workspace_plans', {
+  workspaceId: text('workspace_id').primaryKey().notNull().references(() => workspaces.id),
+  plan: text('plan').notNull().default('free_beta'),
+});
+
 export const workspaceRoles = sqliteTable('workspace_roles', {
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id),
   id: text('id').notNull(),
@@ -96,6 +101,15 @@ export const workspaceMembers = sqliteTable('workspace_members', {
 }, table => [uniqueIndex('workspace_members_active_person_unique').on(table.workspaceId,table.personId)
   .where(sql`${table.status} = 'active' AND ${table.role} = 'employee' AND ${table.personId} IS NOT NULL`),
   index('workspace_push_member_identity').on(table.workspaceId,table.personId,table.userId)]);
+
+export const workspaceCompanySignups = sqliteTable('workspace_company_signups', {
+  siteUserId: text('site_user_id').notNull(),
+  requestId: text('request_id').notNull(),
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id).unique(),
+  memberUserId: text('member_user_id').notNull().references(() => workspaceMembers.userId).unique(),
+  companyName: text('company_name').notNull(),
+  siteName: text('site_name').notNull(),
+}, table => [primaryKey({ columns: [table.siteUserId, table.requestId] })]);
 
 export const workspaceInvites = sqliteTable('workspace_invites', {
   id: text('id').primaryKey().notNull(),

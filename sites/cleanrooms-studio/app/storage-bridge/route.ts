@@ -59,6 +59,9 @@ const studioWriteBody = ${studioWriteBody.toString()};
 const studioReadUrl = ${studioReadUrl.toString()};
 const directoryBody = ${directoryBody.toString()};
 (() => {
+  // The outer document pins the company for this tab when it creates the bridge.
+  const company = typeof location.search === 'string' ? new URLSearchParams(location.search).get('virksomhed') : null;
+  const companyHeaders = company === null ? {} : { 'X-CleanRooms-Workspace': /^[a-zA-Z0-9_-]{1,128}$/.test(company) ? company : '!' };
   // Keep the employee's position in the first-party frame and send it only after a server challenge.
   function clockInLocation() {
     return new Promise(resolve => {
@@ -89,7 +92,7 @@ const directoryBody = ${directoryBody.toString()};
     let cursor=null,filename=null,workspaceId=null,profileVersion=payload.profileVersion,rowCount=null,receivedRows=0,size=0;
     try {
       for(let index=0;index<1000;index++) {
-        const result=await fetch('/api/accounts',{method:'POST',credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'payrollPeriodExport',...payload,...(profileVersion!==undefined?{profileVersion}:{}),limit:500,...(cursor?{cursor}:{})})});
+        const result=await fetch('/api/accounts',{method:'POST',credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json',...companyHeaders},body:JSON.stringify({action:'payrollPeriodExport',...payload,...(profileVersion!==undefined?{profileVersion}:{}),limit:500,...(cursor?{cursor}:{})})});
         const page=await readResponse(result);
         if(!result.ok)return {ok:false,status:result.status,message:page.message||'Lønfilen kunne ikke hentes.'};
         if(typeof page.text!=='string'||page.text.length>4*1024*1024||page.revision!==payload.revision||typeof page.filename!=='string'||page.filename.length>180||!page.filename.endsWith('.csv')||/[\\/\\\\\\r\\n\\u0000-\\u001f]/.test(page.filename))throw Error('invalid_export');
@@ -156,6 +159,7 @@ const directoryBody = ${directoryBody.toString()};
           try{options.body=JSON.stringify(directoryBody(message));}catch{port.postMessage({id:message.id,ok:false,status:400,error:'invalid_directory_request'});return;}
           url='/api/directory';options.method='POST';options.headers={'Content-Type':'application/json'};
         }
+        if (company !== null) options.headers = { ...options.headers, ...companyHeaders };
         let result = await fetch(url, options), payload = await readResponse(result);
         if(clockInBody&&result.status===400&&payload?.error==='time_location_required'){
           const fix=await clockInLocation();

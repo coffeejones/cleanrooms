@@ -2,12 +2,14 @@
 (() => {
   const app = document.getElementById('codex-visualization');
   if (!app) return;
+  const company = new URLSearchParams(location.search).get('virksomhed');
+  const transportUrl = company === null ? '/storage-bridge' : '/storage-bridge?' + new URLSearchParams({virksomhed:company});
   let transport = null, ready = false, pending = [];
   function createTransport() {
     transport = document.createElement('iframe'); transport.hidden = true;
     transport.title = 'CleanRooms lagring'; transport.setAttribute('aria-hidden','true'); transport.tabIndex = -1;
     transport.addEventListener('load',() => { ready = true; const waiting = pending; pending = []; waiting.forEach(port => transport.contentWindow.postMessage({type:'cleanrooms-storage-connect'},location.origin,[port])); });
-    transport.src = '/storage-bridge'; document.body.append(transport);
+    transport.src = transportUrl; document.body.append(transport);
   }
   window.addEventListener('message',event => {
     if(event.source!==transport?.contentWindow||event.origin!==location.origin||event.data?.type!=='cleanrooms-payroll-download'||event.ports?.length!==1)return;
@@ -19,7 +21,12 @@
     finally{port.close();if(url)setTimeout(()=>URL.revokeObjectURL(url),60000);}
   });
   window.addEventListener('message',event => {
-    if (event.source !== app.contentWindow || event.data?.type !== 'cleanrooms-storage-connect' || !event.ports?.[0]) return;
+    if (event.source !== app.contentWindow) return;
+    if (event.data?.type === 'cleanrooms-open-companies') {
+      location.assign('/virksomheder');
+      return;
+    }
+    if (event.data?.type !== 'cleanrooms-storage-connect' || !event.ports?.[0]) return;
     const port = event.ports[0];
     // A new app connection gets a fresh, single-use transport frame.
     if (transport) { transport.remove(); ready = false; }

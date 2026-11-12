@@ -72,7 +72,10 @@
     if (!Array.isArray(organization.sites)||organization.sites.length===0) errors.push('Organisationen skal indeholde arbejdssteder.');
     else {
       if (organization.sites.length>2000) errors.push('Organisationen må højst have 2000 arbejdssteder.');
-      LEGACY_SITE_IDS.forEach((id,index)=>{if(organization.sites[index]?.id!==id)errors.push('De tre oprindelige arbejdssteder skal bevares på deres faste pladser.');});
+      const hasLegacySites=organization.sites.some(site=>site?.restricted!==true&&LEGACY_SITE_IDS.includes(site?.id));
+      if(hasLegacySites&&LEGACY_SITE_IDS.some((id,index)=>organization.sites[index]?.id!==id&&organization.sites[index]?.restricted!==true)){
+        errors.push('De tre oprindelige arbejdssteder skal bevares på deres faste pladser.');
+      }
       organization.sites.forEach(site=>{
         if (!record(site)) { errors.push('Et arbejdssted er ugyldigt.');return; }
         if (!identifier(site.id)) errors.push('Hvert arbejdssted skal have et stabilt id uden ydre mellemrum.');

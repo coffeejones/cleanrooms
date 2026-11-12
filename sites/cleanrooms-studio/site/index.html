@@ -3869,12 +3869,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-department-trigger-name{display:block;min-width:0;max-width:174px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #cleanrooms-studio .cs-department-trigger&gt;svg{flex-shrink:0;width:13px;height:13px;color:#8a95a3}
 #cleanrooms-studio .cs-department-trigger[aria-expanded=&quot;true&quot;]{border-color:#8d9aae;background:#f7f9fb}
-/* Reserve a real title track; the switcher must never squeeze it behind actions. */
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){display:grid;grid-template-columns:minmax(96px,1fr) minmax(0,200px) max-content;align-items:center;column-gap:16px;row-gap:8px}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-title-block{grid-column:1;min-width:0;width:auto}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])) #cs-title{flex-shrink:0}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-department-slot{grid-column:2;width:100%;min-width:0;margin-right:0}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-head-actions{grid-column:3;min-width:0;width:auto;margin-left:0}
 #cleanrooms-studio .cs-department-portal{position:fixed;inset:0;z-index:60;pointer-events:none}
 #cleanrooms-studio .cs-department-popover{position:fixed;z-index:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border:1px solid #cdd6e1;border-radius:5px;background:#fff;color:#30353c;box-shadow:0 8px 28px #27334220;pointer-events:auto}
 #cleanrooms-studio .cs-department-search-label{display:block;flex-shrink:0;min-width:0;margin:0;padding:12px;border-bottom:1px solid #e2e7ed}
@@ -3941,13 +3935,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-department-footer&gt;.cs-button{flex-shrink:0;height:32px;min-height:32px;max-width:100%;margin:0;padding-inline:10px;border-radius:5px;font-size:12px;white-space:nowrap}
 #cleanrooms-studio .cs-department-trigger:focus-visible,#cleanrooms-studio .cs-department-search:focus-visible,#cleanrooms-studio .cs-department-input:focus-visible{outline:2px solid #8494a9;outline-offset:2px}
 #cleanrooms-studio .cs-department-option:focus-visible{outline:2px solid #8494a9;outline-offset:-2px}
-@media(max-width:900px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,200px)}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-department-slot{justify-self:end;justify-content:flex-end}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-head-actions{grid-column:1/-1;grid-row:2;justify-self:end;justify-content:flex-end;max-width:100%;flex-wrap:wrap}
-}
 @media(max-width:760px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,176px);column-gap:8px;row-gap:8px}
  #cleanrooms-studio .cs-department-slot{flex-basis:160px}
  #cleanrooms-studio .cs-department-trigger{font-size:11px;padding-inline:8px;gap:6px}
  #cleanrooms-studio .cs-department-trigger-name{max-width:144px}
@@ -3956,7 +3944,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio .cs-department-footer&gt;.cs-button{font-size:11px}
 }
 @media(max-width:375px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,156px)}
  #cleanrooms-studio .cs-department-slot{flex-basis:140px}
  #cleanrooms-studio .cs-department-dialog{--cs-department-gutter:16px}
  #cleanrooms-studio .cs-department-field-pair{grid-template-columns:minmax(0,1fr) 112px}
@@ -4389,9 +4376,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-draft[data-state=&quot;published&quot;] .cs-draft-dot{background:var(--cs-access-success)}
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) #cs-publish[data-state=&quot;published&quot;]:not(:disabled){border-color:var(--cs-access-success-edge);color:var(--cs-access-success)}
 
-/* The department grid retains distinct title, scope and action tracks. */
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) max-content;column-gap:16px;row-gap:8px}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-title-block{align-items:baseline;flex-direction:row;gap:12px}
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-department-trigger{height:36px;min-height:36px;border-radius:8px;border-color:var(--cs-access-control-edge);background:var(--cs-access-surface);color:var(--cs-access-body);font-size:13px}
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-department-trigger[aria-expanded=&quot;true&quot;]{border-color:var(--cs-access-blue);background:var(--cs-access-blue-soft);color:var(--cs-access-blue)}
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-department-popover{border-color:var(--cs-access-border);border-radius:8px;background:var(--cs-access-surface);color:var(--cs-access-body);box-shadow:0 3px 8px #25303b0c,0 14px 32px #25303b18}
@@ -4506,18 +4490,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-page-head{padding:24px 24px 18px}
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-content{padding:0 24px 24px}
 }
-@media(max-width:1000px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px)}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-head-actions{grid-column:1/-1;grid-row:2;justify-self:end;justify-content:flex-end;max-width:100%;flex-wrap:wrap}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-department-slot{justify-self:end;justify-content:flex-end}
-}
 @media(max-width:760px){
  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-page-head{padding:12px 12px 10px}
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-page-head{padding:20px 20px 16px}
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-content{padding:0 20px 20px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-content{padding-inline:12px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,170px);column-gap:8px;row-gap:8px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-title-block{gap:0}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-head-actions .cs-button{padding-inline:9px;font-size:12px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-review{width:36px;min-width:36px;height:36px;min-height:36px;padding:0}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-head-actions{gap:6px}
@@ -4536,15 +4513,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-department-trigger{padding-inline:8px;font-size:12px}
  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) :is(.cs-editor-head,.cs-review-head,.cs-operations-head) h3{font-size:20px;line-height:28px}
 }
-@media(max-width:400px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-filter-left{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-filter-left .cs-search{grid-column:1/-1;grid-row:1;width:100%;min-width:0}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-site-filter-label{grid-column:1;grid-row:2;width:100%;min-width:0}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-site-filter{width:100%;max-width:100%}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-attention{grid-column:2;grid-row:2;width:100%;min-width:0}
-}
 @media(max-width:375px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,156px)}
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-page-head{padding-inline:16px}
  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-content{padding-inline:16px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-site-filter{width:100%}
@@ -7986,15 +7955,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-employee-profile-breadcrumb&gt;.cs-page-help-trigger{margin-inline-start:auto}
 
 #cleanrooms-studio .cs-paygroups-breadcrumb&gt;.cs-page-help-trigger{margin-inline-start:auto}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) max-content 36px}
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;#cs-page-help{grid-column:4;grid-row:1;margin:0;justify-self:end}
-@media(max-width:1000px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) 36px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;#cs-page-help{grid-column:3;grid-row:1}
-}
-@media(max-width:760px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:minmax(100px,1fr) minmax(0,150px) 34px}
-}
 
 /* Actionable messages and requests share one calm, accessible reading order. */
 #cleanrooms-studio .cs-workflow{--cs-workflow-rule:#e3e8eb;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;height:100%;background:#fff;color:#2d3c45;font-size:14px;line-height:22px}
@@ -8434,12 +8394,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-week-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-attention{padding-inline:10px;font-size:12px}
  /* Context on the left, plan actions on the right. */
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:max-content minmax(0,1fr) max-content 36px;column-gap:14px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-department-slot{grid-column:2;grid-row:1;justify-self:start;justify-content:flex-start;width:auto;max-width:100%;margin:0;padding-left:14px;border-left:1px solid #e2e7eb}
  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-department-trigger{max-width:200px;border-color:transparent;background:transparent;box-shadow:none;padding-inline:8px;color:#52616b}
  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-department-trigger:hover{border-color:#dce4e9;background:#f5f7f8}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-head-actions{grid-column:3;grid-row:1;gap:8px;flex-wrap:nowrap}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;#cs-page-help{grid-column:4;grid-row:1}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-head-actions .cs-draft{order:2;gap:5px;margin:0 0 0 4px;padding-left:14px;border-left:1px solid #e2e7eb;color:#78848d;line-height:22px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-review{order:1;border-color:transparent;background:transparent;box-shadow:none;padding-inline:8px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-review:hover{border-color:#e2e7eb;background:#f5f7f8}
@@ -8486,8 +8442,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @media(min-width:761px) and (max-width:1100px){
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-head-actions .cs-draft{display:none}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){column-gap:10px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-department-slot{padding-left:10px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-filter-left{flex-basis:430px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] #cs-date-jump{padding-inline:6px}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-week-title{font-size:13px}
@@ -8501,11 +8455,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 @media(min-width:761px) and (max-width:1000px){
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-week-nav{flex-basis:100%}
  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-filter-left{flex:1 1 400px;margin-left:0}
-}
-@media(min-width:761px) and (max-width:900px){
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden])){grid-template-columns:max-content minmax(0,1fr) 36px}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;.cs-head-actions{grid-column:1/-1;grid-row:2;justify-self:end;flex-wrap:wrap}
- #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head:has(&gt;.cs-department-slot:not([hidden]))&gt;#cs-page-help{grid-column:3;grid-row:1}
 }
 @media(max-width:760px){
  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] #cs-date-jump{flex:1 1 auto;justify-content:flex-start;gap:6px;width:auto;min-width:0;padding-inline:6px}
@@ -10804,14 +10753,176 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:var(--cs-access-soft);
   color:var(--cs-access-ink);
 }
-@media(max-width:760px) {
-  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role=&quot;admin&quot;] .cs-workspace-toolbar .cs-search {
-    flex:1 0 100%;
-    width:100%;
-    max-width:none;
+
+/* Keep the calendar&#x27;s date and filters together and leave the header for plan actions. */
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar {
+  padding-block:10px;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar .cs-week-nav {
+  gap:6px;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] #cs-date-jump {
+  justify-content:flex-start;
+  gap:6px;
+  width:auto;
+  max-width:100%;
+  padding-inline:9px;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-active-week {
+  flex-shrink:0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] #cs-date-jump&gt;.cs-week-title {
+  min-width:0;
+  overflow:hidden;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:500;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-filter-left {
+  --cs-ui-field-border:transparent;
+  --cs-ui-field-background:transparent;
+  --cs-ui-field-font:12px;
+  --cs-ui-padding:9px;
+  flex:1 1 400px;
+  max-width:580px;
+  gap:0;
+  margin-inline-start:auto;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-search {
+  --cs-ui-field-inset-start:30px;
+  flex:1 1 150px;
+  width:auto;
+  min-width:106px;
+  max-width:none;
+  background:transparent;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-department-slot {
+  flex:0 1 150px;
+  min-width:108px;
+  margin:0;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar #cs-site-filter-label {
+  flex:0 1 155px;
+  min-width:142px;
+  border-inline-start:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar #cs-site-filter {
+  --cs-ui-field-inset-end:25px;
+  background-position:right 8px center;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-department-control {
+  width:100%;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention) {
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  border-color:transparent;
+  border-inline-start-color:var(--cs-compass-rule);
+  border-radius:0;
+  background-color:transparent;
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar .cs-department-trigger {
+  width:100%;
+  max-width:100%;
+  gap:6px;
+  padding-inline:9px;
+  font-size:12px;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar #cs-attention {
+  padding-inline:9px;
+  border-radius:0 5px 5px 0;
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(.cs-department-trigger[aria-expanded=&quot;true&quot;],#cs-attention[aria-pressed=&quot;true&quot;]) {
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention):hover:not(:disabled) {
+  background-color:var(--cs-compass-selected);
+}
+@media(min-width:761px) and (max-width:1180px) {
+  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar .cs-week-nav {
+    flex-basis:100%;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role=&quot;admin&quot;] .cs-workspace-toolbar .cs-search input {
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-filter-left {
+    flex-basis:375px;
+    margin-inline-start:0;
+  }
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    column-gap:8px;
+    row-gap:6px;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head&gt;.cs-head-actions:not([hidden]) {
+    grid-column:1/-1;
+    grid-row:2;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    width:auto;
+    margin:0;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head&gt;#cs-page-help {
+    grid-column:2;
+    grid-row:1;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-filter-left {
+    --cs-ui-field-border:var(--cs-access-control-edge);
+    --cs-ui-field-background:var(--cs-access-surface);
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    flex:1 1 calc(100% - 48px);
+    gap:6px;
+    margin:0;
+    border:0;
+    background:transparent;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar :is(.cs-search,.cs-department-slot,#cs-site-filter-label) {
+    min-width:0;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-filter-left &gt; :is(.cs-search,#cs-department-switcher,#cs-site-filter-label,#cs-attention) {
+    grid-area:auto;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
+    border:0;
+    padding:0;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger,#cs-attention) {
+    min-width:0;
     width:100%;
+    padding-inline:7px;
+    border:1px solid var(--cs-access-control-edge);
+    border-radius:6px;
+    background-color:var(--cs-access-surface);
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger[aria-expanded=&quot;true&quot;],#cs-attention[aria-pressed=&quot;true&quot;]) {
+    background-color:var(--cs-compass-selected);
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar #cs-site-filter {
+    text-overflow:ellipsis;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar .cs-calendar-display&gt;summary {
+    width:40px;
+    justify-content:center;
+    padding:0;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-calendar-display&gt;summary&gt;:is(span,svg:last-child) {
+    display:none;
+  }
+  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-search input {
+    min-width:0;
   }
 }
 
@@ -13009,18 +13120,27 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   &lt;main class=&quot;cs-main&quot;&gt;
     &lt;header class=&quot;cs-page-head&quot;&gt;
       &lt;div class=&quot;cs-title-block&quot;&gt;&lt;span class=&quot;cs-sr&quot; id=&quot;cs-crumb&quot;&gt;Vagtplan&lt;/span&gt;&lt;span class=&quot;cs-compass-context&quot; aria-hidden=&quot;true&quot;&gt;CleanRooms&lt;/span&gt;&lt;h2 id=&quot;cs-title&quot;&gt;Vagtplan&lt;/h2&gt;&lt;div class=&quot;cs-page-description&quot; id=&quot;cs-description&quot;&gt;22 medarbejdere · 3 arbejdssteder&lt;/div&gt;&lt;/div&gt;
-      &lt;div id=&quot;cs-department-switcher&quot; hidden&gt;&lt;/div&gt;
       &lt;div class=&quot;cs-head-actions&quot;&gt;&lt;span class=&quot;cs-draft&quot;&gt;&lt;span class=&quot;cs-draft-dot&quot;&gt;&lt;/span&gt;&lt;span id=&quot;cs-status&quot;&gt;Kladde&lt;/span&gt;&lt;/span&gt;&lt;button id=&quot;cs-review&quot; type=&quot;button&quot; class=&quot;cs-button cs-review-trigger cursor-interaction&quot; aria-label=&quot;Tjek planen&quot;&gt;&lt;i data-lucide=&quot;list-checks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-review-label&quot;&gt;Tjek planen&lt;/span&gt;&lt;span id=&quot;cs-review-count&quot; class=&quot;cs-review-count&quot;&gt;1&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-publish&quot; type=&quot;button&quot; class=&quot;cs-button cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Udgiv plan&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-new&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Opret vagt&lt;/button&gt;&lt;/div&gt;
       &lt;button id=&quot;cs-page-help&quot; type=&quot;button&quot; class=&quot;cs-page-help-trigger&quot; aria-label=&quot;Hjælp til denne side&quot; aria-haspopup=&quot;dialog&quot;&gt;?&lt;/button&gt;
     &lt;/header&gt;
     &lt;div class=&quot;cs-content&quot;&gt;
       &lt;div id=&quot;cs-workspace-toolbar&quot; class=&quot;cs-workspace-toolbar&quot;&gt;
       &lt;div class=&quot;cs-week-toolbar&quot; id=&quot;cs-week-toolbar&quot;&gt;
-        &lt;div class=&quot;cs-week-nav&quot;&gt;&lt;span class=&quot;cs-nav-pair&quot;&gt;&lt;button id=&quot;cs-prev-week&quot; type=&quot;button&quot; class=&quot;cs-icon-button cursor-interaction&quot; aria-label=&quot;Forrige uge&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;button id=&quot;cs-next-week&quot; type=&quot;button&quot; class=&quot;cs-icon-button cursor-interaction&quot; aria-label=&quot;Næste uge&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/span&gt;&lt;span class=&quot;cs-week-title&quot; id=&quot;cs-week-title&quot;&gt;26. okt. – 1. nov. 2026&lt;/span&gt;&lt;button id=&quot;cs-date-jump&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet cursor-interaction&quot; aria-label=&quot;Gå til dato&quot; aria-describedby=&quot;cs-week-title&quot; aria-expanded=&quot;false&quot;&gt;&lt;i data-lucide=&quot;calendar-range&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;button id=&quot;cs-today&quot; type=&quot;button&quot; class=&quot;cs-button cs-today cursor-interaction&quot;&gt;I dag&lt;/button&gt;&lt;/div&gt;
+        &lt;div class=&quot;cs-week-nav&quot;&gt;
+          &lt;span class=&quot;cs-nav-pair&quot;&gt;&lt;button id=&quot;cs-prev-week&quot; type=&quot;button&quot; class=&quot;cs-icon-button cursor-interaction&quot; aria-label=&quot;Forrige uge&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;button id=&quot;cs-next-week&quot; type=&quot;button&quot; class=&quot;cs-icon-button cursor-interaction&quot; aria-label=&quot;Næste uge&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/span&gt;
+          &lt;span class=&quot;cs-week-title&quot; id=&quot;cs-week-title&quot;&gt;&lt;/span&gt;
+          &lt;button id=&quot;cs-date-jump&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet cursor-interaction&quot; aria-label=&quot;Gå til dato&quot; aria-describedby=&quot;cs-active-week cs-week-title&quot; aria-expanded=&quot;false&quot;&gt;&lt;i data-lucide=&quot;calendar-range&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span id=&quot;cs-active-week&quot; hidden&gt;&lt;/span&gt;&lt;/button&gt;
+          &lt;button id=&quot;cs-today&quot; type=&quot;button&quot; class=&quot;cs-button cs-today cursor-interaction&quot;&gt;I dag&lt;/button&gt;
+        &lt;/div&gt;
         &lt;div id=&quot;cs-date-jump-panel&quot; class=&quot;cs-date-jump-panel&quot; hidden&gt;&lt;label for=&quot;cs-jump-date&quot;&gt;Gå direkte til en dato&lt;/label&gt;&lt;div&gt;&lt;input type=&quot;date&quot; id=&quot;cs-jump-date&quot;&gt;&lt;button id=&quot;cs-jump-go&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;Vis i planen&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;cs-filters&quot;&gt;
-        &lt;div class=&quot;cs-filter-left&quot;&gt;&lt;label class=&quot;cs-search&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Søg medarbejder&lt;/span&gt;&lt;i data-lucide=&quot;search&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;input id=&quot;cs-search&quot; type=&quot;search&quot; placeholder=&quot;Søg medarbejder…&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label id=&quot;cs-site-filter-label&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select class=&quot;cs-select&quot; id=&quot;cs-site-filter&quot;&gt;&lt;option value=&quot;all&quot;&gt;Alle arbejdssteder&lt;/option&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;button id=&quot;cs-attention&quot; type=&quot;button&quot; class=&quot;cs-button cs-attention cursor-interaction&quot; aria-pressed=&quot;false&quot;&gt;&lt;i data-lucide=&quot;circle-alert&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;1 ledig vagt&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
+        &lt;div class=&quot;cs-filter-left&quot;&gt;
+          &lt;label class=&quot;cs-search&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Søg medarbejder&lt;/span&gt;&lt;i data-lucide=&quot;search&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;input id=&quot;cs-search&quot; type=&quot;search&quot; placeholder=&quot;Søg medarbejder…&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;
+          &lt;div id=&quot;cs-department-switcher&quot; hidden&gt;&lt;/div&gt;
+          &lt;label id=&quot;cs-site-filter-label&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select class=&quot;cs-select&quot; id=&quot;cs-site-filter&quot;&gt;&lt;option value=&quot;all&quot;&gt;Alle arbejdssteder&lt;/option&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+          &lt;button id=&quot;cs-attention&quot; type=&quot;button&quot; class=&quot;cs-button cs-attention cursor-interaction&quot; aria-pressed=&quot;false&quot;&gt;&lt;i data-lucide=&quot;circle-alert&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;1 ledig vagt&lt;/span&gt;&lt;/button&gt;
+        &lt;/div&gt;
         &lt;div class=&quot;cs-filter-right&quot;&gt;&lt;button id=&quot;cs-reset-filters&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet cs-chrome-quiet cursor-interaction&quot; hidden&gt;Nulstil&lt;/button&gt;&lt;div class=&quot;cs-group-switch&quot; id=&quot;cs-group-switch&quot; role=&quot;group&quot; aria-label=&quot;Gruppér vagtplan&quot;&gt;&lt;button type=&quot;button&quot; data-group=&quot;people&quot; aria-pressed=&quot;true&quot; class=&quot;cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;users-round&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Personer&lt;/span&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; data-group=&quot;sites&quot; aria-pressed=&quot;false&quot; class=&quot;cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;building-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Steder&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;/div&gt;
       &lt;details id=&quot;cs-calendar-display&quot; class=&quot;cs-calendar-display&quot;&gt;
@@ -24134,6 +24254,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const initialSeries = {id:&#x27;jonas-plan&#x27;,person:&#x27;p0&#x27;,site:0,startDate:anchor,endDate:Engine.addMonths(anchor,6),weekdays:[1,3],start:&#x27;07:00&#x27;,end:&#x27;15:00&#x27;,note:&#x27;&#x27;};
   const leaveRequests = PlanData.leaveRequests();
   const dayNames = [&#x27;Mandag&#x27;,&#x27;Tirsdag&#x27;,&#x27;Onsdag&#x27;,&#x27;Torsdag&#x27;,&#x27;Fredag&#x27;,&#x27;Lørdag&#x27;,&#x27;Søndag&#x27;];
+  const plannerWeekFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
+  const publicationPeriodFormat = new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;long&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
   const state = {page:&#x27;schedule&#x27;,group:&#x27;people&#x27;,view:&#x27;week&#x27;,zoom:1,calendarLayoutVersion:2,day:2,onlyOpen:false,week:0,pageIndex:0,search:&#x27;&#x27;,site:&#x27;all&#x27;,edits:{},deleted:[],series:[{...initialSeries,weekdays:[1,3]}],weekPlans:{},requests:{},leaveDecisions:{},coverageRules:Coverage?.defaultRules() || [],demoSession:null,demoReturnPage:&#x27;schedule&#x27;,storageVersion:1,role:&#x27;admin&#x27;,employeePerson:&#x27;p0&#x27;,employeeWeek:anchor,employeeDate:anchor,employeeView:&#x27;month&#x27;,employeeCalendarVersion:1,employeeShift:null,checklistProgress:{},employeeExamplesVersion:0};
   const design = {rowHeight:78,showAvatars:true};
   const pageSize = 7;
@@ -26643,7 +26765,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       q(&#x27;#cs-title&#x27;).textContent=&#x27;Timer&#x27;;q(&#x27;#cs-crumb&#x27;).textContent=&#x27;Timer&#x27;;q(&#x27;#cs-description&#x27;).textContent=&#x27;Tidsregistrering, godkendelse og løngrundlag&#x27;;
       for(const selector of [&#x27;#cs-department-switcher&#x27;,&#x27;.cs-filters&#x27;,&#x27;.cs-footer&#x27;,&#x27;#cs-day-strip&#x27;,&#x27;#cs-selection-bar&#x27;,&#x27;#cs-demo-session-bar&#x27;,&#x27;#cs-view-switch&#x27;,&#x27;#cs-zoom-controls&#x27;])q(selector).hidden=true;
       const periodLabel=q(&#x27;#cs-week-title&#x27;),periodTrigger=q(&#x27;#cs-date-jump&#x27;);if(periodLabel.parentElement!==periodTrigger)periodTrigger.append(periodLabel);
-      const range=timeRange();q(&#x27;#cs-week-toolbar&#x27;).hidden=false;q(&#x27;#cs-week-title&#x27;).textContent=shortDate(range.from)+&#x27; – &#x27;+shortDate(range.to)+&#x27; &#x27;+date(range.to).getUTCFullYear();
+      const range=timeRange(), activeWeek=q(&#x27;#cs-active-week&#x27;);
+      q(&#x27;#cs-week-toolbar&#x27;).hidden=false;
+      activeWeek.hidden=true;
+      activeWeek.textContent=&#x27;&#x27;;
+      q(&#x27;#cs-week-title&#x27;).textContent=shortDate(range.from)+&#x27; – &#x27;+shortDate(range.to)+&#x27; &#x27;+date(range.to).getUTCFullYear();
       q(&#x27;#cs-prev-week&#x27;).disabled=state.week&lt;=-52;q(&#x27;#cs-next-week&#x27;).disabled=state.week&gt;=52;q(&#x27;#cs-prev-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Forrige uge&#x27;);q(&#x27;#cs-next-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Næste uge&#x27;);
       renderHours();icons();animateNavigation();return;
     }
@@ -26677,7 +26803,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-attention&#x27;).hidden = !isSchedule; const openCount = (isSchedule &amp;&amp; !isDay ? loadedCalendarWeeks().flatMap(day=&gt;shiftsInRange(day,addDays(day,6))) : shifts()).filter(shift =&gt; !shift.person &amp;&amp; inDepartment(shift.site)).length;
     q(&#x27;#cs-attention span&#x27;).textContent = partialCalendar&amp;&amp;!openCount?&#x27;Ledige vagter&#x27;:openCount + (openCount === 1 ? &#x27; ledig vagt&#x27; : &#x27; ledige vagter&#x27;); q(&#x27;#cs-attention&#x27;).setAttribute(&#x27;aria-pressed&#x27;, String(state.onlyOpen)); q(&#x27;#cs-attention&#x27;).disabled = !partialCalendar&amp;&amp;openCount === 0 &amp;&amp; !state.onlyOpen;q(&#x27;#cs-attention&#x27;).title=partialCalendar?&#x27;Ledige vagter i indlæste uger&#x27;:&#x27;&#x27;;
     q(&#x27;#cs-reset-filters&#x27;).hidden = !hasFilters();
-    const period = isSchedule &amp;&amp; !isDay ? calendarRange() : [dates()[0],dates()[6]]; q(&#x27;#cs-week-title&#x27;).textContent = shortDate(period[0]) + &#x27; – &#x27; + shortDate(period[1]) + &#x27; &#x27; + date(period[1]).getUTCFullYear();
+    q(&#x27;#cs-search&#x27;).placeholder = isSchedule ? &#x27;Medarbejder&#x27; : &#x27;Søg medarbejder…&#x27;;
+    const week = dates(), activeWeek = q(&#x27;#cs-active-week&#x27;);
+    activeWeek.hidden = !isSchedule;
+    activeWeek.textContent = isSchedule ? &#x27;Uge &#x27; + weekNumber(week[0]) : &#x27;&#x27;;
+    q(&#x27;#cs-week-title&#x27;).textContent = isSchedule
+      ? plannerWeekFormat.formatRange(date(week[0]),date(week[6]))
+      : shortDate(week[0]) + &#x27; – &#x27; + shortDate(week[6]) + &#x27; &#x27; + date(week[6]).getUTCFullYear();
     const navStep = 1;
     q(&#x27;#cs-prev-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Forrige &#x27; + navStep + (navStep === 1 ? &#x27; uge&#x27; : &#x27; uger&#x27;));
     q(&#x27;#cs-next-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Næste &#x27; + navStep + (navStep === 1 ? &#x27; uge&#x27; : &#x27; uger&#x27;));
@@ -26688,8 +26820,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-changes-toggle&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Gennemgå ændringer i uge &#x27; + weekNumber(dates()[0]));
     q(&#x27;#cs-planning-tools&#x27;).hidden = !isSchedule;
     q(&#x27;#cs-selection-toggle&#x27;).hidden = isDay;
-    q(&#x27;#cs-publish span&#x27;).textContent = header.published ? &#x27;Udgiv flere uger&#x27; : &#x27;Udgiv plan&#x27;;
-    q(&#x27;#cs-publish&#x27;).title = &#x27;Gennemgå uge &#x27; + weekNumber(dates()[0]) + &#x27; · &#x27; + publicationScope().siteIds.length + &#x27; arbejdssteder&#x27;;
+    if (isSchedule) renderPublicationTrigger();
     q(&#x27;.cs-review-label&#x27;).textContent = &#x27;Overblik&#x27;; q(&#x27;#cs-review&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Driftsoverblik for alle afdelinger i uge &#x27; + weekNumber(dates()[0]) + (header.drift===null?&#x27;&#x27;:&#x27; · &#x27; + header.drift + &#x27; punkter&#x27;)); q(&#x27;#cs-review&#x27;).title = &#x27;Driftsoverblik for alle afdelinger i uge &#x27; + weekNumber(dates()[0]); q(&#x27;#cs-publish&#x27;).disabled = publicationBusy||!cloudLoaded;
     q(&#x27;#cs-leave-count&#x27;).textContent = String(pendingLeaveCount());
     visibleShifts = [];
@@ -27683,12 +27814,29 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(publicationResume&amp;&amp;!publicationResume.scrollRestored){const resume=publicationResume;resume.scrollRestored=true;Promise.resolve().then(()=&gt;{if(publicationResume===resume&amp;&amp;!q(&#x27;#cs-changes-layer&#x27;).hidden)q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop=resume.scrollTop||0;});}
   }
   function publicationContextKey(){return JSON.stringify([chatWorkspaceId,sessionViewer?.userId,state.role]);}
+  function resumablePublicationReview() {
+    const candidate = publicationResume;
+    if (candidate?.key !== publicationContextKey()) return null;
+    const departmentExists = candidate.departmentId === &#x27;all&#x27; || state.organization?.departments.some(item =&gt; item.id === candidate.departmentId);
+    const siteExists = candidate.site === &#x27;all&#x27; || sites[Number(candidate.site)];
+    return departmentExists &amp;&amp; siteExists ? candidate : null;
+  }
+  function renderPublicationTrigger() {
+    const week = dates(), range = resumablePublicationReview()?.range ?? {from:week[0],to:week[6]};
+    const differsFromCurrentWeek = range.from !== week[0] || range.to !== week[6];
+    const coversMultipleWeeks = range.to &gt; addDays(range.from,6);
+    const button = q(&#x27;#cs-publish&#x27;);
+    const offersMoreWeeks = coversMultipleWeeks || (!differsFromCurrentWeek &amp;&amp; button.dataset.state === &#x27;published&#x27;);
+    q(&#x27;#cs-publish span&#x27;).textContent = offersMoreWeeks ? &#x27;Udgiv flere uger&#x27; : &#x27;Udgiv uge &#x27; + weekNumber(range.from);
+    const description = &#x27;Gennemgå perioden &#x27; + publicationPeriodFormat.formatRange(date(range.from),date(range.to));
+    button.title = description;
+    button.setAttribute(&#x27;aria-description&#x27;,description);
+  }
   function openChanges(trigger = q(&#x27;#cs-changes-toggle&#x27;)) {
     if(!confirmEditorLeave(()=&gt;openChanges(trigger)))return false;
     closeOperationsSheets();
     closeEditor({force:true}); closeGroupEditor(false); closeBulkEditor(false); closeReview();
-    const candidate=publicationResume?.key===publicationContextKey()?publicationResume:null;
-    const resume=candidate&amp;&amp;(candidate.departmentId===&#x27;all&#x27;||state.organization?.departments.some(item=&gt;item.id===candidate.departmentId))&amp;&amp;(candidate.site===&#x27;all&#x27;||sites[Number(candidate.site)])?candidate:null;publicationResume=resume;if(resume)resume.scrollRestored=false;
+    const resume=resumablePublicationReview();publicationResume=resume;if(resume)resume.scrollRestored=false;
     if(resume){state.departmentId=resume.departmentId;state.site=resume.site;q(&#x27;#cs-site-filter&#x27;).value=state.site;}
     publicationAllSites=resume?.allSites||false;includeRelatedPublication=resume?.related||false;publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;
     publicationRangeView?.dispose?.();publicationRangeView=null;
@@ -27705,6 +27853,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,scrollTop:q(&#x27;.cs-changes-editor .cs-group-fields&#x27;).scrollTop||0};
     q(&#x27;#cs-changes-layer&#x27;).hidden = true;
     publicationAllSites=false;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
+    if (wasOpen &amp;&amp; state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
     if(wasOpen&amp;&amp;restoreFocus){const target=changesTrigger?.isConnected?changesTrigger:q(&#x27;#cs-changes-toggle&#x27;);target.focus({preventScroll:true});}
   }
   async function publishReviewedWeek() {
@@ -27721,7 +27870,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
     if(!result.ok){notify(result.message||&#x27;Udgivelsen kunne ikke gemmes. Kladden er bevaret.&#x27;);renderChanges();return;}
-    closeChanges(false);publicationResume=null;lastUndo=null;clearSelection(false);await initializeCloud();
+    closeChanges(false);publicationResume=null;
+    if (state.page === &#x27;schedule&#x27;) renderPublicationTrigger();
+    lastUndo=null;clearSelection(false);await initializeCloud();
     const publishedWeeks=expanded.scopes.length;
     notify(publishedWeeks+(publishedWeeks===1?&#x27; uge&#x27;:&#x27; uger&#x27;)+&#x27; udgivet. Medarbejdernes beskeder er gemt.&#x27;);
     q(&#x27;#cs-changes-toggle&#x27;).focus({preventScroll:true});
@@ -28011,6 +28162,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
+
 
 
 

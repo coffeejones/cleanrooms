@@ -34,18 +34,27 @@
   <main class="cs-main">
     <header class="cs-page-head">
       <div class="cs-title-block"><span class="cs-sr" id="cs-crumb">Vagtplan</span><span class="cs-compass-context" aria-hidden="true">CleanRooms</span><h2 id="cs-title">Vagtplan</h2><div class="cs-page-description" id="cs-description">22 medarbejdere · 3 arbejdssteder</div></div>
-      <div id="cs-department-switcher" hidden></div>
       <div class="cs-head-actions"><span class="cs-draft"><span class="cs-draft-dot"></span><span id="cs-status">Kladde</span></span><button id="cs-review" type="button" class="cs-button cs-review-trigger cursor-interaction" aria-label="Tjek planen"><i data-lucide="list-checks" aria-hidden="true"></i><span class="cs-review-label">Tjek planen</span><span id="cs-review-count" class="cs-review-count">1</span></button><button id="cs-publish" type="button" class="cs-button cursor-interaction"><i data-lucide="check" aria-hidden="true"></i><span>Udgiv plan</span></button><button id="cs-new" type="button" class="cs-button cs-primary cursor-interaction"><i data-lucide="plus" aria-hidden="true"></i>Opret vagt</button></div>
       <button id="cs-page-help" type="button" class="cs-page-help-trigger" aria-label="Hjælp til denne side" aria-haspopup="dialog">?</button>
     </header>
     <div class="cs-content">
       <div id="cs-workspace-toolbar" class="cs-workspace-toolbar">
       <div class="cs-week-toolbar" id="cs-week-toolbar">
-        <div class="cs-week-nav"><span class="cs-nav-pair"><button id="cs-prev-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Forrige uge"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="cs-next-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Næste uge"><i data-lucide="chevron-right" aria-hidden="true"></i></button></span><span class="cs-week-title" id="cs-week-title">26. okt. – 1. nov. 2026</span><button id="cs-date-jump" type="button" class="cs-icon-button cs-quiet cursor-interaction" aria-label="Gå til dato" aria-describedby="cs-week-title" aria-expanded="false"><i data-lucide="calendar-range" aria-hidden="true"></i></button><button id="cs-today" type="button" class="cs-button cs-today cursor-interaction">I dag</button></div>
+        <div class="cs-week-nav">
+          <span class="cs-nav-pair"><button id="cs-prev-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Forrige uge"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="cs-next-week" type="button" class="cs-icon-button cursor-interaction" aria-label="Næste uge"><i data-lucide="chevron-right" aria-hidden="true"></i></button></span>
+          <span class="cs-week-title" id="cs-week-title"></span>
+          <button id="cs-date-jump" type="button" class="cs-icon-button cs-quiet cursor-interaction" aria-label="Gå til dato" aria-describedby="cs-active-week cs-week-title" aria-expanded="false"><i data-lucide="calendar-range" aria-hidden="true"></i><span id="cs-active-week" hidden></span></button>
+          <button id="cs-today" type="button" class="cs-button cs-today cursor-interaction">I dag</button>
+        </div>
         <div id="cs-date-jump-panel" class="cs-date-jump-panel" hidden><label for="cs-jump-date">Gå direkte til en dato</label><div><input type="date" id="cs-jump-date"><button id="cs-jump-go" type="button" class="cs-button cs-primary cursor-interaction">Vis i planen</button></div></div>
       </div>
       <div class="cs-filters">
-        <div class="cs-filter-left"><label class="cs-search"><span class="cs-sr">Søg medarbejder</span><i data-lucide="search" aria-hidden="true"></i><input id="cs-search" type="search" placeholder="Søg medarbejder…" autocomplete="off"></label><label id="cs-site-filter-label"><span class="cs-sr">Arbejdssted</span><select class="cs-select" id="cs-site-filter"><option value="all">Alle arbejdssteder</option><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label><button id="cs-attention" type="button" class="cs-button cs-attention cursor-interaction" aria-pressed="false"><i data-lucide="circle-alert" aria-hidden="true"></i><span>1 ledig vagt</span></button></div>
+        <div class="cs-filter-left">
+          <label class="cs-search"><span class="cs-sr">Søg medarbejder</span><i data-lucide="search" aria-hidden="true"></i><input id="cs-search" type="search" placeholder="Søg medarbejder…" autocomplete="off"></label>
+          <div id="cs-department-switcher" hidden></div>
+          <label id="cs-site-filter-label"><span class="cs-sr">Arbejdssted</span><select class="cs-select" id="cs-site-filter"><option value="all">Alle arbejdssteder</option><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label>
+          <button id="cs-attention" type="button" class="cs-button cs-attention cursor-interaction" aria-pressed="false"><i data-lucide="circle-alert" aria-hidden="true"></i><span>1 ledig vagt</span></button>
+        </div>
         <div class="cs-filter-right"><button id="cs-reset-filters" type="button" class="cs-button cs-quiet cs-chrome-quiet cursor-interaction" hidden>Nulstil</button><div class="cs-group-switch" id="cs-group-switch" role="group" aria-label="Gruppér vagtplan"><button type="button" data-group="people" aria-pressed="true" class="cursor-interaction"><i data-lucide="users-round" aria-hidden="true"></i><span>Personer</span></button><button type="button" data-group="sites" aria-pressed="false" class="cursor-interaction"><i data-lucide="building-2" aria-hidden="true"></i><span>Steder</span></button></div></div>
       </div>
       <details id="cs-calendar-display" class="cs-calendar-display">

@@ -29,12 +29,3 @@
 #cleanrooms-studio .cs-employee-profile-breadcrumb>.cs-page-help-trigger{margin-inline-start:auto}
 
 #cleanrooms-studio .cs-paygroups-breadcrumb>.cs-page-help-trigger{margin-inline-start:auto}
-#cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) max-content 36px}
-#cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head:has(>.cs-department-slot:not([hidden]))>#cs-page-help{grid-column:4;grid-row:1;margin:0;justify-self:end}
-@media(max-width:1000px){
- #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) 36px}
- #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head:has(>.cs-department-slot:not([hidden]))>#cs-page-help{grid-column:3;grid-row:1}
-}
-@media(max-width:760px){
- #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(100px,1fr) minmax(0,150px) 34px}
-}

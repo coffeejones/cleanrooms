@@ -38,6 +38,8 @@
   const initialSeries = {id:'jonas-plan',person:'p0',site:0,startDate:anchor,endDate:Engine.addMonths(anchor,6),weekdays:[1,3],start:'07:00',end:'15:00',note:''};
   const leaveRequests = PlanData.leaveRequests();
   const dayNames = ['Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag','Søndag'];
+  const plannerWeekFormat = new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+  const publicationPeriodFormat = new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
   const state = {page:'schedule',group:'people',view:'week',zoom:1,calendarLayoutVersion:2,day:2,onlyOpen:false,week:0,pageIndex:0,search:'',site:'all',edits:{},deleted:[],series:[{...initialSeries,weekdays:[1,3]}],weekPlans:{},requests:{},leaveDecisions:{},coverageRules:Coverage?.defaultRules() || [],demoSession:null,demoReturnPage:'schedule',storageVersion:1,role:'admin',employeePerson:'p0',employeeWeek:anchor,employeeDate:anchor,employeeView:'month',employeeCalendarVersion:1,employeeShift:null,checklistProgress:{},employeeExamplesVersion:0};
   const design = {rowHeight:78,showAvatars:true};
   const pageSize = 7;
@@ -2547,7 +2549,11 @@
       q('#cs-title').textContent='Timer';q('#cs-crumb').textContent='Timer';q('#cs-description').textContent='Tidsregistrering, godkendelse og løngrundlag';
       for(const selector of ['#cs-department-switcher','.cs-filters','.cs-footer','#cs-day-strip','#cs-selection-bar','#cs-demo-session-bar','#cs-view-switch','#cs-zoom-controls'])q(selector).hidden=true;
       const periodLabel=q('#cs-week-title'),periodTrigger=q('#cs-date-jump');if(periodLabel.parentElement!==periodTrigger)periodTrigger.append(periodLabel);
-      const range=timeRange();q('#cs-week-toolbar').hidden=false;q('#cs-week-title').textContent=shortDate(range.from)+' – '+shortDate(range.to)+' '+date(range.to).getUTCFullYear();
+      const range=timeRange(), activeWeek=q('#cs-active-week');
+      q('#cs-week-toolbar').hidden=false;
+      activeWeek.hidden=true;
+      activeWeek.textContent='';
+      q('#cs-week-title').textContent=shortDate(range.from)+' – '+shortDate(range.to)+' '+date(range.to).getUTCFullYear();
       q('#cs-prev-week').disabled=state.week<=-52;q('#cs-next-week').disabled=state.week>=52;q('#cs-prev-week').setAttribute('aria-label','Forrige uge');q('#cs-next-week').setAttribute('aria-label','Næste uge');
       renderHours();icons();animateNavigation();return;
     }
@@ -2581,7 +2587,13 @@
     q('#cs-attention').hidden = !isSchedule; const openCount = (isSchedule && !isDay ? loadedCalendarWeeks().flatMap(day=>shiftsInRange(day,addDays(day,6))) : shifts()).filter(shift => !shift.person && inDepartment(shift.site)).length;
     q('#cs-attention span').textContent = partialCalendar&&!openCount?'Ledige vagter':openCount + (openCount === 1 ? ' ledig vagt' : ' ledige vagter'); q('#cs-attention').setAttribute('aria-pressed', String(state.onlyOpen)); q('#cs-attention').disabled = !partialCalendar&&openCount === 0 && !state.onlyOpen;q('#cs-attention').title=partialCalendar?'Ledige vagter i indlæste uger':'';
     q('#cs-reset-filters').hidden = !hasFilters();
-    const period = isSchedule && !isDay ? calendarRange() : [dates()[0],dates()[6]]; q('#cs-week-title').textContent = shortDate(period[0]) + ' – ' + shortDate(period[1]) + ' ' + date(period[1]).getUTCFullYear();
+    q('#cs-search').placeholder = isSchedule ? 'Medarbejder' : 'Søg medarbejder…';
+    const week = dates(), activeWeek = q('#cs-active-week');
+    activeWeek.hidden = !isSchedule;
+    activeWeek.textContent = isSchedule ? 'Uge ' + weekNumber(week[0]) : '';
+    q('#cs-week-title').textContent = isSchedule
+      ? plannerWeekFormat.formatRange(date(week[0]),date(week[6]))
+      : shortDate(week[0]) + ' – ' + shortDate(week[6]) + ' ' + date(week[6]).getUTCFullYear();
     const navStep = 1;
     q('#cs-prev-week').setAttribute('aria-label','Forrige ' + navStep + (navStep === 1 ? ' uge' : ' uger'));
     q('#cs-next-week').setAttribute('aria-label','Næste ' + navStep + (navStep === 1 ? ' uge' : ' uger'));
@@ -2592,8 +2604,7 @@
     q('#cs-changes-toggle').setAttribute('aria-label','Gennemgå ændringer i uge ' + weekNumber(dates()[0]));
     q('#cs-planning-tools').hidden = !isSchedule;
     q('#cs-selection-toggle').hidden = isDay;
-    q('#cs-publish span').textContent = header.published ? 'Udgiv flere uger' : 'Udgiv plan';
-    q('#cs-publish').title = 'Gennemgå uge ' + weekNumber(dates()[0]) + ' · ' + publicationScope().siteIds.length + ' arbejdssteder';
+    if (isSchedule) renderPublicationTrigger();
     q('.cs-review-label').textContent = 'Overblik'; q('#cs-review').setAttribute('aria-label','Driftsoverblik for alle afdelinger i uge ' + weekNumber(dates()[0]) + (header.drift===null?'':' · ' + header.drift + ' punkter')); q('#cs-review').title = 'Driftsoverblik for alle afdelinger i uge ' + weekNumber(dates()[0]); q('#cs-publish').disabled = publicationBusy||!cloudLoaded;
     q('#cs-leave-count').textContent = String(pendingLeaveCount());
     visibleShifts = [];
@@ -3587,12 +3598,29 @@
     if(publicationResume&&!publicationResume.scrollRestored){const resume=publicationResume;resume.scrollRestored=true;Promise.resolve().then(()=>{if(publicationResume===resume&&!q('#cs-changes-layer').hidden)q('.cs-changes-editor .cs-group-fields').scrollTop=resume.scrollTop||0;});}
   }
   function publicationContextKey(){return JSON.stringify([chatWorkspaceId,sessionViewer?.userId,state.role]);}
+  function resumablePublicationReview() {
+    const candidate = publicationResume;
+    if (candidate?.key !== publicationContextKey()) return null;
+    const departmentExists = candidate.departmentId === 'all' || state.organization?.departments.some(item => item.id === candidate.departmentId);
+    const siteExists = candidate.site === 'all' || sites[Number(candidate.site)];
+    return departmentExists && siteExists ? candidate : null;
+  }
+  function renderPublicationTrigger() {
+    const week = dates(), range = resumablePublicationReview()?.range ?? {from:week[0],to:week[6]};
+    const differsFromCurrentWeek = range.from !== week[0] || range.to !== week[6];
+    const coversMultipleWeeks = range.to > addDays(range.from,6);
+    const button = q('#cs-publish');
+    const offersMoreWeeks = coversMultipleWeeks || (!differsFromCurrentWeek && button.dataset.state === 'published');
+    q('#cs-publish span').textContent = offersMoreWeeks ? 'Udgiv flere uger' : 'Udgiv uge ' + weekNumber(range.from);
+    const description = 'Gennemgå perioden ' + publicationPeriodFormat.formatRange(date(range.from),date(range.to));
+    button.title = description;
+    button.setAttribute('aria-description',description);
+  }
   function openChanges(trigger = q('#cs-changes-toggle')) {
     if(!confirmEditorLeave(()=>openChanges(trigger)))return false;
     closeOperationsSheets();
     closeEditor({force:true}); closeGroupEditor(false); closeBulkEditor(false); closeReview();
-    const candidate=publicationResume?.key===publicationContextKey()?publicationResume:null;
-    const resume=candidate&&(candidate.departmentId==='all'||state.organization?.departments.some(item=>item.id===candidate.departmentId))&&(candidate.site==='all'||sites[Number(candidate.site)])?candidate:null;publicationResume=resume;if(resume)resume.scrollRestored=false;
+    const resume=resumablePublicationReview();publicationResume=resume;if(resume)resume.scrollRestored=false;
     if(resume){state.departmentId=resume.departmentId;state.site=resume.site;q('#cs-site-filter').value=state.site;}
     publicationAllSites=resume?.allSites||false;includeRelatedPublication=resume?.related||false;publicationRange=resume?.range?{...resume.range}:{from:dates()[0],to:dates()[6]};publicationRangeValid=true;publicationCanSubmit=false;publicationBudget=null;publicationRead=null;
     publicationRangeView?.dispose?.();publicationRangeView=null;
@@ -3609,6 +3637,7 @@
     if(wasOpen)publicationResume={key:publicationContextKey(),departmentId:state.departmentId,site:state.site,range:publicationRange?{...publicationRange}:null,allSites:publicationAllSites,related:includeRelatedPublication,review:publicationReviewView?.capture?.()||null,scrollTop:q('.cs-changes-editor .cs-group-fields').scrollTop||0};
     q('#cs-changes-layer').hidden = true;
     publicationAllSites=false;includeRelatedPublication=false;publicationCanSubmit=false;publicationBudget=null;
+    if (wasOpen && state.page === 'schedule') renderPublicationTrigger();
     if(wasOpen&&restoreFocus){const target=changesTrigger?.isConnected?changesTrigger:q('#cs-changes-toggle');target.focus({preventScroll:true});}
   }
   async function publishReviewedWeek() {
@@ -3625,7 +3654,9 @@
     const result=await persistence.publish({...state,calendarAnchor:anchor,storageVersion:1},scope);
     publicationBusy=false;root.inert=false;
     if(!result.ok){notify(result.message||'Udgivelsen kunne ikke gemmes. Kladden er bevaret.');renderChanges();return;}
-    closeChanges(false);publicationResume=null;lastUndo=null;clearSelection(false);await initializeCloud();
+    closeChanges(false);publicationResume=null;
+    if (state.page === 'schedule') renderPublicationTrigger();
+    lastUndo=null;clearSelection(false);await initializeCloud();
     const publishedWeeks=expanded.scopes.length;
     notify(publishedWeeks+(publishedWeeks===1?' uge':' uger')+' udgivet. Medarbejdernes beskeder er gemt.');
     q('#cs-changes-toggle').focus({preventScroll:true});

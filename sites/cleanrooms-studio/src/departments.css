@@ -5,12 +5,6 @@
 #cleanrooms-studio .cs-department-trigger-name{display:block;min-width:0;max-width:174px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #cleanrooms-studio .cs-department-trigger>svg{flex-shrink:0;width:13px;height:13px;color:#8a95a3}
 #cleanrooms-studio .cs-department-trigger[aria-expanded="true"]{border-color:#8d9aae;background:#f7f9fb}
-/* Reserve a real title track; the switcher must never squeeze it behind actions. */
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){display:grid;grid-template-columns:minmax(96px,1fr) minmax(0,200px) max-content;align-items:center;column-gap:16px;row-gap:8px}
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-title-block{grid-column:1;min-width:0;width:auto}
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])) #cs-title{flex-shrink:0}
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-department-slot{grid-column:2;width:100%;min-width:0;margin-right:0}
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-head-actions{grid-column:3;min-width:0;width:auto;margin-left:0}
 #cleanrooms-studio .cs-department-portal{position:fixed;inset:0;z-index:60;pointer-events:none}
 #cleanrooms-studio .cs-department-popover{position:fixed;z-index:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border:1px solid #cdd6e1;border-radius:5px;background:#fff;color:#30353c;box-shadow:0 8px 28px #27334220;pointer-events:auto}
 #cleanrooms-studio .cs-department-search-label{display:block;flex-shrink:0;min-width:0;margin:0;padding:12px;border-bottom:1px solid #e2e7ed}
@@ -77,13 +71,7 @@
 #cleanrooms-studio .cs-department-footer>.cs-button{flex-shrink:0;height:32px;min-height:32px;max-width:100%;margin:0;padding-inline:10px;border-radius:5px;font-size:12px;white-space:nowrap}
 #cleanrooms-studio .cs-department-trigger:focus-visible,#cleanrooms-studio .cs-department-search:focus-visible,#cleanrooms-studio .cs-department-input:focus-visible{outline:2px solid #8494a9;outline-offset:2px}
 #cleanrooms-studio .cs-department-option:focus-visible{outline:2px solid #8494a9;outline-offset:-2px}
-@media(max-width:900px){
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,200px)}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-department-slot{justify-self:end;justify-content:flex-end}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-head-actions{grid-column:1/-1;grid-row:2;justify-self:end;justify-content:flex-end;max-width:100%;flex-wrap:wrap}
-}
 @media(max-width:760px){
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,176px);column-gap:8px;row-gap:8px}
  #cleanrooms-studio .cs-department-slot{flex-basis:160px}
  #cleanrooms-studio .cs-department-trigger{font-size:11px;padding-inline:8px;gap:6px}
  #cleanrooms-studio .cs-department-trigger-name{max-width:144px}
@@ -92,7 +80,6 @@
  #cleanrooms-studio .cs-department-footer>.cs-button{font-size:11px}
 }
 @media(max-width:375px){
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(0,156px)}
  #cleanrooms-studio .cs-department-slot{flex-basis:140px}
  #cleanrooms-studio .cs-department-dialog{--cs-department-gutter:16px}
  #cleanrooms-studio .cs-department-field-pair{grid-template-columns:minmax(0,1fr) 112px}

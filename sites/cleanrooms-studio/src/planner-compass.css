@@ -94,14 +94,176 @@
   background:var(--cs-access-soft);
   color:var(--cs-access-ink);
 }
-@media(max-width:760px) {
-  #cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-search {
-    flex:1 0 100%;
-    width:100%;
-    max-width:none;
+
+/* Keep the calendar's date and filters together and leave the header for plan actions. */
+#cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar {
+  padding-block:10px;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar .cs-week-nav {
+  gap:6px;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] #cs-date-jump {
+  justify-content:flex-start;
+  gap:6px;
+  width:auto;
+  max-width:100%;
+  padding-inline:9px;
+}
+#cleanrooms-studio[data-page="schedule"] #cs-active-week {
+  flex-shrink:0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page="schedule"] #cs-date-jump>.cs-week-title {
+  min-width:0;
+  overflow:hidden;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:500;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar .cs-filter-left {
+  --cs-ui-field-border:transparent;
+  --cs-ui-field-background:transparent;
+  --cs-ui-field-font:12px;
+  --cs-ui-padding:9px;
+  flex:1 1 400px;
+  max-width:580px;
+  gap:0;
+  margin-inline-start:auto;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar .cs-search {
+  --cs-ui-field-inset-start:30px;
+  flex:1 1 150px;
+  width:auto;
+  min-width:106px;
+  max-width:none;
+  background:transparent;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar .cs-department-slot {
+  flex:0 1 150px;
+  min-width:108px;
+  margin:0;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar #cs-site-filter-label {
+  flex:0 1 155px;
+  min-width:142px;
+  border-inline-start:1px solid var(--cs-compass-rule);
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar #cs-site-filter {
+  --cs-ui-field-inset-end:25px;
+  background-position:right 8px center;
+}
+#cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar .cs-department-control {
+  width:100%;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention) {
+  height:var(--cs-ui-height);
+  min-height:var(--cs-ui-height);
+  border-color:transparent;
+  border-inline-start-color:var(--cs-compass-rule);
+  border-radius:0;
+  background-color:transparent;
+  color:var(--cs-access-body);
+  box-shadow:none;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar .cs-department-trigger {
+  width:100%;
+  max-width:100%;
+  gap:6px;
+  padding-inline:9px;
+  font-size:12px;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar #cs-attention {
+  padding-inline:9px;
+  border-radius:0 5px 5px 0;
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(.cs-department-trigger[aria-expanded="true"],#cs-attention[aria-pressed="true"]) {
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention):hover:not(:disabled) {
+  background-color:var(--cs-compass-selected);
+}
+@media(min-width:761px) and (max-width:1180px) {
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar .cs-week-nav {
+    flex-basis:100%;
   }
-  #cleanrooms-studio[data-page="schedule"][data-role="admin"] .cs-workspace-toolbar .cs-search input {
+  #cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar .cs-filter-left {
+    flex-basis:375px;
+    margin-inline-start:0;
+  }
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    column-gap:8px;
+    row-gap:6px;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head>.cs-head-actions:not([hidden]) {
+    grid-column:1/-1;
+    grid-row:2;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    width:auto;
+    margin:0;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-main>.cs-page-head>#cs-page-help {
+    grid-column:2;
+    grid-row:1;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar .cs-filter-left {
+    --cs-ui-field-border:var(--cs-access-control-edge);
+    --cs-ui-field-background:var(--cs-access-surface);
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    flex:1 1 calc(100% - 48px);
+    gap:6px;
+    margin:0;
+    border:0;
+    background:transparent;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar :is(.cs-search,.cs-department-slot,#cs-site-filter-label) {
+    min-width:0;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar .cs-filter-left > :is(.cs-search,#cs-department-switcher,#cs-site-filter-label,#cs-attention) {
+    grid-area:auto;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
+    border:0;
+    padding:0;
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger,#cs-attention) {
+    min-width:0;
     width:100%;
+    padding-inline:7px;
+    border:1px solid var(--cs-access-control-edge);
+    border-radius:6px;
+    background-color:var(--cs-access-surface);
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger[aria-expanded="true"],#cs-attention[aria-pressed="true"]) {
+    background-color:var(--cs-compass-selected);
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar #cs-site-filter {
+    text-overflow:ellipsis;
+  }
+  #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar .cs-calendar-display>summary {
+    width:40px;
+    justify-content:center;
+    padding:0;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-calendar-display>summary>:is(span,svg:last-child) {
+    display:none;
+  }
+  #cleanrooms-studio[data-page="schedule"] .cs-workspace-toolbar .cs-search input {
+    min-width:0;
   }
 }
 

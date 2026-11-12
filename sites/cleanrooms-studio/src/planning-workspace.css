@@ -38,9 +38,6 @@
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-draft[data-state="published"] .cs-draft-dot{background:var(--cs-access-success)}
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) #cs-publish[data-state="published"]:not(:disabled){border-color:var(--cs-access-success-edge);color:var(--cs-access-success)}
 
-/* The department grid retains distinct title, scope and action tracks. */
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px) max-content;column-gap:16px;row-gap:8px}
-#cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-title-block{align-items:baseline;flex-direction:row;gap:12px}
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-department-trigger{height:36px;min-height:36px;border-radius:8px;border-color:var(--cs-access-control-edge);background:var(--cs-access-surface);color:var(--cs-access-body);font-size:13px}
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-department-trigger[aria-expanded="true"]{border-color:var(--cs-access-blue);background:var(--cs-access-blue-soft);color:var(--cs-access-blue)}
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-department-popover{border-color:var(--cs-access-border);border-radius:8px;background:var(--cs-access-surface);color:var(--cs-access-body);box-shadow:0 3px 8px #25303b0c,0 14px 32px #25303b18}
@@ -155,18 +152,11 @@
  #cleanrooms-studio[data-page="series"] .cs-page-head{padding:24px 24px 18px}
  #cleanrooms-studio[data-page="series"] .cs-content{padding:0 24px 24px}
 }
-@media(max-width:1000px){
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,190px)}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-head-actions{grid-column:1/-1;grid-row:2;justify-self:end;justify-content:flex-end;max-width:100%;flex-wrap:wrap}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-department-slot{justify-self:end;justify-content:flex-end}
-}
 @media(max-width:760px){
  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-page-head{padding:12px 12px 10px}
  #cleanrooms-studio[data-page="series"] .cs-page-head{padding:20px 20px 16px}
  #cleanrooms-studio[data-page="series"] .cs-content{padding:0 20px 20px}
  #cleanrooms-studio[data-page="schedule"] .cs-content{padding-inline:12px}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,170px);column-gap:8px;row-gap:8px}
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden]))>.cs-title-block{gap:0}
  #cleanrooms-studio[data-page="schedule"] .cs-head-actions .cs-button{padding-inline:9px;font-size:12px}
  #cleanrooms-studio[data-page="schedule"] #cs-review{width:36px;min-width:36px;height:36px;min-height:36px;padding:0}
  #cleanrooms-studio[data-page="schedule"] .cs-head-actions{gap:6px}
@@ -185,15 +175,7 @@
  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-department-trigger{padding-inline:8px;font-size:12px}
  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) :is(.cs-editor-head,.cs-review-head,.cs-operations-head) h3{font-size:20px;line-height:28px}
 }
-@media(max-width:400px){
- #cleanrooms-studio[data-page="schedule"] .cs-filter-left{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
- #cleanrooms-studio[data-page="schedule"] .cs-filter-left .cs-search{grid-column:1/-1;grid-row:1;width:100%;min-width:0}
- #cleanrooms-studio[data-page="schedule"] #cs-site-filter-label{grid-column:1;grid-row:2;width:100%;min-width:0}
- #cleanrooms-studio[data-page="schedule"] #cs-site-filter{width:100%;max-width:100%}
- #cleanrooms-studio[data-page="schedule"] #cs-attention{grid-column:2;grid-row:2;width:100%;min-width:0}
-}
 @media(max-width:375px){
- #cleanrooms-studio[data-page="schedule"] .cs-page-head:has(>.cs-department-slot:not([hidden])){grid-template-columns:minmax(112px,1fr) minmax(0,156px)}
  #cleanrooms-studio[data-page="series"] .cs-page-head{padding-inline:16px}
  #cleanrooms-studio[data-page="series"] .cs-content{padding-inline:16px}
  #cleanrooms-studio[data-page="schedule"] #cs-site-filter{width:100%}

@@ -7,7 +7,6 @@ import { cardColors } from '@/constants/card-styles';
 import { colors } from '@/constants/palette';
 import { PushNotificationsProvider } from '@/notifications/push-notifications';
 import { MotionPreference, useReduceMotionPreference } from '@/components/motion-preference';
-import { FlowLayout } from '@/components/flow-screen';
 import { Txt } from '@/components/ui';
 import '@/global.css';
 
@@ -47,5 +46,5 @@ function AppContent() {
   </View>;
 }
 export default function RootLayout() {
-  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><PushNotificationsProvider><AppProvider><StatusBar style="dark" /><MotionPreference><FlowLayout><AppContent /></FlowLayout></MotionPreference></AppProvider></PushNotificationsProvider></MobileAuthProvider></ThemeProvider>;
+  return <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.ink, background: colors.white, card: colors.white, text: colors.ink, border: colors.line } }}><MobileAuthProvider><PushNotificationsProvider><AppProvider><StatusBar style="dark" /><MotionPreference><AppContent /></MotionPreference></AppProvider></PushNotificationsProvider></MobileAuthProvider></ThemeProvider>;
 }

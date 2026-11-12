@@ -90,7 +90,6 @@ export default function CalendarScreen() {
   const [picker, setPicker] = useState({ visible: false, year: Number(today.slice(0, 4)) });
   const [availabilityError, setAvailabilityError] = useState<{ date: string; message: string } | null>(null);
   const [availabilityBusy, setAvailabilityBusy] = useState(false);
-  const [backgroundTop, setBackgroundTop] = useState<number | null>(null);
   const availabilityPending = useRef(false);
   const preferences = useEmployeePreferences();
   const employee = auth.mode === 'signedIn' ? auth.session.employee : null;
@@ -246,7 +245,7 @@ export default function CalendarScreen() {
       contentContainerStyle={styles.content}
       refreshControl={live ? <RefreshControl refreshing={schedule.refreshing || preferences.refreshing} onRefresh={() => { schedule.refresh(); preferences.refresh(); }} /> : undefined}
     >
-      <Row gap={0} style={styles.scopeBar} onLayout={event => setBackgroundTop(event.nativeEvent.layout.y + event.nativeEvent.layout.height + 16)}>
+      <Row gap={0} style={styles.scopeBar}>
         {scopes.map((scope) => {
           const selected = scope.view === (open ? 'open' : 'mine');
           return (
@@ -423,7 +422,7 @@ export default function CalendarScreen() {
 
   return (
     <>
-      <FlowScreen backgroundTop={backgroundTop}>{calendar}</FlowScreen>
+      <FlowScreen>{calendar}</FlowScreen>
       {!open && (
         <CalendarMonthPicker
           year={picker.year}

@@ -42,9 +42,6 @@ export default function HomeScreen() {
   const { state: auth } = useMobileAuth();
   const { fontScale } = useWindowDimensions();
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
-  // Content layout keeps the week heading clear without following the scroll offset.
-  const [agendaTop, setAgendaTop] = useState<number | null>(null);
-  const [agendaBodyTop, setAgendaBodyTop] = useState<number | null>(null);
   const live = auth.mode === 'signedIn';
   const today = live ? copenhagenDate(now) : state.today;
   const currentWeek = mondayOfWeek(today);
@@ -116,7 +113,7 @@ export default function HomeScreen() {
 
   const content = <>
     <Stack.Screen options={headerOptions} />
-    <FlowScreen reference backgroundTop={agendaTop !== null && agendaBodyTop !== null ? agendaTop + agendaBodyTop : null}>
+    <FlowScreen>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
@@ -126,7 +123,7 @@ export default function HomeScreen() {
       >
         {!dateInHeader && <Txt size={15} weight="600" color={muted}>{todayLabel}</Txt>}
         {live && activeTime.error && <ScheduleFeedback error={activeTime.error} onRetry={activeTime.refresh} />}
-        <View style={styles.agenda} onLayout={event => setAgendaTop(event.nativeEvent.layout.y)}>
+        <View style={styles.agenda}>
           <Row gap={12} style={styles.sectionHead}>
             <View style={styles.sectionIntro}>
               <Row gap={8} style={styles.weekHeading}>
@@ -156,7 +153,7 @@ export default function HomeScreen() {
               />
             </Row>
           </Row>
-          <View style={styles.agendaBody} onLayout={event => setAgendaBodyTop(event.nativeEvent.layout.y)}>
+          <View style={styles.agendaBody}>
             <Animated.View style={[cardStyles.listSurface, styles.agendaList, weekMotion]}>
               <ScheduleFeedback loading={schedule.loading && !schedule.data} error={schedule.error} onRetry={schedule.refresh} />
               {agenda.map(({ shift, site: publishedSite, entry, end }, index) => (

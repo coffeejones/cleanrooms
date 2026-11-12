@@ -366,7 +366,7 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     return readEmployeeData(token => mobileAuthApi.shiftTime(token, command));
   }, [readEmployeeData]);
   const employeeRequest = useCallback(<T,>(payload: Record<string, unknown> & { action: string }) => {
-    if (offlineMode.current && !['workflowRead', 'employeeInbox', 'employeeHours', 'employeePreferences', 'employeeCompanySettings', 'leaveRead', 'employeeColleagues', 'chatRead', 'chatRooms'].includes(payload.action)) {
+    if (offlineMode.current && !['workflowRead', 'employeeInbox', 'employeeHours', 'employeePreferences', 'employeeCompanySettings', 'leaveRead', 'employeeColleagues', 'chatList', 'chatRead', 'chatSync'].includes(payload.action)) {
       return Promise.reject(new MobileAuthError('mobile_offline_read_only', 503, 'Opret forbindelse for at gemme ændringen.'));
     }
     return readEmployeeData(token => mobileAuthApi.employeeRequest<T>(token, payload));

@@ -100,6 +100,37 @@ test('actual auth cold boot opens cached read-only data after process restart an
  h.connect();h.events.forEach(fn=>fn('active'));await tick();await tick();value=h.render();assert.equal(value.state.offline,undefined);assert.equal(value.state.connection,'online');
  await value.writeShiftTime({operation:'start'});assert.equal(h.calls.filter(call=>call[0]==='clock').length,1);h.unmount();
 });
+test('chat list and conversation polling recover an offline session without a foreground event', async () => {
+  const polls = [
+    { action: 'chatList', cursor: null, limit: 100 },
+    { action: 'chatSync', roomId: 'room-one', afterSeq: 12, version: 1, limit: 50 },
+  ];
+  for (const poll of polls) {
+    const fixture = await authFixture();
+    try {
+      fixture.render();
+      await tick();
+      await tick();
+      const auth = fixture.render();
+      assert.equal(auth.state.connection, 'offline');
+
+      const before = fixture.calls.length;
+      await assert.rejects(auth.employeeRequest({ action: 'chatSend' }), { code: 'mobile_offline_read_only' });
+      await assert.rejects(auth.employeeRequest({ action: 'chatReadMark' }), { code: 'mobile_offline_read_only' });
+      assert.equal(fixture.calls.length, before, 'chat writes cannot start a request while offline');
+
+      await assert.rejects(auth.employeeRequest(poll), { code: 'mobile_connection_failed' });
+      assert.deepEqual(fixture.calls.slice(before), [['session', fixture.token]], 'an offline poll checks the session before reading chat');
+
+      fixture.connect();
+      await auth.employeeRequest(poll);
+      assert.deepEqual(fixture.calls.slice(before + 1), [['session', fixture.token], ['employee', poll.action]]);
+      assert.equal(fixture.render().state.connection, 'online');
+    } finally {
+      fixture.unmount();
+    }
+  }
+});
 test('an actual revoked session purges cached identity and protected data instead of restoring it again offline',async()=>{
  const h=await authFixture();h.fail(new MobileAuthError('mobile_session_invalid',401,'Revoked'));h.render();await tick();await tick();const value=h.render();assert.equal(value.state.mode,'signedOut');
  assert.equal(h.secrets.has('cleanrooms.mobile-auth.v1'),false);assert.equal(await h.cache.restore(h.binding,h.cache.lease()),null);h.unmount();

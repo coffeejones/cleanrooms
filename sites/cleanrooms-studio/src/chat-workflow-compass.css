@@ -176,7 +176,30 @@
   font-family:var(--cs-compass-font);
 }
 #cleanrooms-studio[data-page="workflow"] .cs-workflow-host {
-  padding:12px 0 0;
+  padding:10px 0 0;
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-demo-tools {
+  gap:6px 8px;
+  padding:0;
+  margin-block-end:8px;
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-demo-tools[data-demo="false"] {
+  justify-content:flex-end;
+  margin-block-end:0;
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-demo-tools[data-demo="true"] {
+  padding:4px 8px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow-demo-label {
+  flex:1 0 auto;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="workflow"] .cs-workflow[data-mode="manager"] .cs-workflow-body {
+  padding:10px 0 20px;
+  scrollbar-gutter:auto;
 }
 #cleanrooms-studio .cs-workflow :is(.cs-requests-directory,.cs-read-status,.cs-workflow-row-summary,.cs-workflow-detail-summary,.cs-workflow-note>p,.cs-workflow-request-people dd,.cs-workflow-message-metadata dd,.cs-workflow-decision-note>p) {
   color:var(--cs-access-body);
@@ -213,39 +236,46 @@
   border-radius:4px 4px 0 0;
   background:var(--cs-compass-indicator);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queues,.cs-read-filters,.cs-workflow-filters) {
+#cleanrooms-studio[data-role] .cs-workflow[data-mode="manager"] .cs-workflow-tab:is([aria-selected="true"],:hover) {
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role] .cs-workflow[data-mode="manager"] .cs-workflow-tab[aria-selected="true"]::after {
+  height:2px;
+  background:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filters,.cs-workflow-filters) {
   padding:0;
   border-bottom:1px solid var(--cs-workflow-rule);
   border-radius:0;
   background:transparent;
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter) {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter) {
   border:0;
   border-radius:0;
   background:transparent;
   color:var(--cs-access-muted);
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter)[aria-pressed="true"] {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed="true"] {
   color:var(--cs-access-ink);
   font-weight:700;
   box-shadow:inset 0 -2px var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-count,.cs-read-count) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-read-count {
   min-width:0;
   padding:0;
   background:transparent;
   color:var(--cs-access-muted);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-search,.cs-read-search,.cs-workflow-search) {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-search,.cs-workflow-search) {
   background:transparent;
   box-shadow:none;
   --cs-ui-field-border:var(--cs-access-control-edge);
   --cs-ui-field-background:var(--cs-access-surface);
   --cs-ui-field-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-requests-input,.cs-read-input),
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-read-input),
 #cleanrooms-studio[data-role] .cs-workflow-demo-person select {
   border-color:var(--cs-access-control-edge);
   border-radius:6px;
@@ -268,6 +298,9 @@
 #cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-button,.cs-requests-button,.cs-read-button):hover:not(:disabled) {
   border-color:var(--cs-access-control-edge);
   background:var(--cs-compass-selected);
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-requests-button {
+  font-weight:600;
 }
 #cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:not(:disabled) {
   border-color:var(--cs-access-primary);

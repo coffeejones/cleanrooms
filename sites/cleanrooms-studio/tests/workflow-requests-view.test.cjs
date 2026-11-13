@@ -22,7 +22,7 @@ function fixture(requests=[request()],callbacks={}){
 }
 test('separate queues distinguish planner decisions, colleague consent and closed requests with accurate counts',async()=>{
  const rows=[request({id:'ready'}),request({id:'accepted',status:'accepted'}),request({id:'blocked',blockedReason:'Overlap'}),request({id:'colleague',status:'awaiting_colleague'}),request({id:'approved',status:'approved'}),request({id:'rejected',status:'rejected'})],sample=fixture(rows);
- assert.equal(sample.key('queue:ready').getAttribute('aria-label'),'Til godkendelse · 3');assert.equal(sample.key('queue:colleague').getAttribute('aria-label'),'Afventer kollega · 1');assert.equal(sample.key('queue:closed').getAttribute('aria-label'),'Afsluttede · 2');assert.equal(sample.key('queue:all').getAttribute('aria-label'),'Alle · 6');assert.equal(sample.rows().length,3);assert.match(sample.host.textContent,/3 anmodninger venter på din beslutning. 1 kræver afklaring/);
+ assert.equal(sample.key('queue:ready').getAttribute('aria-label'),'Til godkendelse · 3');assert.equal(sample.key('queue:colleague').getAttribute('aria-label'),'Afventer kollega · 1');assert.equal(sample.key('queue:closed').getAttribute('aria-label'),'Afsluttede · 2');assert.equal(sample.key('queue:all').getAttribute('aria-label'),'Alle · 6');assert.equal(sample.rows().length,3);assert.equal(sample.byClass('cs-requests-summary').textContent,'1 kræver afklaring.');
  await sample.key('queue:colleague').click();assert.deepEqual(sample.rows().map(row=>row.dataset.requestId),['colleague']);assert.match(sample.rows()[0].textContent,/Afventer svar/);
  await sample.key('queue:closed').click();assert.deepEqual(sample.rows().map(row=>row.dataset.requestId).sort(),['approved','rejected']);
 });

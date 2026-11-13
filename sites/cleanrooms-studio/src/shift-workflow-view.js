@@ -10,6 +10,7 @@
   const clock=shift=>shift?.start&&shift?.end?shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':''):'—';
   const sortNewest=(a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))||String(b.id||'').localeCompare(String(a.id||''));
   const list=value=>Array.isArray(value)?value:[];
+  const requestView=()=>globalThis.CleanRoomsWorkflowRequests||(typeof require==='function'?require('./workflow-requests-view.js'):null);
   const titleFor=item=>KIND[item.kind]||item.summary||'Besked om din vagt';
   const canCompare=(before,after)=>before&&after;
   const summaryFor=(item={})=>{
@@ -97,7 +98,7 @@
     }
     function paintRequests(body){
       if(mode==='manager'){
-        if(!requestManager){requestManagerElement=node('div','cs-workflow-requests-host');const View=globalThis.CleanRoomsWorkflowRequests||(typeof require==='function'?require('./workflow-requests-view.js'):null);requestManager=View.mount({element:requestManagerElement,onOpenRequest:openRequest,onRefresh});}
+        if(!requestManager){requestManagerElement=node('div','cs-workflow-requests-host');requestManager=requestView().mount({element:requestManagerElement,onOpenRequest:openRequest,onRefresh});}
         body.append(requestManagerElement);requestManager.render({bundle:bundle(),loading:busy(),scopeKey});return;
       }
       const all=list(bundle().requests).slice().sort(sortNewest),mine=bundle().personId;
@@ -142,9 +143,12 @@
     function paintRequestDetail(body){
       const item=currentRequest();back(body,mode==='manager'?'Tilbage til anmodninger':'Tilbage');if(!item){empty(body,'Anmodningen findes ikke i denne visning','Hent de seneste oplysninger.');return;}
       const detail=node('section','cs-workflow-request-detail');detail.setAttribute('aria-label','Anmodningens oplysninger');
-      const head=node('header','cs-workflow-detail-head');head.append(node('h3','cs-workflow-title',item.kind==='claim'?'Anmodning om ledig vagt':'Overdragelse af vagt'),badge(STATUS[item.status]||'Afventer',item.status));detail.append(head);
+      const presentation=mode==='manager'?requestView():null;
+      const state=presentation?node('span','cs-requests-status',presentation.statusLabel(item)):badge(STATUS[item.status]||'Afventer',item.status);
+      if(presentation)state.dataset.state=presentation.statusState(item);
+      const head=node('header','cs-workflow-detail-head');head.append(node('h3','cs-workflow-title',item.kind==='claim'?'Anmodning om ledig vagt':'Overdragelse af vagt'),state);detail.append(head);
       const from=item.fromName||personName(item.fromPersonId),to=item.toName||personName(item.toPersonId);
-      detail.append(node('p','cs-workflow-detail-subtitle',item.kind==='claim'?from+' ønsker at tage vagten.':from+' ønsker at overdrage vagten til '+to+'.'));
+      if(mode!=='manager')detail.append(node('p','cs-workflow-detail-subtitle',item.kind==='claim'?from+' ønsker at tage vagten.':from+' ønsker at overdrage vagten til '+to+'.'));
       const summary=node('div','cs-workflow-request-summary'),identities=node('dl','cs-workflow-request-people');
       for(const [label,value]of item.kind==='claim'?[['Ønsker vagten',from]]:[['Nuværende medarbejder',from],['Overtager vagten',to]]){const pair=node('div');pair.append(node('dt','',label),node('dd','',value));identities.append(pair);}
       summary.append(shiftFacts(item.shift,'Vagten'),identities);detail.append(summary);
@@ -155,14 +159,14 @@
       const actions=node('div','cs-workflow-actions'),mine=bundle().personId;
       if(!readOnly()&&bundle().canManage&&['pending','accepted'].includes(item.status)){
         if(reject?.id===item.id){const box=node('form','cs-workflow-form');box.setAttribute('aria-label','Afvis anmodning');const reason=field('Begrundelse til medarbejderen','textarea',reject.reason,'reject:reason');reason.input.required=true;reason.input.addEventListener('input',()=>{reject.reason=reason.input.value;});box.append(reason.label);const controls=node('div','cs-workflow-actions');controls.append(button('Afvis anmodning',()=>{if(!reject.reason.trim()){error='Skriv en begrundelse til medarbejderen.';paint('reject:reason');return;}invoke('workflowDecide',{requestId:item.id,version:reject.version,decision:'reject',reason:reject.reason.trim()},'Anmodningen er afvist.',true);},'reject:save','cs-button cs-workflow-button'),button('Annuller',()=>{reject=null;paint('request:reject');},'reject:cancel'));box.append(controls);box.addEventListener('submit',event=>event.preventDefault());decision.append(box);}
-        else{const approve=button('Godkend anmodning',()=>invoke('workflowDecide',{requestId:item.id,version:item.version,decision:'approve'},bundle().demo?'Anmodningen er godkendt. Eksempelvagten er opdateret.':'Anmodningen er godkendt. Vagtplanen er opdateret.',true),'request:approve','cs-button cs-primary cs-workflow-button');approve.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason)||item.canApprove===false||Boolean(item.conflicts?.length);actions.append(approve,button('Afvis',()=>{reject={id:item.id,version:item.version,reason:''};paint('reject:reason');},'request:reject'));decision.append(node('p','cs-workflow-muted',bundle().demo?'Godkendelsen ændrer kun demovagten. Beskeder og læsestatus gemmes i demoforløbet.':'Ved godkendelse opdateres den udgivne vagt, og de berørte medarbejdere får en besked. Overlap og godkendt fravær kontrolleres igen.'));}
+        else{const approve=button('Godkend anmodning',()=>invoke('workflowDecide',{requestId:item.id,version:item.version,decision:'approve'},bundle().demo?'Anmodningen er godkendt. Eksempelvagten er opdateret.':'Anmodningen er godkendt. Vagtplanen er opdateret.',true),'request:approve','cs-button cs-primary cs-workflow-button');approve.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason)||item.canApprove===false||Boolean(item.conflicts?.length);actions.append(approve,button('Afvis',()=>{reject={id:item.id,version:item.version,reason:''};paint('reject:reason');},'request:reject'));if(!approve.disabled)decision.append(node('p','cs-workflow-muted',bundle().demo?'Godkendelsen ændrer eksempelvagten.':'Godkendelse opdaterer vagten og giver de berørte medarbejdere besked.'));}
       }else if(bundle().canManage&&item.status==='awaiting_colleague')decision.append(node('p','cs-workflow-muted',(item.toName||personName(item.toPersonId))+' skal først acceptere vagten. Anmodningen kommer derefter til din godkendelse.'));
       else if(!readOnly()&&item.status==='awaiting_colleague'&&item.toPersonId===mine){const accept=button('Acceptér vagten',()=>invoke('workflowRespond',{requestId:item.id,version:item.version,decision:'accept'},'Du har accepteret. Anmodningen afventer nu planlæggeren.',true),'request:accept','cs-button cs-primary cs-workflow-button');accept.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason);actions.append(accept,button('Afslå',()=>invoke('workflowRespond',{requestId:item.id,version:item.version,decision:'decline'},'Tilbuddet er afslået.',true),'request:decline'));}
       if(!readOnly()&&ACTIVE.has(item.status)&&item.fromPersonId===mine)actions.append(button('Træk anmodning tilbage',()=>invoke('workflowRespond',{requestId:item.id,version:item.version,decision:'cancel'},'Anmodningen er trukket tilbage.',true),'request:cancel'));
       if(item.status==='stale')decision.append(node('p','cs-workflow-muted','Vagten er ændret siden anmodningen blev sendt. Opret en ny anmodning ud fra den aktuelle vagt.'));
       if(actions.children.length)decision.append(actions);
-      if(!ACTIVE.has(item.status)&&!item.decisionReason)decision.append(node('p','cs-workflow-muted',STATUS[item.status]||'Anmodningen er behandlet.'));
-      detail.append(decision);
+      if(!ACTIVE.has(item.status)&&!item.decisionReason&&mode!=='manager')decision.append(node('p','cs-workflow-muted',STATUS[item.status]||'Anmodningen er behandlet.'));
+      if(mode!=='manager'||decision.children.length>1)detail.append(decision);
       const related=node('div','cs-workflow-related');if(mode==='manager'&&validDate(item.shift?.date)&&typeof onOpenSchedule==='function')related.append(button(bundle().demo?'Vis eksempelvagt':'Vis i vagtplan',()=>onOpenSchedule(item.shift),'request:schedule'));else if(item.shift?.id&&validDate(item.shift.date)&&typeof onOpenShift==='function'&&(item.status==='approved'?item.toPersonId===bundle().personId:item.shift.person===bundle().personId))related.append(button('Åbn vagt',()=>onOpenShift(item.shift.id,item.shift),'request:shift'));if(related.children.length)detail.append(related);
       detail.append(node('p','cs-workflow-timestamp','Oprettet '+stamp(item.createdAt)+(item.updatedAt&&item.updatedAt!==item.createdAt?' · Opdateret '+stamp(item.updatedAt):'')));body.append(detail);
     }

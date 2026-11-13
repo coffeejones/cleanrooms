@@ -116,6 +116,7 @@ test('manager review identifies the current and future employee before comment, 
  await sample.key('request:request-a').click();
  const detail=sample.byClass('cs-workflow-request-detail'),people=sample.byClass('cs-workflow-request-people');
  assert.equal(detail.getAttribute('aria-label'),'Anmodningens oplysninger');
+ assert.equal(sample.byClass('cs-requests-status').textContent,'Kræver afklaring');
  assert.deepEqual(people.querySelectorAll('dt').map(el=>el.textContent),['Nuværende medarbejder','Overtager vagten']);
  assert.deepEqual(people.querySelectorAll('dd').map(el=>el.textContent),['Emma Nielsen','Noah Andersen']);
  const comment=sample.byClass('cs-workflow-note'),clarification=sample.byClass('cs-workflow-clarification'),decision=sample.byClass('cs-workflow-decision');
@@ -128,7 +129,7 @@ test('a vacant-shift request names the interested employee without implying an e
  const sample=fixture({mode:'manager',bundle:{canManage:true,requests:[request({kind:'claim',fromPersonId:'emma',toPersonId:'emma',shift:shift({person:''})})]}});
  await sample.key('request:request-a').click();const identities=sample.byClass('cs-workflow-request-people');
  assert.deepEqual(identities.querySelectorAll('dt').map(el=>el.textContent),['Ønsker vagten']);assert.deepEqual(identities.querySelectorAll('dd').map(el=>el.textContent),['Emma Nielsen']);
- assert.ok(sample.byClass('cs-workflow-request-detail').textContent.includes('Emma Nielsen ønsker at tage vagten.'));assert.equal(sample.calls.length,0);
+ assert.equal(identities.querySelector('dd').textContent,'Emma Nielsen');assert.equal(sample.calls.length,0);
 });
 
 test('returning from a request retains the chosen queue and search while approval uses its refreshed version',async()=>{

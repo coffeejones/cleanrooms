@@ -1414,9 +1414,10 @@
     if(!workflowChrome)return;workflowChrome.replaceChildren();
     if(state.role==='employee'||!cloudCapabilities.plan){workflowChrome.hidden=true;return;}
     workflowChrome.hidden=false;const demo=isWorkflowDemo();
+    workflowChrome.dataset.demo=String(demo);
     if(demo){
-      workflowChrome.append(node('strong','cs-workflow-demo-label','Eksempelvisning'),node('span','cs-workflow-demo-caption','Anmodninger og beskeder i et separat prøvemiljø'));
-      const label=node('label','cs-workflow-demo-person'),select=node('select');label.append(node('span',null,'Vis som'));select.setAttribute('aria-label','Vis eksempel som');const manager=node('option',null,'Planlægger');manager.value='';select.append(manager);
+      workflowChrome.append(node('strong','cs-workflow-demo-label','Eksempelvisning'));
+      const label=node('label','cs-workflow-demo-person'),select=node('select');label.append(node('span',null,'Vis som'));select.setAttribute('aria-label','Vis eksempel som');select.setAttribute('data-select-only','');const manager=node('option',null,'Planlægger');manager.value='';select.append(manager);
       for(const person of workflowBundle?.demoPeople||[]){const option=node('option',null,person.name);option.value=person.id;select.append(option);}select.value=workflowDemoPerson;select.disabled=workflowLoading;
       select.addEventListener('change',()=>{workflowDemoPerson=select.value;workflowSelectedShift=null;clearWorkflow();renderWorkflow('manager');loadWorkflow(true);});label.append(select);workflowChrome.append(label);
       if(workflowDemoPerson){const views=node('div','cs-workflow-demo-views');views.setAttribute('role','group');views.setAttribute('aria-label','Demovisning');for(const [key,text]of [['employee','Vagtbytte'],['messages','Beskeder']]){const button=node('button','cs-button cs-chrome-quiet',text);button.type='button';button.setAttribute('aria-pressed',String(key===workflowDemoView));button.addEventListener('click',()=>{workflowDemoView=key;renderWorkflow('manager');});views.append(button);}workflowChrome.append(views);}

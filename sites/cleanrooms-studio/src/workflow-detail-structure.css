@@ -28,6 +28,14 @@
 #cleanrooms-studio .cs-workflow-change-table thead th{background:#f4f6f7;font-size:12px;font-weight:500;color:#77858d}
 #cleanrooms-studio .cs-workflow-change-table tbody th{font-size:12px;font-weight:500;color:#74848d}
 #cleanrooms-studio .cs-workflow-change-table tbody td:last-child{font-weight:500;color:#3d617c}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-back{margin-bottom:8px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-summary{gap:20px;margin:12px 0 16px;padding:16px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-summary>.cs-workflow-shift-facts{gap:2px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-people{gap:12px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-detail>:is(.cs-workflow-note,.cs-workflow-clarification){margin-block:16px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-detail>:is(.cs-workflow-decision,.cs-workflow-related){margin-top:16px;padding-top:12px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-detail .cs-workflow-section-title{margin-bottom:4px}
+#cleanrooms-studio .cs-workflow[data-mode="manager"] .cs-workflow-request-detail .cs-workflow-actions{margin-top:10px}
 @media(max-width:760px){
  #cleanrooms-studio .cs-workflow-request-summary{grid-template-columns:minmax(0,1fr);gap:24px;padding:20px}
  #cleanrooms-studio .cs-workflow-request-people{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}

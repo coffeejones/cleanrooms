@@ -8234,7 +8234,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-workflow-demo-tools{display:flex;align-items:center;flex-wrap:wrap;flex-shrink:0;gap:10px 14px;padding:0 20px 18px 0}
 #cleanrooms-studio .cs-workflow-demo-tools[hidden]{display:none}
 #cleanrooms-studio .cs-workflow-demo-label{font-size:12px;font-weight:600;line-height:20px;color:#465d6d}
-#cleanrooms-studio .cs-workflow-demo-caption{flex:1;min-width:180px;font-size:12px;line-height:20px;color:#7c8790}
 #cleanrooms-studio .cs-workflow-demo-person{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;color:#73818a}
 #cleanrooms-studio .cs-workflow-demo-person select{height:40px;min-height:40px;max-width:220px;padding:0 12px;border:1px solid #cbd5dc;border-radius:7px;background:#fff;color:#425663;font:inherit;font-size:13px}
 #cleanrooms-studio .cs-workflow-demo-person .cs-publication-combobox {max-width:220px}
@@ -8528,66 +8527,90 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
 }
 
-/* A fixed reading order makes each request comparable to the next. */
-#cleanrooms-studio .cs-requests-directory{min-width:0;color:#354650;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-requests-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 18px;min-width:0}
-#cleanrooms-studio .cs-requests-queues{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
-#cleanrooms-studio .cs-requests-directory .cs-requests-queue{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;height:40px!important;min-height:40px!important;margin:0;padding:0 11px!important;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:#71808a;font:inherit;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer}
-#cleanrooms-studio .cs-requests-directory .cs-requests-queue[aria-pressed=&quot;true&quot;]{border-color:#d6e0e6;background:#f0f4f6;color:#344d5e}
-#cleanrooms-studio .cs-requests-count{min-width:12px;color:#89959d;font-size:11px;font-weight:400;line-height:18px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-queue[aria-pressed=&quot;true&quot;] .cs-requests-count{color:#536f80}
-#cleanrooms-studio .cs-requests-search{display:block;flex:1 1 240px;min-width:200px;max-width:340px;margin:0}
-#cleanrooms-studio .cs-requests-input{box-sizing:border-box;display:block;width:100%;height:40px;min-height:40px;margin:0;padding:0 12px;border:1px solid #cad5dc;border-radius:7px;background:#fff;color:#3d5361;font:inherit;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-requests-directory .cs-requests-button{box-sizing:border-box;min-height:40px!important;height:40px!important;margin:0;padding:0 13px!important;border-radius:7px;font:inherit;font-size:12px;font-weight:500;line-height:20px;white-space:nowrap}
-#cleanrooms-studio .cs-requests-refresh{margin-left:auto!important}
-#cleanrooms-studio .cs-requests-summary{margin:0 0 18px;color:#74838c;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-requests-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#425966;text-align:left}
-#cleanrooms-studio .cs-requests-table :is(th,td){box-sizing:border-box;padding:17px 12px;border-bottom:1px solid #e6ebee;text-align:left;vertical-align:middle;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-requests-table thead th{padding-top:12px;padding-bottom:12px;background:#f5f7f8;color:#77858d;font-size:11px;font-weight:500;line-height:18px}
+#cleanrooms-studio .cs-requests-directory{min-width:0;color:var(--cs-access-body);font-size:13px;line-height:20px}
+#cleanrooms-studio .cs-requests-tools{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;min-width:0;
+}
+#cleanrooms-studio .cs-requests-queues{
+  display:flex;gap:2px;min-width:0;padding:2px;border:1px solid var(--cs-workflow-rule);
+  border-radius:6px;background:var(--cs-access-surface);
+}
+#cleanrooms-studio .cs-requests-directory .cs-requests-queue{
+  display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;
+  min-height:calc(var(--cs-ui-height,40px) - 6px);margin:0;padding:4px 9px;border:0;border-radius:4px;
+  background:transparent;box-shadow:none;color:var(--cs-access-muted);
+  font:inherit;font-size:12px;font-weight:500;line-height:16px;cursor:pointer;
+}
+#cleanrooms-studio .cs-requests-queue[aria-pressed=&quot;true&quot;]{
+  background:var(--cs-compass-selected);color:var(--cs-access-ink);font-weight:600;
+}
+#cleanrooms-studio .cs-requests-queue[aria-pressed=&quot;false&quot;]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
+#cleanrooms-studio .cs-requests-count{color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-requests-search{
+  flex:1 1 185px;min-width:0;max-width:360px;margin:0 0 0 auto;
+  --cs-ui-field-background:var(--cs-access-soft);
+  --cs-ui-field-border:var(--cs-workflow-rule);
+  --cs-ui-field-shadow:none;
+  --cs-ui-field-font:13px;
+  --cs-ui-radius:6px;
+}
+#cleanrooms-studio .cs-requests-input{display:block;width:100%;margin:0}
+#cleanrooms-studio .cs-requests-directory .cs-requests-button{
+  min-height:34px;height:34px;margin:0;padding-inline:10px;
+  border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;
+}
+#cleanrooms-studio .cs-requests-directory .cs-requests-refresh{min-height:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px)}
+#cleanrooms-studio .cs-requests-summary{margin:0 0 10px;color:var(--cs-access-muted);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-requests-table{width:100%;table-layout:fixed;text-align:left}
+#cleanrooms-studio .cs-requests-table :is(th,td){padding:8px 12px;border-bottom:1px solid var(--cs-workflow-rule);vertical-align:middle;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-requests-table th:first-child{width:25%}
-#cleanrooms-studio .cs-requests-table th:nth-child(2){width:29%}
-#cleanrooms-studio .cs-requests-table th:nth-child(3){width:14%}
-#cleanrooms-studio .cs-requests-table th:nth-child(4){width:21%}
-#cleanrooms-studio .cs-requests-table th:last-child{width:11%}
-#cleanrooms-studio .cs-requests-table :is(th,td):first-child{padding-left:12px}
-#cleanrooms-studio .cs-requests-table :is(th,td):last-child{padding-right:0}
-#cleanrooms-studio .cs-requests-person&gt;strong,#cleanrooms-studio .cs-requests-shift&gt;strong{display:block;color:#354b57;font-size:13px;font-weight:500;line-height:22px}
+#cleanrooms-studio .cs-requests-table th:nth-child(2){width:28%}
+#cleanrooms-studio .cs-requests-table th:nth-child(3){width:17%}
+#cleanrooms-studio .cs-requests-table th:last-child{width:112px}
+#cleanrooms-studio .cs-requests-table :is(.cs-requests-person,.cs-requests-shift)&gt;strong{display:block;font-size:13px;line-height:20px}
 #cleanrooms-studio .cs-requests-shift&gt;strong{font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-secondary{display:block;color:#7b8991;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-requests-person&gt;.cs-requests-secondary,#cleanrooms-studio .cs-requests-shift&gt;.cs-requests-secondary{margin-top:3px}
-#cleanrooms-studio .cs-requests-type{color:#6c7c86;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-requests-status{display:inline-flex;align-items:center;gap:7px;color:#647883;font-size:12px;line-height:20px}
-#cleanrooms-studio .cs-requests-status::before{content:&#x27;&#x27;;flex:0 0 4px;width:4px;height:4px;border-radius:50%;background:#99a8b1}
-#cleanrooms-studio .cs-requests-status[data-state=&quot;attention&quot;]::before,#cleanrooms-studio .cs-requests-status[data-state=&quot;awaiting_colleague&quot;]::before{background:#ac8547}
-#cleanrooms-studio .cs-requests-status[data-state=&quot;approved&quot;]::before{background:#6d927e}
-#cleanrooms-studio .cs-requests-status:is([data-state=&quot;rejected&quot;],[data-state=&quot;declined&quot;],[data-state=&quot;stale&quot;])::before{background:#ac8279}
-#cleanrooms-studio .cs-requests-action{text-align:right!important}
-#cleanrooms-studio .cs-requests-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:20px 0 0}
-#cleanrooms-studio .cs-requests-pagination&gt;.cs-requests-secondary{margin-right:auto;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-empty{padding:28px 0;color:#75858e;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-requests-empty&gt;h3{margin:0;color:#536b78;font-size:15px;font-weight:500;line-height:24px}
-#cleanrooms-studio .cs-requests-error{margin:0 0 18px;padding:12px 16px;border:1px solid #e5d9c4;border-radius:6px;background:#fcfaf5;color:#8b6c3c;font-size:12px;line-height:21px}
-#cleanrooms-studio .cs-requests-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-#cleanrooms-studio .cs-requests-directory :is(button,input):focus-visible{outline:2px solid #7194ab;outline-offset:3px}
-#cleanrooms-studio .cs-requests-directory button:disabled{cursor:default;opacity:.5}
+#cleanrooms-studio .cs-requests-secondary{display:block;color:var(--cs-access-muted);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-requests-type{color:var(--cs-access-muted);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-requests-status{
+  display:inline-flex;align-items:center;gap:6px;color:var(--cs-access-muted);font-size:12px;line-height:18px;
+}
+#cleanrooms-studio .cs-requests-status::before{
+  content:&#x27;&#x27;;flex:0 0 5px;width:5px;height:5px;border-radius:50%;background:currentColor;
+}
+#cleanrooms-studio .cs-requests-status[data-state=&quot;ready&quot;]{color:var(--cs-access-ink);font-weight:600}
+#cleanrooms-studio .cs-requests-status[data-state=&quot;attention&quot;]{color:#79551e;font-weight:600}
+#cleanrooms-studio .cs-requests-status:is([data-state=&quot;rejected&quot;],[data-state=&quot;declined&quot;],[data-state=&quot;stale&quot;]){color:#865349}
+#cleanrooms-studio .cs-requests-action{text-align:end}
+#cleanrooms-studio .cs-requests-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 0}
+#cleanrooms-studio .cs-requests-pagination&gt;.cs-requests-secondary{margin-inline-end:auto;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-requests-empty{
+  margin:0;padding:20px 16px;border:1px solid var(--cs-workflow-rule);border-radius:7px;
+  color:var(--cs-access-muted);font-size:13px;line-height:22px;
+}
+#cleanrooms-studio .cs-requests-empty&gt;h3{margin:0;color:var(--cs-access-body);font-size:14px;font-weight:600;line-height:22px}
+#cleanrooms-studio .cs-requests-error{
+  margin:0 0 10px;padding:10px 12px;border:1px solid #e5d9c4;border-radius:6px;
+  background:#fcfaf5;color:#79551e;font-size:12px;line-height:20px;
+}
+#cleanrooms-studio .cs-requests-directory :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
 @media(max-width:760px){
- #cleanrooms-studio .cs-requests-tools{gap:12px;margin-bottom:16px}
- #cleanrooms-studio .cs-requests-queues{width:100%;gap:4px}
- #cleanrooms-studio .cs-requests-directory .cs-requests-queue{gap:6px;padding-inline:9px!important;font-size:11px}
- #cleanrooms-studio .cs-requests-search{flex:1;min-width:150px;max-width:none}
- #cleanrooms-studio .cs-requests-summary{margin-bottom:16px}
- #cleanrooms-studio .cs-requests-table{display:block}
- #cleanrooms-studio .cs-requests-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
- #cleanrooms-studio .cs-requests-table tbody{display:block}
- #cleanrooms-studio .cs-requests-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 18px;padding:20px 0;border-top:1px solid #e6ebee}
- #cleanrooms-studio .cs-requests-table td{display:block;padding:0!important;border:0}
- #cleanrooms-studio .cs-requests-person{grid-column:1/-1}
- #cleanrooms-studio .cs-requests-shift{grid-column:1/-1}
- #cleanrooms-studio .cs-requests-type{grid-column:1}
- #cleanrooms-studio .cs-requests-type::before{content:&#x27;Type · &#x27;;color:#8a969d}
- #cleanrooms-studio .cs-requests-state{grid-column:1}
- #cleanrooms-studio .cs-requests-action{grid-column:2;grid-row:3/5;align-self:end}
- #cleanrooms-studio .cs-requests-directory .cs-requests-action .cs-requests-button{min-height:44px!important;height:44px!important}
+  #cleanrooms-studio .cs-requests-queues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  #cleanrooms-studio .cs-requests-directory .cs-requests-queue{min-height:36px;padding-inline:4px}
+  #cleanrooms-studio .cs-requests-search{flex:1 1 120px;max-width:none}
+  #cleanrooms-studio .cs-requests-table,
+  #cleanrooms-studio .cs-requests-table tbody{display:block}
+  #cleanrooms-studio .cs-requests-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #cleanrooms-studio .cs-requests-table tbody tr{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+    gap:3px 10px;border-top:1px solid var(--cs-workflow-rule);
+  }
+  #cleanrooms-studio .cs-requests-table td{display:block;padding:0!important;border:0}
+  #cleanrooms-studio .cs-requests-person{grid-area:1/1}
+  #cleanrooms-studio .cs-requests-shift{grid-area:2/1}
+  #cleanrooms-studio .cs-requests-type{grid-area:2/2;align-self:start;text-align:end}
+  #cleanrooms-studio .cs-requests-state{grid-area:3/1}
+  #cleanrooms-studio .cs-requests-action{grid-area:3/2}
+  #cleanrooms-studio .cs-requests-directory .cs-requests-action .cs-requests-button{min-height:40px;height:40px}
 }
 
 /* Read status is a recipient directory, with message history one level below. */
@@ -8686,6 +8709,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-workflow-change-table thead th{background:#f4f6f7;font-size:12px;font-weight:500;color:#77858d}
 #cleanrooms-studio .cs-workflow-change-table tbody th{font-size:12px;font-weight:500;color:#74848d}
 #cleanrooms-studio .cs-workflow-change-table tbody td:last-child{font-weight:500;color:#3d617c}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-back{margin-bottom:8px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-summary{gap:20px;margin:12px 0 16px;padding:16px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-summary&gt;.cs-workflow-shift-facts{gap:2px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-people{gap:12px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail&gt;:is(.cs-workflow-note,.cs-workflow-clarification){margin-block:16px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail&gt;:is(.cs-workflow-decision,.cs-workflow-related){margin-top:16px;padding-top:12px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail .cs-workflow-section-title{margin-bottom:4px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail .cs-workflow-actions{margin-top:10px}
 @media(max-width:760px){
  #cleanrooms-studio .cs-workflow-request-summary{grid-template-columns:minmax(0,1fr);gap:24px;padding:20px}
  #cleanrooms-studio .cs-workflow-request-people{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
@@ -9012,18 +9043,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;demo&quot;][data-role] .cs-demo-case-actions&gt;.cs-button:not(.cs-primary):hover:not(:disabled){border-color:transparent;background:#f1f5f7;color:#344d5c}
 
  /* Request/read-state switches are a navigation group, separate from search. */
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-tools,.cs-read-tools,.cs-workflow-tools){gap:12px;margin-bottom:16px}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-queues,.cs-read-filters,.cs-workflow-filters){gap:2px;padding:2px;border-radius:6px;background:#f3f5f6;box-shadow:inset 0 0 0 1px #e5eaed}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter){color:#61727d;font-weight:500}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;]{border-color:#dce3e7;background:#fff;color:#344d5c;box-shadow:0 1px 2px #25374408}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-count,.cs-read-count){display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#e8edf0;color:#586a76;font-size:11px;font-weight:500;line-height:20px;font-variant-numeric:tabular-nums}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-search,.cs-read-search,.cs-workflow-search){--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
- #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] :is(.cs-requests-refresh,.cs-read-refresh){border-color:transparent;background:transparent;box-shadow:none;color:#657580}
- #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] :is(.cs-requests-refresh,.cs-read-refresh):hover:not(:disabled){border-color:transparent;background:#f1f5f7;color:#344d5c}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-tools,.cs-workflow-tools){gap:12px;margin-bottom:16px}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filters,.cs-workflow-filters){gap:2px;padding:2px;border-radius:6px;background:#f3f5f6;box-shadow:inset 0 0 0 1px #e5eaed}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filter,.cs-workflow-filter){color:#61727d;font-weight:500}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;]{border-color:#dce3e7;background:#fff;color:#344d5c;box-shadow:0 1px 2px #25374408}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-read-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#e8edf0;color:#586a76;font-size:11px;font-weight:500;line-height:20px;font-variant-numeric:tabular-nums}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-search,.cs-workflow-search){--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] .cs-read-refresh{border-color:transparent;background:transparent;box-shadow:none;color:#657580}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] .cs-read-refresh:hover:not(:disabled){border-color:transparent;background:#f1f5f7;color:#344d5c}
 }
 @media(max-width:1100px) and (min-width:761px){
  #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) .cs-review-compact-tools&gt;.cs-review-filter-rail{flex-basis:410px}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-requests-search,.cs-read-search){min-width:180px;max-width:300px}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-read-search{min-width:180px;max-width:300px}
 }
 @media(max-width:760px){
  #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) .cs-review-compact-tools&gt;.cs-review-filter-rail{flex:1 1 100%;width:100%;max-width:none}
@@ -9603,9 +9634,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-ink);
   font-weight:700;
 }
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-compass-context{display:none}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-main&gt;.cs-page-head #cs-title{
-  font-size:var(--cs-series-title-size,22px);line-height:30px;letter-spacing:-.4px;
+#cleanrooms-studio:is([data-page=&quot;series&quot;],[data-page=&quot;workflow&quot;]) .cs-compass-context{display:none}
+#cleanrooms-studio:is([data-page=&quot;series&quot;],[data-page=&quot;workflow&quot;]) .cs-main&gt;.cs-page-head #cs-title{
+  font-size:var(--cs-planning-title-size,22px);line-height:30px;letter-spacing:-.4px;
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;],[data-page=&quot;chat&quot;],[data-page=&quot;workflow&quot;],[data-page=&quot;workspace&quot;],[data-role=&quot;employee&quot;]) .cs-page-help-dialog {
   border-color:var(--cs-compass-rule);
@@ -9625,12 +9656,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 @media(max-width:760px){
   #cleanrooms-studio:is([data-page=&quot;accounts&quot;],[data-page=&quot;payroll&quot;],[data-page=&quot;people&quot;],[data-page=&quot;leave&quot;],[data-page=&quot;hours&quot;],[data-page=&quot;activity&quot;],[data-page=&quot;workspace&quot;],[data-page=&quot;chat&quot;],[data-page=&quot;workflow&quot;],[data-page=&quot;series&quot;],[data-page=&quot;schedule&quot;],[data-role=&quot;employee&quot;]){--cs-compass-gutter:16px}
-  #cleanrooms-studio[data-page=&quot;series&quot;]{--cs-series-title-size:19px}
+  #cleanrooms-studio:is([data-page=&quot;series&quot;],[data-page=&quot;workflow&quot;]){--cs-planning-title-size:19px}
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-main&gt;.cs-page-head&gt;.cs-head-actions{width:auto}
-}
-
-@media(max-width:360px){
-  #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-main .cs-compass-context{display:none}
 }
 
 /* Accounts controls and workbench layout. */
@@ -12485,7 +12512,30 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-family:var(--cs-compass-font);
 }
 #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-host {
-  padding:12px 0 0;
+  padding:10px 0 0;
+}
+#cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-demo-tools {
+  gap:6px 8px;
+  padding:0;
+  margin-block-end:8px;
+}
+#cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-demo-tools[data-demo=&quot;false&quot;] {
+  justify-content:flex-end;
+  margin-block-end:0;
+}
+#cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-demo-tools[data-demo=&quot;true&quot;] {
+  padding:4px 8px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-demo-label {
+  flex:1 0 auto;
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-body {
+  padding:10px 0 20px;
+  scrollbar-gutter:auto;
 }
 #cleanrooms-studio .cs-workflow :is(.cs-requests-directory,.cs-read-status,.cs-workflow-row-summary,.cs-workflow-detail-summary,.cs-workflow-note&gt;p,.cs-workflow-request-people dd,.cs-workflow-message-metadata dd,.cs-workflow-decision-note&gt;p) {
   color:var(--cs-access-body);
@@ -12522,39 +12572,46 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   border-radius:4px 4px 0 0;
   background:var(--cs-compass-indicator);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queues,.cs-read-filters,.cs-workflow-filters) {
+#cleanrooms-studio[data-role] .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-tab:is([aria-selected=&quot;true&quot;],:hover) {
+  color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role] .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-tab[aria-selected=&quot;true&quot;]::after {
+  height:2px;
+  background:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filters,.cs-workflow-filters) {
   padding:0;
   border-bottom:1px solid var(--cs-workflow-rule);
   border-radius:0;
   background:transparent;
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter) {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter) {
   border:0;
   border-radius:0;
   background:transparent;
   color:var(--cs-access-muted);
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-queue,.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;] {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;] {
   color:var(--cs-access-ink);
   font-weight:700;
   box-shadow:inset 0 -2px var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-count,.cs-read-count) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-read-count {
   min-width:0;
   padding:0;
   background:transparent;
   color:var(--cs-access-muted);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-search,.cs-read-search,.cs-workflow-search) {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-search,.cs-workflow-search) {
   background:transparent;
   box-shadow:none;
   --cs-ui-field-border:var(--cs-access-control-edge);
   --cs-ui-field-background:var(--cs-access-surface);
   --cs-ui-field-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-requests-input,.cs-read-input),
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-read-input),
 #cleanrooms-studio[data-role] .cs-workflow-demo-person select {
   border-color:var(--cs-access-control-edge);
   border-radius:6px;
@@ -12577,6 +12634,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-button,.cs-requests-button,.cs-read-button):hover:not(:disabled) {
   border-color:var(--cs-access-control-edge);
   background:var(--cs-compass-selected);
+}
+#cleanrooms-studio[data-role] .cs-workflow .cs-requests-button {
+  font-weight:600;
 }
 #cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:not(:disabled) {
   border-color:var(--cs-access-primary);
@@ -23565,7 +23625,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const beneficiary=request=&gt;request.kind===&#x27;offer&#x27;?request.toName||&#x27;Medarbejder&#x27;:request.fromName||&#x27;Medarbejder&#x27;;
   const blocked=request=&gt;Boolean(request.blockedReason||request.shiftCurrent===false||request.canApprove===false||list(request.conflicts).length);
   const statusLabel=request=&gt;READY.has(request.status)?blocked(request)?&#x27;Kræver afklaring&#x27;:&#x27;Klar til godkendelse&#x27;:request.status===&#x27;awaiting_colleague&#x27;?&#x27;Afventer svar&#x27;:CLOSED[request.status]||&#x27;Afsluttet&#x27;;
-  const plural=(count,one,many)=&gt;count+&#x27; &#x27;+(count===1?one:many);
+  const statusState=request=&gt;READY.has(request.status)?blocked(request)?&#x27;attention&#x27;:&#x27;ready&#x27;:request.status;
   function mount({element,onOpenRequest,onRefresh}={}){
     if(!element?.ownerDocument)throw new TypeError(&#x27;Vagtanmodninger kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,root=doc.createElement(&#x27;section&#x27;);root.className=&#x27;cs-requests-directory&#x27;;root.setAttribute(&#x27;aria-label&#x27;,&#x27;Anmodningsoversigt&#x27;);element.replaceChildren(root);
@@ -23590,15 +23650,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const all=records(),counts={ready:0,colleague:0,closed:0,all:all.length};for(const request of all)counts[queueFor(request)]++;
       const controls=node(&#x27;div&#x27;,&#x27;cs-requests-tools&#x27;),queues=node(&#x27;div&#x27;,&#x27;cs-requests-queues&#x27;);queues.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);queues.setAttribute(&#x27;aria-label&#x27;,&#x27;Anmodningsstatus&#x27;);
       for(const [key,label]of [[&#x27;ready&#x27;,&#x27;Til godkendelse&#x27;],[&#x27;colleague&#x27;,&#x27;Afventer kollega&#x27;],[&#x27;closed&#x27;,&#x27;Afsluttede&#x27;],[&#x27;all&#x27;,&#x27;Alle&#x27;]]){
-        const el=button(&#x27;&#x27;,()=&gt;{queue=key;pageIndex=0;paint(&#x27;queue:&#x27;+key);},&#x27;queue:&#x27;+key,&#x27;cs-requests-queue&#x27;);el.setAttribute(&#x27;aria-label&#x27;,label+&#x27; · &#x27;+counts[key]);el.setAttribute(&#x27;aria-pressed&#x27;,String(queue===key));el.append(node(&#x27;span&#x27;,&#x27;&#x27;,label),node(&#x27;span&#x27;,&#x27;cs-requests-count&#x27;,counts[key]));queues.append(el);
+        const el=button(&#x27;&#x27;,()=&gt;{queue=key;pageIndex=0;paint(&#x27;queue:&#x27;+key);},&#x27;queue:&#x27;+key,&#x27;cs-requests-queue&#x27;);el.setAttribute(&#x27;aria-label&#x27;,label+&#x27; · &#x27;+counts[key]);el.setAttribute(&#x27;aria-pressed&#x27;,String(queue===key));const count=node(&#x27;span&#x27;,&#x27;cs-requests-count&#x27;,counts[key]);count.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);el.append(node(&#x27;span&#x27;,&#x27;&#x27;,label),count);queues.append(el);
       }
       controls.append(queues);
-      const searchLabel=node(&#x27;label&#x27;,&#x27;cs-requests-search&#x27;),search=node(&#x27;input&#x27;,&#x27;cs-requests-input&#x27;);search.type=&#x27;search&#x27;;search.value=query;search.placeholder=&#x27;Søg medarbejder eller arbejdssted&#x27;;search.disabled=busy();search.dataset.workflowFocus=&#x27;search&#x27;;search.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i vagtanmodninger&#x27;);search.addEventListener(&#x27;input&#x27;,()=&gt;{query=search.value;pageIndex=0;paint(&#x27;search&#x27;);});searchLabel.append(node(&#x27;span&#x27;,&#x27;cs-requests-sr&#x27;,&#x27;Søg i vagtanmodninger&#x27;),search);controls.append(searchLabel);
+      const searchLabel=node(&#x27;label&#x27;,&#x27;cs-requests-search&#x27;),search=node(&#x27;input&#x27;,&#x27;cs-requests-input&#x27;);search.type=&#x27;search&#x27;;search.value=query;search.placeholder=&#x27;Søg i anmodninger&#x27;;search.disabled=busy();search.dataset.workflowFocus=&#x27;search&#x27;;search.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i vagtanmodninger&#x27;);search.addEventListener(&#x27;input&#x27;,()=&gt;{query=search.value;pageIndex=0;paint(&#x27;search&#x27;);});searchLabel.append(search);controls.append(searchLabel);
       if(typeof onRefresh===&#x27;function&#x27;)controls.append(button(&#x27;Opdater&#x27;,refresh,&#x27;refresh&#x27;,&#x27;cs-button cs-requests-button cs-requests-refresh&#x27;));root.append(controls);
       const selected=all.filter(request=&gt;queue===&#x27;all&#x27;||queueFor(request)===queue),term=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;),items=selected.filter(request=&gt;!term||[request.fromName,request.kind===&#x27;offer&#x27;?request.toName:&#x27;&#x27;,dateLabel(request.shift?.date),clock(request.shift),request.shift?.siteName,request.kind===&#x27;claim&#x27;?&#x27;Ledig vagt&#x27;:&#x27;Overdragelse&#x27;,statusLabel(request)].join(&#x27; &#x27;).toLocaleLowerCase(&#x27;da-DK&#x27;).includes(term)).sort((a,b)=&gt;String(a.shift?.date||&#x27;&#x27;).localeCompare(String(b.shift?.date||&#x27;&#x27;))||String(a.shift?.start||&#x27;&#x27;).localeCompare(String(b.shift?.start||&#x27;&#x27;))||beneficiary(a).localeCompare(beneficiary(b),&#x27;da-DK&#x27;)||String(a.id).localeCompare(String(b.id)));
-      let summary=queue===&#x27;ready&#x27;?plural(counts.ready,&#x27;anmodning venter&#x27;,&#x27;anmodninger venter&#x27;)+&#x27; på din beslutning.&#x27;:queue===&#x27;colleague&#x27;?plural(counts.colleague,&#x27;anmodning afventer&#x27;,&#x27;anmodninger afventer&#x27;)+&#x27; en kollegas svar.&#x27;:queue===&#x27;closed&#x27;?plural(counts.closed,&#x27;afsluttet anmodning&#x27;,&#x27;afsluttede anmodninger&#x27;)+&#x27;.&#x27;:plural(all.length,&#x27;anmodning&#x27;,&#x27;anmodninger&#x27;)+&#x27; i alt.&#x27;;
-      if(queue===&#x27;ready&#x27;){const attention=selected.filter(blocked).length;if(attention)summary+=&#x27; &#x27;+attention+&#x27; kræver afklaring.&#x27;;}
-      const introduction=node(&#x27;p&#x27;,&#x27;cs-requests-summary&#x27;,query.trim()?items.length+&#x27; af &#x27;+selected.length+&#x27; matcher søgningen.&#x27;:summary);introduction.setAttribute(&#x27;aria-live&#x27;,&#x27;polite&#x27;);root.append(introduction);
+      const attention=queue===&#x27;ready&#x27;?items.filter(blocked).length:0;
+      const feedback=[term&amp;&amp;items.length?items.length+&#x27; af &#x27;+selected.length+&#x27; matcher søgningen.&#x27;:&#x27;&#x27;,attention?attention+&#x27; kræver afklaring.&#x27;:&#x27;&#x27;].filter(Boolean);
+      if(!options.loading&amp;&amp;feedback.length){const summary=node(&#x27;p&#x27;,&#x27;cs-requests-summary&#x27;,feedback.join(&#x27; &#x27;));summary.setAttribute(&#x27;aria-live&#x27;,&#x27;polite&#x27;);root.append(summary);}
       if(refreshError||options.error){const error=node(&#x27;p&#x27;,&#x27;cs-requests-error&#x27;,refreshError||options.error);error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);root.append(error);}
       if(options.loading){root.append(node(&#x27;p&#x27;,&#x27;cs-requests-empty&#x27;,&#x27;Henter anmodninger…&#x27;));restoreFocus(focus,caret);return;}
       if(!items.length){const empty=node(&#x27;div&#x27;,&#x27;cs-requests-empty&#x27;);empty.append(node(&#x27;h3&#x27;,&#x27;&#x27;,term?&#x27;Ingen anmodninger matcher søgningen&#x27;:queue===&#x27;ready&#x27;?&#x27;Ingen anmodninger til godkendelse&#x27;:queue===&#x27;colleague&#x27;?&#x27;Ingen anmodninger afventer en kollega&#x27;:queue===&#x27;closed&#x27;?&#x27;Ingen afsluttede anmodninger&#x27;:&#x27;Ingen vagtanmodninger endnu&#x27;));root.append(empty);restoreFocus(focus,caret);return;}
@@ -23610,17 +23670,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const identity=node(&#x27;td&#x27;,&#x27;cs-requests-person&#x27;);identity.dataset.label=&#x27;Medarbejder&#x27;;identity.append(node(&#x27;strong&#x27;,&#x27;&#x27;,beneficiary(request)));if(request.kind===&#x27;offer&#x27;)identity.append(node(&#x27;span&#x27;,&#x27;cs-requests-secondary&#x27;,&#x27;Fra &#x27;+(request.fromName||&#x27;en kollega&#x27;)));
         const shift=node(&#x27;td&#x27;,&#x27;cs-requests-shift&#x27;);shift.dataset.label=&#x27;Vagt&#x27;;shift.append(node(&#x27;strong&#x27;,&#x27;&#x27;,dateLabel(request.shift?.date)+&#x27; · &#x27;+clock(request.shift)),node(&#x27;span&#x27;,&#x27;cs-requests-secondary&#x27;,request.shift?.siteName||&#x27;Arbejdssted&#x27;));
         const type=node(&#x27;td&#x27;,&#x27;cs-requests-type&#x27;,request.kind===&#x27;claim&#x27;?&#x27;Ledig vagt&#x27;:&#x27;Overdragelse&#x27;);type.dataset.label=&#x27;Type&#x27;;
-        const state=node(&#x27;td&#x27;,&#x27;cs-requests-state&#x27;);state.dataset.label=&#x27;Status&#x27;;const status=node(&#x27;span&#x27;,&#x27;cs-requests-status&#x27;,statusLabel(request));status.dataset.state=READY.has(request.status)?blocked(request)?&#x27;attention&#x27;:&#x27;ready&#x27;:request.status;const reason=request.blockedReason||list(request.conflicts).map(item=&gt;typeof item===&#x27;string&#x27;?item:item.message||item.label||&#x27;&#x27;).filter(Boolean).join(&#x27; &#x27;);if(reason)status.title=reason;state.append(status);
+        const state=node(&#x27;td&#x27;,&#x27;cs-requests-state&#x27;);state.dataset.label=&#x27;Status&#x27;;const status=node(&#x27;span&#x27;,&#x27;cs-requests-status&#x27;,statusLabel(request));status.dataset.state=statusState(request);const reason=request.blockedReason||list(request.conflicts).map(item=&gt;typeof item===&#x27;string&#x27;?item:item.message||item.label||&#x27;&#x27;).filter(Boolean).join(&#x27; &#x27;);if(reason)status.title=reason;state.append(status);
         const action=node(&#x27;td&#x27;,&#x27;cs-requests-action&#x27;),inspect=button(&#x27;Gennemgå&#x27;,()=&gt;open(request.id),&#x27;request:&#x27;+request.id);inspect.setAttribute(&#x27;aria-label&#x27;,&#x27;Gennemgå anmodning for &#x27;+beneficiary(request)+&#x27; &#x27;+dateLabel(request.shift?.date));action.append(inspect);row.append(identity,shift,type,state,action);body.append(row);
       }
       table.append(head,body);root.append(table);
-      const foot=node(&#x27;nav&#x27;,&#x27;cs-requests-pagination&#x27;);foot.setAttribute(&#x27;aria-label&#x27;,&#x27;Sider med vagtanmodninger&#x27;);foot.append(node(&#x27;span&#x27;,&#x27;cs-requests-secondary&#x27;,(pageIndex*size+1)+&#x27;–&#x27;+Math.min((pageIndex+1)*size,items.length)+&#x27; af &#x27;+items.length));
-      if(pages&gt;1){const prev=button(&#x27;Forrige&#x27;,()=&gt;{pageIndex--;paint(&#x27;page:prev&#x27;);},&#x27;page:prev&#x27;),next=button(&#x27;Næste&#x27;,()=&gt;{pageIndex++;paint(&#x27;page:next&#x27;);},&#x27;page:next&#x27;);prev.disabled=busy()||pageIndex===0;next.disabled=busy()||pageIndex===pages-1;foot.append(prev,next);}root.append(foot);restoreFocus(focus,caret);
+      if(pages&gt;1){
+        const foot=node(&#x27;nav&#x27;,&#x27;cs-requests-pagination&#x27;);foot.setAttribute(&#x27;aria-label&#x27;,&#x27;Sider med vagtanmodninger&#x27;);foot.append(node(&#x27;span&#x27;,&#x27;cs-requests-secondary&#x27;,(pageIndex*size+1)+&#x27;–&#x27;+Math.min((pageIndex+1)*size,items.length)+&#x27; af &#x27;+items.length));
+        const prev=button(&#x27;Forrige&#x27;,()=&gt;{pageIndex--;paint(&#x27;page:prev&#x27;);},&#x27;page:prev&#x27;),next=button(&#x27;Næste&#x27;,()=&gt;{pageIndex++;paint(&#x27;page:next&#x27;);},&#x27;page:next&#x27;);prev.disabled=busy()||pageIndex===0;next.disabled=busy()||pageIndex===pages-1;foot.append(prev,next);root.append(foot);
+      }
+      restoreFocus(focus,caret);
     }
     function restoreFocus(key,caret){if(!key)return;const target=[...root.querySelectorAll(&#x27;[data-workflow-focus]&#x27;)].find(el=&gt;el.dataset.workflowFocus===key);target?.focus?.({preventScroll:true});if(caret&amp;&amp;typeof target?.setSelectionRange===&#x27;function&#x27;)try{target.setSelectionRange(...caret);}catch{}}
     return {render(next={}){if(disposed)return;const merged={...options,...next},key=currentScope(merged),changed=scope&amp;&amp;scope!==key;if(changed){queue=&#x27;ready&#x27;;query=&#x27;&#x27;;pageIndex=0;pending=false;refreshError=&#x27;&#x27;;generation++;}else if(next.bundle&amp;&amp;staleBundle(next.bundle))merged.bundle=options.bundle;scope=key;options=merged;paint();},dispose(){if(disposed)return;disposed=true;generation++;element.replaceChildren();}};
   }
-  const api=Object.freeze({mount,queueFor,beneficiary,statusLabel,dateLabel});globalThis.CleanRoomsWorkflowRequests=api;if(typeof module===&#x27;object&#x27;&amp;&amp;module.exports)module.exports=api;
+  const api=Object.freeze({mount,queueFor,beneficiary,statusLabel,statusState,dateLabel});globalThis.CleanRoomsWorkflowRequests=api;if(typeof module===&#x27;object&#x27;&amp;&amp;module.exports)module.exports=api;
 })();
 
 /* Planner read status is organised by recipient, then by the messages they received. */
@@ -23758,6 +23821,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const clock=shift=&gt;shift?.start&amp;&amp;shift?.end?shift.start+&#x27;–&#x27;+shift.end+(shift.end&lt;shift.start?&#x27; +1 dag&#x27;:&#x27;&#x27;):&#x27;—&#x27;;
   const sortNewest=(a,b)=&gt;String(b.createdAt||&#x27;&#x27;).localeCompare(String(a.createdAt||&#x27;&#x27;))||String(b.id||&#x27;&#x27;).localeCompare(String(a.id||&#x27;&#x27;));
   const list=value=&gt;Array.isArray(value)?value:[];
+  const requestView=()=&gt;globalThis.CleanRoomsWorkflowRequests||(typeof require===&#x27;function&#x27;?require(&#x27;./workflow-requests-view.js&#x27;):null);
   const titleFor=item=&gt;KIND[item.kind]||item.summary||&#x27;Besked om din vagt&#x27;;
   const canCompare=(before,after)=&gt;before&amp;&amp;after;
   const summaryFor=(item={})=&gt;{
@@ -23845,7 +23909,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function paintRequests(body){
       if(mode===&#x27;manager&#x27;){
-        if(!requestManager){requestManagerElement=node(&#x27;div&#x27;,&#x27;cs-workflow-requests-host&#x27;);const View=globalThis.CleanRoomsWorkflowRequests||(typeof require===&#x27;function&#x27;?require(&#x27;./workflow-requests-view.js&#x27;):null);requestManager=View.mount({element:requestManagerElement,onOpenRequest:openRequest,onRefresh});}
+        if(!requestManager){requestManagerElement=node(&#x27;div&#x27;,&#x27;cs-workflow-requests-host&#x27;);requestManager=requestView().mount({element:requestManagerElement,onOpenRequest:openRequest,onRefresh});}
         body.append(requestManagerElement);requestManager.render({bundle:bundle(),loading:busy(),scopeKey});return;
       }
       const all=list(bundle().requests).slice().sort(sortNewest),mine=bundle().personId;
@@ -23890,9 +23954,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     function paintRequestDetail(body){
       const item=currentRequest();back(body,mode===&#x27;manager&#x27;?&#x27;Tilbage til anmodninger&#x27;:&#x27;Tilbage&#x27;);if(!item){empty(body,&#x27;Anmodningen findes ikke i denne visning&#x27;,&#x27;Hent de seneste oplysninger.&#x27;);return;}
       const detail=node(&#x27;section&#x27;,&#x27;cs-workflow-request-detail&#x27;);detail.setAttribute(&#x27;aria-label&#x27;,&#x27;Anmodningens oplysninger&#x27;);
-      const head=node(&#x27;header&#x27;,&#x27;cs-workflow-detail-head&#x27;);head.append(node(&#x27;h3&#x27;,&#x27;cs-workflow-title&#x27;,item.kind===&#x27;claim&#x27;?&#x27;Anmodning om ledig vagt&#x27;:&#x27;Overdragelse af vagt&#x27;),badge(STATUS[item.status]||&#x27;Afventer&#x27;,item.status));detail.append(head);
+      const presentation=mode===&#x27;manager&#x27;?requestView():null;
+      const state=presentation?node(&#x27;span&#x27;,&#x27;cs-requests-status&#x27;,presentation.statusLabel(item)):badge(STATUS[item.status]||&#x27;Afventer&#x27;,item.status);
+      if(presentation)state.dataset.state=presentation.statusState(item);
+      const head=node(&#x27;header&#x27;,&#x27;cs-workflow-detail-head&#x27;);head.append(node(&#x27;h3&#x27;,&#x27;cs-workflow-title&#x27;,item.kind===&#x27;claim&#x27;?&#x27;Anmodning om ledig vagt&#x27;:&#x27;Overdragelse af vagt&#x27;),state);detail.append(head);
       const from=item.fromName||personName(item.fromPersonId),to=item.toName||personName(item.toPersonId);
-      detail.append(node(&#x27;p&#x27;,&#x27;cs-workflow-detail-subtitle&#x27;,item.kind===&#x27;claim&#x27;?from+&#x27; ønsker at tage vagten.&#x27;:from+&#x27; ønsker at overdrage vagten til &#x27;+to+&#x27;.&#x27;));
+      if(mode!==&#x27;manager&#x27;)detail.append(node(&#x27;p&#x27;,&#x27;cs-workflow-detail-subtitle&#x27;,item.kind===&#x27;claim&#x27;?from+&#x27; ønsker at tage vagten.&#x27;:from+&#x27; ønsker at overdrage vagten til &#x27;+to+&#x27;.&#x27;));
       const summary=node(&#x27;div&#x27;,&#x27;cs-workflow-request-summary&#x27;),identities=node(&#x27;dl&#x27;,&#x27;cs-workflow-request-people&#x27;);
       for(const [label,value]of item.kind===&#x27;claim&#x27;?[[&#x27;Ønsker vagten&#x27;,from]]:[[&#x27;Nuværende medarbejder&#x27;,from],[&#x27;Overtager vagten&#x27;,to]]){const pair=node(&#x27;div&#x27;);pair.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value));identities.append(pair);}
       summary.append(shiftFacts(item.shift,&#x27;Vagten&#x27;),identities);detail.append(summary);
@@ -23903,14 +23970,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const actions=node(&#x27;div&#x27;,&#x27;cs-workflow-actions&#x27;),mine=bundle().personId;
       if(!readOnly()&amp;&amp;bundle().canManage&amp;&amp;[&#x27;pending&#x27;,&#x27;accepted&#x27;].includes(item.status)){
         if(reject?.id===item.id){const box=node(&#x27;form&#x27;,&#x27;cs-workflow-form&#x27;);box.setAttribute(&#x27;aria-label&#x27;,&#x27;Afvis anmodning&#x27;);const reason=field(&#x27;Begrundelse til medarbejderen&#x27;,&#x27;textarea&#x27;,reject.reason,&#x27;reject:reason&#x27;);reason.input.required=true;reason.input.addEventListener(&#x27;input&#x27;,()=&gt;{reject.reason=reason.input.value;});box.append(reason.label);const controls=node(&#x27;div&#x27;,&#x27;cs-workflow-actions&#x27;);controls.append(button(&#x27;Afvis anmodning&#x27;,()=&gt;{if(!reject.reason.trim()){error=&#x27;Skriv en begrundelse til medarbejderen.&#x27;;paint(&#x27;reject:reason&#x27;);return;}invoke(&#x27;workflowDecide&#x27;,{requestId:item.id,version:reject.version,decision:&#x27;reject&#x27;,reason:reject.reason.trim()},&#x27;Anmodningen er afvist.&#x27;,true);},&#x27;reject:save&#x27;,&#x27;cs-button cs-workflow-button&#x27;),button(&#x27;Annuller&#x27;,()=&gt;{reject=null;paint(&#x27;request:reject&#x27;);},&#x27;reject:cancel&#x27;));box.append(controls);box.addEventListener(&#x27;submit&#x27;,event=&gt;event.preventDefault());decision.append(box);}
-        else{const approve=button(&#x27;Godkend anmodning&#x27;,()=&gt;invoke(&#x27;workflowDecide&#x27;,{requestId:item.id,version:item.version,decision:&#x27;approve&#x27;},bundle().demo?&#x27;Anmodningen er godkendt. Eksempelvagten er opdateret.&#x27;:&#x27;Anmodningen er godkendt. Vagtplanen er opdateret.&#x27;,true),&#x27;request:approve&#x27;,&#x27;cs-button cs-primary cs-workflow-button&#x27;);approve.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason)||item.canApprove===false||Boolean(item.conflicts?.length);actions.append(approve,button(&#x27;Afvis&#x27;,()=&gt;{reject={id:item.id,version:item.version,reason:&#x27;&#x27;};paint(&#x27;reject:reason&#x27;);},&#x27;request:reject&#x27;));decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,bundle().demo?&#x27;Godkendelsen ændrer kun demovagten. Beskeder og læsestatus gemmes i demoforløbet.&#x27;:&#x27;Ved godkendelse opdateres den udgivne vagt, og de berørte medarbejdere får en besked. Overlap og godkendt fravær kontrolleres igen.&#x27;));}
+        else{const approve=button(&#x27;Godkend anmodning&#x27;,()=&gt;invoke(&#x27;workflowDecide&#x27;,{requestId:item.id,version:item.version,decision:&#x27;approve&#x27;},bundle().demo?&#x27;Anmodningen er godkendt. Eksempelvagten er opdateret.&#x27;:&#x27;Anmodningen er godkendt. Vagtplanen er opdateret.&#x27;,true),&#x27;request:approve&#x27;,&#x27;cs-button cs-primary cs-workflow-button&#x27;);approve.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason)||item.canApprove===false||Boolean(item.conflicts?.length);actions.append(approve,button(&#x27;Afvis&#x27;,()=&gt;{reject={id:item.id,version:item.version,reason:&#x27;&#x27;};paint(&#x27;reject:reason&#x27;);},&#x27;request:reject&#x27;));if(!approve.disabled)decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,bundle().demo?&#x27;Godkendelsen ændrer eksempelvagten.&#x27;:&#x27;Godkendelse opdaterer vagten og giver de berørte medarbejdere besked.&#x27;));}
       }else if(bundle().canManage&amp;&amp;item.status===&#x27;awaiting_colleague&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,(item.toName||personName(item.toPersonId))+&#x27; skal først acceptere vagten. Anmodningen kommer derefter til din godkendelse.&#x27;));
       else if(!readOnly()&amp;&amp;item.status===&#x27;awaiting_colleague&#x27;&amp;&amp;item.toPersonId===mine){const accept=button(&#x27;Acceptér vagten&#x27;,()=&gt;invoke(&#x27;workflowRespond&#x27;,{requestId:item.id,version:item.version,decision:&#x27;accept&#x27;},&#x27;Du har accepteret. Anmodningen afventer nu planlæggeren.&#x27;,true),&#x27;request:accept&#x27;,&#x27;cs-button cs-primary cs-workflow-button&#x27;);accept.disabled=busy()||item.shiftCurrent===false||Boolean(item.blockedReason);actions.append(accept,button(&#x27;Afslå&#x27;,()=&gt;invoke(&#x27;workflowRespond&#x27;,{requestId:item.id,version:item.version,decision:&#x27;decline&#x27;},&#x27;Tilbuddet er afslået.&#x27;,true),&#x27;request:decline&#x27;));}
       if(!readOnly()&amp;&amp;ACTIVE.has(item.status)&amp;&amp;item.fromPersonId===mine)actions.append(button(&#x27;Træk anmodning tilbage&#x27;,()=&gt;invoke(&#x27;workflowRespond&#x27;,{requestId:item.id,version:item.version,decision:&#x27;cancel&#x27;},&#x27;Anmodningen er trukket tilbage.&#x27;,true),&#x27;request:cancel&#x27;));
       if(item.status===&#x27;stale&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,&#x27;Vagten er ændret siden anmodningen blev sendt. Opret en ny anmodning ud fra den aktuelle vagt.&#x27;));
       if(actions.children.length)decision.append(actions);
-      if(!ACTIVE.has(item.status)&amp;&amp;!item.decisionReason)decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,STATUS[item.status]||&#x27;Anmodningen er behandlet.&#x27;));
-      detail.append(decision);
+      if(!ACTIVE.has(item.status)&amp;&amp;!item.decisionReason&amp;&amp;mode!==&#x27;manager&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-workflow-muted&#x27;,STATUS[item.status]||&#x27;Anmodningen er behandlet.&#x27;));
+      if(mode!==&#x27;manager&#x27;||decision.children.length&gt;1)detail.append(decision);
       const related=node(&#x27;div&#x27;,&#x27;cs-workflow-related&#x27;);if(mode===&#x27;manager&#x27;&amp;&amp;validDate(item.shift?.date)&amp;&amp;typeof onOpenSchedule===&#x27;function&#x27;)related.append(button(bundle().demo?&#x27;Vis eksempelvagt&#x27;:&#x27;Vis i vagtplan&#x27;,()=&gt;onOpenSchedule(item.shift),&#x27;request:schedule&#x27;));else if(item.shift?.id&amp;&amp;validDate(item.shift.date)&amp;&amp;typeof onOpenShift===&#x27;function&#x27;&amp;&amp;(item.status===&#x27;approved&#x27;?item.toPersonId===bundle().personId:item.shift.person===bundle().personId))related.append(button(&#x27;Åbn vagt&#x27;,()=&gt;onOpenShift(item.shift.id,item.shift),&#x27;request:shift&#x27;));if(related.children.length)detail.append(related);
       detail.append(node(&#x27;p&#x27;,&#x27;cs-workflow-timestamp&#x27;,&#x27;Oprettet &#x27;+stamp(item.createdAt)+(item.updatedAt&amp;&amp;item.updatedAt!==item.createdAt?&#x27; · Opdateret &#x27;+stamp(item.updatedAt):&#x27;&#x27;)));body.append(detail);
     }
@@ -27559,9 +27626,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(!workflowChrome)return;workflowChrome.replaceChildren();
     if(state.role===&#x27;employee&#x27;||!cloudCapabilities.plan){workflowChrome.hidden=true;return;}
     workflowChrome.hidden=false;const demo=isWorkflowDemo();
+    workflowChrome.dataset.demo=String(demo);
     if(demo){
-      workflowChrome.append(node(&#x27;strong&#x27;,&#x27;cs-workflow-demo-label&#x27;,&#x27;Eksempelvisning&#x27;),node(&#x27;span&#x27;,&#x27;cs-workflow-demo-caption&#x27;,&#x27;Anmodninger og beskeder i et separat prøvemiljø&#x27;));
-      const label=node(&#x27;label&#x27;,&#x27;cs-workflow-demo-person&#x27;),select=node(&#x27;select&#x27;);label.append(node(&#x27;span&#x27;,null,&#x27;Vis som&#x27;));select.setAttribute(&#x27;aria-label&#x27;,&#x27;Vis eksempel som&#x27;);const manager=node(&#x27;option&#x27;,null,&#x27;Planlægger&#x27;);manager.value=&#x27;&#x27;;select.append(manager);
+      workflowChrome.append(node(&#x27;strong&#x27;,&#x27;cs-workflow-demo-label&#x27;,&#x27;Eksempelvisning&#x27;));
+      const label=node(&#x27;label&#x27;,&#x27;cs-workflow-demo-person&#x27;),select=node(&#x27;select&#x27;);label.append(node(&#x27;span&#x27;,null,&#x27;Vis som&#x27;));select.setAttribute(&#x27;aria-label&#x27;,&#x27;Vis eksempel som&#x27;);select.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);const manager=node(&#x27;option&#x27;,null,&#x27;Planlægger&#x27;);manager.value=&#x27;&#x27;;select.append(manager);
       for(const person of workflowBundle?.demoPeople||[]){const option=node(&#x27;option&#x27;,null,person.name);option.value=person.id;select.append(option);}select.value=workflowDemoPerson;select.disabled=workflowLoading;
       select.addEventListener(&#x27;change&#x27;,()=&gt;{workflowDemoPerson=select.value;workflowSelectedShift=null;clearWorkflow();renderWorkflow(&#x27;manager&#x27;);loadWorkflow(true);});label.append(select);workflowChrome.append(label);
       if(workflowDemoPerson){const views=node(&#x27;div&#x27;,&#x27;cs-workflow-demo-views&#x27;);views.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);views.setAttribute(&#x27;aria-label&#x27;,&#x27;Demovisning&#x27;);for(const [key,text]of [[&#x27;employee&#x27;,&#x27;Vagtbytte&#x27;],[&#x27;messages&#x27;,&#x27;Beskeder&#x27;]]){const button=node(&#x27;button&#x27;,&#x27;cs-button cs-chrome-quiet&#x27;,text);button.type=&#x27;button&#x27;;button.setAttribute(&#x27;aria-pressed&#x27;,String(key===workflowDemoView));button.addEventListener(&#x27;click&#x27;,()=&gt;{workflowDemoView=key;renderWorkflow(&#x27;manager&#x27;);});views.append(button);}workflowChrome.append(views);}
@@ -30334,6 +30402,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
 
 
 

@@ -58,9 +58,9 @@
   color:var(--cs-access-ink);
   font-weight:700;
 }
-#cleanrooms-studio[data-page="series"] .cs-compass-context{display:none}
-#cleanrooms-studio[data-page="series"] .cs-main>.cs-page-head #cs-title{
-  font-size:var(--cs-series-title-size,22px);line-height:30px;letter-spacing:-.4px;
+#cleanrooms-studio:is([data-page="series"],[data-page="workflow"]) .cs-compass-context{display:none}
+#cleanrooms-studio:is([data-page="series"],[data-page="workflow"]) .cs-main>.cs-page-head #cs-title{
+  font-size:var(--cs-planning-title-size,22px);line-height:30px;letter-spacing:-.4px;
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"],[data-page="chat"],[data-page="workflow"],[data-page="workspace"],[data-role="employee"]) .cs-page-help-dialog {
   border-color:var(--cs-compass-rule);
@@ -80,10 +80,6 @@
 
 @media(max-width:760px){
   #cleanrooms-studio:is([data-page="accounts"],[data-page="payroll"],[data-page="people"],[data-page="leave"],[data-page="hours"],[data-page="activity"],[data-page="workspace"],[data-page="chat"],[data-page="workflow"],[data-page="series"],[data-page="schedule"],[data-role="employee"]){--cs-compass-gutter:16px}
-  #cleanrooms-studio[data-page="series"]{--cs-series-title-size:19px}
+  #cleanrooms-studio:is([data-page="series"],[data-page="workflow"]){--cs-planning-title-size:19px}
   #cleanrooms-studio[data-page="series"] .cs-main>.cs-page-head>.cs-head-actions{width:auto}
-}
-
-@media(max-width:360px){
-  #cleanrooms-studio[data-page="workflow"] .cs-main .cs-compass-context{display:none}
 }

@@ -2272,6 +2272,7 @@
       ...(examples?{demoExamples:{onAdd:addSeriesExamples,installed:examples.groups.every(group=>catalog.series.some(phase=>(phase.groupId||phase.id)===group.id||group.phaseIds.includes(phase.id))),labelFor:entry=>exampleLabels[entry.id]||''}}:{}),
       onShow:(series,next)=>{const shift=next||seriesOccurrences(series,catalog)[0]||Engine.enumerate(series,seriesOperationRange(series))[0];navigateTo(shift?.date||series.startDate,shift?.person||series.person);}
     });
+    q('#cs-series-tools').replaceChildren(surface.querySelector('.cs-series-overview-head'));
     q('#cs-page-content').replaceChildren(surface);
   }
   function addSeriesExamples() {
@@ -2556,7 +2557,7 @@
   function openReview(trigger = q('#cs-review')) { if(usesViewportCalendar()&&!calendarWeekLoaded(dates()[0]))return ensureBaseWeek(()=>openReview(trigger),'review');closeOperationsSheets(); closeBulkEditor(false); closeChanges(false); closeEditor(); closeGroupEditor(false); reviewTrigger = trigger; renderReview(); q('#cs-review-layer').hidden = false; q('#cs-review-close').focus({preventScroll:true}); }
   function closeReview() { const open = !q('#cs-review-layer').hidden; q('#cs-review-layer').hidden = true;if(open){releasePlanningHold('review');resumePlannerViewport();} if (open && reviewTrigger?.isConnected) reviewTrigger.focus({preventScroll:true}); }
   function renderKey() { return JSON.stringify([state.page,effectiveView(),state.zoom,state.group,state.week,state.day,state.pageIndex,state.search,state.site,state.departmentId,state.onlyOpen]); }
-  function scrollContainer() { return q('#cs-page-content .cs-board-scroll, #cs-page-content .cs-table-wrap, #cs-page-content .cs-agenda, #cs-page-content .cs-series-list, #cs-page-content .cs-demo-page'); }
+  function scrollContainer() { return q('#cs-page-content .cs-board-scroll, #cs-page-content .cs-table-wrap, #cs-page-content .cs-agenda, #cs-page-content .cs-series-overview-list, #cs-page-content .cs-demo-page'); }
   function animateNavigation() {
     const key = JSON.stringify([state.page,state.week,effectiveView(),effectiveView() === 'day' ? state.day : null]);
     if (lastNavigationMotionKey !== null && key !== lastNavigationMotionKey) {
@@ -2635,7 +2636,7 @@
     q('#cs-week-toolbar').hidden = !['schedule','hours'].includes(state.page); q('#cs-view-switch').hidden = !isSchedule; q('#cs-group-switch').hidden = true;
     q('#cs-zoom-controls').hidden = !isSchedule || isDay; q('#cs-calendar-help').hidden = !isSchedule || isDay;
     root.querySelectorAll('#cs-zoom-controls [data-zoom]').forEach(button => button.setAttribute('aria-pressed',String(Number(button.dataset.zoom) === state.zoom)));
-    q('#cs-day-strip').hidden = !isSchedule || !isDay; q('#cs-new').hidden = !isSchedule && state.page !== 'series'; q('#cs-new').replaceChildren(icon('plus'),document.createTextNode(state.page === 'series' ? 'Ny vagtserie' : 'Opret vagt')); q('#cs-publish').hidden = !isSchedule; q('.cs-draft').hidden = !isSchedule;
+    q('#cs-day-strip').hidden = !isSchedule || !isDay; q('#cs-new').hidden = !isSchedule && state.page !== 'series'; q('#cs-new').replaceChildren(icon('plus'),document.createTextNode(state.page === 'series' ? 'Opret vagtserie' : 'Opret vagt')); q('#cs-publish').hidden = !isSchedule; q('.cs-draft').hidden = !isSchedule;
     q('#cs-site-filter-label').hidden = state.page === 'leave'; q('#cs-legend').hidden = !isSchedule || isDay; q('#cs-plan-count').hidden = !isSchedule;
     const header=plannerHeader(),partialCalendar=usesViewportCalendar()&&loadedCalendarWeeks().length<calendarWeeks();
     q('#cs-review').hidden = !isSchedule;q('#cs-review-count').textContent = header.drift===null?'—':String(header.drift);
@@ -2643,7 +2644,7 @@
     q('#cs-attention').hidden = !isSchedule; const openCount = (isSchedule && !isDay ? loadedCalendarWeeks().flatMap(day=>shiftsInRange(day,addDays(day,6))) : shifts()).filter(shift => !shift.person && inDepartment(shift.site)).length;
     q('#cs-attention span').textContent = partialCalendar&&!openCount?'Ledige vagter':openCount + (openCount === 1 ? ' ledig vagt' : ' ledige vagter'); q('#cs-attention').setAttribute('aria-pressed', String(state.onlyOpen)); q('#cs-attention').disabled = !partialCalendar&&openCount === 0 && !state.onlyOpen;q('#cs-attention').title=partialCalendar?'Ledige vagter i indlæste uger':'';
     q('#cs-reset-filters').hidden = !hasFilters();
-    q('#cs-search').placeholder = isSchedule ? 'Medarbejder' : 'Søg medarbejder…';
+    q('#cs-search').placeholder = isSchedule || state.page === 'series' ? 'Medarbejder' : 'Søg medarbejder…';
     const week = dates(), activeWeek = q('#cs-active-week');
     activeWeek.hidden = !isSchedule;
     activeWeek.textContent = isSchedule ? 'Uge ' + weekNumber(week[0]) : '';

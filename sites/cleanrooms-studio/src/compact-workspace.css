@@ -77,9 +77,6 @@
  #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"]{padding-top:16px}
  #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"]>.cs-time-week-table{margin-top:16px}
  #cleanrooms-studio[data-page="hours"] .cs-time-metrics{padding-block:16px;margin-bottom:16px}
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar{padding-bottom:12px}
- #cleanrooms-studio[data-page="series"] :is(.cs-series-overview-head,.cs-series-status){min-height:40px}
- #cleanrooms-studio[data-page="series"] .cs-series-status{height:40px}
 }
 @media(max-width:1100px) and (min-width:761px){
  #cleanrooms-studio[data-page] .cs-main>.cs-page-head .cs-page-description{max-width:300px}

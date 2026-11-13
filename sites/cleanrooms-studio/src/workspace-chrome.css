@@ -35,12 +35,6 @@
  #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9}
  #cleanrooms-studio[data-page="hours"] .cs-time-filter-rail>.cs-time-all-filter[aria-pressed="true"]::before{display:none}
  #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-tools{flex-basis:380px}
- /* Series share the filter surface already established in the calendar. */
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar .cs-filter-left{--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;gap:0;flex:0 1 660px;max-width:100%;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar .cs-search{flex:1 1 360px;min-width:180px;max-width:none;border:0;border-radius:6px 0 0 6px;background:transparent;box-shadow:none}
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter-label{position:relative;flex:0 1 240px;min-width:180px}
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter{width:100%}
- #cleanrooms-studio[data-page="series"] .cs-workspace-toolbar #cs-site-filter-label::before{content:"";position:absolute;z-index:1;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9;pointer-events:none}
 }
 @media(max-width:760px){
  #cleanrooms-studio[data-page] .cs-filter-rail{--cs-ui-field-border:var(--cs-access-control-edge,#c1cbce);--cs-ui-field-background:#fff;--cs-ui-field-shadow:none;flex-wrap:wrap;gap:8px;background:transparent;box-shadow:none}

@@ -4,7 +4,6 @@
   const statuses = Object.freeze([['active','I gang'],['upcoming','Kommende'],['ended','Afsluttede'],['all','Alle']]);
   const days = ['Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag','Søndag'];
   const shortDays = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
-  const weekdayLetters = ['M','T','O','T','F','L','S'];
   const formatter = new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   const str = value => value == null ? '' : String(value);
   const clockLabel=shift=>str(shift.start)+'–'+str(shift.end)+(shift.end<shift.start?' +1 dag':'');
@@ -78,6 +77,7 @@
     statuses.forEach(([key,label]) => {
       const tab = button(label,() => options.onStatusChange?.(key),'cs-series-status'); tab.id = 'cs-series-status-'+key;
       tab.dataset.seriesStatus = key; tab.dataset.productFocus = 'series:status:'+key; tab.setAttribute('aria-pressed',String(key === view.status));
+      const count = node('span','cs-series-status-count',view.counts[key]); count.setAttribute('aria-hidden','true'); tab.append(count);
       tab.setAttribute('aria-label',label+' · '+view.counts[key]+(view.counts[key] === 1 ? ' serie' : ' serier')); tabs.append(tab);
     });
     const result = node('span','cs-sr',view.visible.length+(view.visible.length === 1 ? ' vagtserie vises.' : ' vagtserier vises.')); result.setAttribute('role','status'); head.append(tabs,result);
@@ -99,10 +99,11 @@
       else if (view.entries.length && view.status !== 'all') { const all = button('Vis alle serier',() => options.onStatusChange?.('all')); all.dataset.productFocus = 'series:show-all'; empty.append(all); }
       list.append(empty); return surface;
     }
+    const register=node('div','cs-series-register');register.setAttribute('role','presentation');list.append(register);
     const columns=node('div','cs-series-register-columns');columns.setAttribute('aria-hidden','true');
-    for(const label of ['Medarbejder / arbejdssted','Ugeplan','Periode','Overblik','Handlinger'])columns.append(node('span',null,label));
-    list.append(columns);
-    const menus=[],rows=node('div','cs-series-register-rows');rows.setAttribute('role','presentation');list.append(rows);
+    for(const label of ['Medarbejder / arbejdssted','Ugeplan','Periode','Overblik'])columns.append(node('span',null,label));
+    register.append(columns);
+    const menus=[],rows=node('div','cs-series-register-rows');rows.setAttribute('role','presentation');register.append(rows);
     const appendEntry=(entry,position)=>{
       const {series,next} = entry, row = node('article','cs-series-row'); row.dataset.seriesId = str(series.id); row.dataset.agreementId = entry.id; row.dataset.status = entry.status; row.setAttribute('role','listitem');row.setAttribute('aria-posinset',String(position));row.setAttribute('aria-setsize',String(view.visible.length));
       const identity = node('div','cs-series-row-identity'), avatar = node('span','cs-series-row-avatar',options.personInitials?.(series.person) || entry.name.split(/\s+/).filter(Boolean).slice(0,2).map(part => part[0]).join('') || '—'); avatar.setAttribute('aria-hidden','true');
@@ -112,7 +113,7 @@
       identity.append(avatar,copy); row.append(identity);
       const pattern = field(series.startDate > options.today ? 'Næste rytme' : !isOpenEnded(series) && series.endDate < options.today ? 'Seneste rytme' : 'Nuværende rytme','cs-series-row-pattern'); pattern.append(node('strong','cs-series-row-time',patternLabel(series)));
       const selected = new Set(Array.isArray(series.weekdays) ? series.weekdays : []), week = node('div','cs-series-week-pattern'); week.setAttribute('role','img'); week.setAttribute('aria-label','Gentages: '+days.filter((_,index) => selected.has(index)).join(', '));
-      weekdayLetters.forEach((day,index) => { const item = node('span','cs-series-weekday',day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute('aria-hidden','true'); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+' '+clockLabel(time); } week.append(item); }); pattern.append(week);
+      shortDays.forEach((day,index) => { const item = node('span','cs-series-weekday',day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute('aria-hidden','true'); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+' '+clockLabel(time); } week.append(item); }); pattern.append(week);
       if (patternLabel(series) === 'Varierende tider') { const times=node('span','cs-series-pattern-times',patternTimes(series).map(time => shortDays[time.day]+' '+clockLabel(time)).join(' · '));times.title=times.textContent;pattern.append(times); }
       if(patternNote(series))pattern.append(node('span','cs-series-planned-break',patternNote(series)));
       row.append(pattern);
@@ -136,12 +137,20 @@
         if(typeof options.onShow==='function'){const show=button('Vis i planen',()=>run(origin=>options.onShow(series,next,origin)),'cs-button cs-quiet');show.dataset.productFocus='series:'+entry.id+':show';show.setAttribute('aria-label','Vis vagtserien for '+entry.name+' i planen');items.append(show);}
         if(typeof options.onCopy==='function'){const copy=button('Kopiér',()=>run(origin=>options.onCopy(series,origin,entry)),'cs-button cs-quiet');copy.dataset.productFocus='series:'+entry.id+':copy';copy.setAttribute('aria-label','Kopiér vagtserien for '+entry.name);items.append(copy);}
         if(!entry.openEnded&&typeof options.onExtend==='function'){const extend=button('Forlæng',()=>run(origin=>options.onExtend(entry.latest,origin,entry)),'cs-button cs-quiet');extend.dataset.productFocus='series:'+entry.id+':extend';extend.setAttribute('aria-label','Forlæng vagtserien for '+entry.name);if(entry.expiring)extend.dataset.expiring='true';items.append(extend);}
-        menu.append(trigger,items);menus.push(menu);menu.addEventListener('toggle',()=>{if(menu.open){for(const other of menus)if(other!==menu)other.open=false;const bounds=trigger.getBoundingClientRect?.(),height=items.getBoundingClientRect?.().height||142,viewport=doc.defaultView?.innerHeight;menu.dataset.placement=bounds&&viewport&&bounds.bottom+height+12>viewport&&bounds.top>height+12?'up':'down';}});
+        menu.append(trigger,items);menus.push(menu);
+        menu.addEventListener('toggle',()=>{
+          if(!menu.open)return;
+          for(const other of menus)if(other!==menu)other.open=false;
+          const anchor=trigger.getBoundingClientRect(),height=items.getBoundingClientRect().height+5;
+          const bounds=list.getBoundingClientRect(),header=columns.offsetHeight;
+          const above=anchor.top-bounds.top-header,below=bounds.bottom-anchor.bottom;
+          menu.dataset.placement=below<height&&above>below?'up':'down';
+        });
         menu.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.open){event.preventDefault();event.stopPropagation();menu.open=false;trigger.focus?.({preventScroll:true});}});actions.append(menu);
       }
       row.append(actions);
       const timeline = node('details','cs-series-timeline'); timeline.dataset.agreementId = entry.id; timeline.open = typeof expanded.has === 'function' ? expanded.has(entry.id) : Array.isArray(expanded) && expanded.includes(entry.id);
-      const summary = node('summary','cs-series-timeline-summary');summary.append(node('span','cs-series-disclosure-label','Se perioder'),node('span','cs-series-period-count',entry.phases.length+(entry.phases.length===1?' periode':' perioder')));summary.dataset.productFocus='series:'+entry.id+':periods';
+      const summary = node('summary','cs-series-timeline-summary');summary.append(node('span','cs-series-disclosure-label',entry.phases.length===1?'Vis periode':'Vis '+entry.phases.length+' perioder'));summary.dataset.productFocus='series:'+entry.id+':periods';
       if(entry.exceptions>0){const exceptions=node('span','cs-series-exception-count',entry.exceptions+(entry.exceptions===1?' undtagelse':' undtagelser'));exceptions.title='Manuelt redigerede eller slettede forekomster';summary.append(exceptions);}
       if(series.hasDescription||series.note||series.noteRich){const description=node('span','cs-series-row-description'),indicator=options.descriptionIndicator?.(series);if(indicator)description.append(indicator);description.append(node('span',null,'Beskrivelse'));summary.append(description);}
       const body=node('div','cs-series-agreement-details');let built=false;
@@ -172,7 +181,7 @@
     view.visible.forEach((entry,index)=>{if((typeof expanded.has==='function'?expanded.has(entry.id):Array.isArray(expanded)&&expanded.includes(entry.id))||focused?.startsWith('series:'+entry.id+':'))limit=Math.max(limit,Math.ceil((index+1)/50)*50);});
     const footer=node('div','cs-series-register-footer'),progress=node('span','cs-series-register-progress'),more=button('Vis flere',()=>{appendBatch(50);(more.hidden?progress:more).focus?.({preventScroll:true});},'cs-button cs-chrome-quiet');more.dataset.productFocus='series:show-more';progress.tabIndex=-1;
     let shown=0;const appendBatch=amount=>{const end=Math.min(view.visible.length,shown+amount);for(;shown<end;shown++)appendEntry(view.visible[shown],shown+1);surface.dataset.renderedCount=String(shown);progress.textContent=shown+' af '+view.visible.length+' serier';more.hidden=shown>=view.visible.length;};
-    surface.dataset.filterKey=filterKey;appendBatch(limit);footer.append(progress,more);if(view.visible.length>50)list.append(footer);
+    surface.dataset.filterKey=filterKey;appendBatch(limit);footer.append(progress,more);if(view.visible.length>50)register.append(footer);
     surface.addEventListener('pointerdown',event=>{for(const menu of menus)if(menu.open&&typeof menu.contains==='function'&&!menu.contains(event.target))menu.open=false;});
     return surface;
   }

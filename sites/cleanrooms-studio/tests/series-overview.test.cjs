@@ -14,6 +14,7 @@ class Element {
   append(...children){this.children.push(...children);}
   setAttribute(key,value){this.attributes[key]=String(value);}
   getAttribute(key){return this.attributes[key];}
+  getBoundingClientRect(){return {top:0,bottom:0,height:0};}
   addEventListener(type,handler){this.handlers[type]=handler;}
   click(){this.handlers.click?.({currentTarget:this});}
   focus(){this.ownerDocument.activeElement=this;}
@@ -141,7 +142,7 @@ test('controlled disclosure state is not mutated and uncontrolled state survives
 
 test('the register exposes one edit action, a dismissible overflow menu and only meaningful main-row facts',()=>{
   const events=[],doc=document(),options=fixture({document:doc,onEdit:(...args)=>events.push(args),onShow(){},onCopy:(...args)=>events.push(args),onExtend(){}}),root=Overview.render(options),rows=byClass(root,'cs-series-row');
-  assert.equal(byClass(root,'cs-series-register-columns')[0].textContent,'Medarbejder / arbejdsstedUgeplanPeriodeOverblikHandlinger');
+  assert.equal(byClass(root,'cs-series-register-columns')[0].textContent,'Medarbejder / arbejdsstedUgeplanPeriodeOverblik');
   const row=rows.find(item=>item.dataset.seriesId==='active'),actions=byClass(row,'cs-series-row-actions')[0];
   assert.equal(actions.children.filter(item=>item.tagName==='button').length,1);assert.equal(actions.children[0].textContent,'Rediger');
   assert.equal(byClass(row,'cs-series-exception-count').length,0);assert.equal(byClass(row,'cs-series-upcoming').length,0);
@@ -154,7 +155,7 @@ test('the register exposes one edit action, a dismissible overflow menu and only
 test('period details build once on demand and show the next change without repeating the next-vagter count in the row',()=>{
   const root=Overview.render({...agreementFixture(),document:document()}),timeline=byClass(root,'cs-series-timeline')[0],body=byClass(root,'cs-series-agreement-details')[0];
   assert.equal(body.children.length,0);assert.equal(byClass(root,'cs-series-period').length,0);
-  assert.ok(byClass(root,'cs-series-next-change')[0].textContent.includes('2. nov. 2026'));assert.ok(timeline.textContent.startsWith('Se perioder3 perioder2 undtagelser'));
+  assert.ok(byClass(root,'cs-series-next-change')[0].textContent.includes('2. nov. 2026'));assert.ok(timeline.textContent.startsWith('Vis 3 perioder2 undtagelser'));
   timeline.open=true;timeline.handlers.toggle();const original=[...body.children];assert.equal(byClass(body,'cs-series-period').length,3);assert.equal(byClass(body,'cs-series-upcoming')[0].textContent,'3 kommende vagter');
   timeline.open=false;timeline.handlers.toggle();timeline.open=true;timeline.handlers.toggle();assert.ok(original.every((item,index)=>body.children[index]===item));
 });

@@ -8773,9 +8773,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body[data-time-tab=&quot;week&quot;]{padding-top:16px}
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body[data-time-tab=&quot;week&quot;]&gt;.cs-time-week-table{margin-top:16px}
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-metrics{padding-block:16px;margin-bottom:16px}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar{padding-bottom:12px}
- #cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-overview-head,.cs-series-status){min-height:40px}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status{height:40px}
 }
 @media(max-width:1100px) and (min-width:761px){
  #cleanrooms-studio[data-page] .cs-main&gt;.cs-page-head .cs-page-description{max-width:300px}
@@ -8931,12 +8928,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-filter-rail&gt;.cs-time-all-filter::before{content:&quot;&quot;;position:absolute;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9}
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-filter-rail&gt;.cs-time-all-filter[aria-pressed=&quot;true&quot;]::before{display:none}
  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar .cs-time-tools{flex-basis:380px}
- /* Series share the filter surface already established in the calendar. */
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filter-left{--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;gap:0;flex:0 1 660px;max-width:100%;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-search{flex:1 1 360px;min-width:180px;max-width:none;border:0;border-radius:6px 0 0 6px;background:transparent;box-shadow:none}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar #cs-site-filter-label{position:relative;flex:0 1 240px;min-width:180px}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar #cs-site-filter{width:100%}
- #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar #cs-site-filter-label::before{content:&quot;&quot;;position:absolute;z-index:1;left:0;top:11px;bottom:11px;width:1px;background:#dfe5e9;pointer-events:none}
 }
 @media(max-width:760px){
  #cleanrooms-studio[data-page] .cs-filter-rail{--cs-ui-field-border:var(--cs-access-control-edge,#c1cbce);--cs-ui-field-background:#fff;--cs-ui-field-shadow:none;flex-wrap:wrap;gap:8px;background:transparent;box-shadow:none}
@@ -9249,45 +9240,74 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 /* Agreements are a working register: one aligned row, with detail on demand. */
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview{background:#fff}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-head{min-height:40px;gap:8px 20px;border-color:#e2e7eb}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-statuses{gap:24px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status{height:40px;min-height:40px;font-size:12px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-list{padding:0 0 8px;scrollbar-gutter:stable}
+#cleanrooms-studio:not([data-page=&quot;series&quot;]) #cs-series-tools{display:none}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar &gt; .cs-filters{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] #cs-series-tools{flex:0 1 auto;min-width:0}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-head{
+  min-height:0;gap:4px 12px;align-items:center;border:0;
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-head &gt; .cs-series-statuses{
+  display:grid;grid-template-columns:repeat(4,auto);gap:2px;
+  flex:0 1 auto;width:auto;margin:0;padding:2px;border:1px solid var(--cs-compass-rule);border-radius:6px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status{
+  gap:5px;height:calc(var(--cs-ui-height) - 4px);min-height:0;margin:0;padding:0 8px;border:0;border-radius:4px;
+  color:var(--cs-access-muted);font-size:12px;
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status[aria-pressed=&quot;true&quot;]{
+  background:var(--cs-compass-selected);color:var(--cs-access-ink);font-weight:600;
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status[aria-pressed=&quot;false&quot;]:hover{
+  background:var(--cs-access-soft);color:var(--cs-access-ink);
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status-count{color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page=&quot;series&quot;] #cs-series-demo-examples{margin:0}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filters .cs-filter-left{flex:1 1 275px;max-width:400px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filters .cs-filter-right{margin:0}
+#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-register,.cs-series-overview-empty){
+  border:1px solid var(--cs-compass-rule);border-radius:7px;background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview:has(.cs-series-row),
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-list{flex:1 1 auto}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-list{padding:0}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-columns{display:none}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-rows{min-width:0}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;
-  gap:14px 20px;margin:0;padding:16px 0 12px;border:0;border-bottom:1px solid #e2e7eb;
-  border-radius:0;background:#fff;box-shadow:none;
+  gap:12px 16px;margin:0;padding:14px 12px;border:0;
+  border-radius:0;background:var(--cs-access-surface);box-shadow:none;
 }
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row:focus-within{border-color:#b8c8d2}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row + .cs-series-row{border-top:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row:last-child{border-radius:0 0 6px 6px}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-identity{grid-column:1/-1;grid-row:auto;gap:10px;align-items:center}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-avatar{flex-basis:32px;width:32px;height:32px;border:0;border-radius:5px;background:#edf2f5;color:#60717d;font-size:11px;font-weight:500}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-name{font-size:14px;font-weight:600;line-height:21px;letter-spacing:-.1px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-site{margin:2px 0 0;color:#73828d;font-size:12px;line-height:18px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-example-label{display:block;margin-top:2px;color:#89969f;font-size:10px;line-height:16px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-avatar{flex-basis:32px;width:32px;height:32px;border:0;border-radius:5px;background:var(--cs-access-soft);color:var(--cs-access-muted);font-size:11px;font-weight:500}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-name{color:var(--cs-access-ink);font-size:14px;font-weight:700;line-height:21px;letter-spacing:-.1px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-site{margin:2px 0 0;color:var(--cs-access-muted);font-size:12px;line-height:18px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-example-label{display:block;margin-top:2px;color:var(--cs-access-muted);font-size:11px;line-height:16px}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-field{grid-row:auto;min-width:0}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-pattern{grid-column:1/-1}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-period{grid-column:1}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-next{grid-column:2}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-label{margin-bottom:5px;color:#8a969f;font-size:10px;line-height:16px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-time{color:#344954;font-size:13px;font-weight:500;line-height:20px;letter-spacing:0}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-week-pattern{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;width:155px;max-width:100%;margin-top:6px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-weekday{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;height:22px;padding:0;border:1px solid #e0e5e8;border-radius:3px;background:#f5f7f8;color:#7a858d;font-size:10px;font-weight:500;line-height:1}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-weekday[data-active=&quot;true&quot;]{border-color:#29343c;background:#29343c;color:#fff;font-weight:600}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-pattern-times{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;max-width:none;overflow:hidden;margin-top:3px;color:#74838e;font-size:11px;line-height:17px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-planned-break{display:block;margin-top:3px;color:#84919b;font-size:10px;line-height:16px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-value{font-size:12px;font-weight:400;line-height:20px;color:#51636e}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-label{margin-bottom:4px;color:var(--cs-access-muted);font-size:11px;line-height:16px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-time{color:var(--cs-access-ink);font-size:13px;font-weight:700;line-height:20px;letter-spacing:0}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-week-pattern{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;width:198px;max-width:100%;margin-top:6px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-weekday{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;height:22px;padding:0;border:0;border-radius:3px;background:var(--cs-access-soft);color:var(--cs-access-muted);font-size:10px;font-weight:500;line-height:1}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-weekday[data-active=&quot;true&quot;]{background:var(--cs-access-ink);color:var(--cs-access-surface);font-weight:600}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-pattern-times{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;max-width:none;overflow:hidden;margin-top:4px;color:var(--cs-access-muted);font-size:11px;line-height:17px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-planned-break{display:block;margin-top:3px;color:var(--cs-access-muted);font-size:11px;line-height:16px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-value{font-size:13px;font-weight:500;line-height:20px;color:var(--cs-access-body)}
 #cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-period-start,.cs-series-period-end){display:block;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-period-end{color:#8a969f}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status] .cs-series-row-state{display:inline-flex;align-items:center;gap:6px;margin:0 0 3px;padding:0;border:0;border-radius:0;background:none;font-size:11px;font-weight:500;line-height:18px;color:#526875}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status=&quot;active&quot;] .cs-series-row-state::before{background:#4e8b68}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-period-end{color:var(--cs-access-muted)}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status] .cs-series-row-state{display:inline-flex;align-items:center;gap:6px;margin:0 0 3px;padding:0;border:0;border-radius:0;background:none;font-size:11px;font-weight:600;line-height:18px;color:var(--cs-access-muted)}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status=&quot;active&quot;] .cs-series-row-state{color:var(--cs-access-primary)}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status=&quot;active&quot;] .cs-series-row-state::before{background:var(--cs-compass-indicator)}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status=&quot;upcoming&quot;] .cs-series-row-state::before{background:#7893a6}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row[data-status=&quot;ended&quot;] .cs-series-row-state::before{background:#a2acb4}
-#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-next-change,.cs-series-next-label){display:block;color:#71828d;font-size:11px;line-height:18px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-next-change{color:#476778}
-#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-next-time,.cs-series-next-site){margin-top:0;font-size:11px;line-height:18px;color:#82909a}
+#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-next-change,.cs-series-next-label){display:block;color:var(--cs-access-body);font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-next-time,.cs-series-next-site){margin-top:0;font-size:11px;line-height:18px;color:var(--cs-access-muted)}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-expiry{margin-top:3px;color:#9a7134;font-size:11px;line-height:18px}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-actions{grid-column:1/-1;grid-row:auto;display:flex;align-items:center;justify-content:flex-end;flex-direction:row;flex-wrap:nowrap;gap:6px;margin:0}
 #cleanrooms-studio[data-page=&quot;series&quot;][data-role] .cs-series-row-actions &gt; .cs-button{flex:0 0 auto;width:auto;min-width:0;padding-inline:12px;border-color:#d8e1e7;border-radius:6px;background:#fff;color:#4b6575;font-size:12px;box-shadow:none}
@@ -9310,11 +9330,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary::before{content:&quot;&quot;;flex:0 0 5px;width:5px;height:5px;margin-right:1px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(-45deg)}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary::after{display:none}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline[open] &gt; .cs-series-timeline-summary::before{transform:rotate(45deg);margin-top:-3px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-disclosure-label{color:#526e80;font-weight:500}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary:hover .cs-series-disclosure-label{color:#2d556e}
-#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-period-count,.cs-series-exception-count,.cs-series-row-description){color:#929ea7;font-size:10px;line-height:18px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-disclosure-label{color:var(--cs-access-body);font-weight:600}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary:hover .cs-series-disclosure-label{text-decoration:underline;text-underline-offset:2px}
+#cleanrooms-studio[data-page=&quot;series&quot;] :is(.cs-series-exception-count,.cs-series-row-description){color:var(--cs-access-muted);font-size:11px;line-height:18px}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-description{display:inline-flex;align-items:center;gap:4px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-agreement-details{margin-top:10px;padding:16px 18px 4px;border:1px solid #e4eaee;border-radius:5px;background:#f7f9fa}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-agreement-details{margin-top:8px;padding:14px 16px 4px;border:1px solid var(--cs-compass-rule);border-radius:5px;background:var(--cs-access-soft)}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline:not([open]) &gt; .cs-series-agreement-details{display:none}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-expanded-facts{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 24px;margin-bottom:14px;color:#6f8390;font-size:11px;line-height:20px}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-upcoming{font-weight:500;color:#506c7c}
@@ -9324,8 +9344,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-period strong{font-size:12px;font-weight:500;line-height:20px;color:#465f6d}
 #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-period span{margin-top:2px;color:#7d8d97;font-size:11px;line-height:18px}
 #cleanrooms-studio[data-page=&quot;series&quot;][data-role] .cs-series-period &gt; .cs-button{height:var(--cs-ui-compact-height,32px);min-height:var(--cs-ui-compact-height,32px);padding-inline:8px;border-color:transparent;background:transparent;font-size:11px;box-shadow:none}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0 8px}
-#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-progress{color:#8796a0;font-size:11px;line-height:20px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 12px;border-top:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-progress{color:var(--cs-access-muted);font-size:11px;line-height:20px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-empty{padding:24px 16px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-empty-title{font-size:16px;line-height:22px}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-empty-copy{margin:4px 0 14px;color:var(--cs-access-muted)}
 
 @container cs-series-overview (min-width:650px){
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 124px;gap:10px 24px}
@@ -9337,9 +9360,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @container cs-series-overview (min-width:900px){
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-columns,
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{grid-template-columns:minmax(150px,1.2fr) minmax(155px,1.15fr) minmax(130px,.9fr) minmax(150px,1.05fr) 124px;column-gap:24px}
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-columns{position:static;display:grid;align-items:center;min-height:35px;padding:8px 0;border-bottom:1px solid #cfd6da;background:#fff;color:#7a838a;font-size:11px;font-weight:500;line-height:18px}
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-columns &gt; span:last-child{padding-right:4px;text-align:right}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{grid-template-columns:minmax(150px,1.2fr) minmax(192px,1.15fr) minmax(126px,.8fr) minmax(150px,1.05fr) 124px;column-gap:20px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-register-columns{
+    position:sticky;top:0;z-index:9;display:grid;align-items:center;min-height:35px;padding:8px 12px;
+    border-bottom:1px solid var(--cs-compass-rule);border-radius:6px 6px 0 0;background:var(--cs-access-soft);
+    color:var(--cs-access-muted);font-size:12px;font-weight:600;line-height:18px;
+  }
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{row-gap:5px;padding-block:14px 10px}
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-identity{grid-column:1;grid-row:1}
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-pattern{grid-column:2;grid-row:1}
@@ -9350,10 +9376,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-field &gt; .cs-series-row-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 }
 @media(max-width:760px){
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-head{gap:8px 16px}
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row{padding-block:16px 12px}
+  #cleanrooms-studio[data-page=&quot;series&quot;]{--cs-layout-header-gap:4px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar &gt; .cs-filters{display:grid;grid-template-columns:minmax(0,1fr)}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filters .cs-filter-left{max-width:none}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filters .cs-filter-right{display:flex;justify-content:flex-end}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-workspace-toolbar .cs-filter-right:not(:has(&gt;button:not([hidden]))){display:none}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-overview-head &gt; .cs-series-statuses{flex:1 1 100%;grid-template-columns:repeat(4,minmax(0,1fr))}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status{gap:3px;padding-inline:2px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-actions{grid-column:1/-1;grid-row:auto;justify-content:flex-start}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-row-menu .cs-series-menu-items{inset-inline-start:0;inset-inline-end:auto}
+  #cleanrooms-studio[data-page=&quot;series&quot;] #cs-series-demo-examples{margin-inline-start:auto}
   #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-agreement-details{padding:14px 12px 2px}
-  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary{min-height:32px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-timeline-summary{min-height:32px;padding-block:0}
+}
+@media(max-width:360px){
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status{flex-wrap:wrap;align-content:center;gap:0 3px;font-size:11px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-series-status-count{font-size:10px}
 }
 
 /* A calm, open conversation surface beside the existing planning workspace. */
@@ -9557,12 +9595,16 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main&gt;.cs-page-head {
   border-bottom-color:var(--cs-compass-rule);
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main&gt;.cs-page-head #cs-title {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main&gt;.cs-page-head #cs-title {
   color:var(--cs-access-ink);
   font-weight:700;
+}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-compass-context{display:none}
+#cleanrooms-studio[data-page=&quot;series&quot;] .cs-main&gt;.cs-page-head #cs-title{
+  font-size:var(--cs-series-title-size,22px);line-height:30px;letter-spacing:-.4px;
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;],[data-page=&quot;chat&quot;],[data-page=&quot;workflow&quot;],[data-page=&quot;workspace&quot;],[data-role=&quot;employee&quot;]) .cs-page-help-dialog {
   border-color:var(--cs-compass-rule);
@@ -9582,10 +9624,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 @media(max-width:760px){
   #cleanrooms-studio:is([data-page=&quot;accounts&quot;],[data-page=&quot;payroll&quot;],[data-page=&quot;people&quot;],[data-page=&quot;leave&quot;],[data-page=&quot;hours&quot;],[data-page=&quot;activity&quot;],[data-page=&quot;workspace&quot;],[data-page=&quot;chat&quot;],[data-page=&quot;workflow&quot;],[data-page=&quot;series&quot;],[data-page=&quot;schedule&quot;],[data-role=&quot;employee&quot;]){--cs-compass-gutter:16px}
+  #cleanrooms-studio[data-page=&quot;series&quot;]{--cs-series-title-size:19px}
+  #cleanrooms-studio[data-page=&quot;series&quot;] .cs-main&gt;.cs-page-head&gt;.cs-head-actions{width:auto}
 }
 
 @media(max-width:360px){
-  #cleanrooms-studio:is([data-page=&quot;series&quot;],[data-page=&quot;workflow&quot;]) .cs-main .cs-compass-context{display:none}
+  #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-main .cs-compass-context{display:none}
 }
 
 /* Accounts controls and workbench layout. */
@@ -11060,8 +11104,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-ink);
 }
 
-/* Keep the calendar&#x27;s date and filters together and leave the header for plan actions. */
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar {
+/* Keep filters together and leave the header for plan actions. */
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-workspace-toolbar {
   padding-block:10px;
 }
 #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar .cs-week-nav {
@@ -11090,7 +11134,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-filter-left {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main .cs-workspace-toolbar .cs-filter-left {
   --cs-ui-field-border:transparent;
   --cs-ui-field-background:transparent;
   --cs-ui-field-font:12px;
@@ -11103,7 +11147,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   border-radius:6px;
   background:var(--cs-access-soft);
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-search {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main .cs-workspace-toolbar .cs-search {
   --cs-ui-field-inset-start:30px;
   flex:1 1 150px;
   width:auto;
@@ -11116,7 +11160,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   min-width:108px;
   margin:0;
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar #cs-site-filter-label {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-workspace-toolbar #cs-site-filter-label {
   flex:0 1 155px;
   min-width:142px;
   border-inline-start:1px solid var(--cs-compass-rule);
@@ -11128,7 +11172,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-department-control {
   width:100%;
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
   --cs-publication-toggle-width:26px;
   --cs-ui-field-inset-start:9px;
   --cs-ui-field-border:transparent;
@@ -11137,7 +11181,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   --cs-ui-radius:0;
   width:100%;
 }
-#cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox:hover {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox:hover {
   --cs-ui-field-background:var(--cs-access-soft);
 }
 #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention) {
@@ -11196,7 +11240,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     grid-column:2;
     grid-row:1;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar .cs-filter-left {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main .cs-workspace-toolbar .cs-filter-left {
     --cs-ui-field-border:var(--cs-access-control-edge);
     --cs-ui-field-background:var(--cs-access-surface);
     display:grid;
@@ -11207,23 +11251,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     border:0;
     background:transparent;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar :is(.cs-search,.cs-department-slot,#cs-site-filter-label) {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main .cs-workspace-toolbar :is(.cs-search,.cs-department-slot,#cs-site-filter-label) {
     min-width:0;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-workspace-toolbar .cs-filter-left &gt; :is(.cs-search,#cs-department-switcher,#cs-site-filter-label,#cs-attention) {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-workspace-toolbar .cs-filter-left &gt; :is(.cs-search,#cs-department-switcher,#cs-site-filter-label,#cs-attention) {
     grid-area:auto;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;] .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;]) .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
     border:0;
     padding:0;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox {
     --cs-ui-field-border:var(--cs-access-control-edge);
     --cs-ui-field-background:var(--cs-access-surface);
     --cs-ui-field-font:14px;
     --cs-ui-radius:6px;
   }
-  #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox-input:focus {
+  #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox-input:focus {
     --cs-ui-field-font:16px;
   }
   #cleanrooms-studio[data-page=&quot;schedule&quot;][data-role] .cs-main .cs-workspace-toolbar :is(.cs-department-trigger,#cs-attention) {
@@ -11469,58 +11513,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;schedule&quot;]:where([data-role=&quot;admin&quot;]) .cs-board-day.is-drop-target {
   background:var(--cs-access-success-soft);
   box-shadow:inset 0 0 0 2px var(--cs-access-primary);
-}
-
-/* Vagtserier is the same compact register, including the expanded agreement. */
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-overview-head {
-  border-color:var(--cs-compass-rule);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-status {
-  padding-inline:8px;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-status[aria-pressed=&quot;true&quot;] {
-  border-bottom-color:transparent;
-  color:var(--cs-access-primary);
-  box-shadow:inset 0 -3px 0 var(--cs-compass-indicator);
-  font-weight:700;
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-status:hover {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-overview-list {
-  margin-top:12px;
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) :is(.cs-series-register-columns,.cs-series-row) {
-  padding-inline:12px;
-  border-color:var(--cs-compass-rule);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-register-columns {
-  border-radius:6px 6px 0 0;
-  background:var(--cs-access-soft);
-  color:var(--cs-access-muted);
-  font-weight:700;
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) :is(.cs-series-row-name,.cs-series-row-time) {
-  color:var(--cs-access-ink);
-  font-weight:700;
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) :is(.cs-series-row-avatar,.cs-series-agreement-details,.cs-series-weekday) {
-  border-color:var(--cs-compass-rule);
-  background:var(--cs-access-soft);
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-weekday[data-active=&quot;true&quot;] {
-  border-color:var(--cs-access-ink);
-  background:var(--cs-access-ink);
-  color:var(--cs-access-surface);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-row[data-status=&quot;active&quot;] .cs-series-row-state,
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-disclosure-label {
-  color:var(--cs-access-primary);
-}
-#cleanrooms-studio[data-page=&quot;series&quot;]:where([data-role=&quot;admin&quot;]) .cs-series-row[data-status=&quot;active&quot;] .cs-series-row-state::before {
-  background:var(--cs-compass-indicator);
 }
 
 /* The editor, review and department views share the same quiet frame. */
@@ -13741,6 +13733,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         &lt;div id=&quot;cs-date-jump-panel&quot; class=&quot;cs-date-jump-panel&quot; hidden&gt;&lt;label for=&quot;cs-jump-date&quot;&gt;Gå direkte til en dato&lt;/label&gt;&lt;div&gt;&lt;input type=&quot;date&quot; id=&quot;cs-jump-date&quot;&gt;&lt;button id=&quot;cs-jump-go&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;Vis i planen&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;cs-filters&quot;&gt;
+        &lt;div id=&quot;cs-series-tools&quot;&gt;&lt;/div&gt;
         &lt;div class=&quot;cs-filter-left&quot;&gt;
           &lt;label class=&quot;cs-search&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Søg medarbejder&lt;/span&gt;&lt;i data-lucide=&quot;search&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;input id=&quot;cs-search&quot; type=&quot;search&quot; placeholder=&quot;Søg medarbejder…&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;
           &lt;div id=&quot;cs-department-switcher&quot; hidden&gt;&lt;/div&gt;
@@ -16926,7 +16919,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const statuses = Object.freeze([[&#x27;active&#x27;,&#x27;I gang&#x27;],[&#x27;upcoming&#x27;,&#x27;Kommende&#x27;],[&#x27;ended&#x27;,&#x27;Afsluttede&#x27;],[&#x27;all&#x27;,&#x27;Alle&#x27;]]);
   const days = [&#x27;Mandag&#x27;,&#x27;Tirsdag&#x27;,&#x27;Onsdag&#x27;,&#x27;Torsdag&#x27;,&#x27;Fredag&#x27;,&#x27;Lørdag&#x27;,&#x27;Søndag&#x27;];
   const shortDays = [&#x27;Man&#x27;,&#x27;Tir&#x27;,&#x27;Ons&#x27;,&#x27;Tor&#x27;,&#x27;Fre&#x27;,&#x27;Lør&#x27;,&#x27;Søn&#x27;];
-  const weekdayLetters = [&#x27;M&#x27;,&#x27;T&#x27;,&#x27;O&#x27;,&#x27;T&#x27;,&#x27;F&#x27;,&#x27;L&#x27;,&#x27;S&#x27;];
   const formatter = new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
   const str = value =&gt; value == null ? &#x27;&#x27; : String(value);
   const clockLabel=shift=&gt;str(shift.start)+&#x27;–&#x27;+str(shift.end)+(shift.end&lt;shift.start?&#x27; +1 dag&#x27;:&#x27;&#x27;);
@@ -17000,6 +16992,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     statuses.forEach(([key,label]) =&gt; {
       const tab = button(label,() =&gt; options.onStatusChange?.(key),&#x27;cs-series-status&#x27;); tab.id = &#x27;cs-series-status-&#x27;+key;
       tab.dataset.seriesStatus = key; tab.dataset.productFocus = &#x27;series:status:&#x27;+key; tab.setAttribute(&#x27;aria-pressed&#x27;,String(key === view.status));
+      const count = node(&#x27;span&#x27;,&#x27;cs-series-status-count&#x27;,view.counts[key]); count.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;); tab.append(count);
       tab.setAttribute(&#x27;aria-label&#x27;,label+&#x27; · &#x27;+view.counts[key]+(view.counts[key] === 1 ? &#x27; serie&#x27; : &#x27; serier&#x27;)); tabs.append(tab);
     });
     const result = node(&#x27;span&#x27;,&#x27;cs-sr&#x27;,view.visible.length+(view.visible.length === 1 ? &#x27; vagtserie vises.&#x27; : &#x27; vagtserier vises.&#x27;)); result.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;); head.append(tabs,result);
@@ -17021,10 +17014,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       else if (view.entries.length &amp;&amp; view.status !== &#x27;all&#x27;) { const all = button(&#x27;Vis alle serier&#x27;,() =&gt; options.onStatusChange?.(&#x27;all&#x27;)); all.dataset.productFocus = &#x27;series:show-all&#x27;; empty.append(all); }
       list.append(empty); return surface;
     }
+    const register=node(&#x27;div&#x27;,&#x27;cs-series-register&#x27;);register.setAttribute(&#x27;role&#x27;,&#x27;presentation&#x27;);list.append(register);
     const columns=node(&#x27;div&#x27;,&#x27;cs-series-register-columns&#x27;);columns.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
-    for(const label of [&#x27;Medarbejder / arbejdssted&#x27;,&#x27;Ugeplan&#x27;,&#x27;Periode&#x27;,&#x27;Overblik&#x27;,&#x27;Handlinger&#x27;])columns.append(node(&#x27;span&#x27;,null,label));
-    list.append(columns);
-    const menus=[],rows=node(&#x27;div&#x27;,&#x27;cs-series-register-rows&#x27;);rows.setAttribute(&#x27;role&#x27;,&#x27;presentation&#x27;);list.append(rows);
+    for(const label of [&#x27;Medarbejder / arbejdssted&#x27;,&#x27;Ugeplan&#x27;,&#x27;Periode&#x27;,&#x27;Overblik&#x27;])columns.append(node(&#x27;span&#x27;,null,label));
+    register.append(columns);
+    const menus=[],rows=node(&#x27;div&#x27;,&#x27;cs-series-register-rows&#x27;);rows.setAttribute(&#x27;role&#x27;,&#x27;presentation&#x27;);register.append(rows);
     const appendEntry=(entry,position)=&gt;{
       const {series,next} = entry, row = node(&#x27;article&#x27;,&#x27;cs-series-row&#x27;); row.dataset.seriesId = str(series.id); row.dataset.agreementId = entry.id; row.dataset.status = entry.status; row.setAttribute(&#x27;role&#x27;,&#x27;listitem&#x27;);row.setAttribute(&#x27;aria-posinset&#x27;,String(position));row.setAttribute(&#x27;aria-setsize&#x27;,String(view.visible.length));
       const identity = node(&#x27;div&#x27;,&#x27;cs-series-row-identity&#x27;), avatar = node(&#x27;span&#x27;,&#x27;cs-series-row-avatar&#x27;,options.personInitials?.(series.person) || entry.name.split(/\s+/).filter(Boolean).slice(0,2).map(part =&gt; part[0]).join(&#x27;&#x27;) || &#x27;—&#x27;); avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
@@ -17034,7 +17028,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       identity.append(avatar,copy); row.append(identity);
       const pattern = field(series.startDate &gt; options.today ? &#x27;Næste rytme&#x27; : !isOpenEnded(series) &amp;&amp; series.endDate &lt; options.today ? &#x27;Seneste rytme&#x27; : &#x27;Nuværende rytme&#x27;,&#x27;cs-series-row-pattern&#x27;); pattern.append(node(&#x27;strong&#x27;,&#x27;cs-series-row-time&#x27;,patternLabel(series)));
       const selected = new Set(Array.isArray(series.weekdays) ? series.weekdays : []), week = node(&#x27;div&#x27;,&#x27;cs-series-week-pattern&#x27;); week.setAttribute(&#x27;role&#x27;,&#x27;img&#x27;); week.setAttribute(&#x27;aria-label&#x27;,&#x27;Gentages: &#x27;+days.filter((_,index) =&gt; selected.has(index)).join(&#x27;, &#x27;));
-      weekdayLetters.forEach((day,index) =&gt; { const item = node(&#x27;span&#x27;,&#x27;cs-series-weekday&#x27;,day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+&#x27; &#x27;+clockLabel(time); } week.append(item); }); pattern.append(week);
+      shortDays.forEach((day,index) =&gt; { const item = node(&#x27;span&#x27;,&#x27;cs-series-weekday&#x27;,day); item.title=days[index]; item.dataset.active = String(selected.has(index)); item.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;); if (selected.has(index)) { const time = series.dayTimes?.[index] || series; item.title = days[index]+&#x27; &#x27;+clockLabel(time); } week.append(item); }); pattern.append(week);
       if (patternLabel(series) === &#x27;Varierende tider&#x27;) { const times=node(&#x27;span&#x27;,&#x27;cs-series-pattern-times&#x27;,patternTimes(series).map(time =&gt; shortDays[time.day]+&#x27; &#x27;+clockLabel(time)).join(&#x27; · &#x27;));times.title=times.textContent;pattern.append(times); }
       if(patternNote(series))pattern.append(node(&#x27;span&#x27;,&#x27;cs-series-planned-break&#x27;,patternNote(series)));
       row.append(pattern);
@@ -17058,12 +17052,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         if(typeof options.onShow===&#x27;function&#x27;){const show=button(&#x27;Vis i planen&#x27;,()=&gt;run(origin=&gt;options.onShow(series,next,origin)),&#x27;cs-button cs-quiet&#x27;);show.dataset.productFocus=&#x27;series:&#x27;+entry.id+&#x27;:show&#x27;;show.setAttribute(&#x27;aria-label&#x27;,&#x27;Vis vagtserien for &#x27;+entry.name+&#x27; i planen&#x27;);items.append(show);}
         if(typeof options.onCopy===&#x27;function&#x27;){const copy=button(&#x27;Kopiér&#x27;,()=&gt;run(origin=&gt;options.onCopy(series,origin,entry)),&#x27;cs-button cs-quiet&#x27;);copy.dataset.productFocus=&#x27;series:&#x27;+entry.id+&#x27;:copy&#x27;;copy.setAttribute(&#x27;aria-label&#x27;,&#x27;Kopiér vagtserien for &#x27;+entry.name);items.append(copy);}
         if(!entry.openEnded&amp;&amp;typeof options.onExtend===&#x27;function&#x27;){const extend=button(&#x27;Forlæng&#x27;,()=&gt;run(origin=&gt;options.onExtend(entry.latest,origin,entry)),&#x27;cs-button cs-quiet&#x27;);extend.dataset.productFocus=&#x27;series:&#x27;+entry.id+&#x27;:extend&#x27;;extend.setAttribute(&#x27;aria-label&#x27;,&#x27;Forlæng vagtserien for &#x27;+entry.name);if(entry.expiring)extend.dataset.expiring=&#x27;true&#x27;;items.append(extend);}
-        menu.append(trigger,items);menus.push(menu);menu.addEventListener(&#x27;toggle&#x27;,()=&gt;{if(menu.open){for(const other of menus)if(other!==menu)other.open=false;const bounds=trigger.getBoundingClientRect?.(),height=items.getBoundingClientRect?.().height||142,viewport=doc.defaultView?.innerHeight;menu.dataset.placement=bounds&amp;&amp;viewport&amp;&amp;bounds.bottom+height+12&gt;viewport&amp;&amp;bounds.top&gt;height+12?&#x27;up&#x27;:&#x27;down&#x27;;}});
+        menu.append(trigger,items);menus.push(menu);
+        menu.addEventListener(&#x27;toggle&#x27;,()=&gt;{
+          if(!menu.open)return;
+          for(const other of menus)if(other!==menu)other.open=false;
+          const anchor=trigger.getBoundingClientRect(),height=items.getBoundingClientRect().height+5;
+          const bounds=list.getBoundingClientRect(),header=columns.offsetHeight;
+          const above=anchor.top-bounds.top-header,below=bounds.bottom-anchor.bottom;
+          menu.dataset.placement=below&lt;height&amp;&amp;above&gt;below?&#x27;up&#x27;:&#x27;down&#x27;;
+        });
         menu.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;&amp;&amp;menu.open){event.preventDefault();event.stopPropagation();menu.open=false;trigger.focus?.({preventScroll:true});}});actions.append(menu);
       }
       row.append(actions);
       const timeline = node(&#x27;details&#x27;,&#x27;cs-series-timeline&#x27;); timeline.dataset.agreementId = entry.id; timeline.open = typeof expanded.has === &#x27;function&#x27; ? expanded.has(entry.id) : Array.isArray(expanded) &amp;&amp; expanded.includes(entry.id);
-      const summary = node(&#x27;summary&#x27;,&#x27;cs-series-timeline-summary&#x27;);summary.append(node(&#x27;span&#x27;,&#x27;cs-series-disclosure-label&#x27;,&#x27;Se perioder&#x27;),node(&#x27;span&#x27;,&#x27;cs-series-period-count&#x27;,entry.phases.length+(entry.phases.length===1?&#x27; periode&#x27;:&#x27; perioder&#x27;)));summary.dataset.productFocus=&#x27;series:&#x27;+entry.id+&#x27;:periods&#x27;;
+      const summary = node(&#x27;summary&#x27;,&#x27;cs-series-timeline-summary&#x27;);summary.append(node(&#x27;span&#x27;,&#x27;cs-series-disclosure-label&#x27;,entry.phases.length===1?&#x27;Vis periode&#x27;:&#x27;Vis &#x27;+entry.phases.length+&#x27; perioder&#x27;));summary.dataset.productFocus=&#x27;series:&#x27;+entry.id+&#x27;:periods&#x27;;
       if(entry.exceptions&gt;0){const exceptions=node(&#x27;span&#x27;,&#x27;cs-series-exception-count&#x27;,entry.exceptions+(entry.exceptions===1?&#x27; undtagelse&#x27;:&#x27; undtagelser&#x27;));exceptions.title=&#x27;Manuelt redigerede eller slettede forekomster&#x27;;summary.append(exceptions);}
       if(series.hasDescription||series.note||series.noteRich){const description=node(&#x27;span&#x27;,&#x27;cs-series-row-description&#x27;),indicator=options.descriptionIndicator?.(series);if(indicator)description.append(indicator);description.append(node(&#x27;span&#x27;,null,&#x27;Beskrivelse&#x27;));summary.append(description);}
       const body=node(&#x27;div&#x27;,&#x27;cs-series-agreement-details&#x27;);let built=false;
@@ -17094,7 +17096,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     view.visible.forEach((entry,index)=&gt;{if((typeof expanded.has===&#x27;function&#x27;?expanded.has(entry.id):Array.isArray(expanded)&amp;&amp;expanded.includes(entry.id))||focused?.startsWith(&#x27;series:&#x27;+entry.id+&#x27;:&#x27;))limit=Math.max(limit,Math.ceil((index+1)/50)*50);});
     const footer=node(&#x27;div&#x27;,&#x27;cs-series-register-footer&#x27;),progress=node(&#x27;span&#x27;,&#x27;cs-series-register-progress&#x27;),more=button(&#x27;Vis flere&#x27;,()=&gt;{appendBatch(50);(more.hidden?progress:more).focus?.({preventScroll:true});},&#x27;cs-button cs-chrome-quiet&#x27;);more.dataset.productFocus=&#x27;series:show-more&#x27;;progress.tabIndex=-1;
     let shown=0;const appendBatch=amount=&gt;{const end=Math.min(view.visible.length,shown+amount);for(;shown&lt;end;shown++)appendEntry(view.visible[shown],shown+1);surface.dataset.renderedCount=String(shown);progress.textContent=shown+&#x27; af &#x27;+view.visible.length+&#x27; serier&#x27;;more.hidden=shown&gt;=view.visible.length;};
-    surface.dataset.filterKey=filterKey;appendBatch(limit);footer.append(progress,more);if(view.visible.length&gt;50)list.append(footer);
+    surface.dataset.filterKey=filterKey;appendBatch(limit);footer.append(progress,more);if(view.visible.length&gt;50)register.append(footer);
     surface.addEventListener(&#x27;pointerdown&#x27;,event=&gt;{for(const menu of menus)if(menu.open&amp;&amp;typeof menu.contains===&#x27;function&#x27;&amp;&amp;!menu.contains(event.target))menu.open=false;});
     return surface;
   }
@@ -28408,6 +28410,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       ...(examples?{demoExamples:{onAdd:addSeriesExamples,installed:examples.groups.every(group=&gt;catalog.series.some(phase=&gt;(phase.groupId||phase.id)===group.id||group.phaseIds.includes(phase.id))),labelFor:entry=&gt;exampleLabels[entry.id]||&#x27;&#x27;}}:{}),
       onShow:(series,next)=&gt;{const shift=next||seriesOccurrences(series,catalog)[0]||Engine.enumerate(series,seriesOperationRange(series))[0];navigateTo(shift?.date||series.startDate,shift?.person||series.person);}
     });
+    q(&#x27;#cs-series-tools&#x27;).replaceChildren(surface.querySelector(&#x27;.cs-series-overview-head&#x27;));
     q(&#x27;#cs-page-content&#x27;).replaceChildren(surface);
   }
   function addSeriesExamples() {
@@ -28692,7 +28695,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function openReview(trigger = q(&#x27;#cs-review&#x27;)) { if(usesViewportCalendar()&amp;&amp;!calendarWeekLoaded(dates()[0]))return ensureBaseWeek(()=&gt;openReview(trigger),&#x27;review&#x27;);closeOperationsSheets(); closeBulkEditor(false); closeChanges(false); closeEditor(); closeGroupEditor(false); reviewTrigger = trigger; renderReview(); q(&#x27;#cs-review-layer&#x27;).hidden = false; q(&#x27;#cs-review-close&#x27;).focus({preventScroll:true}); }
   function closeReview() { const open = !q(&#x27;#cs-review-layer&#x27;).hidden; q(&#x27;#cs-review-layer&#x27;).hidden = true;if(open){releasePlanningHold(&#x27;review&#x27;);resumePlannerViewport();} if (open &amp;&amp; reviewTrigger?.isConnected) reviewTrigger.focus({preventScroll:true}); }
   function renderKey() { return JSON.stringify([state.page,effectiveView(),state.zoom,state.group,state.week,state.day,state.pageIndex,state.search,state.site,state.departmentId,state.onlyOpen]); }
-  function scrollContainer() { return q(&#x27;#cs-page-content .cs-board-scroll, #cs-page-content .cs-table-wrap, #cs-page-content .cs-agenda, #cs-page-content .cs-series-list, #cs-page-content .cs-demo-page&#x27;); }
+  function scrollContainer() { return q(&#x27;#cs-page-content .cs-board-scroll, #cs-page-content .cs-table-wrap, #cs-page-content .cs-agenda, #cs-page-content .cs-series-overview-list, #cs-page-content .cs-demo-page&#x27;); }
   function animateNavigation() {
     const key = JSON.stringify([state.page,state.week,effectiveView(),effectiveView() === &#x27;day&#x27; ? state.day : null]);
     if (lastNavigationMotionKey !== null &amp;&amp; key !== lastNavigationMotionKey) {
@@ -28771,7 +28774,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-week-toolbar&#x27;).hidden = ![&#x27;schedule&#x27;,&#x27;hours&#x27;].includes(state.page); q(&#x27;#cs-view-switch&#x27;).hidden = !isSchedule; q(&#x27;#cs-group-switch&#x27;).hidden = true;
     q(&#x27;#cs-zoom-controls&#x27;).hidden = !isSchedule || isDay; q(&#x27;#cs-calendar-help&#x27;).hidden = !isSchedule || isDay;
     root.querySelectorAll(&#x27;#cs-zoom-controls [data-zoom]&#x27;).forEach(button =&gt; button.setAttribute(&#x27;aria-pressed&#x27;,String(Number(button.dataset.zoom) === state.zoom)));
-    q(&#x27;#cs-day-strip&#x27;).hidden = !isSchedule || !isDay; q(&#x27;#cs-new&#x27;).hidden = !isSchedule &amp;&amp; state.page !== &#x27;series&#x27;; q(&#x27;#cs-new&#x27;).replaceChildren(icon(&#x27;plus&#x27;),document.createTextNode(state.page === &#x27;series&#x27; ? &#x27;Ny vagtserie&#x27; : &#x27;Opret vagt&#x27;)); q(&#x27;#cs-publish&#x27;).hidden = !isSchedule; q(&#x27;.cs-draft&#x27;).hidden = !isSchedule;
+    q(&#x27;#cs-day-strip&#x27;).hidden = !isSchedule || !isDay; q(&#x27;#cs-new&#x27;).hidden = !isSchedule &amp;&amp; state.page !== &#x27;series&#x27;; q(&#x27;#cs-new&#x27;).replaceChildren(icon(&#x27;plus&#x27;),document.createTextNode(state.page === &#x27;series&#x27; ? &#x27;Opret vagtserie&#x27; : &#x27;Opret vagt&#x27;)); q(&#x27;#cs-publish&#x27;).hidden = !isSchedule; q(&#x27;.cs-draft&#x27;).hidden = !isSchedule;
     q(&#x27;#cs-site-filter-label&#x27;).hidden = state.page === &#x27;leave&#x27;; q(&#x27;#cs-legend&#x27;).hidden = !isSchedule || isDay; q(&#x27;#cs-plan-count&#x27;).hidden = !isSchedule;
     const header=plannerHeader(),partialCalendar=usesViewportCalendar()&amp;&amp;loadedCalendarWeeks().length&lt;calendarWeeks();
     q(&#x27;#cs-review&#x27;).hidden = !isSchedule;q(&#x27;#cs-review-count&#x27;).textContent = header.drift===null?&#x27;—&#x27;:String(header.drift);
@@ -28779,7 +28782,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-attention&#x27;).hidden = !isSchedule; const openCount = (isSchedule &amp;&amp; !isDay ? loadedCalendarWeeks().flatMap(day=&gt;shiftsInRange(day,addDays(day,6))) : shifts()).filter(shift =&gt; !shift.person &amp;&amp; inDepartment(shift.site)).length;
     q(&#x27;#cs-attention span&#x27;).textContent = partialCalendar&amp;&amp;!openCount?&#x27;Ledige vagter&#x27;:openCount + (openCount === 1 ? &#x27; ledig vagt&#x27; : &#x27; ledige vagter&#x27;); q(&#x27;#cs-attention&#x27;).setAttribute(&#x27;aria-pressed&#x27;, String(state.onlyOpen)); q(&#x27;#cs-attention&#x27;).disabled = !partialCalendar&amp;&amp;openCount === 0 &amp;&amp; !state.onlyOpen;q(&#x27;#cs-attention&#x27;).title=partialCalendar?&#x27;Ledige vagter i indlæste uger&#x27;:&#x27;&#x27;;
     q(&#x27;#cs-reset-filters&#x27;).hidden = !hasFilters();
-    q(&#x27;#cs-search&#x27;).placeholder = isSchedule ? &#x27;Medarbejder&#x27; : &#x27;Søg medarbejder…&#x27;;
+    q(&#x27;#cs-search&#x27;).placeholder = isSchedule || state.page === &#x27;series&#x27; ? &#x27;Medarbejder&#x27; : &#x27;Søg medarbejder…&#x27;;
     const week = dates(), activeWeek = q(&#x27;#cs-active-week&#x27;);
     activeWeek.hidden = !isSchedule;
     activeWeek.textContent = isSchedule ? &#x27;Uge &#x27; + weekNumber(week[0]) : &#x27;&#x27;;
@@ -30310,6 +30313,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
 
 
 

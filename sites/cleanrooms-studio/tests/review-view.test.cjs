@@ -31,12 +31,26 @@ const entry=(id,summary=id)=>({id,at:'2026-11-02T08:00:00.000Z',kind:'save',acto
 const response=(entries,patch={})=>({ok:true,entries,hasMore:false,nextCursor:null,...patch});
 const request={id:'leave-1',name:'Søren Jensen',initials:'SJ',status:'pending',type:'Ferie',days:['2026-11-03'],dates:'3. november'};
 
+test('the absence send button works without a native form submission in the embedded planner',async()=>{
+  const f=fixture(),submissions=[];
+  Review.requestAbsence({element:f.host,people:[{id:'person-a',name:'Anna'}],today:'2026-11-03',onSubmit:async payload=>{submissions.push(payload);return {ok:true};}});
+  f.findLabel('Til dato').value='2026-11-02';await f.button('Send anmodning').click();
+  assert.equal(submissions.length,0);assert.match(f.findLabel('Opret fravær').textContent,/Vælg en gyldig periode/);
+  f.findLabel('Til dato').value='2026-11-04';f.findLabel('Kommentar').value='Til test';await f.button('Send anmodning').click();
+  assert.deepEqual(submissions,[{personId:'person-a',from:'2026-11-03',to:'2026-11-04',type:'Ferie',comment:'Til test'}]);
+  assert.equal(f.findLabel('Opret fravær'),undefined);
+});
+
 test('absence rejection requires a reason, submits it literally and returns focus after success',async()=>{
-  const f=fixture(),decisions=[],view=Review.mountLeave({element:f.host,onDecision:async(...args)=>{decisions.push(args);return {ok:true};}});view.render({requests:[request],canDecide:true});await f.button('Afvis').click();const reason=f.findLabel('Begrundelse for afvisning');await f.button('Afvis anmodning').click();assert.equal(decisions.length,0);assert.equal(f.doc.activeElement,reason);reason.value='  Ferieønsket overlapper allerede aftalt fri. <script>  ';await f.button('Afvis anmodning').click();assert.deepEqual(decisions,[['leave-1','rejected','Ferieønsket overlapper allerede aftalt fri. <script>']]);assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);assert.equal(f.doc.activeElement,f.button('Afvis'));
+  const f=fixture(),decisions=[],view=Review.mountLeave({element:f.host,onDecision:async(...args)=>{decisions.push(args);return {ok:true};}});view.render({requests:[request],canDecide:true});
+  const opener=f.button('Se anmodning');await opener.click();await f.button('Afvis').click();
+  const reason=f.findLabel('Begrundelse for afvisning');await f.button('Afvis anmodning').click();assert.equal(decisions.length,0);assert.equal(f.doc.activeElement,reason);
+  reason.value='  Ferieønsket overlapper allerede aftalt fri. <script>  ';await f.button('Afvis anmodning').click();
+  assert.deepEqual(decisions,[['leave-1','rejected','Ferieønsket overlapper allerede aftalt fri. <script>']]);assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);assert.equal(f.doc.activeElement,opener);
 });
 
 test('leaving Fravær removes an open rejection modal even while the decision is pending',async()=>{
-  const f=fixture();let resolve;const view=Review.mountLeave({element:f.host,onDecision:()=>new Promise(done=>resolve=done)});view.render({requests:[request],canDecide:true});await f.button('Afvis').click();f.findLabel('Begrundelse for afvisning').value='Bemanning mangler';const saving=f.button('Afvis anmodning').click();view.destroy();assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);resolve({ok:false,error:'Ingen adgang'});await saving;assert.equal(f.host.children.length,0);assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);
+  const f=fixture();let resolve;const view=Review.mountLeave({element:f.host,onDecision:()=>new Promise(done=>resolve=done)});view.render({requests:[request],canDecide:true});await f.button('Se anmodning').click();await f.button('Afvis').click();f.findLabel('Begrundelse for afvisning').value='Bemanning mangler';const saving=f.button('Afvis anmodning').click();view.destroy();assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);resolve({ok:false,error:'Ingen adgang'});await saving;assert.equal(f.host.children.length,0);assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);
 });
 
 test('invalidating history dates prevents an older pending query from rendering stale records',async()=>{
@@ -52,7 +66,17 @@ test('a failed restore is handled without an unhandled rejection and unlocks its
 });
 
 test('revoking absence decision permission closes the modal and a late response cannot steal focus',async()=>{
-  const f=fixture();let resolve;const view=Review.mountLeave({element:f.host,onDecision:()=>new Promise(done=>resolve=done)});view.render({requests:[request],canDecide:true});await f.button('Afvis').click();f.findLabel('Begrundelse for afvisning').value='Vi mangler en afløser';const saving=f.button('Afvis anmodning').click();view.render({canDecide:false});assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);const search=f.findLabel('Søg medarbejder');search.focus();resolve({ok:true});await saving;assert.equal(f.doc.activeElement,search);assert.equal(f.button('Afvis'),undefined);
+  const f=fixture();let resolve;const view=Review.mountLeave({element:f.host,onDecision:()=>new Promise(done=>resolve=done)});view.render({requests:[request],canDecide:true});await f.button('Se anmodning').click();await f.button('Afvis').click();f.findLabel('Begrundelse for afvisning').value='Vi mangler en afløser';const saving=f.button('Afvis anmodning').click();view.render({canDecide:false});assert.equal(Boolean(f.doc.body.querySelector('.cs-review-modal')),false);const search=f.findLabel('Søg medarbejder');search.focus();resolve({ok:true});await saving;assert.equal(f.doc.activeElement,search);
+  await f.button('Se anmodning').click();assert.equal(f.button('Afvis'),undefined);assert.equal(f.button('Godkend'),undefined);
+});
+
+test('handled absence details retain the request comment and decision without granting another decision',async()=>{
+  const f=fixture(),view=Review.mountLeave({element:f.host,onDecision:()=>assert.fail('A handled request must not expose actions')});
+  const comment='Har aftalt ferie. <script>',reason='Ingen afløser. <script>';
+  view.render({canDecide:true,requests:[{...request,status:'rejected',comment,decision:{reason,decidedBy:{name:'Jonas Hansen'},decidedAt:'2026-11-02T08:00:00Z'}}]});
+  await f.button('Afvist 1').click();await f.button('Se anmodning').click();
+  const dialog=f.findLabel('Fraværsanmodning');assert.ok(dialog.textContent.includes(comment));assert.ok(dialog.textContent.includes(reason));
+  assert.match(dialog.textContent,/Jonas Hansen/);assert.equal(f.button('Godkend'),undefined);assert.equal(f.button('Afvis'),undefined);
 });
 
 test('history details retain literal absence reasons and authoritative decision attribution',async()=>{
@@ -87,7 +111,7 @@ test('collapsed history filters retain visible active filters and remove them wi
 
 test('the compact absence period control preserves its filter when closed and resets it explicitly',async()=>{
   const f=fixture(),view=Review.mountLeave({element:f.host,onDecision:async()=>({ok:true})});view.render({requests:[request],canDecide:true});const panel=f.host.querySelector('.cs-review-extra-filters');assert.equal(panel.hidden,true);
-  await f.findLabel('Filtrér fravær efter periode').click();assert.equal(panel.hidden,false);f.findLabel('Fravær fra dato').value='2026-12-01';await f.findLabel('Fravær fra dato').fire('change');await f.button('Luk periode').click();assert.equal(panel.hidden,true);assert.match(f.host.textContent,/Ingen anmodninger matcher/);await f.button('Nulstil').click();assert.equal(f.findLabel('Fravær fra dato').value,'');assert.ok(f.button('Afvis'));
+  await f.findLabel('Filtrér fravær efter periode').click();assert.equal(panel.hidden,false);f.findLabel('Fravær fra dato').value='2026-12-01';await f.findLabel('Fravær fra dato').fire('change');await f.button('Luk periode').click();assert.equal(panel.hidden,true);assert.match(f.host.textContent,/Ingen anmodninger matcher/);await f.button('Nulstil').click();assert.equal(f.findLabel('Fravær fra dato').value,'');assert.ok(f.button('Se anmodning'));
 });
 
 const leaveResponse=(requests,patch={})=>({ok:true,requests,counts:{pending:requests.length,approved:0,rejected:0,all:requests.length},hasMore:false,nextCursor:null,...patch});
@@ -124,7 +148,7 @@ test('invalid absence dates invalidate older queries, and a failed filter remove
 
 test('a server-page decision uses the request identity and refreshes the pending list after the saved result',async()=>{
   const f=fixture(),decisions=[],queries=[];let saved=false;const view=Review.mountLeave({element:f.host,onDecision:async(...args)=>{decisions.push(args);saved=true;return {ok:true};},onQuery:async query=>{queries.push(query);return saved?leaveResponse([],{counts:{pending:0,approved:1,rejected:0,all:1}}):leaveResponse([{...request,id:'old-history-page',version:8}]);}});
-  await view.render({server:true,contextKey:'a',canDecide:true});await f.button('Godkend').click();assert.deepEqual(decisions,[['old-history-page','approved','']]);assert.equal(queries.length,2);assert.equal(f.button('Godkend'),undefined);assert.match(f.host.textContent,/Godkendt 1/);view.destroy();
+  await view.render({server:true,contextKey:'a',canDecide:true});await f.button('Se anmodning').click();await f.button('Godkend').click();assert.deepEqual(decisions,[['old-history-page','approved','']]);assert.equal(queries.length,2);assert.equal(f.button('Godkend'),undefined);assert.match(f.host.textContent,/Godkendt 1/);assert.equal(f.doc.activeElement,f.button('Afventer 0'));view.destroy();
 });
 
 test('a stale absence continuation restarts at the first page once with the same filters and matching pagination labels',async()=>{

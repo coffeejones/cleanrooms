@@ -1742,6 +1742,7 @@
       ],
       'shield-check': [['path', {d:'M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11ZM9 12l2 2 4-4'}]],
       'history': [['path', {d:'M3 12a9 9 0 1 1 2.6 6.4M3 5v7h7m2-5v5l3 2'}]],
+      'refresh-cw': [['path', {d:'M20 5v5h-5M4 19v-5h5M5.7 9a7 7 0 0 1 11.6-3L20 9m-16 6 2.7 3A7 7 0 0 0 18.3 15'}]],
       'wallet': [['path', {d:'M20 8V5H6a3 3 0 0 0 0 6h14v9H6a3 3 0 0 1-3-3V8m17 4h-5v5h5m-3-2.5h.01'}]],
       'arrow-left-right': [['path', {d:'M4 7h16M8 3 4 7l4 4m12 6H4m12-4 4 4-4 4'}]],
       'messages-square': [['path', {d:'M3 4h15v11H8l-5 4V4Zm17 4h2v11h-4l-3 3v-3h-4v-2'}]],
@@ -2167,7 +2168,7 @@
     }});
   }
   function renderLeave() {
-    if(!leaveView){leaveElement=node('div','cs-secondary-page');leaveView=globalThis.CleanRoomsReview?.mountLeave({element:leaveElement,onDecision:decideLeave,onCreate:()=>openAbsenceRequest(),onQuery:async query=>{
+    if(!leaveView){leaveElement=node('div','cs-secondary-page');leaveView=globalThis.CleanRoomsReview?.mountLeave({element:leaveElement,actionsHost:q('#cs-leave-header-actions'),icon,onDecision:decideLeave,onCreate:()=>openAbsenceRequest(),onQuery:async query=>{
       const viewerId=sessionViewer?.userId,epoch=++leaveQueryEpoch,result=await accountAction('leaveRead',query),people=new Map((result.people||[]).map(person=>[person.id,person]));
       if(result.ok&&!state.demoSession&&viewerId===sessionViewer?.userId&&epoch===leaveQueryEpoch){
         leaveDecisionRows.clear();for(const item of result.requests||[])leaveDecisionRows.set(item.id,clone(item));
@@ -2176,7 +2177,7 @@
       return {...result,requests:(result.requests||[]).map(item=>({...item,name:people.get(item.p)?.name||personName(item.p),initials:people.get(item.p)?.initials||personFor(item.p)?.initials}))};
     }});}
     if(!leaveElement.isConnected)q('#cs-page-content').replaceChildren(leaveElement);
-    const requests=leaveViewRows();visibleCount=requests.length;leaveView?.render({requests,server:!state.demoSession,contextKey:String(sessionViewer?.userId||'')+':'+String(state.demoSession?.scenario||'live'),refreshKey:leaveRefresh,canDecide:cloudLoaded&&cloudCapabilities.plan===true&&!cloudStatus.conflict&&!leaveBusy});
+    const requests=leaveViewRows();visibleCount=requests.length;leaveView?.render({requests,server:!state.demoSession,contextKey:String(sessionViewer?.userId||'')+':'+String(state.demoSession?.scenario||'live'),refreshKey:leaveRefresh,canCreate:cloudLoaded&&cloudCapabilities.plan===true&&!state.demoSession,canDecide:cloudLoaded&&cloudCapabilities.plan===true&&!cloudStatus.conflict});
   }
   function navigateTo(value, person = null) {
     if(!confirmEditorLeave(()=>navigateTo(value,person)))return false;

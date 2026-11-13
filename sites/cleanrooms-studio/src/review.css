@@ -90,3 +90,134 @@
 }
 .cs-leave-create-actions { display:flex; justify-content:flex-end; margin-bottom:16px; }
 .cs-review-dialog form, form.cs-review-dialog { display:flex; flex-direction:column; gap:16px; }
+
+/* Leave requests and the creation form share the same compact dialog. */
+#cleanrooms-studio[data-page][data-role] .cs-leave-modal > .cs-leave-dialog {
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto auto;
+  gap:0;
+  width:min(100%,500px);
+  overflow:hidden;
+  padding:0;
+  border-color:var(--cs-compass-rule,#dce2e5);
+  border-radius:8px;
+  background:var(--cs-access-surface,#fff);
+  color:var(--cs-access-ink,#001e2b);
+}
+#cleanrooms-studio .cs-leave-dialog-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:9px 16px;
+  border-bottom:1px solid var(--cs-compass-rule,#dce2e5);
+}
+#cleanrooms-studio .cs-leave-dialog-header h3 {
+  margin:0;
+  color:inherit;
+  font-size:17px;
+  font-weight:700;
+  line-height:24px;
+  letter-spacing:0;
+}
+#cleanrooms-studio .cs-leave-dialog-header .cs-leave-dismiss {
+  flex:0 0 auto;
+  margin-inline-end:-6px;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:23px;
+  line-height:1;
+}
+#cleanrooms-studio .cs-leave-dialog-body {
+  display:grid;
+  align-content:start;
+  gap:14px;
+  min-height:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:16px;
+}
+#cleanrooms-studio .cs-leave-context {
+  display:grid;
+  gap:10px;
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-soft,#f6f8f7);
+}
+#cleanrooms-studio .cs-leave-identity {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  min-width:0;
+  color:var(--cs-access-ink,#001e2b);
+  font-size:14px;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-leave-avatar {
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-surface,#fff);
+  font-size:11px;
+  font-weight:700;
+}
+#cleanrooms-studio .cs-leave-state {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-inline-start:auto;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:12px;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-leave-state::before {content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+#cleanrooms-studio .cs-leave-state[data-state="pending"] {color:#795b2e}
+#cleanrooms-studio .cs-leave-state[data-state="approved"] {color:var(--cs-access-success,#42715a)}
+#cleanrooms-studio .cs-leave-state[data-state="rejected"] {color:var(--cs-access-danger,#a43d36)}
+#cleanrooms-studio .cs-leave-facts,
+#cleanrooms-studio .cs-leave-form-dates {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
+#cleanrooms-studio .cs-leave-facts {grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);padding-top:9px;border-top:1px solid var(--cs-compass-rule,#dce2e5)}
+#cleanrooms-studio .cs-leave-facts dt {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-leave-facts dd {margin:0;font-size:13px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-message h4 {margin:0 0 4px;font-size:13px;font-weight:700;line-height:20px}
+#cleanrooms-studio .cs-leave-message p {margin:0;font-size:13px;line-height:21px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-dialog .cs-review-muted {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-leave-message > p + .cs-review-muted {margin-top:5px}
+#cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
+#cleanrooms-studio .cs-leave-dialog .cs-review-label {color:var(--cs-access-muted,#5c6c75);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog :is(.cs-review-input,.cs-review-textarea,.cs-publication-combobox-input) {--cs-ui-radius:6px;border-radius:6px}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-review-textarea {min-height:82px;padding:8px 10px}
+#cleanrooms-studio .cs-leave-rejection > .cs-review-muted {margin-top:4px}
+#cleanrooms-studio .cs-leave-dialog > .cs-review-error {margin:0 16px 12px}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog > .cs-leave-dialog-actions {
+  gap:8px;
+  margin:0;
+  padding:10px 16px;
+  border-color:var(--cs-compass-rule,#dce2e5);
+}
+#cleanrooms-studio .cs-leave-dialog [hidden] {display:none!important}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions > .cs-leave-danger:not(.cs-primary) {
+  border-color:transparent;
+  color:var(--cs-access-danger,#a43d36);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions > .cs-leave-danger:hover:not(:disabled) {
+  background:var(--cs-access-danger-soft,#fff1ef);
+  color:var(--cs-access-danger,#a43d36);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions > .cs-leave-danger-confirm:not(.cs-primary) {
+  border-color:var(--cs-access-danger,#a43d36);
+  font-weight:700;
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page][data-role] .cs-leave-modal > .cs-leave-dialog {max-height:calc(100dvh - 32px)}
+}
+@media(max-width:370px) {
+  #cleanrooms-studio .cs-leave-form-dates {grid-template-columns:minmax(0,1fr)}
+}

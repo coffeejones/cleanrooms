@@ -21,64 +21,234 @@
     const select=(label,items,value='all')=>{const el=node('select','cs-review-input');el.setAttribute('aria-label',label);for(const [id,copy] of items){const option=node('option','',copy);option.value=id;el.append(option);}el.value=value;return el;};
     return {node,button,field,input,select};
   }
-  function rejection({element,request,onDecision,trigger,onClose}){
-    const doc=element.ownerDocument,{node,button,field}=kit(doc),previous=trigger||doc.activeElement,layer=node('dialog','cs-review-modal'),panel=node('section','cs-review-dialog');
-    layer.setAttribute('aria-label','Afvis fraværsanmodning');layer.setAttribute('aria-modal','true');panel.tabIndex=-1;
-    let busy=false,closed=false;const reason=node('textarea','cs-review-textarea');reason.rows=5;reason.required=true;reason.setAttribute('aria-label','Begrundelse for afvisning');reason.placeholder='Forklar kort, hvorfor anmodningen afvises.';
+  const leaveDate=new Intl.DateTimeFormat('da-DK',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+  function leaveDetailPeriod(request){
+    const first=request.days?.[0],last=request.days?.at(-1);
+    if(!validDate(first)||!validDate(last)||first>last)return text(request.dates)||'—';
+    const start=new Date(first+'T12:00:00Z'),end=new Date(last+'T12:00:00Z');
+    return first===last?leaveDate.format(start):leaveDate.formatRange(start,end);
+  }
+  function leaveDialog({element,title,tag='section',trigger,onClose,focusFallback}){
+    const doc=element.ownerDocument,{node,button}=kit(doc),owner=element.closest?.('#cleanrooms-studio')||element;
+    const layer=node('dialog','cs-review-modal cs-leave-modal'),panel=node(tag,'cs-review-dialog cs-leave-dialog');
+    const header=node('header','cs-leave-dialog-header'),heading=node('h3','',title);
+    const body=node('div','cs-leave-dialog-body'),actions=node('div','cs-review-dialog-actions cs-leave-dialog-actions');
     const error=node('p','cs-review-error');error.setAttribute('role','alert');error.hidden=true;
-    let observer=null;const close=(options={})=>{if(closed||busy&&options.force!==true)return;closed=true;observer?.disconnect();if(typeof layer.close==='function'&&layer.open)layer.close();layer.remove();if(options.restoreFocus!==false){const target=previous?.isConnected?previous:element.isConnected?element.querySelector?.('button,input,select,[tabindex]')||element:null;target?.focus?.({preventScroll:true});}onClose?.();};
-    const cancel=button('Annuller',()=>close()),confirm=button('Afvis anmodning',async()=>{
-      if(busy)return;const value=text(reason.value);if(!value){error.textContent='Skriv en begrundelse, som medarbejderen kan se.';error.hidden=false;reason.setAttribute('aria-invalid','true');reason.focus();return;}
-      busy=true;cancel.disabled=confirm.disabled=reason.disabled=true;confirm.textContent='Gemmer…';error.hidden=true;panel.setAttribute('aria-busy','true');panel.focus();
-      let result;try{result=await onDecision(request.id,'rejected',value);}catch{result={ok:false,error:'Afvisningen kunne ikke gemmes. Prøv igen.'};}
-      if(closed)return;busy=false;cancel.disabled=confirm.disabled=reason.disabled=false;confirm.textContent='Afvis anmodning';panel.setAttribute('aria-busy','false');
-      if(result?.ok)close();else{error.textContent=result?.error||result?.message||'Afvisningen kunne ikke gemmes.';error.hidden=false;}
-    },'cs-button cs-primary');
-    const actions=node('div','cs-review-dialog-actions');actions.append(cancel,confirm);
-    panel.append(node('h3','', 'Afvis anmodning'),node('p','cs-review-muted',request.name+' · '+request.type+' · '+request.dates),field('Begrundelse · synlig for medarbejderen',reason),error,actions);layer.append(panel);const owner=element.closest?.('#cleanrooms-studio')||element;owner.append(layer);if(typeof layer.showModal==='function')layer.showModal();else layer.setAttribute('open','');const initialPage=owner.dataset?.page,initialRole=owner.dataset?.role,Observer=doc.defaultView?.MutationObserver;if(Observer){observer=new Observer(()=>{if(!element.isConnected||owner.dataset?.page!==initialPage||owner.dataset?.role!==initialRole)close({force:true,restoreFocus:false});});observer.observe(owner,{attributes:true,attributeFilter:['data-page','data-role'],childList:true,subtree:true});}
-    layer.addEventListener('cancel',event=>{event.preventDefault();close();});reason.addEventListener('input',()=>reason.removeAttribute('aria-invalid'));layer.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();}if(event.key==='Tab'){const first=reason,last=confirm;if(event.shiftKey&&doc.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first.focus();}}});reason.focus();return {close,get closed(){return closed;}};
-  }
-  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
-    const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),previous=doc.activeElement,layer=node('dialog','cs-review-modal'),panel=node('form','cs-review-dialog'),person=select('Medarbejder',people.filter(p=>p.active!==false).map(p=>[p.id,p.name]),personId||people[0]?.id),type=select('Fraværstype',[['Ferie','Ferie'],['Friønske','Friønske'],['Sygdom','Sygdom'],['Andet','Andet']],'Ferie'),from=input('date','Fra dato'),to=input('date','Til dato'),comment=node('textarea','cs-review-textarea'),error=node('p','cs-review-error');
-    let busy=false;from.value=to.value=today;from.required=to.required=true;comment.rows=4;comment.setAttribute('aria-label','Kommentar');comment.placeholder='Valgfri besked til planlæggeren';error.hidden=true;error.setAttribute('role','alert');layer.setAttribute('aria-label',personId?'Anmod om fravær':'Opret fraværsanmodning');
-    const close=()=>{if(busy)return;layer.close?.();layer.remove();previous?.isConnected&&previous.focus?.();};
-    const cancel=button('Annuller',close),submit=node('button','cs-button cs-primary','Send anmodning');submit.type='submit';
-    const actions=node('div','cs-review-dialog-actions');actions.append(cancel,submit);panel.append(node('h3','',personId?'Anmod om fravær':'Opret fraværsanmodning'));
-    if(!personId)panel.append(field('Medarbejder',person));panel.append(field('Type',type),field('Fra',from),field('Til',to),field('Kommentar · valgfri',comment),error,actions);layer.append(panel);element.append(layer);
+    let busy=false,closed=false,observer=null;
+    const previous=trigger||doc.activeElement;
+    function close({force=false,restoreFocus=true}={}){
+      if(closed||(busy&&!force))return;
+      closed=true;observer?.disconnect();
+      if(layer.open)layer.close?.();
+      layer.remove();
+      if(restoreFocus){
+        const target=previous?.isConnected?previous:focusFallback?.()||element.querySelector?.('button,input,select,[tabindex]');
+        if(target?.isConnected)target.focus?.({preventScroll:true});
+      }
+      onClose?.();
+    }
+    const dismiss=button('×',()=>close(),'cs-icon-button cs-chrome-quiet cs-leave-dismiss');
+    dismiss.setAttribute('aria-label','Luk '+title.toLocaleLowerCase('da-DK'));
+    layer.setAttribute('aria-label',title);layer.setAttribute('aria-modal','true');panel.tabIndex=-1;
+    header.append(heading,dismiss);panel.append(header,body,error,actions);layer.append(panel);
     layer.addEventListener('cancel',event=>{event.preventDefault();close();});
-    panel.addEventListener('submit',async event=>{event.preventDefault();if(busy)return;if(!validDate(from.value)||!validDate(to.value)||to.value<from.value){error.textContent='Vælg en gyldig periode.';error.hidden=false;return;}busy=true;submit.disabled=cancel.disabled=true;submit.textContent='Gemmer…';error.hidden=true;let result;try{result=await onSubmit({personId:personId||person.value,from:from.value,to:to.value,type:type.value,comment:comment.value});}catch{result={ok:false,message:'Anmodningen kunne ikke gemmes.'};}busy=false;submit.disabled=cancel.disabled=false;submit.textContent='Send anmodning';if(result?.ok)close();else{error.textContent=result?.message||'Anmodningen kunne ikke gemmes.';error.hidden=false;}});
-    if(layer.showModal)layer.showModal();else layer.setAttribute('open','');(personId?from:person).focus();return {close};
+    layer.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();event.stopPropagation();close();}});
+    function open(initialFocus){
+      owner.append(layer);
+      if(typeof layer.showModal==='function')layer.showModal();else layer.setAttribute('open','');
+      const initialPage=owner.dataset?.page,initialRole=owner.dataset?.role,Observer=doc.defaultView?.MutationObserver;
+      if(Observer){
+        observer=new Observer(()=>{
+          if(!element.isConnected||owner.dataset?.page!==initialPage||owner.dataset?.role!==initialRole)close({force:true,restoreFocus:false});
+        });
+        observer.observe(owner,{attributes:true,attributeFilter:['data-page','data-role'],childList:true,subtree:true});
+      }
+      (initialFocus||panel).focus({preventScroll:true});
+    }
+    function setBusy(value){busy=value;dismiss.disabled=value;panel.setAttribute('aria-busy',String(value));if(value)panel.focus();}
+    function showError(message){error.textContent=message;error.hidden=false;}
+    return {panel,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
   }
-  function mountLeave({element,onDecision,onCreate,onQuery}){
+  function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
+    const {node,button,field}=kit(element.ownerDocument);
+    const title=initialRejection?'Afvis fraværsanmodning':'Fraværsanmodning';
+    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
+    const canRespond=Boolean(canDecide&&typeof onDecision==='function'&&(request.status==='pending'||initialRejection));
+    const name=text(request.name)||'Medarbejder',status=request.status||'pending';
+    const context=node('section','cs-leave-context'),identity=node('div','cs-leave-identity');
+    const avatar=node('span','cs-leave-avatar',request.initials||name.split(/\s+/).slice(0,2).map(part=>part[0]).join(''));
+    avatar.setAttribute('aria-hidden','true');
+    const badge=node('span','cs-leave-state',STATUS[status]||status);badge.dataset.state=status;
+    identity.append(avatar,node('strong','',name),badge);
+    const facts=node('dl','cs-leave-facts');
+    for(const [label,value] of [['Periode',leaveDetailPeriod(request)],['Fraværstype',request.type]]){
+      const fact=node('div');fact.append(node('dt','',label),node('dd','',value||'—'));facts.append(fact);
+    }
+    context.append(identity,facts);dialog.body.append(context);
+    if(text(request.comment)){
+      const note=node('section','cs-leave-message');
+      note.append(node('h4','','Kommentar'),node('p','',request.comment));dialog.body.append(note);
+    }
+    if(request.decision){
+      const {reason,decidedBy,decidedAt}=request.decision,response=node('section','cs-leave-message');
+      response.append(node('h4','','Svar'));
+      if(text(reason))response.append(node('p','',reason));
+      const actor=decidedBy?.name||'Planlægger';
+      response.append(node('p','cs-review-muted',decidedAt?actor+' · '+stamp(decidedAt):actor));dialog.body.append(response);
+    }
+    if(!canRespond){dialog.actions.hidden=true;dialog.open();return dialog;}
+
+    const reasonPanel=node('div','cs-leave-rejection'),reason=node('textarea','cs-review-textarea');
+    reason.rows=3;reason.required=true;reason.setAttribute('aria-label','Begrundelse for afvisning');
+    reasonPanel.append(field('Begrundelse',reason),node('p','cs-review-muted','Medarbejderen kan se begrundelsen.'));
+    reason.addEventListener('input',()=>{reason.removeAttribute('aria-invalid');dialog.error.hidden=true;});
+    dialog.body.append(reasonPanel);
+    const approve=button('Godkend',()=>decide('approved',approve),'cs-button cs-primary');
+    const reject=button('Afvis',()=>{showRejection(true);reason.focus();},'cs-button cs-leave-danger');
+    const confirm=button('Afvis anmodning',()=>decide('rejected',confirm),'cs-button cs-leave-danger cs-leave-danger-confirm');
+    const cancel=button(initialRejection?'Annuller':'Tilbage',()=>{
+      if(initialRejection)dialog.close();else{showRejection(false);reject.focus();}
+    },'cs-button cs-chrome-quiet');
+    function showRejection(visible){
+      reasonPanel.hidden=!visible;dialog.error.hidden=true;reason.removeAttribute('aria-invalid');
+      dialog.actions.replaceChildren(...(visible?[cancel,confirm]:[reject,approve]));
+    }
+    async function decide(next,action){
+      if(dialog.busy||dialog.closed)return;
+      const value=next==='rejected'?text(reason.value):'';
+      if(next==='rejected'&&!value){
+        dialog.showError('Skriv en begrundelse for afvisningen.');reason.setAttribute('aria-invalid','true');reason.focus();return;
+      }
+      const actionLabel=action.textContent;
+      for(const control of [approve,reject,cancel,confirm,reason])control.disabled=true;
+      action.textContent='Gemmer…';dialog.error.hidden=true;dialog.setBusy(true);
+      let result;
+      try{result=await onDecision(request.id,next,value);}catch{result={ok:false};}
+      if(dialog.closed)return;
+      dialog.setBusy(false);
+      for(const control of [approve,reject,cancel,confirm,reason])control.disabled=false;
+      action.textContent=actionLabel;
+      if(result?.ok){dialog.close();return;}
+      const fallback=next==='approved'?'Godkendelsen kunne ikke gemmes.':'Afvisningen kunne ikke gemmes.';
+      dialog.showError(result?.error||result?.message||fallback);action.focus();
+    }
+    showRejection(initialRejection);dialog.open(initialRejection?reason:null);return dialog;
+  }
+  function rejection(options){return leaveDetails({...options,canDecide:true,initialRejection:true});}
+  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
+    const {node,button,field,input,select}=kit(element.ownerDocument);
+    const title=personId?'Anmod om fravær':'Opret fravær',dialog=leaveDialog({element,title,tag:'form'});
+    const available=people.filter(person=>person.active!==false);
+    const person=select('Medarbejder',available.map(person=>[person.id,person.name]),available[0]?.id||'');
+    const type=select('Fraværstype',[['Ferie','Ferie'],['Friønske','Friønske'],['Sygdom','Sygdom'],['Andet','Andet']],'Ferie');
+    const from=input('date','Fra dato'),to=input('date','Til dato'),comment=node('textarea','cs-review-textarea');
+    person.required=true;type.setAttribute('data-select-only','');
+    from.value=to.value=today;from.required=to.required=true;comment.rows=3;comment.setAttribute('aria-label','Kommentar');
+    const cancel=button('Annuller',()=>dialog.close(),'cs-button cs-chrome-quiet');
+    const submit=button('Send anmodning',submitRequest,'cs-button cs-primary');
+    if(!personId)dialog.body.append(field('Medarbejder',person));
+    const period=node('div','cs-leave-form-dates');period.append(field('Fra',from),field('Til',to));
+    dialog.body.append(field('Fraværstype',type),period,field('Kommentar (valgfri)',comment));
+    dialog.actions.append(cancel,submit);
+    async function submitRequest(){
+      if(dialog.busy||dialog.closed)return;
+      if(!validDate(from.value)||!validDate(to.value)||to.value<from.value){dialog.showError('Vælg en gyldig periode.');return;}
+      const payload={personId:personId||person.value,from:from.value,to:to.value,type:type.value,comment:comment.value};
+      if(!payload.personId){dialog.showError('Vælg en medarbejder.');return;}
+      const controls=[person,type,from,to,comment,cancel,submit];
+      for(const control of controls)control.disabled=true;
+      submit.textContent='Gemmer…';dialog.error.hidden=true;dialog.setBusy(true);
+      let result;
+      try{result=await onSubmit(payload);}catch{result={ok:false};}
+      if(dialog.closed)return;
+      dialog.setBusy(false);
+      for(const control of controls)control.disabled=false;
+      submit.textContent='Send anmodning';
+      if(result?.ok){dialog.close();return;}
+      dialog.showError(result?.message||'Anmodningen kunne ikke gemmes.');submit.focus();
+    }
+    dialog.panel.addEventListener('submit',event=>{event.preventDefault();return submitRequest();});
+    dialog.panel.addEventListener('keydown',event=>{
+      if(event.key!=='Enter'||event.defaultPrevented||event.isComposing||!['INPUT','SELECT'].includes(event.target?.tagName)||event.target.getAttribute('role')==='combobox')return;
+      event.preventDefault();return submitRequest();
+    });
+    dialog.open(personId?from:person);return dialog;
+  }
+  function mountLeave({element,actionsHost,icon,onDecision,onCreate,onQuery}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-leave-review-page'),tools=node('div','cs-review-tools'),search=input('search','Søg medarbejder'),type=select('Fraværstype',[['all','Alle typer']]),from=input('date','Fravær fra dato'),to=input('date','Fravær til dato'),tabs=node('div','cs-review-statuses'),results=node('div','cs-review-results'),feedback=node('p','cs-review-error');
-    page.setAttribute('aria-label','Anmodninger og fravær');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Fraværsstatus');feedback.setAttribute('role','status');feedback.hidden=true;
-    const createActions=node('div','cs-leave-create-actions');if(onCreate)createActions.append(button('Opret fravær',onCreate,'cs-button cs-primary'));else createActions.hidden=true;
-    let data={requests:[],canDecide:false},status='pending',offset=0,modal=null,modalRequestId=null,destroyed=false,generation=0,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error='',timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
+    page.setAttribute('aria-label','Fraværsanmodninger');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Fraværsstatus');feedback.setAttribute('role','status');feedback.hidden=true;
+    const createActions=node('div','cs-leave-create-actions'),create=onCreate&&button('Opret fravær',onCreate,'cs-button cs-primary');
+    if(create){if(icon)create.replaceChildren(icon('plus'),node('span','','Opret fravær'));createActions.append(create);}
+    if(actionsHost)actionsHost.replaceChildren(createActions);
+    let data={requests:[],canDecide:false},status='pending',offset=0,modal=null,modalRequest=null,deciding=null,destroyed=false,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error='',timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
     const limit=40,statusButtons={},server=()=>typeof onQuery==='function'&&data.server!==false,filters=()=>Object.fromEntries(Object.entries({q:search.value.trim(),status,type:type.value,from:from.value,to:to.value}).filter(([,value])=>value&&value!=='all'));
-    search.placeholder='Søg medarbejder';
-    const closeModal=()=>{modal?.close({force:true,restoreFocus:false});modal=null;modalRequestId=null;};
+    search.placeholder='Søg medarbejder';search.maxLength=120;type.setAttribute('data-select-only','');
+    const closeModal=()=>{modal?.close({force:true,restoreFocus:false});modal=null;modalRequest=null;};
+    const checkModal=rows=>{
+      if(!modalRequest)return;
+      if(modalRequest.canDecide&&!data.canDecide){closeModal();return;}
+      if(deciding?.id===modalRequest.id)return;
+      const row=rows.find(item=>item.id===modalRequest.id);
+      if(!row||row.status!==modalRequest.status||row.version!==modalRequest.version)closeModal();
+    };
+    const periodLabel=request=>{
+      const first=request.days?.[0],last=request.days?.at(-1);
+      if(!validDate(first)||!validDate(last))return text(request.dates)||'Dato mangler';
+      if(first===last)return dateLabel(first);
+      if(first.slice(0,7)===last.slice(0,7))return Number(first.slice(8))+'.–'+dateLabel(last);
+      const start=first.slice(0,4)===last.slice(0,4)?dateLabel(first).replace(/ \d{4}$/,''):dateLabel(first);
+      return start+' – '+dateLabel(last);
+    };
     function resetQuery(){clearTimeout(timer);timer=null;queryGeneration++;records=[];counts=null;nextCursor=null;hasMore=false;busy=false;loaded=false;error='';pageIndex=0;pages=[{cursor:null,start:0}];}
     function refreshTypes(){const current=type.value;type.replaceChildren();const names=server()?['Ferie','Friønske','Sygdom','Andet']:[...new Set(data.requests.map(item=>item.type))];for(const name of ['all',...names]){const option=node('option','',name==='all'?'Alle typer':name);option.value=name;type.append(option);}type.value=[...type.options].some(item=>item.value===current)?current:'all';}
     async function decision(id,next,reason){
-      const key=data.contextKey,mode=server();let result;try{result=await onDecision(id,next,reason);}catch{result={ok:false,message:'Beslutningen kunne ikke gemmes.'};}
-      if(result?.ok&&!destroyed&&mode&&server()&&data.contextKey===key)await load('reset');return result;
+      if(!data.canDecide||typeof onDecision!=='function')return {ok:false,message:'Anmodningen kan ikke behandles lige nu.'};
+      const key=data.contextKey,mode=server(),refreshKey=data.refreshKey,token={id};deciding=token;
+      try{
+        const result=await onDecision(id,next,reason);
+        if(result?.ok&&!destroyed&&mode&&server()&&data.contextKey===key&&data.refreshKey===refreshKey)await load('reset');
+        return result;
+      }catch{return {ok:false,message:'Beslutningen kunne ikke gemmes.'};}
+      finally{if(deciding===token)deciding=null;}
     }
     function draw(){
       const active={q:search.value,status,type:type.value,from:from.value,to:to.value},invalid=active.from&&active.to&&active.from>active.to;
       feedback.textContent=invalid?'Fra-dato skal være før til-dato.':error;feedback.hidden=!feedback.textContent;
-      for(const [key,el]of Object.entries(statusButtons)){const count=server()?counts?.[key]:data.requests.filter(item=>key==='all'||item.status===key).length;el.textContent=(STATUS[key]||'Alle')+(count===undefined?'':' '+count);el.setAttribute('aria-pressed',String(status===key));}
+      const filtered=Boolean(active.q.trim()||active.type!=='all'||active.from||active.to),localRows=server()?null:filterLeave(data.requests,{...active,status:'all'});
+      reset.hidden=!filtered;
+      datesToggle.dataset.filtered=String(Boolean(active.from||active.to));
+      typeWrap.dataset.filtered=String(active.type!=='all');
+      for(const [key,el]of Object.entries(statusButtons)){
+        const count=server()?counts?.[key]:localRows.filter(item=>key==='all'||item.status===key).length;
+        el.textContent=STATUS[key]||'Alle';if(count!==undefined)el.append(node('span','cs-leave-status-count',' '+count));el.setAttribute('aria-pressed',String(status===key));
+      }
+      refresh.hidden=!server();refresh.disabled=busy;
       results.replaceChildren();results.setAttribute('aria-busy',String(busy));if(invalid)return;
-      const rows=server()?records:filterLeave(data.requests,active);if(!server())offset=Math.min(offset,Math.max(0,Math.floor((rows.length-1)/limit)*limit));
-      const total=server()?counts?.[status==='all'?'all':status]:rows.length,top=node('div','cs-review-result-head');top.append(node('h3','',STATUS[status]||'Alle anmodninger'),node('span','cs-review-muted',busy?'Henter anmodninger…':total===undefined?rows.length+' vist':total+' '+(total===1?'anmodning':'anmodninger')));
-      refresh.hidden=!server();refresh.disabled=busy;results.append(top);
-      if(!rows.length){if(!busy&&!error)results.append(node('p','cs-review-empty','Ingen anmodninger matcher dine filtre.'));return;}
-      const table=node('table','cs-review-table'),thead=node('thead'),tr=node('tr');for(const copy of ['Medarbejder','Periode','Type','Status',''])tr.append(node('th','',copy));thead.append(tr);table.append(thead);const body=node('tbody');
+      const rows=server()?records:localRows.filter(item=>status==='all'||item.status===status);if(!server())offset=Math.min(offset,Math.max(0,Math.floor((rows.length-1)/limit)*limit));
+      const total=server()?counts?.[status]:rows.length;
+      if(!rows.length){
+        if(busy||!loaded&&server()&&!error){const loading=node('p','cs-review-empty','Henter fravær…');loading.setAttribute('role','status');results.append(loading);}
+        else if(!error){const copy=filtered?'Ingen anmodninger matcher dine filtre.':({pending:'Ingen anmodninger afventer.',approved:'Ingen godkendte anmodninger.',rejected:'Ingen afviste anmodninger.',all:'Ingen fraværsanmodninger endnu.'})[status];results.append(node('p','cs-review-empty',copy));}
+        return;
+      }
+      const table=node('table','cs-review-table'),thead=node('thead'),tr=node('tr');table.setAttribute('aria-label','Fraværsanmodninger');table.setAttribute('role','table');thead.setAttribute('role','rowgroup');tr.setAttribute('role','row');
+      for(const copy of ['Medarbejder','Periode','Type','Status','']){const heading=node('th','',copy);heading.scope='col';heading.setAttribute('role','columnheader');if(!copy)heading.setAttribute('aria-label','Handling');tr.append(heading);}
+      thead.append(tr);table.append(thead);const body=node('tbody');body.setAttribute('role','rowgroup');
       for(const request of server()?rows:rows.slice(offset,offset+limit)){
-        const nameText=text(request.name)||text(data.people?.find(person=>person.id===request.p)?.name)||'Medarbejder',row=node('tr'),name=node('td'),identity=node('div','cs-review-person'),avatar=node('span','cs-avatar',request.initials||nameText.split(/\s+/).slice(0,2).map(value=>value[0]).join(''));identity.append(avatar,node('strong','',nameText));name.append(identity);
-        const stateCell=node('td'),badge=node('span','cs-review-badge',STATUS[request.status]||request.status);badge.dataset.state=request.status;stateCell.append(badge);const actions=node('td','cs-review-row-actions');
-        if(request.status==='pending'&&data.canDecide){let pending=false;const approve=button('Godkend',async()=>{if(pending||destroyed||!data.canDecide)return;const token=generation;pending=true;approve.disabled=reject.disabled=true;const result=await decision(request.id,'approved','');if(destroyed||token!==generation)return;if(!result?.ok){feedback.textContent=result?.error||result?.message||'Godkendelsen kunne ikke gemmes.';feedback.hidden=false;approve.disabled=reject.disabled=false;}pending=false;}),reject=button('Afvis',()=>{if(destroyed||!data.canDecide)return;closeModal();modalRequestId=request.id;modal=rejection({element,request:{...request,name:nameText},onDecision:decision,trigger:reject,onClose:()=>{modal=null;modalRequestId=null;}});});actions.append(approve,reject);}
-        else if(request.decision){const details=node('details','cs-review-decision'),summary=node('summary','','Vis svar');details.append(summary);if(request.decision.reason)details.append(node('p','cs-review-reason',request.decision.reason));details.append(node('p','cs-review-muted',(request.decision.decidedBy?.name||'Planlægger')+' · '+stamp(request.decision.decidedAt)));actions.append(details);}
-        row.append(name,node('td','cs-review-period',request.dates||request.days.map(dateLabel).join(' – ')),node('td','',request.type),stateCell,actions);body.append(row);
+        const nameText=text(request.name)||text(data.people?.find(person=>person.id===request.p)?.name)||'Medarbejder',row=node('tr'),name=node('td','cs-leave-person-cell'),identity=node('div','cs-review-person'),avatar=node('span','cs-avatar',request.initials||nameText.split(/\s+/).slice(0,2).map(value=>value[0]).join(''));
+        avatar.setAttribute('aria-hidden','true');identity.append(avatar,node('strong','',nameText));name.append(identity);
+        const stateCell=node('td','cs-leave-status-cell'),badge=node('span','cs-review-badge',STATUS[request.status]||request.status);badge.dataset.state=request.status;stateCell.append(badge);
+        const period=node('td','cs-review-period'),dates=periodLabel(request),days=request.days?.length||0;
+        period.append(node('strong','',dates));if(days>1)period.append(node('span','cs-leave-duration',days+' dage'));
+        const actions=node('td','cs-review-row-actions'),open=button('Se anmodning',()=>{
+          if(destroyed)return;
+          closeModal();const canDecide=Boolean(data.canDecide&&request.status==='pending'&&typeof onDecision==='function');
+          modalRequest={id:request.id,status:request.status,version:request.version,canDecide};
+          modal=leaveDetails({element,request:{...request,name:nameText,dates},canDecide,onDecision:decision,trigger:open,focusFallback:()=>statusButtons[status]||search,onClose:()=>{modal=null;modalRequest=null;}});
+        },'cs-button cs-leave-open');
+        if(icon)open.append(icon('chevron-right'));
+        open.setAttribute('aria-label','Se anmodning for '+nameText);open.setAttribute('aria-haspopup','dialog');actions.append(open);
+        row.setAttribute('role','row');const cells=[name,period,node('td','cs-leave-type-cell',request.type),stateCell,actions];for(const cell of cells)cell.setAttribute('role','cell');row.append(...cells);body.append(row);
       }
       table.append(body);const wrap=node('div','cs-review-table-wrap');wrap.append(table);results.append(wrap);
       if(server()&&(hasMore||pageIndex)){const pager=node('div','cs-review-pager'),prev=button('Forrige',()=>load('previous')),next=button('Næste',()=>load('next')),start=pages[pageIndex].start;prev.disabled=busy||pageIndex===0;next.disabled=busy||!hasMore;pager.append(prev,node('span','cs-review-muted',(start+1)+'–'+(start+rows.length)+(total===undefined?'':' af '+total)),next);results.append(pager);}
@@ -97,28 +267,36 @@
       if(!result?.ok&&result?.status===409&&pages[pageIndex].cursor&&retry)return load('reset',false);
       if(!result?.ok||!Array.isArray(result.requests)){error=result?.message||result?.error||'Fraværet kunne ikke indlæses. Prøv igen.';draw();return;}
       records=result.requests;counts=result.counts||null;hasMore=result.hasMore===true&&typeof result.nextCursor==='string'&&result.nextCursor.length>0;nextCursor=hasMore?result.nextCursor:null;
-      if(modal&&(!data.canDecide||!records.some(item=>item.id===modalRequestId&&item.status==='pending')))closeModal();draw();
+      checkModal(records);draw();
     }
     function changed(debounce=false){
       offset=0;error='';if(!server()){draw();return;}
       resetQuery();draw();if(debounce){timer=setTimeout(()=>load('reset'),180);return;}return load('reset');
     }
     for(const key of ['pending','approved','rejected','all']){const el=button('',()=>{status=key;return changed();},'cs-review-status');statusButtons[key]=el;tabs.append(el);}
-    const datesPanel=node('div','cs-review-extra-filters'),datesToggle=button('Periode',()=>{datesPanel.hidden=!datesPanel.hidden;datesToggle.setAttribute('aria-expanded',String(!datesPanel.hidden));if(!datesPanel.hidden)from.focus();});datesPanel.hidden=true;datesToggle.setAttribute('aria-expanded','false');datesToggle.setAttribute('aria-label','Filtrér fravær efter periode');
-    const reset=button('Nulstil',()=>{search.value='';type.value='all';from.value=to.value='';status='pending';datesToggle.textContent='Periode';return changed();},'cs-button cs-quiet');
-    const refresh=button('Opdater',()=>load('reset'));refresh.hidden=true;
-    datesPanel.append(field('Fra',from),field('Til',to),button('Luk periode',()=>{datesPanel.hidden=true;datesToggle.setAttribute('aria-expanded','false');datesToggle.focus();}));
-    const filterRail=node('div','cs-filter-rail cs-review-filter-rail');filterRail.setAttribute('role','group');filterRail.setAttribute('aria-label','Filtrér fravær');filterRail.append(field('Medarbejder',search),field('Type',type));
-    for(const control of [datesToggle,reset,refresh])control.className+=' cs-chrome-quiet';
+    const datesPanel=node('div','cs-review-extra-filters'),datesToggle=button('Periode',()=>{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},'cs-button cs-leave-period-toggle');
+    const periodText=node('span','','Periode');datesToggle.replaceChildren(...(icon?[icon('calendar-range')]:[]),periodText);
+    function setPeriodOpen(value){datesPanel.hidden=!value;datesToggle.setAttribute('aria-expanded',String(value));}
+    function syncPeriod(){const value=from.value&&to.value?periodLabel({days:[from.value,to.value]}):from.value?'Fra '+dateLabel(from.value):to.value?'Til '+dateLabel(to.value):'Periode';periodText.textContent=value;datesToggle.setAttribute('aria-label','Filtrér fravær efter periode'+(value==='Periode'?'':': '+value));}
+    setPeriodOpen(false);syncPeriod();
+    const reset=button('Nulstil',()=>{search.value='';type.value='all';from.value=to.value='';syncPeriod();search.focus();return changed();},'cs-button cs-chrome-quiet');
+    const refresh=button('Opdater',()=>load('reset'),'cs-button cs-chrome-quiet cs-leave-refresh');refresh.hidden=true;
+    if(icon){refresh.replaceChildren(icon('refresh-cw'),node('span','cs-sr','Opdater'));refresh.title='Opdater';}
+    datesPanel.append(field('Fra',from),field('Til',to),button('Luk periode',()=>{setPeriodOpen(false);datesToggle.focus();},'cs-button cs-chrome-quiet'));
+    const filterRail=node('div','cs-filter-rail cs-review-filter-rail'),searchWrap=field('Medarbejder',search),typeWrap=field('Type',type);searchWrap.className+=' cs-leave-search';typeWrap.className+=' cs-leave-type';
+    if(icon)searchWrap.append(icon('search'));
+    filterRail.setAttribute('role','group');filterRail.setAttribute('aria-label','Filtrér fravær');filterRail.append(searchWrap,typeWrap);
     tools.className+=' cs-review-compact-tools';tools.append(filterRail,datesToggle,reset,refresh);
-    for(const control of [from,to])control.addEventListener('change',()=>{datesToggle.textContent=from.value||to.value?[from.value?dateLabel(from.value):'Alle',to.value?dateLabel(to.value):'Frem'].join(' – '):'Periode';});
-    for(const control of [search,type,from,to])control.addEventListener(control===search?'input':'change',()=>changed(control===search));const navigation=node('div','cs-leave-navigation');navigation.append(tabs,createActions);page.append(navigation,tools,datesPanel,feedback,results);element.replaceChildren(page);
+    for(const control of [from,to])control.addEventListener('change',syncPeriod);
+    for(const control of [search,type,from,to])control.addEventListener(control===search?'input':'change',()=>changed(control===search));const navigation=node('div','cs-leave-navigation');navigation.append(tabs,tools);if(!actionsHost)navigation.append(createActions);page.append(navigation,datesPanel,feedback,results);element.replaceChildren(page);
     return {render(options){
-      if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;generation++;data={...data,...options};
-      const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value='';type.value='all';status='pending';offset=0;}
-      if(modal&&(!data.canDecide||!(server()?records:data.requests).some(item=>item.id===modalRequestId&&item.status==='pending')))closeModal();
+      if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;data={...data,...options};
+      createActions.hidden=!create||data.canCreate===false;if(actionsHost)actionsHost.hidden=createActions.hidden;
+      const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value='';type.value='all';status='pending';offset=0;setPeriodOpen(false);syncPeriod();}
+      if(!server()||loaded&&!busy&&oldRefresh===data.refreshKey)checkModal(server()?records:data.requests);
+      else if(modalRequest?.canDecide&&!data.canDecide)closeModal();
       refreshTypes();if(server()&&(!loaded||contextChanged||oldRefresh!==data.refreshKey))return load('reset');draw();
-    },refresh(){return server()?load('reset'):draw();},destroy(){destroyed=true;generation++;resetQuery();closeModal();page.remove();}};
+    },refresh(){return server()?load('reset'):draw();},destroy(){destroyed=true;resetQuery();closeModal();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
   }
   function mountHistory({element,onQuery,onRestore,formatValue=(_key,value)=>JSON.stringify(value),onBackup}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-activity-page cs-history-review'),form=node('form','cs-review-tools cs-history-filters'),from=input('date','Historik fra dato'),to=input('date','Historik til dato'),actor=select('Udført af',[['all','Alle brugere']]),person=select('Berørt medarbejder',[['all','Alle medarbejdere']]),area=select('Område',[['all','Alle områder'],...Object.entries(AREAS)]),kind=select('Handlingstype',[['all','Alle handlinger'],...Object.entries(KINDS)]),search=input('search','Søg i historik'),feedback=node('p','cs-review-error'),notice=node('p','cs-review-muted cs-history-notice'),count=node('p','cs-review-muted cs-history-count'),list=node('div','cs-history-days'),more=button('Vis flere',()=>load(true)),refresh=button('Opdater',()=>load(false)),reset=button('Nulstil filtre',()=>{for(const control of [actor,person,area,kind])control.value='all';from.value=to.value=search.value='';load(false);},'cs-button cs-quiet');
@@ -230,5 +408,5 @@
     element.replaceChildren(page);
     return {render(options){if(destroyed)return;data={...data,...options};const selected=person.value;person.replaceChildren();for(const item of [{id:'all',name:'Alle medarbejdere'},...data.people]){const option=node('option','',item.name);option.value=item.id;person.append(option);}person.value=[...person.options].some(option=>option.value===selected)?selected:'all';if(!loaded)load();else draw();},reload:()=>load(false),destroy(){destroyed=true;generation++;clearTimeout(searchTimer);page.remove();}};
   }
-  const api={filterLeave,validDate,mountLeave,mountHistory,rejection,requestAbsence};if(typeof module==='object'&&module.exports)module.exports=api;scope.CleanRoomsReview=api;
+  const api={filterLeave,validDate,mountLeave,mountHistory,leaveDetails,rejection,requestAbsence};if(typeof module==='object'&&module.exports)module.exports=api;scope.CleanRoomsReview=api;
 })(globalThis);

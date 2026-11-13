@@ -8065,6 +8065,137 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 .cs-leave-create-actions { display:flex; justify-content:flex-end; margin-bottom:16px; }
 .cs-review-dialog form, form.cs-review-dialog { display:flex; flex-direction:column; gap:16px; }
 
+/* Leave requests and the creation form share the same compact dialog. */
+#cleanrooms-studio[data-page][data-role] .cs-leave-modal &gt; .cs-leave-dialog {
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto auto;
+  gap:0;
+  width:min(100%,500px);
+  overflow:hidden;
+  padding:0;
+  border-color:var(--cs-compass-rule,#dce2e5);
+  border-radius:8px;
+  background:var(--cs-access-surface,#fff);
+  color:var(--cs-access-ink,#001e2b);
+}
+#cleanrooms-studio .cs-leave-dialog-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:9px 16px;
+  border-bottom:1px solid var(--cs-compass-rule,#dce2e5);
+}
+#cleanrooms-studio .cs-leave-dialog-header h3 {
+  margin:0;
+  color:inherit;
+  font-size:17px;
+  font-weight:700;
+  line-height:24px;
+  letter-spacing:0;
+}
+#cleanrooms-studio .cs-leave-dialog-header .cs-leave-dismiss {
+  flex:0 0 auto;
+  margin-inline-end:-6px;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:23px;
+  line-height:1;
+}
+#cleanrooms-studio .cs-leave-dialog-body {
+  display:grid;
+  align-content:start;
+  gap:14px;
+  min-height:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:16px;
+}
+#cleanrooms-studio .cs-leave-context {
+  display:grid;
+  gap:10px;
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-soft,#f6f8f7);
+}
+#cleanrooms-studio .cs-leave-identity {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  min-width:0;
+  color:var(--cs-access-ink,#001e2b);
+  font-size:14px;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-leave-avatar {
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-surface,#fff);
+  font-size:11px;
+  font-weight:700;
+}
+#cleanrooms-studio .cs-leave-state {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-inline-start:auto;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:12px;
+  line-height:20px;
+}
+#cleanrooms-studio .cs-leave-state::before {content:&quot;&quot;;width:5px;height:5px;border-radius:50%;background:currentColor}
+#cleanrooms-studio .cs-leave-state[data-state=&quot;pending&quot;] {color:#795b2e}
+#cleanrooms-studio .cs-leave-state[data-state=&quot;approved&quot;] {color:var(--cs-access-success,#42715a)}
+#cleanrooms-studio .cs-leave-state[data-state=&quot;rejected&quot;] {color:var(--cs-access-danger,#a43d36)}
+#cleanrooms-studio .cs-leave-facts,
+#cleanrooms-studio .cs-leave-form-dates {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
+#cleanrooms-studio .cs-leave-facts {grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);padding-top:9px;border-top:1px solid var(--cs-compass-rule,#dce2e5)}
+#cleanrooms-studio .cs-leave-facts dt {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-leave-facts dd {margin:0;font-size:13px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-message h4 {margin:0 0 4px;font-size:13px;font-weight:700;line-height:20px}
+#cleanrooms-studio .cs-leave-message p {margin:0;font-size:13px;line-height:21px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-dialog .cs-review-muted {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-leave-message &gt; p + .cs-review-muted {margin-top:5px}
+#cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
+#cleanrooms-studio .cs-leave-dialog .cs-review-label {color:var(--cs-access-muted,#5c6c75);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog :is(.cs-review-input,.cs-review-textarea,.cs-publication-combobox-input) {--cs-ui-radius:6px;border-radius:6px}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-review-textarea {min-height:82px;padding:8px 10px}
+#cleanrooms-studio .cs-leave-rejection &gt; .cs-review-muted {margin-top:4px}
+#cleanrooms-studio .cs-leave-dialog &gt; .cs-review-error {margin:0 16px 12px}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog &gt; .cs-leave-dialog-actions {
+  gap:8px;
+  margin:0;
+  padding:10px 16px;
+  border-color:var(--cs-compass-rule,#dce2e5);
+}
+#cleanrooms-studio .cs-leave-dialog [hidden] {display:none!important}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions &gt; .cs-leave-danger:not(.cs-primary) {
+  border-color:transparent;
+  color:var(--cs-access-danger,#a43d36);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions &gt; .cs-leave-danger:hover:not(:disabled) {
+  background:var(--cs-access-danger-soft,#fff1ef);
+  color:var(--cs-access-danger,#a43d36);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions &gt; .cs-leave-danger-confirm:not(.cs-primary) {
+  border-color:var(--cs-access-danger,#a43d36);
+  font-weight:700;
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page][data-role] .cs-leave-modal &gt; .cs-leave-dialog {max-height:calc(100dvh - 32px)}
+}
+@media(max-width:370px) {
+  #cleanrooms-studio .cs-leave-form-dates {grid-template-columns:minmax(0,1fr)}
+}
+
 /* Personal pay follows the employee profile&#x27;s compact hierarchy. */
 #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-page {
   gap:12px;
@@ -11011,52 +11142,77 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:var(--cs-access-primary-hover);
 }
 
-#cleanrooms-studio[data-page=&quot;leave&quot;] :is(.cs-leave-navigation,.cs-review-statuses) {
-  border-color:var(--cs-compass-rule);
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-main&gt;.cs-page-head #cs-title{font-size:22px;line-height:30px;letter-spacing:-.4px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-main&gt;.cs-page-head .cs-compass-context{display:none}
+#cleanrooms-studio #cs-leave-header-actions{display:none}
+#cleanrooms-studio[data-page=&quot;leave&quot;] #cs-leave-header-actions:not([hidden]){display:block}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-create-actions{margin:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-create-actions svg{flex:none;width:15px;height:15px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page{padding:12px 0 20px;scrollbar-gutter:auto}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;margin:0 0 10px;border:0;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation&gt;.cs-review-statuses {
-  gap:4px;
-  min-width:0;
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation&gt;.cs-review-statuses{
+  flex:0 1 auto;gap:2px;min-width:0;margin:0;padding:2px;overflow:visible;
+  border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-surface);
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-status {
-  position:relative;
-  flex-shrink:0;
-  height:44px;
-  min-height:44px;
-  padding:0 12px;
-  border:0;
-  color:var(--cs-access-muted);
-  font-weight:600;
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-status{
+  display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;height:auto;
+  min-height:calc(var(--cs-ui-height) - 4px);padding:3px 8px;border:0;border-radius:4px;
+  background:transparent;color:var(--cs-access-muted);font-size:12px;font-weight:500;line-height:16px;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-status:is([aria-pressed=&quot;true&quot;],:hover) {
-  color:var(--cs-access-primary);
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-status-count{color:var(--cs-access-muted);font-size:11px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-status:hover{background:var(--cs-access-soft);color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-status[aria-pressed=&quot;true&quot;]{
+  background:var(--cs-access-ink);color:var(--cs-access-surface);font-weight:600;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-status[aria-pressed=&quot;true&quot;]::after {
-  content:&quot;&quot;;
-  position:absolute;
-  inset:auto 0 0;
-  height:4px;
-  border-radius:4px 4px 0 0;
-  background:var(--cs-compass-indicator);
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-status[aria-pressed=&quot;true&quot;] .cs-leave-status-count{color:inherit}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation&gt;.cs-review-compact-tools{flex:1 1 400px;gap:6px;margin:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-filter-rail{
+  display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);flex:1 1 230px;width:auto;max-width:none;gap:0;
+  --cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-font:12px;
+  border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-status:focus-visible {
-  outline:2px solid var(--cs-access-blue);
-  outline-offset:-2px;
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-filter-rail&gt;.cs-review-field{min-width:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-search:has(svg){--cs-ui-field-inset-start:29px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-search&gt;svg{position:absolute;top:50%;left:9px;width:14px;height:14px;transform:translateY(-50%);color:var(--cs-access-muted);pointer-events:none}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-type{border-inline-start:1px solid var(--cs-compass-rule)}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-type .cs-publication-combobox[data-select-only=&quot;true&quot;]&gt;.cs-publication-combobox-input[readonly]:not(:disabled){
+  --cs-ui-field-background:transparent;--cs-ui-field-shadow:none;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-result-head h3 {
-  color:var(--cs-access-ink);
-  font-weight:700;
-  letter-spacing:0;
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-type[data-filtered=&quot;true&quot;]{background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-navigation .cs-leave-period-toggle{
+  height:var(--cs-ui-height);min-height:var(--cs-ui-height);padding-inline:9px;
+  border-color:var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);font-size:12px;font-weight:600;
+}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-navigation .cs-leave-period-toggle:is([data-filtered=&quot;true&quot;],[aria-expanded=&quot;true&quot;],:hover){background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-leave-period-toggle svg{flex:none;width:14px;height:14px}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-navigation .cs-leave-refresh:has(svg){width:var(--cs-ui-height);padding:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page .cs-review-extra-filters{
+  align-items:end;gap:8px;padding:9px 10px;margin:0 0 10px;
+  border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-extra-filters&gt;.cs-review-field{gap:3px;min-width:0;max-width:165px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page&gt;.cs-review-error{
+  margin:0 0 10px;padding:9px 12px;border:1px solid #efdcd5;border-radius:6px;background:#fcf7f5;
+}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-results&gt;.cs-review-empty{
+  padding:16px 14px;border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-surface);
 }
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table-wrap {
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
 }
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table {
-  color:var(--cs-access-body);
+  table-layout:fixed;color:var(--cs-access-body);
 }
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table th:first-child{width:29%}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table th:nth-child(2){width:25%}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table th:nth-child(3){width:16%}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table th:last-child{width:143px}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table th {
-  padding-block:9px;
+  padding:8px 10px;
   border-top:0;
   border-bottom-color:var(--cs-compass-rule);
   background:var(--cs-access-soft);
@@ -11065,19 +11221,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-weight:700;
 }
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table td {
-  padding-block:12px;
+  padding:7px 10px;
   border-color:var(--cs-compass-rule);
   vertical-align:middle;
+  overflow-wrap:anywhere;
 }
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table :is(th,td):first-child {padding-inline-start:14px}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table :is(th,td):last-child {padding-inline-end:14px}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody tr:hover {background:var(--cs-access-soft)}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody tr:last-child td {border-bottom:0}
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-person .cs-avatar {
-  border-radius:6px;
-  background:var(--cs-access-soft);
-  color:var(--cs-access-primary);
-}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-person{gap:9px;min-width:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-person strong{color:var(--cs-access-ink);font-weight:700}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-person .cs-avatar{flex:none;width:32px;height:32px;border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);color:var(--cs-access-ink);box-shadow:none}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-period{white-space:normal;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-period strong{font-weight:600;color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-duration{display:block;color:var(--cs-access-muted);font-size:11px;line-height:15px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-type-cell{color:var(--cs-access-muted);font-size:12px}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge {
   display:inline-flex;
   align-items:center;
@@ -11091,9 +11250,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   border-radius:50%;
   background:currentColor;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;approved&quot;] {color:var(--cs-access-success)}
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;rejected&quot;] {color:var(--cs-access-danger)}
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-decision summary {color:var(--cs-access-primary)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;approved&quot;]{color:#386550}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;rejected&quot;]{color:#865349}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-row-actions{min-width:0}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open{
+  height:auto;min-height:34px;gap:5px;padding-inline:8px;border-radius:6px;background:var(--cs-access-surface);font-size:12px;font-weight:600;white-space:nowrap;
+}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open:hover:not(:disabled){background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-open&gt;svg{flex:none;width:13px;height:13px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-pager{gap:8px;margin-top:10px}
 #cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-dialog {
   border-color:var(--cs-compass-rule);
   border-radius:7px;
@@ -11159,6 +11324,35 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) .cs-review-filter-rail&gt;.cs-review-field {
     min-width:0;
   }
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-main&gt;.cs-page-head #cs-title{font-size:19px}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page{--cs-ui-height:40px;padding-block-start:8px}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation&gt;.cs-review-statuses{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex-basis:100%;
+  }
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-status{gap:3px;padding-inline:3px;white-space:normal}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation&gt;.cs-review-compact-tools{
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto;flex-basis:100%;
+  }
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-review-filter-rail{grid-column:1/-1}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-leave-period-toggle{grid-column:1;justify-self:start;min-width:0;max-width:100%}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-period-toggle&gt;span{overflow:hidden;text-overflow:ellipsis}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-navigation .cs-leave-refresh{grid-column:3}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page .cs-review-extra-filters&gt;.cs-review-field{max-width:none;flex:1 1 calc(50% - 4px)}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table,
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody{display:block}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody tr{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 10px;
+    padding:9px 11px;border-bottom:1px solid var(--cs-compass-rule);
+  }
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody tr:last-child{border-bottom:0}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table tbody td{display:block;min-width:0;padding:0;border:0}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-leave-person-cell{grid-area:1/1}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-review-period{grid-area:2/1;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 7px;padding-inline-start:41px}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-leave-type-cell{grid-area:3/1;padding-inline-start:41px}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-leave-status-cell{grid-area:1/2;text-align:end}
+  #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-review-row-actions{grid-area:2/2/4;align-self:end}
+  #cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open{min-height:40px}
 }
 @media(pointer:coarse) {
   #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) {
@@ -14357,6 +14551,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       &lt;div class=&quot;cs-title-block&quot;&gt;&lt;span class=&quot;cs-sr&quot; id=&quot;cs-crumb&quot;&gt;Vagtplan&lt;/span&gt;&lt;span class=&quot;cs-compass-context&quot; aria-hidden=&quot;true&quot;&gt;CleanRooms&lt;/span&gt;&lt;h2 id=&quot;cs-title&quot;&gt;Vagtplan&lt;/h2&gt;&lt;div class=&quot;cs-page-description&quot; id=&quot;cs-description&quot;&gt;22 medarbejdere · 3 arbejdssteder&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;cs-head-actions&quot;&gt;&lt;span class=&quot;cs-draft&quot;&gt;&lt;span class=&quot;cs-draft-dot&quot;&gt;&lt;/span&gt;&lt;span id=&quot;cs-status&quot;&gt;Kladde&lt;/span&gt;&lt;/span&gt;&lt;button id=&quot;cs-review&quot; type=&quot;button&quot; class=&quot;cs-button cs-review-trigger cursor-interaction&quot; aria-label=&quot;Tjek planen&quot;&gt;&lt;i data-lucide=&quot;list-checks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-review-label&quot;&gt;Tjek planen&lt;/span&gt;&lt;span id=&quot;cs-review-count&quot; class=&quot;cs-review-count&quot;&gt;1&lt;/span&gt;&lt;/button&gt;&lt;button id=&quot;cs-publish&quot; type=&quot;button&quot; class=&quot;cs-button cursor-interaction&quot;&gt;Udgiv&lt;/button&gt;&lt;button id=&quot;cs-new&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;plus&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Opret vagt&lt;/button&gt;&lt;/div&gt;
       &lt;div id=&quot;cs-roster-header-actions&quot;&gt;&lt;/div&gt;
+      &lt;div id=&quot;cs-leave-header-actions&quot; hidden&gt;&lt;/div&gt;
       &lt;button id=&quot;cs-page-help&quot; type=&quot;button&quot; class=&quot;cs-page-help-trigger&quot; aria-label=&quot;Hjælp til denne side&quot; aria-haspopup=&quot;dialog&quot;&gt;?&lt;/button&gt;
     &lt;/header&gt;
     &lt;div class=&quot;cs-content&quot;&gt;
@@ -24034,64 +24229,234 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const select=(label,items,value=&#x27;all&#x27;)=&gt;{const el=node(&#x27;select&#x27;,&#x27;cs-review-input&#x27;);el.setAttribute(&#x27;aria-label&#x27;,label);for(const [id,copy] of items){const option=node(&#x27;option&#x27;,&#x27;&#x27;,copy);option.value=id;el.append(option);}el.value=value;return el;};
     return {node,button,field,input,select};
   }
-  function rejection({element,request,onDecision,trigger,onClose}){
-    const doc=element.ownerDocument,{node,button,field}=kit(doc),previous=trigger||doc.activeElement,layer=node(&#x27;dialog&#x27;,&#x27;cs-review-modal&#x27;),panel=node(&#x27;section&#x27;,&#x27;cs-review-dialog&#x27;);
-    layer.setAttribute(&#x27;aria-label&#x27;,&#x27;Afvis fraværsanmodning&#x27;);layer.setAttribute(&#x27;aria-modal&#x27;,&#x27;true&#x27;);panel.tabIndex=-1;
-    let busy=false,closed=false;const reason=node(&#x27;textarea&#x27;,&#x27;cs-review-textarea&#x27;);reason.rows=5;reason.required=true;reason.setAttribute(&#x27;aria-label&#x27;,&#x27;Begrundelse for afvisning&#x27;);reason.placeholder=&#x27;Forklar kort, hvorfor anmodningen afvises.&#x27;;
+  const leaveDate=new Intl.DateTimeFormat(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;long&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
+  function leaveDetailPeriod(request){
+    const first=request.days?.[0],last=request.days?.at(-1);
+    if(!validDate(first)||!validDate(last)||first&gt;last)return text(request.dates)||&#x27;—&#x27;;
+    const start=new Date(first+&#x27;T12:00:00Z&#x27;),end=new Date(last+&#x27;T12:00:00Z&#x27;);
+    return first===last?leaveDate.format(start):leaveDate.formatRange(start,end);
+  }
+  function leaveDialog({element,title,tag=&#x27;section&#x27;,trigger,onClose,focusFallback}){
+    const doc=element.ownerDocument,{node,button}=kit(doc),owner=element.closest?.(&#x27;#cleanrooms-studio&#x27;)||element;
+    const layer=node(&#x27;dialog&#x27;,&#x27;cs-review-modal cs-leave-modal&#x27;),panel=node(tag,&#x27;cs-review-dialog cs-leave-dialog&#x27;);
+    const header=node(&#x27;header&#x27;,&#x27;cs-leave-dialog-header&#x27;),heading=node(&#x27;h3&#x27;,&#x27;&#x27;,title);
+    const body=node(&#x27;div&#x27;,&#x27;cs-leave-dialog-body&#x27;),actions=node(&#x27;div&#x27;,&#x27;cs-review-dialog-actions cs-leave-dialog-actions&#x27;);
     const error=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;);error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);error.hidden=true;
-    let observer=null;const close=(options={})=&gt;{if(closed||busy&amp;&amp;options.force!==true)return;closed=true;observer?.disconnect();if(typeof layer.close===&#x27;function&#x27;&amp;&amp;layer.open)layer.close();layer.remove();if(options.restoreFocus!==false){const target=previous?.isConnected?previous:element.isConnected?element.querySelector?.(&#x27;button,input,select,[tabindex]&#x27;)||element:null;target?.focus?.({preventScroll:true});}onClose?.();};
-    const cancel=button(&#x27;Annuller&#x27;,()=&gt;close()),confirm=button(&#x27;Afvis anmodning&#x27;,async()=&gt;{
-      if(busy)return;const value=text(reason.value);if(!value){error.textContent=&#x27;Skriv en begrundelse, som medarbejderen kan se.&#x27;;error.hidden=false;reason.setAttribute(&#x27;aria-invalid&#x27;,&#x27;true&#x27;);reason.focus();return;}
-      busy=true;cancel.disabled=confirm.disabled=reason.disabled=true;confirm.textContent=&#x27;Gemmer…&#x27;;error.hidden=true;panel.setAttribute(&#x27;aria-busy&#x27;,&#x27;true&#x27;);panel.focus();
-      let result;try{result=await onDecision(request.id,&#x27;rejected&#x27;,value);}catch{result={ok:false,error:&#x27;Afvisningen kunne ikke gemmes. Prøv igen.&#x27;};}
-      if(closed)return;busy=false;cancel.disabled=confirm.disabled=reason.disabled=false;confirm.textContent=&#x27;Afvis anmodning&#x27;;panel.setAttribute(&#x27;aria-busy&#x27;,&#x27;false&#x27;);
-      if(result?.ok)close();else{error.textContent=result?.error||result?.message||&#x27;Afvisningen kunne ikke gemmes.&#x27;;error.hidden=false;}
-    },&#x27;cs-button cs-primary&#x27;);
-    const actions=node(&#x27;div&#x27;,&#x27;cs-review-dialog-actions&#x27;);actions.append(cancel,confirm);
-    panel.append(node(&#x27;h3&#x27;,&#x27;&#x27;, &#x27;Afvis anmodning&#x27;),node(&#x27;p&#x27;,&#x27;cs-review-muted&#x27;,request.name+&#x27; · &#x27;+request.type+&#x27; · &#x27;+request.dates),field(&#x27;Begrundelse · synlig for medarbejderen&#x27;,reason),error,actions);layer.append(panel);const owner=element.closest?.(&#x27;#cleanrooms-studio&#x27;)||element;owner.append(layer);if(typeof layer.showModal===&#x27;function&#x27;)layer.showModal();else layer.setAttribute(&#x27;open&#x27;,&#x27;&#x27;);const initialPage=owner.dataset?.page,initialRole=owner.dataset?.role,Observer=doc.defaultView?.MutationObserver;if(Observer){observer=new Observer(()=&gt;{if(!element.isConnected||owner.dataset?.page!==initialPage||owner.dataset?.role!==initialRole)close({force:true,restoreFocus:false});});observer.observe(owner,{attributes:true,attributeFilter:[&#x27;data-page&#x27;,&#x27;data-role&#x27;],childList:true,subtree:true});}
-    layer.addEventListener(&#x27;cancel&#x27;,event=&gt;{event.preventDefault();close();});reason.addEventListener(&#x27;input&#x27;,()=&gt;reason.removeAttribute(&#x27;aria-invalid&#x27;));layer.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;){event.preventDefault();event.stopPropagation();close();}if(event.key===&#x27;Tab&#x27;){const first=reason,last=confirm;if(event.shiftKey&amp;&amp;doc.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&amp;&amp;doc.activeElement===last){event.preventDefault();first.focus();}}});reason.focus();return {close,get closed(){return closed;}};
-  }
-  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
-    const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),previous=doc.activeElement,layer=node(&#x27;dialog&#x27;,&#x27;cs-review-modal&#x27;),panel=node(&#x27;form&#x27;,&#x27;cs-review-dialog&#x27;),person=select(&#x27;Medarbejder&#x27;,people.filter(p=&gt;p.active!==false).map(p=&gt;[p.id,p.name]),personId||people[0]?.id),type=select(&#x27;Fraværstype&#x27;,[[&#x27;Ferie&#x27;,&#x27;Ferie&#x27;],[&#x27;Friønske&#x27;,&#x27;Friønske&#x27;],[&#x27;Sygdom&#x27;,&#x27;Sygdom&#x27;],[&#x27;Andet&#x27;,&#x27;Andet&#x27;]],&#x27;Ferie&#x27;),from=input(&#x27;date&#x27;,&#x27;Fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Til dato&#x27;),comment=node(&#x27;textarea&#x27;,&#x27;cs-review-textarea&#x27;),error=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;);
-    let busy=false;from.value=to.value=today;from.required=to.required=true;comment.rows=4;comment.setAttribute(&#x27;aria-label&#x27;,&#x27;Kommentar&#x27;);comment.placeholder=&#x27;Valgfri besked til planlæggeren&#x27;;error.hidden=true;error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);layer.setAttribute(&#x27;aria-label&#x27;,personId?&#x27;Anmod om fravær&#x27;:&#x27;Opret fraværsanmodning&#x27;);
-    const close=()=&gt;{if(busy)return;layer.close?.();layer.remove();previous?.isConnected&amp;&amp;previous.focus?.();};
-    const cancel=button(&#x27;Annuller&#x27;,close),submit=node(&#x27;button&#x27;,&#x27;cs-button cs-primary&#x27;,&#x27;Send anmodning&#x27;);submit.type=&#x27;submit&#x27;;
-    const actions=node(&#x27;div&#x27;,&#x27;cs-review-dialog-actions&#x27;);actions.append(cancel,submit);panel.append(node(&#x27;h3&#x27;,&#x27;&#x27;,personId?&#x27;Anmod om fravær&#x27;:&#x27;Opret fraværsanmodning&#x27;));
-    if(!personId)panel.append(field(&#x27;Medarbejder&#x27;,person));panel.append(field(&#x27;Type&#x27;,type),field(&#x27;Fra&#x27;,from),field(&#x27;Til&#x27;,to),field(&#x27;Kommentar · valgfri&#x27;,comment),error,actions);layer.append(panel);element.append(layer);
+    let busy=false,closed=false,observer=null;
+    const previous=trigger||doc.activeElement;
+    function close({force=false,restoreFocus=true}={}){
+      if(closed||(busy&amp;&amp;!force))return;
+      closed=true;observer?.disconnect();
+      if(layer.open)layer.close?.();
+      layer.remove();
+      if(restoreFocus){
+        const target=previous?.isConnected?previous:focusFallback?.()||element.querySelector?.(&#x27;button,input,select,[tabindex]&#x27;);
+        if(target?.isConnected)target.focus?.({preventScroll:true});
+      }
+      onClose?.();
+    }
+    const dismiss=button(&#x27;×&#x27;,()=&gt;close(),&#x27;cs-icon-button cs-chrome-quiet cs-leave-dismiss&#x27;);
+    dismiss.setAttribute(&#x27;aria-label&#x27;,&#x27;Luk &#x27;+title.toLocaleLowerCase(&#x27;da-DK&#x27;));
+    layer.setAttribute(&#x27;aria-label&#x27;,title);layer.setAttribute(&#x27;aria-modal&#x27;,&#x27;true&#x27;);panel.tabIndex=-1;
+    header.append(heading,dismiss);panel.append(header,body,error,actions);layer.append(panel);
     layer.addEventListener(&#x27;cancel&#x27;,event=&gt;{event.preventDefault();close();});
-    panel.addEventListener(&#x27;submit&#x27;,async event=&gt;{event.preventDefault();if(busy)return;if(!validDate(from.value)||!validDate(to.value)||to.value&lt;from.value){error.textContent=&#x27;Vælg en gyldig periode.&#x27;;error.hidden=false;return;}busy=true;submit.disabled=cancel.disabled=true;submit.textContent=&#x27;Gemmer…&#x27;;error.hidden=true;let result;try{result=await onSubmit({personId:personId||person.value,from:from.value,to:to.value,type:type.value,comment:comment.value});}catch{result={ok:false,message:&#x27;Anmodningen kunne ikke gemmes.&#x27;};}busy=false;submit.disabled=cancel.disabled=false;submit.textContent=&#x27;Send anmodning&#x27;;if(result?.ok)close();else{error.textContent=result?.message||&#x27;Anmodningen kunne ikke gemmes.&#x27;;error.hidden=false;}});
-    if(layer.showModal)layer.showModal();else layer.setAttribute(&#x27;open&#x27;,&#x27;&#x27;);(personId?from:person).focus();return {close};
+    layer.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;&amp;&amp;!event.defaultPrevented){event.preventDefault();event.stopPropagation();close();}});
+    function open(initialFocus){
+      owner.append(layer);
+      if(typeof layer.showModal===&#x27;function&#x27;)layer.showModal();else layer.setAttribute(&#x27;open&#x27;,&#x27;&#x27;);
+      const initialPage=owner.dataset?.page,initialRole=owner.dataset?.role,Observer=doc.defaultView?.MutationObserver;
+      if(Observer){
+        observer=new Observer(()=&gt;{
+          if(!element.isConnected||owner.dataset?.page!==initialPage||owner.dataset?.role!==initialRole)close({force:true,restoreFocus:false});
+        });
+        observer.observe(owner,{attributes:true,attributeFilter:[&#x27;data-page&#x27;,&#x27;data-role&#x27;],childList:true,subtree:true});
+      }
+      (initialFocus||panel).focus({preventScroll:true});
+    }
+    function setBusy(value){busy=value;dismiss.disabled=value;panel.setAttribute(&#x27;aria-busy&#x27;,String(value));if(value)panel.focus();}
+    function showError(message){error.textContent=message;error.hidden=false;}
+    return {panel,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
   }
-  function mountLeave({element,onDecision,onCreate,onQuery}){
+  function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
+    const {node,button,field}=kit(element.ownerDocument);
+    const title=initialRejection?&#x27;Afvis fraværsanmodning&#x27;:&#x27;Fraværsanmodning&#x27;;
+    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
+    const canRespond=Boolean(canDecide&amp;&amp;typeof onDecision===&#x27;function&#x27;&amp;&amp;(request.status===&#x27;pending&#x27;||initialRejection));
+    const name=text(request.name)||&#x27;Medarbejder&#x27;,status=request.status||&#x27;pending&#x27;;
+    const context=node(&#x27;section&#x27;,&#x27;cs-leave-context&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-leave-identity&#x27;);
+    const avatar=node(&#x27;span&#x27;,&#x27;cs-leave-avatar&#x27;,request.initials||name.split(/\s+/).slice(0,2).map(part=&gt;part[0]).join(&#x27;&#x27;));
+    avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+    const badge=node(&#x27;span&#x27;,&#x27;cs-leave-state&#x27;,STATUS[status]||status);badge.dataset.state=status;
+    identity.append(avatar,node(&#x27;strong&#x27;,&#x27;&#x27;,name),badge);
+    const facts=node(&#x27;dl&#x27;,&#x27;cs-leave-facts&#x27;);
+    for(const [label,value] of [[&#x27;Periode&#x27;,leaveDetailPeriod(request)],[&#x27;Fraværstype&#x27;,request.type]]){
+      const fact=node(&#x27;div&#x27;);fact.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value||&#x27;—&#x27;));facts.append(fact);
+    }
+    context.append(identity,facts);dialog.body.append(context);
+    if(text(request.comment)){
+      const note=node(&#x27;section&#x27;,&#x27;cs-leave-message&#x27;);
+      note.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Kommentar&#x27;),node(&#x27;p&#x27;,&#x27;&#x27;,request.comment));dialog.body.append(note);
+    }
+    if(request.decision){
+      const {reason,decidedBy,decidedAt}=request.decision,response=node(&#x27;section&#x27;,&#x27;cs-leave-message&#x27;);
+      response.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Svar&#x27;));
+      if(text(reason))response.append(node(&#x27;p&#x27;,&#x27;&#x27;,reason));
+      const actor=decidedBy?.name||&#x27;Planlægger&#x27;;
+      response.append(node(&#x27;p&#x27;,&#x27;cs-review-muted&#x27;,decidedAt?actor+&#x27; · &#x27;+stamp(decidedAt):actor));dialog.body.append(response);
+    }
+    if(!canRespond){dialog.actions.hidden=true;dialog.open();return dialog;}
+
+    const reasonPanel=node(&#x27;div&#x27;,&#x27;cs-leave-rejection&#x27;),reason=node(&#x27;textarea&#x27;,&#x27;cs-review-textarea&#x27;);
+    reason.rows=3;reason.required=true;reason.setAttribute(&#x27;aria-label&#x27;,&#x27;Begrundelse for afvisning&#x27;);
+    reasonPanel.append(field(&#x27;Begrundelse&#x27;,reason),node(&#x27;p&#x27;,&#x27;cs-review-muted&#x27;,&#x27;Medarbejderen kan se begrundelsen.&#x27;));
+    reason.addEventListener(&#x27;input&#x27;,()=&gt;{reason.removeAttribute(&#x27;aria-invalid&#x27;);dialog.error.hidden=true;});
+    dialog.body.append(reasonPanel);
+    const approve=button(&#x27;Godkend&#x27;,()=&gt;decide(&#x27;approved&#x27;,approve),&#x27;cs-button cs-primary&#x27;);
+    const reject=button(&#x27;Afvis&#x27;,()=&gt;{showRejection(true);reason.focus();},&#x27;cs-button cs-leave-danger&#x27;);
+    const confirm=button(&#x27;Afvis anmodning&#x27;,()=&gt;decide(&#x27;rejected&#x27;,confirm),&#x27;cs-button cs-leave-danger cs-leave-danger-confirm&#x27;);
+    const cancel=button(initialRejection?&#x27;Annuller&#x27;:&#x27;Tilbage&#x27;,()=&gt;{
+      if(initialRejection)dialog.close();else{showRejection(false);reject.focus();}
+    },&#x27;cs-button cs-chrome-quiet&#x27;);
+    function showRejection(visible){
+      reasonPanel.hidden=!visible;dialog.error.hidden=true;reason.removeAttribute(&#x27;aria-invalid&#x27;);
+      dialog.actions.replaceChildren(...(visible?[cancel,confirm]:[reject,approve]));
+    }
+    async function decide(next,action){
+      if(dialog.busy||dialog.closed)return;
+      const value=next===&#x27;rejected&#x27;?text(reason.value):&#x27;&#x27;;
+      if(next===&#x27;rejected&#x27;&amp;&amp;!value){
+        dialog.showError(&#x27;Skriv en begrundelse for afvisningen.&#x27;);reason.setAttribute(&#x27;aria-invalid&#x27;,&#x27;true&#x27;);reason.focus();return;
+      }
+      const actionLabel=action.textContent;
+      for(const control of [approve,reject,cancel,confirm,reason])control.disabled=true;
+      action.textContent=&#x27;Gemmer…&#x27;;dialog.error.hidden=true;dialog.setBusy(true);
+      let result;
+      try{result=await onDecision(request.id,next,value);}catch{result={ok:false};}
+      if(dialog.closed)return;
+      dialog.setBusy(false);
+      for(const control of [approve,reject,cancel,confirm,reason])control.disabled=false;
+      action.textContent=actionLabel;
+      if(result?.ok){dialog.close();return;}
+      const fallback=next===&#x27;approved&#x27;?&#x27;Godkendelsen kunne ikke gemmes.&#x27;:&#x27;Afvisningen kunne ikke gemmes.&#x27;;
+      dialog.showError(result?.error||result?.message||fallback);action.focus();
+    }
+    showRejection(initialRejection);dialog.open(initialRejection?reason:null);return dialog;
+  }
+  function rejection(options){return leaveDetails({...options,canDecide:true,initialRejection:true});}
+  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
+    const {node,button,field,input,select}=kit(element.ownerDocument);
+    const title=personId?&#x27;Anmod om fravær&#x27;:&#x27;Opret fravær&#x27;,dialog=leaveDialog({element,title,tag:&#x27;form&#x27;});
+    const available=people.filter(person=&gt;person.active!==false);
+    const person=select(&#x27;Medarbejder&#x27;,available.map(person=&gt;[person.id,person.name]),available[0]?.id||&#x27;&#x27;);
+    const type=select(&#x27;Fraværstype&#x27;,[[&#x27;Ferie&#x27;,&#x27;Ferie&#x27;],[&#x27;Friønske&#x27;,&#x27;Friønske&#x27;],[&#x27;Sygdom&#x27;,&#x27;Sygdom&#x27;],[&#x27;Andet&#x27;,&#x27;Andet&#x27;]],&#x27;Ferie&#x27;);
+    const from=input(&#x27;date&#x27;,&#x27;Fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Til dato&#x27;),comment=node(&#x27;textarea&#x27;,&#x27;cs-review-textarea&#x27;);
+    person.required=true;type.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
+    from.value=to.value=today;from.required=to.required=true;comment.rows=3;comment.setAttribute(&#x27;aria-label&#x27;,&#x27;Kommentar&#x27;);
+    const cancel=button(&#x27;Annuller&#x27;,()=&gt;dialog.close(),&#x27;cs-button cs-chrome-quiet&#x27;);
+    const submit=button(&#x27;Send anmodning&#x27;,submitRequest,&#x27;cs-button cs-primary&#x27;);
+    if(!personId)dialog.body.append(field(&#x27;Medarbejder&#x27;,person));
+    const period=node(&#x27;div&#x27;,&#x27;cs-leave-form-dates&#x27;);period.append(field(&#x27;Fra&#x27;,from),field(&#x27;Til&#x27;,to));
+    dialog.body.append(field(&#x27;Fraværstype&#x27;,type),period,field(&#x27;Kommentar (valgfri)&#x27;,comment));
+    dialog.actions.append(cancel,submit);
+    async function submitRequest(){
+      if(dialog.busy||dialog.closed)return;
+      if(!validDate(from.value)||!validDate(to.value)||to.value&lt;from.value){dialog.showError(&#x27;Vælg en gyldig periode.&#x27;);return;}
+      const payload={personId:personId||person.value,from:from.value,to:to.value,type:type.value,comment:comment.value};
+      if(!payload.personId){dialog.showError(&#x27;Vælg en medarbejder.&#x27;);return;}
+      const controls=[person,type,from,to,comment,cancel,submit];
+      for(const control of controls)control.disabled=true;
+      submit.textContent=&#x27;Gemmer…&#x27;;dialog.error.hidden=true;dialog.setBusy(true);
+      let result;
+      try{result=await onSubmit(payload);}catch{result={ok:false};}
+      if(dialog.closed)return;
+      dialog.setBusy(false);
+      for(const control of controls)control.disabled=false;
+      submit.textContent=&#x27;Send anmodning&#x27;;
+      if(result?.ok){dialog.close();return;}
+      dialog.showError(result?.message||&#x27;Anmodningen kunne ikke gemmes.&#x27;);submit.focus();
+    }
+    dialog.panel.addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();return submitRequest();});
+    dialog.panel.addEventListener(&#x27;keydown&#x27;,event=&gt;{
+      if(event.key!==&#x27;Enter&#x27;||event.defaultPrevented||event.isComposing||![&#x27;INPUT&#x27;,&#x27;SELECT&#x27;].includes(event.target?.tagName)||event.target.getAttribute(&#x27;role&#x27;)===&#x27;combobox&#x27;)return;
+      event.preventDefault();return submitRequest();
+    });
+    dialog.open(personId?from:person);return dialog;
+  }
+  function mountLeave({element,actionsHost,icon,onDecision,onCreate,onQuery}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node(&#x27;section&#x27;,&#x27;cs-leave-review-page&#x27;),tools=node(&#x27;div&#x27;,&#x27;cs-review-tools&#x27;),search=input(&#x27;search&#x27;,&#x27;Søg medarbejder&#x27;),type=select(&#x27;Fraværstype&#x27;,[[&#x27;all&#x27;,&#x27;Alle typer&#x27;]]),from=input(&#x27;date&#x27;,&#x27;Fravær fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Fravær til dato&#x27;),tabs=node(&#x27;div&#x27;,&#x27;cs-review-statuses&#x27;),results=node(&#x27;div&#x27;,&#x27;cs-review-results&#x27;),feedback=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;);
-    page.setAttribute(&#x27;aria-label&#x27;,&#x27;Anmodninger og fravær&#x27;);tabs.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);tabs.setAttribute(&#x27;aria-label&#x27;,&#x27;Fraværsstatus&#x27;);feedback.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);feedback.hidden=true;
-    const createActions=node(&#x27;div&#x27;,&#x27;cs-leave-create-actions&#x27;);if(onCreate)createActions.append(button(&#x27;Opret fravær&#x27;,onCreate,&#x27;cs-button cs-primary&#x27;));else createActions.hidden=true;
-    let data={requests:[],canDecide:false},status=&#x27;pending&#x27;,offset=0,modal=null,modalRequestId=null,destroyed=false,generation=0,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error=&#x27;&#x27;,timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
+    page.setAttribute(&#x27;aria-label&#x27;,&#x27;Fraværsanmodninger&#x27;);tabs.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);tabs.setAttribute(&#x27;aria-label&#x27;,&#x27;Fraværsstatus&#x27;);feedback.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);feedback.hidden=true;
+    const createActions=node(&#x27;div&#x27;,&#x27;cs-leave-create-actions&#x27;),create=onCreate&amp;&amp;button(&#x27;Opret fravær&#x27;,onCreate,&#x27;cs-button cs-primary&#x27;);
+    if(create){if(icon)create.replaceChildren(icon(&#x27;plus&#x27;),node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Opret fravær&#x27;));createActions.append(create);}
+    if(actionsHost)actionsHost.replaceChildren(createActions);
+    let data={requests:[],canDecide:false},status=&#x27;pending&#x27;,offset=0,modal=null,modalRequest=null,deciding=null,destroyed=false,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error=&#x27;&#x27;,timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
     const limit=40,statusButtons={},server=()=&gt;typeof onQuery===&#x27;function&#x27;&amp;&amp;data.server!==false,filters=()=&gt;Object.fromEntries(Object.entries({q:search.value.trim(),status,type:type.value,from:from.value,to:to.value}).filter(([,value])=&gt;value&amp;&amp;value!==&#x27;all&#x27;));
-    search.placeholder=&#x27;Søg medarbejder&#x27;;
-    const closeModal=()=&gt;{modal?.close({force:true,restoreFocus:false});modal=null;modalRequestId=null;};
+    search.placeholder=&#x27;Søg medarbejder&#x27;;search.maxLength=120;type.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
+    const closeModal=()=&gt;{modal?.close({force:true,restoreFocus:false});modal=null;modalRequest=null;};
+    const checkModal=rows=&gt;{
+      if(!modalRequest)return;
+      if(modalRequest.canDecide&amp;&amp;!data.canDecide){closeModal();return;}
+      if(deciding?.id===modalRequest.id)return;
+      const row=rows.find(item=&gt;item.id===modalRequest.id);
+      if(!row||row.status!==modalRequest.status||row.version!==modalRequest.version)closeModal();
+    };
+    const periodLabel=request=&gt;{
+      const first=request.days?.[0],last=request.days?.at(-1);
+      if(!validDate(first)||!validDate(last))return text(request.dates)||&#x27;Dato mangler&#x27;;
+      if(first===last)return dateLabel(first);
+      if(first.slice(0,7)===last.slice(0,7))return Number(first.slice(8))+&#x27;.–&#x27;+dateLabel(last);
+      const start=first.slice(0,4)===last.slice(0,4)?dateLabel(first).replace(/ \d{4}$/,&#x27;&#x27;):dateLabel(first);
+      return start+&#x27; – &#x27;+dateLabel(last);
+    };
     function resetQuery(){clearTimeout(timer);timer=null;queryGeneration++;records=[];counts=null;nextCursor=null;hasMore=false;busy=false;loaded=false;error=&#x27;&#x27;;pageIndex=0;pages=[{cursor:null,start:0}];}
     function refreshTypes(){const current=type.value;type.replaceChildren();const names=server()?[&#x27;Ferie&#x27;,&#x27;Friønske&#x27;,&#x27;Sygdom&#x27;,&#x27;Andet&#x27;]:[...new Set(data.requests.map(item=&gt;item.type))];for(const name of [&#x27;all&#x27;,...names]){const option=node(&#x27;option&#x27;,&#x27;&#x27;,name===&#x27;all&#x27;?&#x27;Alle typer&#x27;:name);option.value=name;type.append(option);}type.value=[...type.options].some(item=&gt;item.value===current)?current:&#x27;all&#x27;;}
     async function decision(id,next,reason){
-      const key=data.contextKey,mode=server();let result;try{result=await onDecision(id,next,reason);}catch{result={ok:false,message:&#x27;Beslutningen kunne ikke gemmes.&#x27;};}
-      if(result?.ok&amp;&amp;!destroyed&amp;&amp;mode&amp;&amp;server()&amp;&amp;data.contextKey===key)await load(&#x27;reset&#x27;);return result;
+      if(!data.canDecide||typeof onDecision!==&#x27;function&#x27;)return {ok:false,message:&#x27;Anmodningen kan ikke behandles lige nu.&#x27;};
+      const key=data.contextKey,mode=server(),refreshKey=data.refreshKey,token={id};deciding=token;
+      try{
+        const result=await onDecision(id,next,reason);
+        if(result?.ok&amp;&amp;!destroyed&amp;&amp;mode&amp;&amp;server()&amp;&amp;data.contextKey===key&amp;&amp;data.refreshKey===refreshKey)await load(&#x27;reset&#x27;);
+        return result;
+      }catch{return {ok:false,message:&#x27;Beslutningen kunne ikke gemmes.&#x27;};}
+      finally{if(deciding===token)deciding=null;}
     }
     function draw(){
       const active={q:search.value,status,type:type.value,from:from.value,to:to.value},invalid=active.from&amp;&amp;active.to&amp;&amp;active.from&gt;active.to;
       feedback.textContent=invalid?&#x27;Fra-dato skal være før til-dato.&#x27;:error;feedback.hidden=!feedback.textContent;
-      for(const [key,el]of Object.entries(statusButtons)){const count=server()?counts?.[key]:data.requests.filter(item=&gt;key===&#x27;all&#x27;||item.status===key).length;el.textContent=(STATUS[key]||&#x27;Alle&#x27;)+(count===undefined?&#x27;&#x27;:&#x27; &#x27;+count);el.setAttribute(&#x27;aria-pressed&#x27;,String(status===key));}
+      const filtered=Boolean(active.q.trim()||active.type!==&#x27;all&#x27;||active.from||active.to),localRows=server()?null:filterLeave(data.requests,{...active,status:&#x27;all&#x27;});
+      reset.hidden=!filtered;
+      datesToggle.dataset.filtered=String(Boolean(active.from||active.to));
+      typeWrap.dataset.filtered=String(active.type!==&#x27;all&#x27;);
+      for(const [key,el]of Object.entries(statusButtons)){
+        const count=server()?counts?.[key]:localRows.filter(item=&gt;key===&#x27;all&#x27;||item.status===key).length;
+        el.textContent=STATUS[key]||&#x27;Alle&#x27;;if(count!==undefined)el.append(node(&#x27;span&#x27;,&#x27;cs-leave-status-count&#x27;,&#x27; &#x27;+count));el.setAttribute(&#x27;aria-pressed&#x27;,String(status===key));
+      }
+      refresh.hidden=!server();refresh.disabled=busy;
       results.replaceChildren();results.setAttribute(&#x27;aria-busy&#x27;,String(busy));if(invalid)return;
-      const rows=server()?records:filterLeave(data.requests,active);if(!server())offset=Math.min(offset,Math.max(0,Math.floor((rows.length-1)/limit)*limit));
-      const total=server()?counts?.[status===&#x27;all&#x27;?&#x27;all&#x27;:status]:rows.length,top=node(&#x27;div&#x27;,&#x27;cs-review-result-head&#x27;);top.append(node(&#x27;h3&#x27;,&#x27;&#x27;,STATUS[status]||&#x27;Alle anmodninger&#x27;),node(&#x27;span&#x27;,&#x27;cs-review-muted&#x27;,busy?&#x27;Henter anmodninger…&#x27;:total===undefined?rows.length+&#x27; vist&#x27;:total+&#x27; &#x27;+(total===1?&#x27;anmodning&#x27;:&#x27;anmodninger&#x27;)));
-      refresh.hidden=!server();refresh.disabled=busy;results.append(top);
-      if(!rows.length){if(!busy&amp;&amp;!error)results.append(node(&#x27;p&#x27;,&#x27;cs-review-empty&#x27;,&#x27;Ingen anmodninger matcher dine filtre.&#x27;));return;}
-      const table=node(&#x27;table&#x27;,&#x27;cs-review-table&#x27;),thead=node(&#x27;thead&#x27;),tr=node(&#x27;tr&#x27;);for(const copy of [&#x27;Medarbejder&#x27;,&#x27;Periode&#x27;,&#x27;Type&#x27;,&#x27;Status&#x27;,&#x27;&#x27;])tr.append(node(&#x27;th&#x27;,&#x27;&#x27;,copy));thead.append(tr);table.append(thead);const body=node(&#x27;tbody&#x27;);
+      const rows=server()?records:localRows.filter(item=&gt;status===&#x27;all&#x27;||item.status===status);if(!server())offset=Math.min(offset,Math.max(0,Math.floor((rows.length-1)/limit)*limit));
+      const total=server()?counts?.[status]:rows.length;
+      if(!rows.length){
+        if(busy||!loaded&amp;&amp;server()&amp;&amp;!error){const loading=node(&#x27;p&#x27;,&#x27;cs-review-empty&#x27;,&#x27;Henter fravær…&#x27;);loading.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);results.append(loading);}
+        else if(!error){const copy=filtered?&#x27;Ingen anmodninger matcher dine filtre.&#x27;:({pending:&#x27;Ingen anmodninger afventer.&#x27;,approved:&#x27;Ingen godkendte anmodninger.&#x27;,rejected:&#x27;Ingen afviste anmodninger.&#x27;,all:&#x27;Ingen fraværsanmodninger endnu.&#x27;})[status];results.append(node(&#x27;p&#x27;,&#x27;cs-review-empty&#x27;,copy));}
+        return;
+      }
+      const table=node(&#x27;table&#x27;,&#x27;cs-review-table&#x27;),thead=node(&#x27;thead&#x27;),tr=node(&#x27;tr&#x27;);table.setAttribute(&#x27;aria-label&#x27;,&#x27;Fraværsanmodninger&#x27;);table.setAttribute(&#x27;role&#x27;,&#x27;table&#x27;);thead.setAttribute(&#x27;role&#x27;,&#x27;rowgroup&#x27;);tr.setAttribute(&#x27;role&#x27;,&#x27;row&#x27;);
+      for(const copy of [&#x27;Medarbejder&#x27;,&#x27;Periode&#x27;,&#x27;Type&#x27;,&#x27;Status&#x27;,&#x27;&#x27;]){const heading=node(&#x27;th&#x27;,&#x27;&#x27;,copy);heading.scope=&#x27;col&#x27;;heading.setAttribute(&#x27;role&#x27;,&#x27;columnheader&#x27;);if(!copy)heading.setAttribute(&#x27;aria-label&#x27;,&#x27;Handling&#x27;);tr.append(heading);}
+      thead.append(tr);table.append(thead);const body=node(&#x27;tbody&#x27;);body.setAttribute(&#x27;role&#x27;,&#x27;rowgroup&#x27;);
       for(const request of server()?rows:rows.slice(offset,offset+limit)){
-        const nameText=text(request.name)||text(data.people?.find(person=&gt;person.id===request.p)?.name)||&#x27;Medarbejder&#x27;,row=node(&#x27;tr&#x27;),name=node(&#x27;td&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-review-person&#x27;),avatar=node(&#x27;span&#x27;,&#x27;cs-avatar&#x27;,request.initials||nameText.split(/\s+/).slice(0,2).map(value=&gt;value[0]).join(&#x27;&#x27;));identity.append(avatar,node(&#x27;strong&#x27;,&#x27;&#x27;,nameText));name.append(identity);
-        const stateCell=node(&#x27;td&#x27;),badge=node(&#x27;span&#x27;,&#x27;cs-review-badge&#x27;,STATUS[request.status]||request.status);badge.dataset.state=request.status;stateCell.append(badge);const actions=node(&#x27;td&#x27;,&#x27;cs-review-row-actions&#x27;);
-        if(request.status===&#x27;pending&#x27;&amp;&amp;data.canDecide){let pending=false;const approve=button(&#x27;Godkend&#x27;,async()=&gt;{if(pending||destroyed||!data.canDecide)return;const token=generation;pending=true;approve.disabled=reject.disabled=true;const result=await decision(request.id,&#x27;approved&#x27;,&#x27;&#x27;);if(destroyed||token!==generation)return;if(!result?.ok){feedback.textContent=result?.error||result?.message||&#x27;Godkendelsen kunne ikke gemmes.&#x27;;feedback.hidden=false;approve.disabled=reject.disabled=false;}pending=false;}),reject=button(&#x27;Afvis&#x27;,()=&gt;{if(destroyed||!data.canDecide)return;closeModal();modalRequestId=request.id;modal=rejection({element,request:{...request,name:nameText},onDecision:decision,trigger:reject,onClose:()=&gt;{modal=null;modalRequestId=null;}});});actions.append(approve,reject);}
-        else if(request.decision){const details=node(&#x27;details&#x27;,&#x27;cs-review-decision&#x27;),summary=node(&#x27;summary&#x27;,&#x27;&#x27;,&#x27;Vis svar&#x27;);details.append(summary);if(request.decision.reason)details.append(node(&#x27;p&#x27;,&#x27;cs-review-reason&#x27;,request.decision.reason));details.append(node(&#x27;p&#x27;,&#x27;cs-review-muted&#x27;,(request.decision.decidedBy?.name||&#x27;Planlægger&#x27;)+&#x27; · &#x27;+stamp(request.decision.decidedAt)));actions.append(details);}
-        row.append(name,node(&#x27;td&#x27;,&#x27;cs-review-period&#x27;,request.dates||request.days.map(dateLabel).join(&#x27; – &#x27;)),node(&#x27;td&#x27;,&#x27;&#x27;,request.type),stateCell,actions);body.append(row);
+        const nameText=text(request.name)||text(data.people?.find(person=&gt;person.id===request.p)?.name)||&#x27;Medarbejder&#x27;,row=node(&#x27;tr&#x27;),name=node(&#x27;td&#x27;,&#x27;cs-leave-person-cell&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-review-person&#x27;),avatar=node(&#x27;span&#x27;,&#x27;cs-avatar&#x27;,request.initials||nameText.split(/\s+/).slice(0,2).map(value=&gt;value[0]).join(&#x27;&#x27;));
+        avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);identity.append(avatar,node(&#x27;strong&#x27;,&#x27;&#x27;,nameText));name.append(identity);
+        const stateCell=node(&#x27;td&#x27;,&#x27;cs-leave-status-cell&#x27;),badge=node(&#x27;span&#x27;,&#x27;cs-review-badge&#x27;,STATUS[request.status]||request.status);badge.dataset.state=request.status;stateCell.append(badge);
+        const period=node(&#x27;td&#x27;,&#x27;cs-review-period&#x27;),dates=periodLabel(request),days=request.days?.length||0;
+        period.append(node(&#x27;strong&#x27;,&#x27;&#x27;,dates));if(days&gt;1)period.append(node(&#x27;span&#x27;,&#x27;cs-leave-duration&#x27;,days+&#x27; dage&#x27;));
+        const actions=node(&#x27;td&#x27;,&#x27;cs-review-row-actions&#x27;),open=button(&#x27;Se anmodning&#x27;,()=&gt;{
+          if(destroyed)return;
+          closeModal();const canDecide=Boolean(data.canDecide&amp;&amp;request.status===&#x27;pending&#x27;&amp;&amp;typeof onDecision===&#x27;function&#x27;);
+          modalRequest={id:request.id,status:request.status,version:request.version,canDecide};
+          modal=leaveDetails({element,request:{...request,name:nameText,dates},canDecide,onDecision:decision,trigger:open,focusFallback:()=&gt;statusButtons[status]||search,onClose:()=&gt;{modal=null;modalRequest=null;}});
+        },&#x27;cs-button cs-leave-open&#x27;);
+        if(icon)open.append(icon(&#x27;chevron-right&#x27;));
+        open.setAttribute(&#x27;aria-label&#x27;,&#x27;Se anmodning for &#x27;+nameText);open.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);actions.append(open);
+        row.setAttribute(&#x27;role&#x27;,&#x27;row&#x27;);const cells=[name,period,node(&#x27;td&#x27;,&#x27;cs-leave-type-cell&#x27;,request.type),stateCell,actions];for(const cell of cells)cell.setAttribute(&#x27;role&#x27;,&#x27;cell&#x27;);row.append(...cells);body.append(row);
       }
       table.append(body);const wrap=node(&#x27;div&#x27;,&#x27;cs-review-table-wrap&#x27;);wrap.append(table);results.append(wrap);
       if(server()&amp;&amp;(hasMore||pageIndex)){const pager=node(&#x27;div&#x27;,&#x27;cs-review-pager&#x27;),prev=button(&#x27;Forrige&#x27;,()=&gt;load(&#x27;previous&#x27;)),next=button(&#x27;Næste&#x27;,()=&gt;load(&#x27;next&#x27;)),start=pages[pageIndex].start;prev.disabled=busy||pageIndex===0;next.disabled=busy||!hasMore;pager.append(prev,node(&#x27;span&#x27;,&#x27;cs-review-muted&#x27;,(start+1)+&#x27;–&#x27;+(start+rows.length)+(total===undefined?&#x27;&#x27;:&#x27; af &#x27;+total)),next);results.append(pager);}
@@ -24110,28 +24475,36 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(!result?.ok&amp;&amp;result?.status===409&amp;&amp;pages[pageIndex].cursor&amp;&amp;retry)return load(&#x27;reset&#x27;,false);
       if(!result?.ok||!Array.isArray(result.requests)){error=result?.message||result?.error||&#x27;Fraværet kunne ikke indlæses. Prøv igen.&#x27;;draw();return;}
       records=result.requests;counts=result.counts||null;hasMore=result.hasMore===true&amp;&amp;typeof result.nextCursor===&#x27;string&#x27;&amp;&amp;result.nextCursor.length&gt;0;nextCursor=hasMore?result.nextCursor:null;
-      if(modal&amp;&amp;(!data.canDecide||!records.some(item=&gt;item.id===modalRequestId&amp;&amp;item.status===&#x27;pending&#x27;)))closeModal();draw();
+      checkModal(records);draw();
     }
     function changed(debounce=false){
       offset=0;error=&#x27;&#x27;;if(!server()){draw();return;}
       resetQuery();draw();if(debounce){timer=setTimeout(()=&gt;load(&#x27;reset&#x27;),180);return;}return load(&#x27;reset&#x27;);
     }
     for(const key of [&#x27;pending&#x27;,&#x27;approved&#x27;,&#x27;rejected&#x27;,&#x27;all&#x27;]){const el=button(&#x27;&#x27;,()=&gt;{status=key;return changed();},&#x27;cs-review-status&#x27;);statusButtons[key]=el;tabs.append(el);}
-    const datesPanel=node(&#x27;div&#x27;,&#x27;cs-review-extra-filters&#x27;),datesToggle=button(&#x27;Periode&#x27;,()=&gt;{datesPanel.hidden=!datesPanel.hidden;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,String(!datesPanel.hidden));if(!datesPanel.hidden)from.focus();});datesPanel.hidden=true;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);datesToggle.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrér fravær efter periode&#x27;);
-    const reset=button(&#x27;Nulstil&#x27;,()=&gt;{search.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;from.value=to.value=&#x27;&#x27;;status=&#x27;pending&#x27;;datesToggle.textContent=&#x27;Periode&#x27;;return changed();},&#x27;cs-button cs-quiet&#x27;);
-    const refresh=button(&#x27;Opdater&#x27;,()=&gt;load(&#x27;reset&#x27;));refresh.hidden=true;
-    datesPanel.append(field(&#x27;Fra&#x27;,from),field(&#x27;Til&#x27;,to),button(&#x27;Luk periode&#x27;,()=&gt;{datesPanel.hidden=true;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);datesToggle.focus();}));
-    const filterRail=node(&#x27;div&#x27;,&#x27;cs-filter-rail cs-review-filter-rail&#x27;);filterRail.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);filterRail.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrér fravær&#x27;);filterRail.append(field(&#x27;Medarbejder&#x27;,search),field(&#x27;Type&#x27;,type));
-    for(const control of [datesToggle,reset,refresh])control.className+=&#x27; cs-chrome-quiet&#x27;;
+    const datesPanel=node(&#x27;div&#x27;,&#x27;cs-review-extra-filters&#x27;),datesToggle=button(&#x27;Periode&#x27;,()=&gt;{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},&#x27;cs-button cs-leave-period-toggle&#x27;);
+    const periodText=node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Periode&#x27;);datesToggle.replaceChildren(...(icon?[icon(&#x27;calendar-range&#x27;)]:[]),periodText);
+    function setPeriodOpen(value){datesPanel.hidden=!value;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,String(value));}
+    function syncPeriod(){const value=from.value&amp;&amp;to.value?periodLabel({days:[from.value,to.value]}):from.value?&#x27;Fra &#x27;+dateLabel(from.value):to.value?&#x27;Til &#x27;+dateLabel(to.value):&#x27;Periode&#x27;;periodText.textContent=value;datesToggle.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrér fravær efter periode&#x27;+(value===&#x27;Periode&#x27;?&#x27;&#x27;:&#x27;: &#x27;+value));}
+    setPeriodOpen(false);syncPeriod();
+    const reset=button(&#x27;Nulstil&#x27;,()=&gt;{search.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;from.value=to.value=&#x27;&#x27;;syncPeriod();search.focus();return changed();},&#x27;cs-button cs-chrome-quiet&#x27;);
+    const refresh=button(&#x27;Opdater&#x27;,()=&gt;load(&#x27;reset&#x27;),&#x27;cs-button cs-chrome-quiet cs-leave-refresh&#x27;);refresh.hidden=true;
+    if(icon){refresh.replaceChildren(icon(&#x27;refresh-cw&#x27;),node(&#x27;span&#x27;,&#x27;cs-sr&#x27;,&#x27;Opdater&#x27;));refresh.title=&#x27;Opdater&#x27;;}
+    datesPanel.append(field(&#x27;Fra&#x27;,from),field(&#x27;Til&#x27;,to),button(&#x27;Luk periode&#x27;,()=&gt;{setPeriodOpen(false);datesToggle.focus();},&#x27;cs-button cs-chrome-quiet&#x27;));
+    const filterRail=node(&#x27;div&#x27;,&#x27;cs-filter-rail cs-review-filter-rail&#x27;),searchWrap=field(&#x27;Medarbejder&#x27;,search),typeWrap=field(&#x27;Type&#x27;,type);searchWrap.className+=&#x27; cs-leave-search&#x27;;typeWrap.className+=&#x27; cs-leave-type&#x27;;
+    if(icon)searchWrap.append(icon(&#x27;search&#x27;));
+    filterRail.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);filterRail.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrér fravær&#x27;);filterRail.append(searchWrap,typeWrap);
     tools.className+=&#x27; cs-review-compact-tools&#x27;;tools.append(filterRail,datesToggle,reset,refresh);
-    for(const control of [from,to])control.addEventListener(&#x27;change&#x27;,()=&gt;{datesToggle.textContent=from.value||to.value?[from.value?dateLabel(from.value):&#x27;Alle&#x27;,to.value?dateLabel(to.value):&#x27;Frem&#x27;].join(&#x27; – &#x27;):&#x27;Periode&#x27;;});
-    for(const control of [search,type,from,to])control.addEventListener(control===search?&#x27;input&#x27;:&#x27;change&#x27;,()=&gt;changed(control===search));const navigation=node(&#x27;div&#x27;,&#x27;cs-leave-navigation&#x27;);navigation.append(tabs,createActions);page.append(navigation,tools,datesPanel,feedback,results);element.replaceChildren(page);
+    for(const control of [from,to])control.addEventListener(&#x27;change&#x27;,syncPeriod);
+    for(const control of [search,type,from,to])control.addEventListener(control===search?&#x27;input&#x27;:&#x27;change&#x27;,()=&gt;changed(control===search));const navigation=node(&#x27;div&#x27;,&#x27;cs-leave-navigation&#x27;);navigation.append(tabs,tools);if(!actionsHost)navigation.append(createActions);page.append(navigation,datesPanel,feedback,results);element.replaceChildren(page);
     return {render(options){
-      if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;generation++;data={...data,...options};
-      const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;status=&#x27;pending&#x27;;offset=0;}
-      if(modal&amp;&amp;(!data.canDecide||!(server()?records:data.requests).some(item=&gt;item.id===modalRequestId&amp;&amp;item.status===&#x27;pending&#x27;)))closeModal();
+      if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;data={...data,...options};
+      createActions.hidden=!create||data.canCreate===false;if(actionsHost)actionsHost.hidden=createActions.hidden;
+      const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;status=&#x27;pending&#x27;;offset=0;setPeriodOpen(false);syncPeriod();}
+      if(!server()||loaded&amp;&amp;!busy&amp;&amp;oldRefresh===data.refreshKey)checkModal(server()?records:data.requests);
+      else if(modalRequest?.canDecide&amp;&amp;!data.canDecide)closeModal();
       refreshTypes();if(server()&amp;&amp;(!loaded||contextChanged||oldRefresh!==data.refreshKey))return load(&#x27;reset&#x27;);draw();
-    },refresh(){return server()?load(&#x27;reset&#x27;):draw();},destroy(){destroyed=true;generation++;resetQuery();closeModal();page.remove();}};
+    },refresh(){return server()?load(&#x27;reset&#x27;):draw();},destroy(){destroyed=true;resetQuery();closeModal();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
   }
   function mountHistory({element,onQuery,onRestore,formatValue=(_key,value)=&gt;JSON.stringify(value),onBackup}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node(&#x27;section&#x27;,&#x27;cs-activity-page cs-history-review&#x27;),form=node(&#x27;form&#x27;,&#x27;cs-review-tools cs-history-filters&#x27;),from=input(&#x27;date&#x27;,&#x27;Historik fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Historik til dato&#x27;),actor=select(&#x27;Udført af&#x27;,[[&#x27;all&#x27;,&#x27;Alle brugere&#x27;]]),person=select(&#x27;Berørt medarbejder&#x27;,[[&#x27;all&#x27;,&#x27;Alle medarbejdere&#x27;]]),area=select(&#x27;Område&#x27;,[[&#x27;all&#x27;,&#x27;Alle områder&#x27;],...Object.entries(AREAS)]),kind=select(&#x27;Handlingstype&#x27;,[[&#x27;all&#x27;,&#x27;Alle handlinger&#x27;],...Object.entries(KINDS)]),search=input(&#x27;search&#x27;,&#x27;Søg i historik&#x27;),feedback=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;),notice=node(&#x27;p&#x27;,&#x27;cs-review-muted cs-history-notice&#x27;),count=node(&#x27;p&#x27;,&#x27;cs-review-muted cs-history-count&#x27;),list=node(&#x27;div&#x27;,&#x27;cs-history-days&#x27;),more=button(&#x27;Vis flere&#x27;,()=&gt;load(true)),refresh=button(&#x27;Opdater&#x27;,()=&gt;load(false)),reset=button(&#x27;Nulstil filtre&#x27;,()=&gt;{for(const control of [actor,person,area,kind])control.value=&#x27;all&#x27;;from.value=to.value=search.value=&#x27;&#x27;;load(false);},&#x27;cs-button cs-quiet&#x27;);
@@ -24243,7 +24616,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     element.replaceChildren(page);
     return {render(options){if(destroyed)return;data={...data,...options};const selected=person.value;person.replaceChildren();for(const item of [{id:&#x27;all&#x27;,name:&#x27;Alle medarbejdere&#x27;},...data.people]){const option=node(&#x27;option&#x27;,&#x27;&#x27;,item.name);option.value=item.id;person.append(option);}person.value=[...person.options].some(option=&gt;option.value===selected)?selected:&#x27;all&#x27;;if(!loaded)load();else draw();},reload:()=&gt;load(false),destroy(){destroyed=true;generation++;clearTimeout(searchTimer);page.remove();}};
   }
-  const api={filterLeave,validDate,mountLeave,mountHistory,rejection,requestAbsence};if(typeof module===&#x27;object&#x27;&amp;&amp;module.exports)module.exports=api;scope.CleanRoomsReview=api;
+  const api={filterLeave,validDate,mountLeave,mountHistory,leaveDetails,rejection,requestAbsence};if(typeof module===&#x27;object&#x27;&amp;&amp;module.exports)module.exports=api;scope.CleanRoomsReview=api;
 })(globalThis);
 
 /* Page help is read-only and follows the active page and the signed-in viewer. */
@@ -24264,7 +24637,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     &#x27;payroll-group&#x27;:{title:&#x27;Løngruppe&#x27;,intro:&#x27;Gruppens aftale og medarbejdernes undtagelser vises hver for sig.&#x27;,steps:[[&#x27;Se medlemmerne&#x27;,&#x27;Brug listen til at skelne mellem medarbejdere, der følger gruppens satser, og personlige undtagelser.&#x27;],[&#x27;Åbn Satser og tillæg&#x27;,&#x27;Vælg den gældende dato og gennemgå gruppens grundløn og tillæg. Historiske satser kan ses, men ikke overskrives.&#x27;],[&#x27;Flyt en medarbejder&#x27;,&#x27;Skift løngruppe starter et dateret skifte med personen forvalgt. Gennemgå, hvilke personlige satser der følger med.&#x27;],[&#x27;Kontrollér historikken&#x27;,&#x27;Se tidligere aftaler og ændringer i gruppens historik. En ny ændring kræver gennemgang og gemning.&#x27;]]},
     &#x27;payroll-person&#x27;:{title:&#x27;Medarbejderens løn og tillæg&#x27;,intro:&#x27;Læs aftalen oppefra: grundløn og kilde først, derefter tillæg og beregninger.&#x27;,steps:[[&#x27;Start ved Aktuel lønaftale&#x27;,&#x27;Se Grundløn, Løngruppe, Kilde og Gælder fra. Kilden fortæller, om satsen følger gruppen eller er personlig.&#x27;],[&#x27;Gennemgå Tillæg på aftalen&#x27;,&#x27;Se de gældende regler og deres kilder. Personlige ændringer og fravalg fremgår sammen med gruppens tillæg.&#x27;],[&#x27;Rediger den rette del&#x27;,&#x27;Brug Rediger individuelle valg til personlige undtagelser eller Skift løngruppe til en ny gruppetilknytning. Gennemgå ændringen, før du gemmer.&#x27;],[&#x27;Åbn beregning eller historik ved behov&#x27;,&#x27;Periodens forventede løn viser en beregning ud fra planen. Personlige satser og historik indeholder personlige aftaler og tidligere versioner.&#x27;]]},
     hours:{title:&#x27;Timer&#x27;,intro:&#x27;Gennemgå registreringerne, og godkend de timer, der er afklaret.&#x27;,steps:[[&#x27;Vælg en statuskø&#x27;,&#x27;Kræver opmærksomhed samler afvigelser og kommentarer. Følger planen indeholder registreringer, der kan gennemgås til samlet godkendelse.&#x27;],[&#x27;Gennemgå registreringen&#x27;,&#x27;Åbn medarbejderen eller Gennemgå. Sammenlign Planlagt og Registreret under Tider og pause, og se begrundelser og kommentarer nedenunder.&#x27;],[&#x27;Behandl registreringen&#x27;,&#x27;Godkend, bed om en forklaring, eller ret med en begrundelse. Godkendte timer kræver genåbning før rettelser. Løngrundlag og Registreringens historik kan foldes ud. Medarbejdere kan kommentere, men ikke ændre stemplinger.&#x27;],[&#x27;Afslut og eksportér en lønperiode&#x27;,&#x27;Vælg Løngrundlag → Lønperiode og eksport. Perioden omfatter hele virksomheden. Afklar de viste mangler. Ved en glemt registrering kan du angive timer og begrundelse og derefter godkende særskilt. Afslut perioden, når den er gået. Hent derefter CSV fra den fastlåste version.&#x27;],[&#x27;Tilpas filen til lønsystemet&#x27;,&#x27;Tilpas eksport styrer kolonner, medarbejdernumre og lønarter. Gemte profiler har egne versioner. Standard CSV er et generelt løngrundlag; et bestemt importformat skal kontrolleres mod lønsystemets skabelon.&#x27;],[&#x27;Ret en afsluttet periode&#x27;,&#x27;Genåbning kræver lønadgang og en begrundelse. Den tidligere fil bevares; efter rettelser afsluttes en ny fuld version. Afstem den tidligere import i lønsystemet, før en ny fil bruges.&#x27;]]},
-    leave:{title:&#x27;Fravær&#x27;,intro:&#x27;Afventer viser de anmodninger, som mangler en beslutning.&#x27;,steps:[[&#x27;Afgræns listen&#x27;,&#x27;Vælg status, søg på medarbejder, eller filtrér på type og periode. En periode finder anmodninger med fraværsdage i perioden.&#x27;],[&#x27;Godkend eller afvis&#x27;,&#x27;Godkendt fravær indgår i planlægningens kontrol. Ved afvisning skal du skrive en begrundelse, som medarbejderen kan se.&#x27;],[&#x27;Find svaret igen&#x27;,&#x27;Åbn Godkendt eller Afvist og vælg Vis svar. Beslutningen gemmes med navn og tidspunkt og kan også findes i Historik.&#x27;]]},
+    leave:{title:&#x27;Fravær&#x27;,intro:&#x27;Afventer viser de anmodninger, som mangler en beslutning.&#x27;,steps:[[&#x27;Afgræns listen&#x27;,&#x27;Søg på medarbejder, eller filtrér på type og periode. En periode finder anmodninger med fraværsdage i perioden.&#x27;],[&#x27;Godkend eller afvis&#x27;,&#x27;Vælg Se anmodning. Godkendt fravær indgår i planlægningens kontrol. Ved afvisning skal du skrive en begrundelse, som medarbejderen kan se.&#x27;],[&#x27;Find svaret igen&#x27;,&#x27;Under Godkendt og Afvist kan du åbne anmodningen og se, hvem der svarede og hvornår. Beslutningen kan også findes i Historik.&#x27;]]},
     activity:{title:&#x27;Historik&#x27;,intro:&#x27;Find gemte ændringer, grupperet efter dato.&#x27;,steps:[[&#x27;Søg eller filtrér&#x27;,&#x27;Søg efter en handling eller den, der udførte den. Du kan også afgrænse på område, periode, medarbejder og handlingstype. Datoperioder følger danske døgn.&#x27;],[&#x27;Åbn en handling&#x27;,&#x27;Rækker med en pil kan foldes ud. Her vises før og efter samt eventuelle begrundelser.&#x27;],[&#x27;Indlæs flere handlinger&#x27;,&#x27;Vis flere henter ældre handlinger med de samme filtre. Nulstil filtre viser alle bevarede handlinger igen.&#x27;],[&#x27;Fortryd en ændring&#x27;,&#x27;Fortryd ændring vises i detaljerne, når handlingen kan gendannes. Det opretter en ny historikpost.&#x27;]],note:&#x27;Ældre historik omfatter de poster, der stadig var bevaret ved opdateringen. Nye handlinger gemmes løbende i det samlede arkiv.&#x27;},
     workspace:{title:&#x27;Indstillinger&#x27;,intro:&#x27;Tilpas virksomhedens oplysninger, timebudgetter og arbejdssteder.&#x27;,steps:[[&#x27;Vedligehold virksomhedsoplysninger&#x27;,&#x27;Virksomhedsnavnet bruges i navigationen. Produktnavn og beskrivelse kan tilpasses samme sted.&#x27;],[&#x27;Tilføj kontaktoplysninger efter behov&#x27;,&#x27;Kontaktperson, e-mail og telefon er valgfrie. Vælg Gem oplysninger for at gemme formularen.&#x27;],[&#x27;Sæt timebudgetter&#x27;,&#x27;Under Timebudgetter vælger du virksomheden, en afdeling eller et arbejdssted og angiver timer pr. uge eller måned. Ugelinjen viser kun et maksimum, når det valgte område har et ugebudget. Et tomt felt fjerner maksimum for området.&#x27;],[&#x27;Styr eksempelvagter separat&#x27;,&#x27;Vis eksempelvagter slår de automatiske eksempelvagter til eller fra. Egne vagter, serier og medarbejdere bevares.&#x27;]],note:&#x27;Redigering kræver adgang til både planlægning og brugerstyring.&#x27;},
     accounts:{title:&#x27;Brugere og roller&#x27;,intro:&#x27;Brugerkonti giver adgang, og roller bestemmer, hvad kontoen må gøre.&#x27;,steps:[[&#x27;Opret en rolle&#x27;,&#x27;Sæt navn på et ansvar i virksomheden. Standardroller er låst, og du kan oprette din egen rolle for at tilpasse rettighederne.&#x27;],[&#x27;Vælg rettigheder&#x27;,&#x27;Du kan kun give rettigheder, som du selv har. En ændring i en rolle gælder alle, der har rollen.&#x27;],[&#x27;Opret en medarbejder&#x27;,&#x27;Åbn Opret bruger, og angiv navn, e-mail, rolle og arbejdssted. App-login oprettes med samme e-mail.&#x27;],[&#x27;Administrer app-login&#x27;,&#x27;Åbn medarbejderprofilen, og gå til Oplysninger → App-login for at se startkoden eller administrere adgangen.&#x27;],[&#x27;Giv adgang til web&#x27;,&#x27;Vælg en rolle med webadgang i Opret bruger. Under Invitationer kan du kopiere det nye link og se ventende invitationer. Modtageren skal også have adgang til den private webapp i Sites.&#x27;]]},
@@ -28658,6 +29031,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       ],
       &#x27;shield-check&#x27;: [[&#x27;path&#x27;, {d:&#x27;M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11ZM9 12l2 2 4-4&#x27;}]],
       &#x27;history&#x27;: [[&#x27;path&#x27;, {d:&#x27;M3 12a9 9 0 1 1 2.6 6.4M3 5v7h7m2-5v5l3 2&#x27;}]],
+      &#x27;refresh-cw&#x27;: [[&#x27;path&#x27;, {d:&#x27;M20 5v5h-5M4 19v-5h5M5.7 9a7 7 0 0 1 11.6-3L20 9m-16 6 2.7 3A7 7 0 0 0 18.3 15&#x27;}]],
       &#x27;wallet&#x27;: [[&#x27;path&#x27;, {d:&#x27;M20 8V5H6a3 3 0 0 0 0 6h14v9H6a3 3 0 0 1-3-3V8m17 4h-5v5h5m-3-2.5h.01&#x27;}]],
       &#x27;arrow-left-right&#x27;: [[&#x27;path&#x27;, {d:&#x27;M4 7h16M8 3 4 7l4 4m12 6H4m12-4 4 4-4 4&#x27;}]],
       &#x27;messages-square&#x27;: [[&#x27;path&#x27;, {d:&#x27;M3 4h15v11H8l-5 4V4Zm17 4h2v11h-4l-3 3v-3h-4v-2&#x27;}]],
@@ -29083,7 +29457,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }});
   }
   function renderLeave() {
-    if(!leaveView){leaveElement=node(&#x27;div&#x27;,&#x27;cs-secondary-page&#x27;);leaveView=globalThis.CleanRoomsReview?.mountLeave({element:leaveElement,onDecision:decideLeave,onCreate:()=&gt;openAbsenceRequest(),onQuery:async query=&gt;{
+    if(!leaveView){leaveElement=node(&#x27;div&#x27;,&#x27;cs-secondary-page&#x27;);leaveView=globalThis.CleanRoomsReview?.mountLeave({element:leaveElement,actionsHost:q(&#x27;#cs-leave-header-actions&#x27;),icon,onDecision:decideLeave,onCreate:()=&gt;openAbsenceRequest(),onQuery:async query=&gt;{
       const viewerId=sessionViewer?.userId,epoch=++leaveQueryEpoch,result=await accountAction(&#x27;leaveRead&#x27;,query),people=new Map((result.people||[]).map(person=&gt;[person.id,person]));
       if(result.ok&amp;&amp;!state.demoSession&amp;&amp;viewerId===sessionViewer?.userId&amp;&amp;epoch===leaveQueryEpoch){
         leaveDecisionRows.clear();for(const item of result.requests||[])leaveDecisionRows.set(item.id,clone(item));
@@ -29092,7 +29466,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       return {...result,requests:(result.requests||[]).map(item=&gt;({...item,name:people.get(item.p)?.name||personName(item.p),initials:people.get(item.p)?.initials||personFor(item.p)?.initials}))};
     }});}
     if(!leaveElement.isConnected)q(&#x27;#cs-page-content&#x27;).replaceChildren(leaveElement);
-    const requests=leaveViewRows();visibleCount=requests.length;leaveView?.render({requests,server:!state.demoSession,contextKey:String(sessionViewer?.userId||&#x27;&#x27;)+&#x27;:&#x27;+String(state.demoSession?.scenario||&#x27;live&#x27;),refreshKey:leaveRefresh,canDecide:cloudLoaded&amp;&amp;cloudCapabilities.plan===true&amp;&amp;!cloudStatus.conflict&amp;&amp;!leaveBusy});
+    const requests=leaveViewRows();visibleCount=requests.length;leaveView?.render({requests,server:!state.demoSession,contextKey:String(sessionViewer?.userId||&#x27;&#x27;)+&#x27;:&#x27;+String(state.demoSession?.scenario||&#x27;live&#x27;),refreshKey:leaveRefresh,canCreate:cloudLoaded&amp;&amp;cloudCapabilities.plan===true&amp;&amp;!state.demoSession,canDecide:cloudLoaded&amp;&amp;cloudCapabilities.plan===true&amp;&amp;!cloudStatus.conflict});
   }
   function navigateTo(value, person = null) {
     if(!confirmEditorLeave(()=&gt;navigateTo(value,person)))return false;
@@ -31109,6 +31483,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
 
 
 

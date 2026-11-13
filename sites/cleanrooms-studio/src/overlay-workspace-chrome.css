@@ -126,7 +126,7 @@
   line-height:20px;
   box-shadow:none;
 }
-#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > button:hover:not(:disabled){
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets > button[aria-pressed="false"]:hover:not(:disabled){
   background:#eaf0f3;
   color:#344d5c;
 }

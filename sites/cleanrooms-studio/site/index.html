@@ -9168,7 +9168,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   line-height:20px;
   box-shadow:none;
 }
-#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets &gt; button:hover:not(:disabled){
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets &gt; button[aria-pressed=&quot;false&quot;]:hover:not(:disabled){
   background:#eaf0f3;
   color:#344d5c;
 }
@@ -10984,7 +10984,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-ink);
   box-shadow:none;
 }
-#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-button:not(.cs-primary,.cs-quiet,.cs-chrome-quiet,.cs-delete):hover:not(:disabled) {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-button:not(.cs-primary,.cs-quiet,.cs-chrome-quiet,.cs-delete):hover:not(:disabled):where(:not(.cs-series-period-presets &gt; [aria-pressed=&quot;true&quot;])) {
   background:var(--cs-compass-selected);
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-button.cs-primary:not(:disabled) {
@@ -30310,6 +30310,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

@@ -11,6 +11,7 @@
     const PAGE_SIZE=50;
     const node=(tag,className,text)=>{const value=doc.createElement(tag);if(className)value.className=className;if(text!==undefined)value.textContent=text;return value;};
     const button=(text,action,className='cs-button')=>{const value=node('button',className,text);value.type='button';value.addEventListener('click',action);return value;};
+    const icon=(name)=>{const value=node('i','cs-roster-filter-icon');value.setAttribute('data-lucide',name);value.setAttribute('aria-hidden','true');return value;};
     const input=(name,type='text')=>{const value=node('input','cs-roster-input');value.type=type;value.id=prefix+name;return value;};
     const field=(label,control)=>{const wrap=node('label','cs-roster-field');wrap.htmlFor=control.id;wrap.append(node('span','cs-roster-label',label),control);return wrap;};
     const page=node('div','cs-roster-page'),actions=node('div','cs-roster-actions');
@@ -19,6 +20,7 @@
     const status=node('p','cs-roster-status'),error=node('p','cs-roster-error');status.hidden=true;error.hidden=true;status.setAttribute('role','status');status.setAttribute('aria-live','polite');error.setAttribute('role','alert');
     const workspace=node('div','cs-roster-workspace'),directory=node('section','cs-roster-directory'),directoryHead=node('div','cs-roster-directory-head');directory.setAttribute('aria-label','Medarbejdere');
     const search=input('search','search');search.placeholder='Søg medarbejder';search.setAttribute('aria-label','Søg i medarbejdere');
+    const searchWrap=node('label','cs-roster-filter-search');searchWrap.append(icon('search'),search);
     const filter=node('select','cs-roster-input');filter.id=prefix+'filter';filter.hidden=true;filter.tabIndex=-1;filter.setAttribute('aria-hidden','true');filter.setAttribute('aria-label','Vis medarbejdere');for(const [value,label] of [['active','Aktive medarbejdere'],['all','Alle medarbejdere'],['archived','Arkiverede medarbejdere']]){const option=node('option','',label);option.value=value;filter.append(option);}filter.value='active';
     const tabs=node('div','cs-roster-status-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Medarbejderstatus');const statusTabs=[];
     for(const [value,label] of [['active','Aktive'],['all','Alle'],['archived','Arkiverede']]){
@@ -26,7 +28,19 @@
       tab.dataset.status=value;tab.dataset.productFocus='roster:status:'+value;tab.append(count);statusTabs.push({tab,count,label});tabs.append(tab);
     }
     const siteFilter=node('select','cs-roster-input');siteFilter.id=prefix+'site-filter';siteFilter.setAttribute('aria-label','Filtrer efter primært arbejdssted');siteFilter.setAttribute('data-select-only','');siteFilter.value='all';
-    const filterRow=node('div','cs-roster-filter-row cs-filter-rail'),shown=node('span','cs-roster-shown');shown.setAttribute('role','status');const siteFilterWrap=node('div','cs-roster-filter-site');siteFilterWrap.append(siteFilter);filterRow.append(search,siteFilterWrap);const context=node('div','cs-roster-week-context'),planningNotice=node('p','cs-roster-planning-notice');planningNotice.hidden=true;planningNotice.setAttribute('role','status');directoryHead.append(filter,tabs,filterRow,context,planningNotice,shown);
+    const filterRow=node('div','cs-roster-filter-row cs-filter-rail'),siteFilterWrap=node('div','cs-roster-filter-site');
+    siteFilterWrap.append(icon('map-pin'),siteFilter);filterRow.append(searchWrap,siteFilterWrap);
+    const filterResult=node('div','cs-roster-filter-result'),shown=node('span','cs-roster-shown');
+    shown.setAttribute('role','status');
+    const resetFilters=button('Nulstil',()=>{
+      search.value='';siteFilter.value='all';pageIndex=0;
+      search.focus({preventScroll:true});renderDirectory();
+    },'cs-roster-reset-filters');
+    resetFilters.setAttribute('aria-label','Nulstil søgning og arbejdssted');
+    filterResult.append(shown,resetFilters);
+    const context=node('div','cs-roster-week-context'),planningNotice=node('p','cs-roster-planning-notice');
+    planningNotice.hidden=true;planningNotice.setAttribute('role','status');
+    directoryHead.append(filter,tabs,filterRow,context,filterResult,planningNotice);
     const table=node('table','cs-roster-table'),thead=node('thead'),headingRow=node('tr'),tbody=node('tbody');table.setAttribute('role','table');let weeklyHead,actionHead;
     for(const [label,className] of [['Medarbejder','person'],['Primært arbejdssted','site'],['Aftalt pr. uge','week'],['Næste vagt','next'],['Status','status'],['','action']]){const th=node('th','cs-roster-col-'+className,label);th.scope='col';if(className==='week')weeklyHead=th;if(className==='action')actionHead=th;headingRow.append(th);}thead.append(headingRow);table.append(thead,tbody);
     const pagination=node('nav','cs-roster-pagination cs-roster-actions'),pageRange=node('span','cs-roster-shown'),previousPage=button('Forrige',()=>changePage(-1),'cs-button cs-chrome-quiet'),nextPage=button('Næste',()=>changePage(1),'cs-button cs-chrome-quiet');pagination.setAttribute('aria-label','Sider i medarbejderkartoteket');pageRange.setAttribute('role','status');previousPage.dataset.productFocus='roster:page:previous';nextPage.dataset.productFocus='roster:page:next';pagination.append(pageRange,previousPage,nextPage);pagination.hidden=true;
@@ -100,7 +114,10 @@
       pageIndex=Math.min(Math.max(0,pageIndex),Math.max(0,Math.ceil(people.length/PAGE_SIZE)-1));const start=pageIndex*PAGE_SIZE;pagination.hidden=people.length<=PAGE_SIZE;pageRange.textContent=start+1+'–'+Math.min(start+PAGE_SIZE,people.length)+' af '+people.length;previousPage.disabled=pending||pageIndex===0;nextPage.disabled=pending||start+PAGE_SIZE>=people.length;
       const hasSearchOrSite=Boolean(query)||siteFilter.value!=='all';
       const archivedEmpty=filter.value==='archived'&&!hasSearchOrSite;
-      shown.textContent=people.length+' vist';shown.className=hasSearchOrSite?'cs-roster-shown':'cs-roster-shown cs-sr';
+      shown.textContent=people.length+' vist';
+      filterResult.className=hasSearchOrSite?'cs-roster-filter-result':'cs-roster-filter-result cs-sr';
+      resetFilters.hidden=!hasSearchOrSite;
+      siteFilterWrap.dataset.filtered=String(siteFilter.value!=='all');
       tbody.replaceChildren();table.hidden=!people.length;empty.hidden=Boolean(people.length);
       const emptyTitle=hasSearchOrSite?'Ingen medarbejdere matcher':archivedEmpty?'Ingen arkiverede medarbejdere':staff.length?'Ingen aktive medarbejdere':'Ingen medarbejdere endnu';
       empty.replaceChildren(node('h3','cs-roster-empty-title',emptyTitle));

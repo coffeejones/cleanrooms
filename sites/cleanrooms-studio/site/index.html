@@ -10151,32 +10151,52 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   gap:2px;flex:0 0 auto;padding:2px;border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-surface);
 }
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-status-tabs&gt;.cs-roster-status-tab{
-  display:flex;align-items:center;justify-content:center;gap:5px;min-height:calc(var(--cs-ui-height) - 4px);
+  display:flex;align-items:center;justify-content:center;gap:6px;min-height:calc(var(--cs-ui-height) - 4px);
   padding:2px 9px;border:0;border-radius:4px;color:var(--cs-access-muted);font-size:12px;
 }
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-status-tabs&gt;.cs-roster-status-tab[aria-pressed=&quot;true&quot;]{
-  border:0;background:var(--cs-compass-selected);color:var(--cs-access-ink);box-shadow:none;font-weight:600;
+  border:0;background:var(--cs-access-ink);color:var(--cs-access-surface);box-shadow:none;font-weight:600;
 }
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-status-tab[aria-pressed=&quot;false&quot;]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-tab-count{
   color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums;
 }
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-status-tab[aria-pressed=&quot;true&quot;] .cs-roster-tab-count{color:inherit}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-row.cs-filter-rail{
   flex:1 1 280px;max-width:400px;margin-inline-start:auto;gap:0;
   --cs-ui-field-border:transparent;--cs-ui-field-background:transparent;
   --cs-ui-field-shadow:none;--cs-ui-field-font:12px;
   border:1px solid var(--cs-compass-rule);background:var(--cs-access-soft);box-shadow:none;
 }
+#cleanrooms-studio[data-page=&quot;people&quot;] :is(.cs-roster-filter-search,.cs-roster-filter-site){position:relative;min-width:0}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-search{--cs-ui-field-inset-start:30px}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site{border-inline-start:1px solid var(--cs-compass-rule)}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site::before{display:none}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-icon{
+  position:absolute;inset-inline-start:10px;inset-block-start:50%;z-index:1;
+  width:14px;height:14px;transform:translateY(-50%);color:var(--cs-access-muted);pointer-events:none;
+}
 #cleanrooms-studio[data-page=&quot;people&quot;][data-role] .cs-roster-filter-site .cs-publication-combobox[data-select-only=&quot;true&quot;] &gt; .cs-publication-combobox-input[readonly]:not(:disabled){
   --cs-ui-field-background:inherit;--cs-ui-field-shadow:inherit;
 }
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site .cs-publication-combobox{--cs-ui-radius:5px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site .cs-publication-combobox{
+  --cs-ui-radius:5px;--cs-ui-field-inset-start:30px;--cs-publication-toggle-width:28px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site[data-filtered=&quot;true&quot;]{
+  --cs-ui-field-color:var(--cs-access-ink);
+  background:var(--cs-compass-selected);border-radius:0 5px 5px 0;
+}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-week-context{
   order:1;flex:1 1 75%;padding:0;border:0;color:var(--cs-access-muted);font-size:11px;line-height:18px;
 }
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-directory-head&gt;.cs-roster-shown{order:1;margin-inline-start:auto}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-result{
+  display:flex;align-items:center;gap:8px;order:1;margin-inline-start:auto;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-reset-filters{
+  min-height:26px;padding:0 6px;border:0;border-radius:4px;background:transparent;
+  color:var(--cs-access-body);font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-reset-filters:hover:not(:disabled){background:var(--cs-access-soft)}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-planning-notice{order:2;flex-basis:100%}
 
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-tabs {
@@ -10377,6 +10397,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @container employee-profile (max-width:430px) {
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-tabs&gt;.cs-employee-profile-tab {padding-inline:9px}
+}
+@media(max-width:420px) {
+  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site .cs-roster-filter-icon{display:none}
+  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site .cs-publication-combobox{--cs-ui-field-inset-start:9px}
 }
 @media(max-width:760px),(pointer:coarse) {
   #cleanrooms-studio[data-page=&quot;people&quot;] :is(.cs-roster-page,.cs-employee-profile-page) {--cs-ui-height:44px}
@@ -18225,6 +18249,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const PAGE_SIZE=50;
     const node=(tag,className,text)=&gt;{const value=doc.createElement(tag);if(className)value.className=className;if(text!==undefined)value.textContent=text;return value;};
     const button=(text,action,className=&#x27;cs-button&#x27;)=&gt;{const value=node(&#x27;button&#x27;,className,text);value.type=&#x27;button&#x27;;value.addEventListener(&#x27;click&#x27;,action);return value;};
+    const icon=(name)=&gt;{const value=node(&#x27;i&#x27;,&#x27;cs-roster-filter-icon&#x27;);value.setAttribute(&#x27;data-lucide&#x27;,name);value.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);return value;};
     const input=(name,type=&#x27;text&#x27;)=&gt;{const value=node(&#x27;input&#x27;,&#x27;cs-roster-input&#x27;);value.type=type;value.id=prefix+name;return value;};
     const field=(label,control)=&gt;{const wrap=node(&#x27;label&#x27;,&#x27;cs-roster-field&#x27;);wrap.htmlFor=control.id;wrap.append(node(&#x27;span&#x27;,&#x27;cs-roster-label&#x27;,label),control);return wrap;};
     const page=node(&#x27;div&#x27;,&#x27;cs-roster-page&#x27;),actions=node(&#x27;div&#x27;,&#x27;cs-roster-actions&#x27;);
@@ -18233,6 +18258,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const status=node(&#x27;p&#x27;,&#x27;cs-roster-status&#x27;),error=node(&#x27;p&#x27;,&#x27;cs-roster-error&#x27;);status.hidden=true;error.hidden=true;status.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);status.setAttribute(&#x27;aria-live&#x27;,&#x27;polite&#x27;);error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);
     const workspace=node(&#x27;div&#x27;,&#x27;cs-roster-workspace&#x27;),directory=node(&#x27;section&#x27;,&#x27;cs-roster-directory&#x27;),directoryHead=node(&#x27;div&#x27;,&#x27;cs-roster-directory-head&#x27;);directory.setAttribute(&#x27;aria-label&#x27;,&#x27;Medarbejdere&#x27;);
     const search=input(&#x27;search&#x27;,&#x27;search&#x27;);search.placeholder=&#x27;Søg medarbejder&#x27;;search.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i medarbejdere&#x27;);
+    const searchWrap=node(&#x27;label&#x27;,&#x27;cs-roster-filter-search&#x27;);searchWrap.append(icon(&#x27;search&#x27;),search);
     const filter=node(&#x27;select&#x27;,&#x27;cs-roster-input&#x27;);filter.id=prefix+&#x27;filter&#x27;;filter.hidden=true;filter.tabIndex=-1;filter.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);filter.setAttribute(&#x27;aria-label&#x27;,&#x27;Vis medarbejdere&#x27;);for(const [value,label] of [[&#x27;active&#x27;,&#x27;Aktive medarbejdere&#x27;],[&#x27;all&#x27;,&#x27;Alle medarbejdere&#x27;],[&#x27;archived&#x27;,&#x27;Arkiverede medarbejdere&#x27;]]){const option=node(&#x27;option&#x27;,&#x27;&#x27;,label);option.value=value;filter.append(option);}filter.value=&#x27;active&#x27;;
     const tabs=node(&#x27;div&#x27;,&#x27;cs-roster-status-tabs&#x27;);tabs.setAttribute(&#x27;role&#x27;,&#x27;group&#x27;);tabs.setAttribute(&#x27;aria-label&#x27;,&#x27;Medarbejderstatus&#x27;);const statusTabs=[];
     for(const [value,label] of [[&#x27;active&#x27;,&#x27;Aktive&#x27;],[&#x27;all&#x27;,&#x27;Alle&#x27;],[&#x27;archived&#x27;,&#x27;Arkiverede&#x27;]]){
@@ -18240,7 +18266,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       tab.dataset.status=value;tab.dataset.productFocus=&#x27;roster:status:&#x27;+value;tab.append(count);statusTabs.push({tab,count,label});tabs.append(tab);
     }
     const siteFilter=node(&#x27;select&#x27;,&#x27;cs-roster-input&#x27;);siteFilter.id=prefix+&#x27;site-filter&#x27;;siteFilter.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrer efter primært arbejdssted&#x27;);siteFilter.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);siteFilter.value=&#x27;all&#x27;;
-    const filterRow=node(&#x27;div&#x27;,&#x27;cs-roster-filter-row cs-filter-rail&#x27;),shown=node(&#x27;span&#x27;,&#x27;cs-roster-shown&#x27;);shown.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);const siteFilterWrap=node(&#x27;div&#x27;,&#x27;cs-roster-filter-site&#x27;);siteFilterWrap.append(siteFilter);filterRow.append(search,siteFilterWrap);const context=node(&#x27;div&#x27;,&#x27;cs-roster-week-context&#x27;),planningNotice=node(&#x27;p&#x27;,&#x27;cs-roster-planning-notice&#x27;);planningNotice.hidden=true;planningNotice.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);directoryHead.append(filter,tabs,filterRow,context,planningNotice,shown);
+    const filterRow=node(&#x27;div&#x27;,&#x27;cs-roster-filter-row cs-filter-rail&#x27;),siteFilterWrap=node(&#x27;div&#x27;,&#x27;cs-roster-filter-site&#x27;);
+    siteFilterWrap.append(icon(&#x27;map-pin&#x27;),siteFilter);filterRow.append(searchWrap,siteFilterWrap);
+    const filterResult=node(&#x27;div&#x27;,&#x27;cs-roster-filter-result&#x27;),shown=node(&#x27;span&#x27;,&#x27;cs-roster-shown&#x27;);
+    shown.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);
+    const resetFilters=button(&#x27;Nulstil&#x27;,()=&gt;{
+      search.value=&#x27;&#x27;;siteFilter.value=&#x27;all&#x27;;pageIndex=0;
+      search.focus({preventScroll:true});renderDirectory();
+    },&#x27;cs-roster-reset-filters&#x27;);
+    resetFilters.setAttribute(&#x27;aria-label&#x27;,&#x27;Nulstil søgning og arbejdssted&#x27;);
+    filterResult.append(shown,resetFilters);
+    const context=node(&#x27;div&#x27;,&#x27;cs-roster-week-context&#x27;),planningNotice=node(&#x27;p&#x27;,&#x27;cs-roster-planning-notice&#x27;);
+    planningNotice.hidden=true;planningNotice.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);
+    directoryHead.append(filter,tabs,filterRow,context,filterResult,planningNotice);
     const table=node(&#x27;table&#x27;,&#x27;cs-roster-table&#x27;),thead=node(&#x27;thead&#x27;),headingRow=node(&#x27;tr&#x27;),tbody=node(&#x27;tbody&#x27;);table.setAttribute(&#x27;role&#x27;,&#x27;table&#x27;);let weeklyHead,actionHead;
     for(const [label,className] of [[&#x27;Medarbejder&#x27;,&#x27;person&#x27;],[&#x27;Primært arbejdssted&#x27;,&#x27;site&#x27;],[&#x27;Aftalt pr. uge&#x27;,&#x27;week&#x27;],[&#x27;Næste vagt&#x27;,&#x27;next&#x27;],[&#x27;Status&#x27;,&#x27;status&#x27;],[&#x27;&#x27;,&#x27;action&#x27;]]){const th=node(&#x27;th&#x27;,&#x27;cs-roster-col-&#x27;+className,label);th.scope=&#x27;col&#x27;;if(className===&#x27;week&#x27;)weeklyHead=th;if(className===&#x27;action&#x27;)actionHead=th;headingRow.append(th);}thead.append(headingRow);table.append(thead,tbody);
     const pagination=node(&#x27;nav&#x27;,&#x27;cs-roster-pagination cs-roster-actions&#x27;),pageRange=node(&#x27;span&#x27;,&#x27;cs-roster-shown&#x27;),previousPage=button(&#x27;Forrige&#x27;,()=&gt;changePage(-1),&#x27;cs-button cs-chrome-quiet&#x27;),nextPage=button(&#x27;Næste&#x27;,()=&gt;changePage(1),&#x27;cs-button cs-chrome-quiet&#x27;);pagination.setAttribute(&#x27;aria-label&#x27;,&#x27;Sider i medarbejderkartoteket&#x27;);pageRange.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);previousPage.dataset.productFocus=&#x27;roster:page:previous&#x27;;nextPage.dataset.productFocus=&#x27;roster:page:next&#x27;;pagination.append(pageRange,previousPage,nextPage);pagination.hidden=true;
@@ -18314,7 +18352,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       pageIndex=Math.min(Math.max(0,pageIndex),Math.max(0,Math.ceil(people.length/PAGE_SIZE)-1));const start=pageIndex*PAGE_SIZE;pagination.hidden=people.length&lt;=PAGE_SIZE;pageRange.textContent=start+1+&#x27;–&#x27;+Math.min(start+PAGE_SIZE,people.length)+&#x27; af &#x27;+people.length;previousPage.disabled=pending||pageIndex===0;nextPage.disabled=pending||start+PAGE_SIZE&gt;=people.length;
       const hasSearchOrSite=Boolean(query)||siteFilter.value!==&#x27;all&#x27;;
       const archivedEmpty=filter.value===&#x27;archived&#x27;&amp;&amp;!hasSearchOrSite;
-      shown.textContent=people.length+&#x27; vist&#x27;;shown.className=hasSearchOrSite?&#x27;cs-roster-shown&#x27;:&#x27;cs-roster-shown cs-sr&#x27;;
+      shown.textContent=people.length+&#x27; vist&#x27;;
+      filterResult.className=hasSearchOrSite?&#x27;cs-roster-filter-result&#x27;:&#x27;cs-roster-filter-result cs-sr&#x27;;
+      resetFilters.hidden=!hasSearchOrSite;
+      siteFilterWrap.dataset.filtered=String(siteFilter.value!==&#x27;all&#x27;);
       tbody.replaceChildren();table.hidden=!people.length;empty.hidden=Boolean(people.length);
       const emptyTitle=hasSearchOrSite?&#x27;Ingen medarbejdere matcher&#x27;:archivedEmpty?&#x27;Ingen arkiverede medarbejdere&#x27;:staff.length?&#x27;Ingen aktive medarbejdere&#x27;:&#x27;Ingen medarbejdere endnu&#x27;;
       empty.replaceChildren(node(&#x27;h3&#x27;,&#x27;cs-roster-empty-title&#x27;,emptyTitle));
@@ -30433,6 +30474,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

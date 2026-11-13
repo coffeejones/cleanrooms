@@ -8527,26 +8527,27 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   }
 }
 
+/* The manager lists share filters, search, table spacing and actions. */
 #cleanrooms-studio .cs-requests-directory{min-width:0;color:var(--cs-access-body);font-size:13px;line-height:20px}
-#cleanrooms-studio .cs-requests-tools{
+#cleanrooms-studio :is(.cs-requests-tools,.cs-read-tools){
   display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;min-width:0;
 }
-#cleanrooms-studio .cs-requests-queues{
+#cleanrooms-studio :is(.cs-requests-queues,.cs-read-filters){
   display:flex;gap:2px;min-width:0;padding:2px;border:1px solid var(--cs-workflow-rule);
   border-radius:6px;background:var(--cs-access-surface);
 }
-#cleanrooms-studio .cs-requests-directory .cs-requests-queue{
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-queue,.cs-read-filter){
   display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;
   min-height:calc(var(--cs-ui-height,40px) - 6px);margin:0;padding:4px 9px;border:0;border-radius:4px;
   background:transparent;box-shadow:none;color:var(--cs-access-muted);
   font:inherit;font-size:12px;font-weight:500;line-height:16px;cursor:pointer;
 }
-#cleanrooms-studio .cs-requests-queue[aria-pressed=&quot;true&quot;]{
+#cleanrooms-studio :is(.cs-requests-queue,.cs-read-filter)[aria-pressed=&quot;true&quot;]{
   background:var(--cs-compass-selected);color:var(--cs-access-ink);font-weight:600;
 }
-#cleanrooms-studio .cs-requests-queue[aria-pressed=&quot;false&quot;]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
-#cleanrooms-studio .cs-requests-count{color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-search{
+#cleanrooms-studio :is(.cs-requests-queue,.cs-read-filter)[aria-pressed=&quot;false&quot;]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
+#cleanrooms-studio :is(.cs-requests-count,.cs-read-count){color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio :is(.cs-requests-search,.cs-read-search){
   flex:1 1 185px;min-width:0;max-width:360px;margin:0 0 0 auto;
   --cs-ui-field-background:var(--cs-access-soft);
   --cs-ui-field-border:var(--cs-workflow-rule);
@@ -8554,15 +8555,16 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   --cs-ui-field-font:13px;
   --cs-ui-radius:6px;
 }
-#cleanrooms-studio .cs-requests-input{display:block;width:100%;margin:0}
-#cleanrooms-studio .cs-requests-directory .cs-requests-button{
-  min-height:34px;height:34px;margin:0;padding-inline:10px;
+#cleanrooms-studio :is(.cs-requests-input,.cs-read-input){display:block;width:100%;margin:0}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-button,.cs-read-button){
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+  min-height:34px;height:34px;margin:0;padding-inline:10px;border:1px solid var(--cs-access-control-edge);
   border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;
 }
-#cleanrooms-studio .cs-requests-directory .cs-requests-refresh{min-height:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px)}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-refresh,.cs-read-refresh){min-height:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px)}
 #cleanrooms-studio .cs-requests-summary{margin:0 0 10px;color:var(--cs-access-muted);font-size:12px;line-height:18px}
-#cleanrooms-studio .cs-requests-table{width:100%;table-layout:fixed;text-align:left}
-#cleanrooms-studio .cs-requests-table :is(th,td){padding:8px 12px;border-bottom:1px solid var(--cs-workflow-rule);vertical-align:middle;overflow-wrap:anywhere}
+#cleanrooms-studio :is(.cs-requests-table,.cs-read-table){width:100%;table-layout:fixed;text-align:left}
+#cleanrooms-studio :is(.cs-requests-table,.cs-read-table) :is(th,td){padding:8px 12px;border-bottom:1px solid var(--cs-workflow-rule);vertical-align:middle;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-requests-table th:first-child{width:25%}
 #cleanrooms-studio .cs-requests-table th:nth-child(2){width:28%}
 #cleanrooms-studio .cs-requests-table th:nth-child(3){width:17%}
@@ -8580,104 +8582,74 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-requests-status[data-state=&quot;ready&quot;]{color:var(--cs-access-ink);font-weight:600}
 #cleanrooms-studio .cs-requests-status[data-state=&quot;attention&quot;]{color:#79551e;font-weight:600}
 #cleanrooms-studio .cs-requests-status:is([data-state=&quot;rejected&quot;],[data-state=&quot;declined&quot;],[data-state=&quot;stale&quot;]){color:#865349}
-#cleanrooms-studio .cs-requests-action{text-align:end}
-#cleanrooms-studio .cs-requests-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 0}
+#cleanrooms-studio :is(.cs-requests-action,.cs-read-action){text-align:end}
+#cleanrooms-studio :is(.cs-requests-pagination,.cs-read-pagination){display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 0}
 #cleanrooms-studio .cs-requests-pagination&gt;.cs-requests-secondary{margin-inline-end:auto;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-empty{
+#cleanrooms-studio :is(.cs-requests-empty,.cs-read-empty){
   margin:0;padding:20px 16px;border:1px solid var(--cs-workflow-rule);border-radius:7px;
   color:var(--cs-access-muted);font-size:13px;line-height:22px;
 }
-#cleanrooms-studio .cs-requests-empty&gt;h3{margin:0;color:var(--cs-access-body);font-size:14px;font-weight:600;line-height:22px}
-#cleanrooms-studio .cs-requests-error{
+#cleanrooms-studio :is(.cs-requests-empty,.cs-read-empty)&gt;h3{margin:0;color:var(--cs-access-body);font-size:14px;font-weight:600;line-height:22px}
+#cleanrooms-studio :is(.cs-requests-error,.cs-read-error){
   margin:0 0 10px;padding:10px 12px;border:1px solid #e5d9c4;border-radius:6px;
   background:#fcfaf5;color:#79551e;font-size:12px;line-height:20px;
 }
-#cleanrooms-studio .cs-requests-directory :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
 @media(max-width:760px){
   #cleanrooms-studio .cs-requests-queues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
-  #cleanrooms-studio .cs-requests-directory .cs-requests-queue{min-height:36px;padding-inline:4px}
-  #cleanrooms-studio .cs-requests-search{flex:1 1 120px;max-width:none}
-  #cleanrooms-studio .cs-requests-table,
-  #cleanrooms-studio .cs-requests-table tbody{display:block}
-  #cleanrooms-studio .cs-requests-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-  #cleanrooms-studio .cs-requests-table tbody tr{
+  #cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-queue,.cs-read-filter){min-height:36px;padding-inline:4px}
+  #cleanrooms-studio :is(.cs-requests-search,.cs-read-search){flex:1 1 120px;max-width:none}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table),
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) tbody{display:block}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) tbody tr{
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
     gap:3px 10px;border-top:1px solid var(--cs-workflow-rule);
   }
-  #cleanrooms-studio .cs-requests-table td{display:block;padding:0!important;border:0}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) td{display:block;padding:0!important;border:0}
   #cleanrooms-studio .cs-requests-person{grid-area:1/1}
   #cleanrooms-studio .cs-requests-shift{grid-area:2/1}
   #cleanrooms-studio .cs-requests-type{grid-area:2/2;align-self:start;text-align:end}
   #cleanrooms-studio .cs-requests-state{grid-area:3/1}
   #cleanrooms-studio .cs-requests-action{grid-area:3/2}
-  #cleanrooms-studio .cs-requests-directory .cs-requests-action .cs-requests-button{min-height:40px;height:40px}
+  #cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-action,.cs-read-action) :is(.cs-requests-button,.cs-read-button){min-height:40px;height:40px}
 }
 
-/* Read status is a recipient directory, with message history one level below. */
-#cleanrooms-studio .cs-read-status{min-width:0;color:#344954;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-read-intro{margin:0 0 18px}
-#cleanrooms-studio .cs-read-overview{margin:0;color:#687c89;font-size:13px;line-height:21px}
-#cleanrooms-studio .cs-read-muted{display:block;margin:0;color:#7b8891;font-size:12px;line-height:20px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-read-tools{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 22px;min-width:0}
-#cleanrooms-studio .cs-read-filters{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
-#cleanrooms-studio .cs-read-status .cs-read-filter{display:inline-flex;align-items:center;justify-content:center;gap:9px;box-sizing:border-box;height:40px!important;min-height:40px!important;margin:0;padding:0 12px!important;border:1px solid transparent;border-radius:6px;background:transparent;box-shadow:none;color:#72818c;font:inherit;font-size:12px;line-height:20px;white-space:nowrap}
-#cleanrooms-studio .cs-read-status .cs-read-filter[aria-pressed=&quot;true&quot;]{border-color:#d7e0e5;background:#f2f5f7;color:#3a5364}
-#cleanrooms-studio .cs-read-count{color:#8a969e;font-size:11px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-read-search{display:block;flex:1;min-width:180px;max-width:300px;margin:0}
-#cleanrooms-studio .cs-read-input{box-sizing:border-box;display:block;width:100%;height:40px;min-height:40px;min-width:0;margin:0;padding:8px 12px;border:1px solid #cad5dc;border-radius:7px;background:#fff;color:#344e5f;font:inherit;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-read-status .cs-read-button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:40px!important;height:auto!important;max-width:100%;margin:0;padding:9px 13px!important;border:1px solid #d0d9df;border-radius:7px;background:#fff;box-shadow:0 1px 1px #23354004;color:#4d6574;font:inherit;font-size:12px;font-weight:500;line-height:20px;white-space:normal;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease}
-#cleanrooms-studio .cs-read-status .cs-read-button:hover:not(:disabled){border-color:#b8c9d4;background:#f7f9fa}
-#cleanrooms-studio .cs-read-status .cs-read-refresh{margin-left:auto}
-#cleanrooms-studio .cs-read-table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:left;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-read-table :is(th,td){box-sizing:border-box;padding:17px 16px;border-bottom:1px solid #e6ebee;text-align:left;vertical-align:middle;font-weight:400}
-#cleanrooms-studio .cs-read-table :is(th,td):first-child{padding-left:0}
-#cleanrooms-studio .cs-read-table :is(th,td):last-child{padding-right:0}
-#cleanrooms-studio .cs-read-table thead th{position:sticky;top:0;z-index:1;padding-block:12px;background:#f4f6f7;color:#7a8891;font-size:11px;font-weight:500;line-height:18px}
-#cleanrooms-studio .cs-read-table th:first-child{width:28%;padding-left:12px}
+#cleanrooms-studio .cs-read-status{min-width:0;font-size:13px;line-height:20px}
+#cleanrooms-studio .cs-read-muted,
+#cleanrooms-studio .cs-read-message-summary{display:block;margin:0;color:var(--cs-access-muted);font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-read-table th:first-child{width:32%}
 #cleanrooms-studio .cs-read-table th:nth-child(2){width:28%}
-#cleanrooms-studio .cs-read-table th:nth-child(3){width:26%}
-#cleanrooms-studio .cs-read-table th:last-child{width:18%}
-#cleanrooms-studio .cs-read-person&gt;strong,#cleanrooms-studio .cs-read-progress&gt;strong{display:block;margin:0;color:#3a505e;font-size:13px;font-weight:500;line-height:22px}
-#cleanrooms-studio .cs-read-progress{font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-read-progress .cs-read-muted{margin-top:3px;font-size:11px;line-height:18px}
-#cleanrooms-studio .cs-read-date{color:#71818d;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-read-action{text-align:right!important}
-#cleanrooms-studio .cs-read-not-open{color:#667d8c}
-#cleanrooms-studio .cs-read-change&gt;strong{display:block;margin:0 0 3px;color:#3d5361;font-size:13px;font-weight:500;line-height:21px}
-#cleanrooms-studio .cs-read-message-summary{display:block;color:#74828c;font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-read-message-table th:first-child{width:42%}
-#cleanrooms-studio .cs-read-message-table th:nth-child(2),#cleanrooms-studio .cs-read-message-table th:nth-child(3){width:21%}
-#cleanrooms-studio .cs-read-message-table th:last-child{width:16%}
-#cleanrooms-studio .cs-read-status .cs-read-back{display:inline-flex;align-items:center;gap:8px;min-height:40px!important;height:40px!important;margin:0 0 20px;padding:0!important;border:0;border-radius:0;background:transparent;box-shadow:none;color:#718491;font:inherit;font-size:13px;line-height:22px;cursor:pointer}
-#cleanrooms-studio .cs-read-back::before{content:&#x27;←&#x27;;font-size:16px}
-#cleanrooms-studio .cs-read-person-head{margin:0 0 22px}
-#cleanrooms-studio .cs-read-title{margin:0 0 7px;color:#354c5c;font-size:21px;font-weight:600;line-height:30px;letter-spacing:-.3px}
-#cleanrooms-studio .cs-read-pagination{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin:20px 0 0}
-#cleanrooms-studio .cs-read-pagination&gt;.cs-read-muted{margin-right:auto;font-size:11px}
-#cleanrooms-studio .cs-read-empty{padding:32px 0;max-width:560px}
-#cleanrooms-studio .cs-read-empty&gt;h4{margin:0 0 8px;color:#536a79;font-size:15px;font-weight:500;line-height:23px}
-#cleanrooms-studio .cs-read-error{margin:0 0 20px;padding:12px 14px;border:1px solid #e6dac4;border-radius:6px;background:#fcfaf6;color:#8a6b37;font-size:13px;line-height:22px}
-#cleanrooms-studio .cs-read-status :is(button,input):focus-visible{outline:2px solid #6a91aa;outline-offset:3px}
-#cleanrooms-studio .cs-read-status button:disabled{opacity:.5;cursor:default}
-@media(max-width:760px){
- #cleanrooms-studio .cs-read-tools{gap:10px;margin-bottom:18px}
- #cleanrooms-studio .cs-read-search{flex:1 1 100%;min-width:0;max-width:none;order:2}
- #cleanrooms-studio .cs-read-filters{gap:3px}
- #cleanrooms-studio .cs-read-status .cs-read-filter{padding-inline:9px!important;font-size:11px;gap:6px}
- #cleanrooms-studio .cs-read-status .cs-read-refresh{margin-left:0}
- #cleanrooms-studio .cs-read-table,#cleanrooms-studio .cs-read-table tbody{display:block}
- #cleanrooms-studio .cs-read-table thead{display:none}
- #cleanrooms-studio .cs-read-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:13px 18px;padding:18px 0;border-top:1px solid #e2e8ec}
- #cleanrooms-studio .cs-read-table :is(th,td){display:block;width:auto;min-width:0;padding:0!important;border:0;vertical-align:initial}
- #cleanrooms-studio .cs-read-table td:first-child{grid-column:1/-1}
- #cleanrooms-studio .cs-read-table td:not(:first-child):not(:last-child)::before{content:attr(data-label);display:block;margin-bottom:5px;color:#8a969e;font-size:10px;font-weight:400;line-height:16px}
- #cleanrooms-studio .cs-read-table td:last-child{grid-column:1/-1;text-align:left!important}
- #cleanrooms-studio .cs-read-status .cs-read-button{min-height:44px!important;padding-block:11px!important}
- #cleanrooms-studio .cs-read-date{font-size:11px;line-height:19px}
- #cleanrooms-studio .cs-read-person-head{margin-bottom:18px}
- #cleanrooms-studio .cs-read-title{font-size:20px;line-height:28px}
+#cleanrooms-studio .cs-read-table th:last-child{width:124px}
+#cleanrooms-studio .cs-read-message-table th:first-child{width:43%}
+#cleanrooms-studio .cs-read-message-table th:nth-child(2){width:20%}
+#cleanrooms-studio .cs-read-table :is(.cs-read-person,.cs-read-progress,.cs-read-change)&gt;strong{display:block;font-size:13px;line-height:20px}
+#cleanrooms-studio .cs-read-table :is(.cs-read-progress,.cs-read-date,.cs-read-message-summary){font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-read-progress[data-unread=&quot;true&quot;] .cs-read-progress-label,
+#cleanrooms-studio .cs-read-not-open{color:#79551e;font-weight:600}
+#cleanrooms-studio .cs-read-progress[data-unread=&quot;false&quot;] .cs-read-progress-label{color:var(--cs-access-success)}
+#cleanrooms-studio .cs-read-date{color:var(--cs-access-muted);font-size:12px;line-height:18px}
+#cleanrooms-studio .cs-read-status .cs-read-back{
+  display:inline-flex;align-items:center;gap:8px;min-height:36px;margin:0 0 8px;padding:0;border:0;
+  background:transparent;box-shadow:none;font:inherit;cursor:pointer;
 }
-@media(prefers-reduced-motion:reduce){#cleanrooms-studio .cs-read-status *{transition:none!important}}
+#cleanrooms-studio .cs-read-back::before{content:&#x27;←&#x27;;font-size:16px}
+#cleanrooms-studio .cs-read-person-head{margin:0 0 12px}
+#cleanrooms-studio .cs-read-title{margin:0;font-size:19px;line-height:28px}
+#cleanrooms-studio .cs-read-pagination&gt;.cs-read-muted{margin-inline-end:auto;font-variant-numeric:tabular-nums}
+
+@media(max-width:760px){
+  #cleanrooms-studio .cs-read-tools:has(.cs-read-search) .cs-read-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  #cleanrooms-studio .cs-read-status .cs-read-filter{flex-wrap:wrap;gap:0 4px}
+  #cleanrooms-studio .cs-read-table td:first-child{grid-column:1/-1}
+  #cleanrooms-studio .cs-read-table tbody tr{gap:4px 10px}
+  #cleanrooms-studio .cs-read-date::before{
+    content:attr(data-label);display:block;color:var(--cs-access-muted);font-size:11px;
+  }
+  #cleanrooms-studio .cs-read-table:not(.cs-read-message-table) .cs-read-date{grid-area:3/1}
+  #cleanrooms-studio .cs-read-table .cs-read-action{grid-column:2;grid-row:2/4;align-self:end}
+  #cleanrooms-studio .cs-read-message-table .cs-read-date{grid-column:1}
+}
 
 /* A request is read in order: shift and people, context, then decision. */
 #cleanrooms-studio .cs-workflow :is(.cs-workflow-request-detail,.cs-workflow-message-detail){max-width:900px;min-width:0}
@@ -8717,6 +8689,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail&gt;:is(.cs-workflow-decision,.cs-workflow-related){margin-top:16px;padding-top:12px}
 #cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail .cs-workflow-section-title{margin-bottom:4px}
 #cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-request-detail .cs-workflow-actions{margin-top:10px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-message-metadata{
+  gap:12px 24px;max-width:560px;margin:14px 0;padding:12px 16px;border:1px solid var(--cs-workflow-rule);
+  border-radius:7px;background:var(--cs-access-soft);
+}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-message-metadata dt{margin-bottom:2px}
+#cleanrooms-studio .cs-workflow[data-mode=&quot;manager&quot;] .cs-workflow-change-context{margin:16px 0 8px}
 @media(max-width:760px){
  #cleanrooms-studio .cs-workflow-request-summary{grid-template-columns:minmax(0,1fr);gap:24px;padding:20px}
  #cleanrooms-studio .cs-workflow-request-people{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
@@ -9042,19 +9020,15 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;demo&quot;][data-role] .cs-demo-case-actions&gt;.cs-button:not(.cs-primary){border-color:transparent;background:transparent;box-shadow:none;color:#657580}
  #cleanrooms-studio[data-page=&quot;demo&quot;][data-role] .cs-demo-case-actions&gt;.cs-button:not(.cs-primary):hover:not(:disabled){border-color:transparent;background:#f1f5f7;color:#344d5c}
 
- /* Request/read-state switches are a navigation group, separate from search. */
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-tools,.cs-workflow-tools){gap:12px;margin-bottom:16px}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filters,.cs-workflow-filters){gap:2px;padding:2px;border-radius:6px;background:#f3f5f6;box-shadow:inset 0 0 0 1px #e5eaed}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filter,.cs-workflow-filter){color:#61727d;font-weight:500}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;]{border-color:#dce3e7;background:#fff;color:#344d5c;box-shadow:0 1px 2px #25374408}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-read-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#e8edf0;color:#586a76;font-size:11px;font-weight:500;line-height:20px;font-variant-numeric:tabular-nums}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] :is(.cs-read-search,.cs-workflow-search){--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
- #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] .cs-read-refresh{border-color:transparent;background:transparent;box-shadow:none;color:#657580}
- #cleanrooms-studio[data-page=&quot;workflow&quot;][data-role] .cs-read-refresh:hover:not(:disabled){border-color:transparent;background:#f1f5f7;color:#344d5c}
+ /* Workflow switches stay separate from search. */
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-tools{gap:12px;margin-bottom:16px}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-filters{gap:2px;padding:2px;border-radius:6px;background:#f3f5f6;box-shadow:inset 0 0 0 1px #e5eaed}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-filter{color:#61727d;font-weight:500}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-filter[aria-pressed=&quot;true&quot;]{border-color:#dce3e7;background:#fff;color:#344d5c;box-shadow:0 1px 2px #25374408}
+ #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-workflow-search{--cs-ui-field-border:transparent;--cs-ui-field-background:transparent;--cs-ui-field-shadow:none;--cs-ui-radius:6px;border-radius:6px;background:#f5f7f8;box-shadow:inset 0 0 0 1px #e1e6ea}
 }
 @media(max-width:1100px) and (min-width:761px){
  #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) .cs-review-compact-tools&gt;.cs-review-filter-rail{flex-basis:410px}
- #cleanrooms-studio[data-page=&quot;workflow&quot;] .cs-read-search{min-width:180px;max-width:300px}
 }
 @media(max-width:760px){
  #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) .cs-review-compact-tools&gt;.cs-review-filter-rail{flex:1 1 100%;width:100%;max-width:none}
@@ -12540,12 +12514,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-workflow :is(.cs-requests-directory,.cs-read-status,.cs-workflow-row-summary,.cs-workflow-detail-summary,.cs-workflow-note&gt;p,.cs-workflow-request-people dd,.cs-workflow-message-metadata dd,.cs-workflow-decision-note&gt;p) {
   color:var(--cs-access-body);
 }
-#cleanrooms-studio .cs-workflow :is(.cs-workflow-title,.cs-workflow-shift-time,.cs-workflow-row-copy&gt;strong,.cs-requests-person&gt;strong,.cs-requests-shift&gt;strong,.cs-read-person&gt;strong,.cs-read-progress&gt;strong,.cs-read-change&gt;strong,.cs-read-title,.cs-workflow-decision&gt;.cs-workflow-section-title) {
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-title,.cs-workflow-shift-time,.cs-workflow-row-copy&gt;strong,.cs-requests-person&gt;strong,.cs-requests-shift&gt;strong,.cs-read-person&gt;strong,.cs-read-change&gt;strong,.cs-read-title,.cs-workflow-decision&gt;.cs-workflow-section-title) {
   color:var(--cs-access-ink);
   font-weight:700;
   letter-spacing:0;
 }
-#cleanrooms-studio .cs-workflow :is(.cs-workflow-muted,.cs-workflow-detail-subtitle,.cs-workflow-label,.cs-workflow-receipt,.cs-workflow-timestamp,.cs-workflow-section-title,.cs-workflow-shift-date,.cs-workflow-request-people dt,.cs-workflow-message-metadata dt,.cs-workflow-change-context,.cs-requests-secondary,.cs-requests-summary,.cs-requests-type,.cs-read-muted,.cs-read-overview,.cs-read-date,.cs-read-message-summary) {
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-muted,.cs-workflow-detail-subtitle,.cs-workflow-label,.cs-workflow-receipt,.cs-workflow-timestamp,.cs-workflow-section-title,.cs-workflow-shift-date,.cs-workflow-request-people dt,.cs-workflow-message-metadata dt,.cs-workflow-change-context,.cs-requests-secondary,.cs-requests-summary,.cs-requests-type,.cs-read-muted,.cs-read-date,.cs-read-message-summary) {
   color:var(--cs-access-muted);
 }
 #cleanrooms-studio .cs-workflow .cs-workflow-tabs {
@@ -12579,39 +12553,33 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   height:2px;
   background:var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filters,.cs-workflow-filters) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filters {
   padding:0;
   border-bottom:1px solid var(--cs-workflow-rule);
   border-radius:0;
   background:transparent;
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filter {
   border:0;
   border-radius:0;
   background:transparent;
   color:var(--cs-access-muted);
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed=&quot;true&quot;] {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filter[aria-pressed=&quot;true&quot;] {
   color:var(--cs-access-ink);
   font-weight:700;
   box-shadow:inset 0 -2px var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow .cs-read-count {
-  min-width:0;
-  padding:0;
-  background:transparent;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-search,.cs-workflow-search) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-search {
   background:transparent;
   box-shadow:none;
   --cs-ui-field-border:var(--cs-access-control-edge);
   --cs-ui-field-background:var(--cs-access-surface);
   --cs-ui-field-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-read-input),
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-input,
 #cleanrooms-studio[data-role] .cs-workflow-demo-person select {
   border-color:var(--cs-access-control-edge);
   border-radius:6px;
@@ -12635,7 +12603,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   border-color:var(--cs-access-control-edge);
   background:var(--cs-compass-selected);
 }
-#cleanrooms-studio[data-role] .cs-workflow .cs-requests-button {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-button,.cs-read-button) {
   font-weight:600;
 }
 #cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:not(:disabled) {
@@ -23754,17 +23722,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(search){const label=node(&#x27;label&#x27;,&#x27;cs-read-search&#x27;),input=node(&#x27;input&#x27;,&#x27;cs-read-input&#x27;);input.type=&#x27;search&#x27;;input.value=query;input.placeholder=&#x27;Søg medarbejder&#x27;;input.setAttribute(&#x27;aria-label&#x27;,&#x27;Søg i modtagere&#x27;);input.dataset.workflowFocus=&#x27;recipients:search&#x27;;input.disabled=busy();input.addEventListener(&#x27;input&#x27;,()=&gt;{query=input.value;recipientPage=0;paint(&#x27;recipients:search&#x27;);});label.append(input);bar.append(label);}
       if(typeof onRefresh===&#x27;function&#x27;)bar.append(button(&#x27;Opdater&#x27;,refresh,&#x27;readstatus:refresh&#x27;,&#x27;cs-read-button cs-read-refresh&#x27;));parent.append(bar);
     }
-    function makeTable(labels,name){const table=node(&#x27;table&#x27;,&#x27;cs-read-table&#x27;),head=node(&#x27;thead&#x27;),tr=node(&#x27;tr&#x27;),body=node(&#x27;tbody&#x27;);table.setAttribute(&#x27;aria-label&#x27;,name);for(const label of labels){const th=node(&#x27;th&#x27;,&#x27;&#x27;,label);th.scope=&#x27;col&#x27;;tr.append(th);}head.append(tr);table.append(head,body);return {table,body};}
+    function makeTable(labels,name){const table=node(&#x27;table&#x27;,&#x27;cs-read-table&#x27;),head=node(&#x27;thead&#x27;),tr=node(&#x27;tr&#x27;),body=node(&#x27;tbody&#x27;);table.setAttribute(&#x27;aria-label&#x27;,name);table.setAttribute(&#x27;role&#x27;,&#x27;table&#x27;);for(const label of labels){const th=node(&#x27;th&#x27;,&#x27;&#x27;,label);th.scope=&#x27;col&#x27;;tr.append(th);}head.append(tr);table.append(head,body);return {table,body};}
     function cell(label,cls=&#x27;&#x27;){const el=node(&#x27;td&#x27;,cls);el.dataset.label=label;return el;}
-    function empty(title,copy){const box=node(&#x27;div&#x27;,&#x27;cs-read-empty&#x27;);box.append(node(&#x27;h4&#x27;,&#x27;&#x27;,title));if(copy)box.append(node(&#x27;p&#x27;,&#x27;cs-read-muted&#x27;,copy));page.append(box);}
+    function empty(title,copy){const box=node(&#x27;div&#x27;,&#x27;cs-read-empty&#x27;);box.append(node(&#x27;h3&#x27;,&#x27;&#x27;,title));if(copy)box.append(node(&#x27;p&#x27;,&#x27;cs-read-muted&#x27;,copy));page.append(box);}
     function pagination(parent,total,current,prefix,change){
-      const count=Math.max(1,Math.ceil(total/20)),pager=node(&#x27;nav&#x27;,&#x27;cs-read-pagination&#x27;);pager.setAttribute(&#x27;aria-label&#x27;,prefix===&#x27;recipients&#x27;?&#x27;Sider med modtagere&#x27;:&#x27;Sider med beskeder&#x27;);
-      pager.append(node(&#x27;span&#x27;,&#x27;cs-read-muted&#x27;,total?current*20+1+&#x27;–&#x27;+Math.min(total,(current+1)*20)+&#x27; af &#x27;+total:&#x27;0 vist&#x27;));
-      if(count&gt;1){const prev=button(&#x27;Forrige&#x27;,()=&gt;change(current-1),prefix+&#x27;:page:prev&#x27;),next=button(&#x27;Næste&#x27;,()=&gt;change(current+1),prefix+&#x27;:page:next&#x27;);prev.disabled=busy()||current===0;next.disabled=busy()||current===count-1;pager.append(prev,next);}parent.append(pager);
+      const count=Math.ceil(total/20);
+      if(count&lt;=1)return;
+      const pager=node(&#x27;nav&#x27;,&#x27;cs-read-pagination&#x27;);pager.setAttribute(&#x27;aria-label&#x27;,prefix===&#x27;recipients&#x27;?&#x27;Sider med modtagere&#x27;:&#x27;Sider med beskeder&#x27;);
+      pager.append(node(&#x27;span&#x27;,&#x27;cs-read-muted&#x27;,(current*20+1)+&#x27;–&#x27;+Math.min(total,(current+1)*20)+&#x27; af &#x27;+total));
+      const prev=button(&#x27;Forrige&#x27;,()=&gt;change(current-1),prefix+&#x27;:page:prev&#x27;),next=button(&#x27;Næste&#x27;,()=&gt;change(current+1),prefix+&#x27;:page:next&#x27;);prev.disabled=busy()||current===0;next.disabled=busy()||current===count-1;pager.append(prev,next);parent.append(pager);
     }
     function paintRecipients(all){
       const unread=all.filter(group=&gt;group.unread&gt;0).length;
-      const intro=node(&#x27;div&#x27;,&#x27;cs-read-intro&#x27;);intro.append(node(&#x27;p&#x27;,&#x27;cs-read-overview&#x27;,all.length+(all.length===1?&#x27; modtager&#x27;:&#x27; modtagere&#x27;)+&#x27; · &#x27;+unread+&#x27; mangler at læse&#x27;));page.append(intro);
       toolbar(page,[[&#x27;unread&#x27;,&#x27;Mangler at læse&#x27;,unread],[&#x27;all&#x27;,&#x27;Alle&#x27;,all.length],[&#x27;read&#x27;,&#x27;Alt læst&#x27;,all.length-unread]],filter,&#x27;recipients&#x27;,value=&gt;{filter=value;recipientPage=0;paint(&#x27;recipients:filter:&#x27;+value);},{search:true});
       const term=query.trim().toLocaleLowerCase(&#x27;da-DK&#x27;),items=all.filter(group=&gt;(filter===&#x27;all&#x27;||filter===&#x27;unread&#x27;&amp;&amp;group.unread&gt;0||filter===&#x27;read&#x27;&amp;&amp;group.unread===0)&amp;&amp;(!term||group.name.toLocaleLowerCase(&#x27;da-DK&#x27;).includes(term)));
       if(!items.length){empty(!all.length?&#x27;Ingen beskeder sendt endnu&#x27;:filter===&#x27;unread&#x27;&amp;&amp;!term?&#x27;Alle beskeder er læst&#x27;:&#x27;Ingen modtagere matcher&#x27;,!all.length?&#x27;Når du udgiver ændringer, kan du følge modtagernes læsestatus her.&#x27;:term?&#x27;Prøv en anden søgning.&#x27;:&#x27;Vælg Alle for at se samtlige modtagere.&#x27;);return;}
@@ -23772,14 +23741,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const {table,body}=makeTable([&#x27;Medarbejder&#x27;,&#x27;Læsestatus&#x27;,&#x27;Senest sendt&#x27;,&#x27;&#x27;],&#x27;Modtagere og læsestatus&#x27;);
       for(const group of items.slice(recipientPage*20,(recipientPage+1)*20)){
         const row=node(&#x27;tr&#x27;);row.dataset.personId=group.id;const person=cell(&#x27;Medarbejder&#x27;,&#x27;cs-read-person&#x27;);person.append(node(&#x27;strong&#x27;,&#x27;&#x27;,group.name));
-        const status=cell(&#x27;Læsestatus&#x27;,&#x27;cs-read-progress&#x27;);status.dataset.unread=String(group.unread&gt;0);status.append(node(&#x27;strong&#x27;,&#x27;&#x27;,group.unread?group.unread+(group.unread===1?&#x27; ulæst besked&#x27;:&#x27; ulæste beskeder&#x27;):&#x27;Alt læst&#x27;),node(&#x27;span&#x27;,&#x27;cs-read-muted&#x27;,group.read+&#x27; af &#x27;+group.total+&#x27; læst&#x27;));
+        const status=cell(&#x27;Læsestatus&#x27;,&#x27;cs-read-progress&#x27;);status.dataset.unread=String(group.unread&gt;0);status.append(node(&#x27;strong&#x27;,&#x27;cs-read-progress-label&#x27;,group.unread?group.unread+(group.unread===1?&#x27; ulæst besked&#x27;:&#x27; ulæste beskeder&#x27;):&#x27;Alt læst&#x27;),node(&#x27;span&#x27;,&#x27;cs-read-muted&#x27;,group.read+&#x27; af &#x27;+group.total+&#x27; læst&#x27;));
         const latest=cell(&#x27;Senest sendt&#x27;,&#x27;cs-read-date&#x27;);latest.append(node(&#x27;span&#x27;,&#x27;&#x27;,stamp(group.lastSent)));const action=cell(&#x27;Handling&#x27;,&#x27;cs-read-action&#x27;),open=button(&#x27;Vis beskeder&#x27;,()=&gt;{selectedPerson=group.id;messagePage=0;messageFilter=group.unread?&#x27;unread&#x27;:&#x27;all&#x27;;paint(&#x27;recipients:back&#x27;);},&#x27;recipient:&#x27;+group.id);open.setAttribute(&#x27;aria-label&#x27;,&#x27;Vis beskeder til &#x27;+group.name);action.append(open);row.append(person,status,latest,action);body.append(row);
       }
       page.append(table);pagination(page,items.length,recipientPage,&#x27;recipients&#x27;,value=&gt;{recipientPage=value;paint(&#x27;recipients:page:&#x27;+(value?&#x27;next&#x27;:&#x27;prev&#x27;));});
     }
     function paintPerson(group){
       const back=button(&#x27;Tilbage til modtagere&#x27;,()=&gt;{const id=selectedPerson;selectedPerson=null;paint(&#x27;recipient:&#x27;+id);},&#x27;recipients:back&#x27;,&#x27;cs-read-back&#x27;);page.append(back);
-      const head=node(&#x27;div&#x27;,&#x27;cs-read-person-head&#x27;);head.append(node(&#x27;h3&#x27;,&#x27;cs-read-title&#x27;,group.name),node(&#x27;p&#x27;,&#x27;cs-read-muted&#x27;,group.unread+(group.unread===1?&#x27; ulæst besked&#x27;:&#x27; ulæste beskeder&#x27;)+&#x27; · &#x27;+group.read+&#x27; læst&#x27;));page.append(head);
+      const head=node(&#x27;div&#x27;,&#x27;cs-read-person-head&#x27;);head.append(node(&#x27;h3&#x27;,&#x27;cs-read-title&#x27;,group.name));page.append(head);
       toolbar(page,[[&#x27;unread&#x27;,&#x27;Ulæste&#x27;,group.unread],[&#x27;all&#x27;,&#x27;Alle&#x27;,group.total]],messageFilter,&#x27;messages&#x27;,value=&gt;{messageFilter=value;messagePage=0;paint(&#x27;messages:filter:&#x27;+value);});
       const items=group.messages.filter(item=&gt;messageFilter===&#x27;all&#x27;||!validStamp(item.readAt));
       if(!items.length){empty(&#x27;Ingen ulæste beskeder&#x27;,&#x27;Vælg Alle for at se medarbejderens læste beskeder.&#x27;);return;}
@@ -30402,6 +30371,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

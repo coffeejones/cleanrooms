@@ -66,17 +66,18 @@
       if(search){const label=node('label','cs-read-search'),input=node('input','cs-read-input');input.type='search';input.value=query;input.placeholder='Søg medarbejder';input.setAttribute('aria-label','Søg i modtagere');input.dataset.workflowFocus='recipients:search';input.disabled=busy();input.addEventListener('input',()=>{query=input.value;recipientPage=0;paint('recipients:search');});label.append(input);bar.append(label);}
       if(typeof onRefresh==='function')bar.append(button('Opdater',refresh,'readstatus:refresh','cs-read-button cs-read-refresh'));parent.append(bar);
     }
-    function makeTable(labels,name){const table=node('table','cs-read-table'),head=node('thead'),tr=node('tr'),body=node('tbody');table.setAttribute('aria-label',name);for(const label of labels){const th=node('th','',label);th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);return {table,body};}
+    function makeTable(labels,name){const table=node('table','cs-read-table'),head=node('thead'),tr=node('tr'),body=node('tbody');table.setAttribute('aria-label',name);table.setAttribute('role','table');for(const label of labels){const th=node('th','',label);th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);return {table,body};}
     function cell(label,cls=''){const el=node('td',cls);el.dataset.label=label;return el;}
-    function empty(title,copy){const box=node('div','cs-read-empty');box.append(node('h4','',title));if(copy)box.append(node('p','cs-read-muted',copy));page.append(box);}
+    function empty(title,copy){const box=node('div','cs-read-empty');box.append(node('h3','',title));if(copy)box.append(node('p','cs-read-muted',copy));page.append(box);}
     function pagination(parent,total,current,prefix,change){
-      const count=Math.max(1,Math.ceil(total/20)),pager=node('nav','cs-read-pagination');pager.setAttribute('aria-label',prefix==='recipients'?'Sider med modtagere':'Sider med beskeder');
-      pager.append(node('span','cs-read-muted',total?current*20+1+'–'+Math.min(total,(current+1)*20)+' af '+total:'0 vist'));
-      if(count>1){const prev=button('Forrige',()=>change(current-1),prefix+':page:prev'),next=button('Næste',()=>change(current+1),prefix+':page:next');prev.disabled=busy()||current===0;next.disabled=busy()||current===count-1;pager.append(prev,next);}parent.append(pager);
+      const count=Math.ceil(total/20);
+      if(count<=1)return;
+      const pager=node('nav','cs-read-pagination');pager.setAttribute('aria-label',prefix==='recipients'?'Sider med modtagere':'Sider med beskeder');
+      pager.append(node('span','cs-read-muted',(current*20+1)+'–'+Math.min(total,(current+1)*20)+' af '+total));
+      const prev=button('Forrige',()=>change(current-1),prefix+':page:prev'),next=button('Næste',()=>change(current+1),prefix+':page:next');prev.disabled=busy()||current===0;next.disabled=busy()||current===count-1;pager.append(prev,next);parent.append(pager);
     }
     function paintRecipients(all){
       const unread=all.filter(group=>group.unread>0).length;
-      const intro=node('div','cs-read-intro');intro.append(node('p','cs-read-overview',all.length+(all.length===1?' modtager':' modtagere')+' · '+unread+' mangler at læse'));page.append(intro);
       toolbar(page,[['unread','Mangler at læse',unread],['all','Alle',all.length],['read','Alt læst',all.length-unread]],filter,'recipients',value=>{filter=value;recipientPage=0;paint('recipients:filter:'+value);},{search:true});
       const term=query.trim().toLocaleLowerCase('da-DK'),items=all.filter(group=>(filter==='all'||filter==='unread'&&group.unread>0||filter==='read'&&group.unread===0)&&(!term||group.name.toLocaleLowerCase('da-DK').includes(term)));
       if(!items.length){empty(!all.length?'Ingen beskeder sendt endnu':filter==='unread'&&!term?'Alle beskeder er læst':'Ingen modtagere matcher',!all.length?'Når du udgiver ændringer, kan du følge modtagernes læsestatus her.':term?'Prøv en anden søgning.':'Vælg Alle for at se samtlige modtagere.');return;}
@@ -84,14 +85,14 @@
       const {table,body}=makeTable(['Medarbejder','Læsestatus','Senest sendt',''],'Modtagere og læsestatus');
       for(const group of items.slice(recipientPage*20,(recipientPage+1)*20)){
         const row=node('tr');row.dataset.personId=group.id;const person=cell('Medarbejder','cs-read-person');person.append(node('strong','',group.name));
-        const status=cell('Læsestatus','cs-read-progress');status.dataset.unread=String(group.unread>0);status.append(node('strong','',group.unread?group.unread+(group.unread===1?' ulæst besked':' ulæste beskeder'):'Alt læst'),node('span','cs-read-muted',group.read+' af '+group.total+' læst'));
+        const status=cell('Læsestatus','cs-read-progress');status.dataset.unread=String(group.unread>0);status.append(node('strong','cs-read-progress-label',group.unread?group.unread+(group.unread===1?' ulæst besked':' ulæste beskeder'):'Alt læst'),node('span','cs-read-muted',group.read+' af '+group.total+' læst'));
         const latest=cell('Senest sendt','cs-read-date');latest.append(node('span','',stamp(group.lastSent)));const action=cell('Handling','cs-read-action'),open=button('Vis beskeder',()=>{selectedPerson=group.id;messagePage=0;messageFilter=group.unread?'unread':'all';paint('recipients:back');},'recipient:'+group.id);open.setAttribute('aria-label','Vis beskeder til '+group.name);action.append(open);row.append(person,status,latest,action);body.append(row);
       }
       page.append(table);pagination(page,items.length,recipientPage,'recipients',value=>{recipientPage=value;paint('recipients:page:'+(value?'next':'prev'));});
     }
     function paintPerson(group){
       const back=button('Tilbage til modtagere',()=>{const id=selectedPerson;selectedPerson=null;paint('recipient:'+id);},'recipients:back','cs-read-back');page.append(back);
-      const head=node('div','cs-read-person-head');head.append(node('h3','cs-read-title',group.name),node('p','cs-read-muted',group.unread+(group.unread===1?' ulæst besked':' ulæste beskeder')+' · '+group.read+' læst'));page.append(head);
+      const head=node('div','cs-read-person-head');head.append(node('h3','cs-read-title',group.name));page.append(head);
       toolbar(page,[['unread','Ulæste',group.unread],['all','Alle',group.total]],messageFilter,'messages',value=>{messageFilter=value;messagePage=0;paint('messages:filter:'+value);});
       const items=group.messages.filter(item=>messageFilter==='all'||!validStamp(item.readAt));
       if(!items.length){empty('Ingen ulæste beskeder','Vælg Alle for at se medarbejderens læste beskeder.');return;}

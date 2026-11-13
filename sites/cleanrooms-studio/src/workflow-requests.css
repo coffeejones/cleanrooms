@@ -1,23 +1,24 @@
+/* The manager lists share filters, search, table spacing and actions. */
 #cleanrooms-studio .cs-requests-directory{min-width:0;color:var(--cs-access-body);font-size:13px;line-height:20px}
-#cleanrooms-studio .cs-requests-tools{
+#cleanrooms-studio :is(.cs-requests-tools,.cs-read-tools){
   display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px;min-width:0;
 }
-#cleanrooms-studio .cs-requests-queues{
+#cleanrooms-studio :is(.cs-requests-queues,.cs-read-filters){
   display:flex;gap:2px;min-width:0;padding:2px;border:1px solid var(--cs-workflow-rule);
   border-radius:6px;background:var(--cs-access-surface);
 }
-#cleanrooms-studio .cs-requests-directory .cs-requests-queue{
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-queue,.cs-read-filter){
   display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;
   min-height:calc(var(--cs-ui-height,40px) - 6px);margin:0;padding:4px 9px;border:0;border-radius:4px;
   background:transparent;box-shadow:none;color:var(--cs-access-muted);
   font:inherit;font-size:12px;font-weight:500;line-height:16px;cursor:pointer;
 }
-#cleanrooms-studio .cs-requests-queue[aria-pressed="true"]{
+#cleanrooms-studio :is(.cs-requests-queue,.cs-read-filter)[aria-pressed="true"]{
   background:var(--cs-compass-selected);color:var(--cs-access-ink);font-weight:600;
 }
-#cleanrooms-studio .cs-requests-queue[aria-pressed="false"]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
-#cleanrooms-studio .cs-requests-count{color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-search{
+#cleanrooms-studio :is(.cs-requests-queue,.cs-read-filter)[aria-pressed="false"]:hover:not(:disabled){background:var(--cs-access-soft);color:var(--cs-access-ink)}
+#cleanrooms-studio :is(.cs-requests-count,.cs-read-count){color:var(--cs-access-muted);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+#cleanrooms-studio :is(.cs-requests-search,.cs-read-search){
   flex:1 1 185px;min-width:0;max-width:360px;margin:0 0 0 auto;
   --cs-ui-field-background:var(--cs-access-soft);
   --cs-ui-field-border:var(--cs-workflow-rule);
@@ -25,15 +26,16 @@
   --cs-ui-field-font:13px;
   --cs-ui-radius:6px;
 }
-#cleanrooms-studio .cs-requests-input{display:block;width:100%;margin:0}
-#cleanrooms-studio .cs-requests-directory .cs-requests-button{
-  min-height:34px;height:34px;margin:0;padding-inline:10px;
+#cleanrooms-studio :is(.cs-requests-input,.cs-read-input){display:block;width:100%;margin:0}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-button,.cs-read-button){
+  display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+  min-height:34px;height:34px;margin:0;padding-inline:10px;border:1px solid var(--cs-access-control-edge);
   border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;
 }
-#cleanrooms-studio .cs-requests-directory .cs-requests-refresh{min-height:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px)}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-refresh,.cs-read-refresh){min-height:var(--cs-ui-height,40px);height:var(--cs-ui-height,40px)}
 #cleanrooms-studio .cs-requests-summary{margin:0 0 10px;color:var(--cs-access-muted);font-size:12px;line-height:18px}
-#cleanrooms-studio .cs-requests-table{width:100%;table-layout:fixed;text-align:left}
-#cleanrooms-studio .cs-requests-table :is(th,td){padding:8px 12px;border-bottom:1px solid var(--cs-workflow-rule);vertical-align:middle;overflow-wrap:anywhere}
+#cleanrooms-studio :is(.cs-requests-table,.cs-read-table){width:100%;table-layout:fixed;text-align:left}
+#cleanrooms-studio :is(.cs-requests-table,.cs-read-table) :is(th,td){padding:8px 12px;border-bottom:1px solid var(--cs-workflow-rule);vertical-align:middle;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-requests-table th:first-child{width:25%}
 #cleanrooms-studio .cs-requests-table th:nth-child(2){width:28%}
 #cleanrooms-studio .cs-requests-table th:nth-child(3){width:17%}
@@ -51,35 +53,35 @@
 #cleanrooms-studio .cs-requests-status[data-state="ready"]{color:var(--cs-access-ink);font-weight:600}
 #cleanrooms-studio .cs-requests-status[data-state="attention"]{color:#79551e;font-weight:600}
 #cleanrooms-studio .cs-requests-status:is([data-state="rejected"],[data-state="declined"],[data-state="stale"]){color:#865349}
-#cleanrooms-studio .cs-requests-action{text-align:end}
-#cleanrooms-studio .cs-requests-pagination{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 0}
+#cleanrooms-studio :is(.cs-requests-action,.cs-read-action){text-align:end}
+#cleanrooms-studio :is(.cs-requests-pagination,.cs-read-pagination){display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 0}
 #cleanrooms-studio .cs-requests-pagination>.cs-requests-secondary{margin-inline-end:auto;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-requests-empty{
+#cleanrooms-studio :is(.cs-requests-empty,.cs-read-empty){
   margin:0;padding:20px 16px;border:1px solid var(--cs-workflow-rule);border-radius:7px;
   color:var(--cs-access-muted);font-size:13px;line-height:22px;
 }
-#cleanrooms-studio .cs-requests-empty>h3{margin:0;color:var(--cs-access-body);font-size:14px;font-weight:600;line-height:22px}
-#cleanrooms-studio .cs-requests-error{
+#cleanrooms-studio :is(.cs-requests-empty,.cs-read-empty)>h3{margin:0;color:var(--cs-access-body);font-size:14px;font-weight:600;line-height:22px}
+#cleanrooms-studio :is(.cs-requests-error,.cs-read-error){
   margin:0 0 10px;padding:10px 12px;border:1px solid #e5d9c4;border-radius:6px;
   background:#fcfaf5;color:#79551e;font-size:12px;line-height:20px;
 }
-#cleanrooms-studio .cs-requests-directory :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
+#cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(button,input):focus-visible{outline:2px solid var(--cs-access-blue);outline-offset:-2px}
 @media(max-width:760px){
   #cleanrooms-studio .cs-requests-queues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
-  #cleanrooms-studio .cs-requests-directory .cs-requests-queue{min-height:36px;padding-inline:4px}
-  #cleanrooms-studio .cs-requests-search{flex:1 1 120px;max-width:none}
-  #cleanrooms-studio .cs-requests-table,
-  #cleanrooms-studio .cs-requests-table tbody{display:block}
-  #cleanrooms-studio .cs-requests-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-  #cleanrooms-studio .cs-requests-table tbody tr{
+  #cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-queue,.cs-read-filter){min-height:36px;padding-inline:4px}
+  #cleanrooms-studio :is(.cs-requests-search,.cs-read-search){flex:1 1 120px;max-width:none}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table),
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) tbody{display:block}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) tbody tr{
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
     gap:3px 10px;border-top:1px solid var(--cs-workflow-rule);
   }
-  #cleanrooms-studio .cs-requests-table td{display:block;padding:0!important;border:0}
+  #cleanrooms-studio :is(.cs-requests-table,.cs-read-table) td{display:block;padding:0!important;border:0}
   #cleanrooms-studio .cs-requests-person{grid-area:1/1}
   #cleanrooms-studio .cs-requests-shift{grid-area:2/1}
   #cleanrooms-studio .cs-requests-type{grid-area:2/2;align-self:start;text-align:end}
   #cleanrooms-studio .cs-requests-state{grid-area:3/1}
   #cleanrooms-studio .cs-requests-action{grid-area:3/2}
-  #cleanrooms-studio .cs-requests-directory .cs-requests-action .cs-requests-button{min-height:40px;height:40px}
+  #cleanrooms-studio :is(.cs-requests-directory,.cs-read-status) :is(.cs-requests-action,.cs-read-action) :is(.cs-requests-button,.cs-read-button){min-height:40px;height:40px}
 }

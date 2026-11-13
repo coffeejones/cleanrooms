@@ -204,12 +204,12 @@
 #cleanrooms-studio .cs-workflow :is(.cs-requests-directory,.cs-read-status,.cs-workflow-row-summary,.cs-workflow-detail-summary,.cs-workflow-note>p,.cs-workflow-request-people dd,.cs-workflow-message-metadata dd,.cs-workflow-decision-note>p) {
   color:var(--cs-access-body);
 }
-#cleanrooms-studio .cs-workflow :is(.cs-workflow-title,.cs-workflow-shift-time,.cs-workflow-row-copy>strong,.cs-requests-person>strong,.cs-requests-shift>strong,.cs-read-person>strong,.cs-read-progress>strong,.cs-read-change>strong,.cs-read-title,.cs-workflow-decision>.cs-workflow-section-title) {
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-title,.cs-workflow-shift-time,.cs-workflow-row-copy>strong,.cs-requests-person>strong,.cs-requests-shift>strong,.cs-read-person>strong,.cs-read-change>strong,.cs-read-title,.cs-workflow-decision>.cs-workflow-section-title) {
   color:var(--cs-access-ink);
   font-weight:700;
   letter-spacing:0;
 }
-#cleanrooms-studio .cs-workflow :is(.cs-workflow-muted,.cs-workflow-detail-subtitle,.cs-workflow-label,.cs-workflow-receipt,.cs-workflow-timestamp,.cs-workflow-section-title,.cs-workflow-shift-date,.cs-workflow-request-people dt,.cs-workflow-message-metadata dt,.cs-workflow-change-context,.cs-requests-secondary,.cs-requests-summary,.cs-requests-type,.cs-read-muted,.cs-read-overview,.cs-read-date,.cs-read-message-summary) {
+#cleanrooms-studio .cs-workflow :is(.cs-workflow-muted,.cs-workflow-detail-subtitle,.cs-workflow-label,.cs-workflow-receipt,.cs-workflow-timestamp,.cs-workflow-section-title,.cs-workflow-shift-date,.cs-workflow-request-people dt,.cs-workflow-message-metadata dt,.cs-workflow-change-context,.cs-requests-secondary,.cs-requests-summary,.cs-requests-type,.cs-read-muted,.cs-read-date,.cs-read-message-summary) {
   color:var(--cs-access-muted);
 }
 #cleanrooms-studio .cs-workflow .cs-workflow-tabs {
@@ -243,39 +243,33 @@
   height:2px;
   background:var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filters,.cs-workflow-filters) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filters {
   padding:0;
   border-bottom:1px solid var(--cs-workflow-rule);
   border-radius:0;
   background:transparent;
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filter {
   border:0;
   border-radius:0;
   background:transparent;
   color:var(--cs-access-muted);
   box-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-filter,.cs-workflow-filter)[aria-pressed="true"] {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-filter[aria-pressed="true"] {
   color:var(--cs-access-ink);
   font-weight:700;
   box-shadow:inset 0 -2px var(--cs-access-ink);
 }
-#cleanrooms-studio[data-role] .cs-workflow .cs-read-count {
-  min-width:0;
-  padding:0;
-  background:transparent;
-  color:var(--cs-access-muted);
-}
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-read-search,.cs-workflow-search) {
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-search {
   background:transparent;
   box-shadow:none;
   --cs-ui-field-border:var(--cs-access-control-edge);
   --cs-ui-field-background:var(--cs-access-surface);
   --cs-ui-field-shadow:none;
 }
-#cleanrooms-studio[data-role] .cs-workflow :is(.cs-workflow-input,.cs-read-input),
+#cleanrooms-studio[data-role] .cs-workflow .cs-workflow-input,
 #cleanrooms-studio[data-role] .cs-workflow-demo-person select {
   border-color:var(--cs-access-control-edge);
   border-radius:6px;
@@ -299,7 +293,7 @@
   border-color:var(--cs-access-control-edge);
   background:var(--cs-compass-selected);
 }
-#cleanrooms-studio[data-role] .cs-workflow .cs-requests-button {
+#cleanrooms-studio[data-role] .cs-workflow :is(.cs-requests-button,.cs-read-button) {
   font-weight:600;
 }
 #cleanrooms-studio[data-role] .cs-workflow .cs-workflow-button.cs-primary:not(:disabled) {

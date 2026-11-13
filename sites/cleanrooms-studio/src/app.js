@@ -2241,7 +2241,7 @@
     else if (scenario === 'hours') shift = {person:'p0',date:day,site:0,start:'07:00',end:'14:00',note:'Eksempel: ugens timer'};
     else if (scenario === 'series') shift = seriesOccurrences(state.series.find(item => item.id === 'jonas-plan'))[0];
     if (shift) openEditor(shift,trigger,{demoScenario:scenario,...(scenario === 'series' ? {scope:'all'} : {})});
-    if (scenario === 'leave' || scenario === 'request') { openStaffPicker(); q('#cs-person-search').value = scenario === 'leave' ? 'Lea' : 'Emma'; renderStaffPicker(); q('#cs-person-search').focus({preventScroll:true}); q('.cs-editor-fields').scrollTop = 0; q('#cs-person-picker').scrollIntoView({block:'nearest'}); }
+    if (scenario === 'leave' || scenario === 'request') openStaffPicker(scenario === 'leave' ? 'Lea' : 'Emma');
     save();
   }
   function renderDemoEditorGuide() {
@@ -2933,43 +2933,161 @@
   }
   function renderStaffPicker() {
     if (!staffingContextCache) return;
-    const context = staffingContextCache, term = q('#cs-person-search').value.trim().toLocaleLowerCase('da-DK'), current = q('#cs-edit-person').value;
-    if(term!==staffPickerTerm){staffPickerTerm=term;staffPickerPage=0;}
-    const matching=staff.filter(person=>person.active!==false||person.id===current).filter(person=>person.name.toLocaleLowerCase('da-DK').includes(term));
-    const pages=Math.max(1,Math.ceil(matching.length/50));staffPickerPage=Math.min(staffPickerPage,pages-1);
-    const candidates=matching.slice(staffPickerPage*50,(staffPickerPage+1)*50);
-    requestPlanningAvailability(context.templates,candidates.map(person=>person.id));
-    q('#cs-person-context').textContent = staffingSentence('Timer i uge ' + weekNumber(context.weekStart) + ' · ' + shortDate(context.weekStart) + ' – ' + shortDate(addDays(context.weekStart,6))) + (context.repeating ? ' Tilgængelighed kontrolleres for ' + context.templates.length + (context.limited?' vagter i den viste periode.':' vagter i perioden.') : ' Tilgængelighed gælder den valgte dato og tid.');
-    const list = q('#cs-person-results'); list.replaceChildren();
+    const context = staffingContextCache, search = q('#cs-person-search'), list = q('#cs-person-results');
+    const term = search.value.trim().toLocaleLowerCase('da-DK'), current = q('#cs-edit-person').value;
+    const searchChanged = term !== staffPickerTerm;
+    if (searchChanged) { staffPickerTerm = term; staffPickerPage = 0; }
+    const matching = staff.filter(person => (person.active !== false || person.id === current) && person.name.toLocaleLowerCase('da-DK').includes(term));
+    const pageSize = 50, pages = Math.max(1, Math.ceil(matching.length / pageSize));
+    staffPickerPage = Math.min(staffPickerPage, pages - 1);
+    const offset = staffPickerPage * pageSize;
+    const candidates = matching.slice(offset, offset + pageSize);
+    requestPlanningAvailability(context.templates, candidates.map(person => person.id));
+    const entries = candidates.map(person => {
+      if (!staffingAssessments.has(person.id)) staffingAssessments.set(person.id, assessStaffing(person, context));
+      return {person, result: staffingAssessments.get(person.id)};
+    }).sort((a,b) => Number(a.result.status === 'blocked') - Number(b.result.status === 'blocked')
+      || Number(Boolean(a.result.unavailableDates?.length)) - Number(Boolean(b.result.unavailableDates?.length))
+      || a.person.name.localeCompare(b.person.name, 'da-DK'));
+
+    const parts = [];
+    if (entries.some(({result}) => result.valid && result.status !== 'blocked')) parts.push('Uge ' + weekNumber(context.weekStart) + ' · Timer efter tildeling / aftalt');
+    if (entries.length && !context.valid) parts.push('Udfyld vagtens dato og tid for at se tilgængelighed.');
+    if (entries.length && context.valid && context.limited) parts.push('Tilgængelighed for de viste vagter');
+    if (entries.some(({result}) => result.availabilityStatus === 'loading')) parts.push('Tjekker tilgængelighed…');
+    const caption = q('#cs-person-context');
+    caption.textContent = parts.join(' · ');
+    caption.hidden = !parts.length;
+
+    const focused = document.activeElement;
+    const previousRow = list.contains(focused) ? focused.id : null;
+    const scroll = list.scrollTop;
+    list.replaceChildren();
     function option(person, result) {
       const id = person?.id || '', row = node('button','cs-person-option'); row.type = 'button'; row.id = 'cs-person-option-' + (id || 'open'); row.dataset.person = id;
-      row.dataset.status = result?.status || 'available'; row.dataset.overTarget = String(Boolean(result?.overTargetWeeks.length));
-      row.dataset.unavailable=String(Boolean(result?.unavailableDates?.length));
-      row.setAttribute('aria-pressed',String(current === id)); row.setAttribute('aria-disabled',String(result?.status === 'blocked'));
-      const main = node('span','cs-person-option-main'); main.append(node('span','cs-person-name',person?.name || 'Ledig vagt'),node('span','cs-person-state',result ? staffingStatus(result) : 'Uden medarbejder')); row.append(main);
-      if (result) row.append(node('span','cs-person-option-hours',staffingHours(result)));
-      const detail = result ? staffingReason(result) : 'Gem vagten uden tildeling.';
-      if (detail) row.append(node('span','cs-person-option-detail',detail));
-      row.addEventListener('click',() => { if (result?.status === 'blocked') return; q('#cs-edit-person').value = id; closeStaffPicker(false); updatePreview(); q('#cs-person-trigger').focus({preventScroll:true}); q('#cs-person-trigger').scrollIntoView({block:'nearest'}); });
+      const blocked = result?.status === 'blocked';
+      row.dataset.status = result?.status || 'available';
+      row.dataset.overTarget = String(Boolean(result?.valid && result.projectedMinutes > result.targetMinutes));
+      row.dataset.unavailable = String(Boolean(result?.unavailableDates?.length));
+      row.setAttribute('aria-pressed', String(current === id));
+      if (blocked) row.setAttribute('aria-disabled', 'true');
+      const main = node('span', 'cs-person-option-main');
+      main.append(node('span', 'cs-person-name', person?.name || 'Ledig vagt'));
+      if (result?.valid && !blocked) main.append(node('span', 'cs-person-option-hours', workTime(result.projectedMinutes) + ' / ' + workTime(result.targetMinutes)));
+      row.append(main);
+      if (result) {
+        const conflict = result.conflicts[0];
+        let detail = staffingReason(result);
+        if (conflict?.other) {
+          const {other} = conflict;
+          detail = ['Overlap', shortDate(conflict.date), clockLabel(other), sites[other.site]?.name].filter(Boolean).join(' · ');
+        } else if (!detail && result.availabilityStatus === 'unknown') detail = 'Tilgængelighed delvist kontrolleret';
+        const warnings = detail ? [detail] : [];
+        if (result.conflicts.length > 1) warnings.push('+' + (result.conflicts.length - 1) + (result.conflicts.length === 2 ? ' konflikt' : ' konflikter'));
+        if (!blocked) {
+          const otherWeeks = result.overTargetWeeks.filter(week => week.weekStart !== context.weekStart);
+          if (otherWeeks.length === 1) warnings.push('Over aftalt tid i uge ' + weekNumber(otherWeeks[0].weekStart));
+          else if (otherWeeks.length > 1) warnings.push('Over aftalt tid i ' + otherWeeks.length + ' andre uger');
+        }
+        if (warnings.length) row.append(node('span', 'cs-person-option-detail', warnings.join(' · ')));
+      }
+      row.addEventListener('click', () => {
+        if (blocked) return;
+        q('#cs-edit-person').value = id;
+        closeStaffPicker();
+        updatePreview();
+      });
       list.append(row);
     }
     if (!context.repeating && (!term || 'ledig vagt'.includes(term))) option(null,null);
-    const entries = candidates.map(person => {
-      if (!staffingAssessments.has(person.id)) staffingAssessments.set(person.id,assessStaffing(person,context));
-      return {person,result:staffingAssessments.get(person.id)};
-    }).sort((a,b) => Number(a.result.status === 'blocked') - Number(b.result.status === 'blocked') || Number(Boolean(a.result.unavailableDates?.length))-Number(Boolean(b.result.unavailableDates?.length)) || a.person.name.localeCompare(b.person.name,'da-DK'));
-    entries.forEach(entry => option(entry.person,entry.result));
-    q('#cs-person-empty').hidden = list.children.length > 0;
-    if(pages>1){const pager=node('div','cs-roster-pagination');pager.append(node('span','',String(staffPickerPage*50+1)+'–'+Math.min(matching.length,(staffPickerPage+1)*50)+' af '+matching.length));for(const [label,step]of [['Forrige',-1],['Næste',1]]){const control=node('button','cs-button',label);control.type='button';control.disabled=step<0?staffPickerPage===0:staffPickerPage===pages-1;control.addEventListener('click',()=>{staffPickerPage+=step;renderStaffPicker();list.scrollTop=0;});pager.append(control);}list.append(pager);}
+    entries.forEach(({person, result}) => option(person, result));
+    const empty = q('#cs-person-empty');
+    empty.hidden = list.children.length > 0;
+    empty.textContent = empty.hidden ? '' : term ? 'Ingen søgeresultater' : 'Ingen medarbejdere';
+    if (pages > 1) {
+      const pager = node('div', 'cs-roster-pagination');
+      pager.append(node('span', '', (offset + 1) + '–' + Math.min(matching.length, offset + pageSize) + ' af ' + matching.length));
+      for (const [label, step] of [['Forrige', -1], ['Næste', 1]]) {
+        const control = node('button', 'cs-button', label);
+        control.type = 'button';
+        control.id = step < 0 ? 'cs-person-page-previous' : 'cs-person-page-next';
+        control.disabled = step < 0 ? staffPickerPage === 0 : staffPickerPage === pages - 1;
+        control.addEventListener('click', () => {
+          staffPickerPage += step;
+          renderStaffPicker();
+          list.scrollTop = 0;
+          list.querySelector('.cs-person-option[data-person]:not([data-person=""])')?.focus({preventScroll: true});
+        });
+        pager.append(control);
+      }
+      list.append(pager);
+    }
+    list.scrollTop = searchChanged ? 0 : scroll;
+    if (previousRow) {
+      const replacement = [...list.querySelectorAll('button')].find(button => button.id === previousRow && !button.disabled);
+      (replacement || search).focus({preventScroll: true});
+      if (replacement) revealStaffOption(list, replacement);
+    }
   }
-  function openStaffPicker() {
+
+  function revealStaffOption(list, option) {
+    const bounds = list.getBoundingClientRect(), row = option.getBoundingClientRect();
+    if (row.top < bounds.top) list.scrollTop += row.top - bounds.top;
+    else if (row.bottom > bounds.bottom) list.scrollTop += row.bottom - bounds.bottom;
+  }
+
+  function positionStaffPicker() {
+    if (!staffPickerOpen) return;
+    const picker = q('#cs-person-picker');
+    if (!picker.hasAttribute('popover')) return;
+    const trigger = q('#cs-person-trigger'), rect = trigger.getBoundingClientRect();
+    const fields = q('.cs-editor-fields').getBoundingClientRect();
+    if (!trigger.getClientRects().length || rect.bottom <= fields.top || rect.top >= fields.bottom) { closeStaffPicker(false); return; }
+    const viewport = window.visualViewport, gap = 5, inset = 8;
+    const left = viewport?.offsetLeft ?? 0, top = viewport?.offsetTop ?? 0;
+    const right = left + (viewport?.width ?? window.innerWidth), bottom = top + (viewport?.height ?? window.innerHeight);
+    const width = Math.min(rect.width, right - left - 2 * inset);
+    const below = bottom - rect.bottom - gap - inset, above = rect.top - top - gap - inset;
+    const flip = below < 260 && above > below;
+    picker.style.width = width + 'px';
+    picker.style.left = Math.min(Math.max(rect.left, left + inset), right - inset - width) + 'px';
+    picker.style.top = flip ? 'auto' : Math.max(top + inset, rect.bottom + gap) + 'px';
+    picker.style.bottom = flip ? window.innerHeight - Math.min(rect.top - gap, bottom - inset) + 'px' : 'auto';
+    picker.style.setProperty('--cs-person-picker-room', Math.max(0, flip ? above : below) + 'px');
+  }
+
+  function openStaffPicker(term = '') {
     if (!activeEdit) return;
-    staffPickerOpen = true;staffPickerPage=0;staffPickerTerm=''; q('#cs-person-search').value = ''; q('#cs-person-picker').hidden = false; q('#cs-person-trigger').setAttribute('aria-expanded','true');
-    refreshStaffing(); q('#cs-person-search').focus({preventScroll:true}); q('#cs-person-picker').scrollIntoView({block:'nearest'});
+    const picker = q('#cs-person-picker'), trigger = q('#cs-person-trigger'), search = q('#cs-person-search');
+    trigger.scrollIntoView({block: 'nearest'});
+    staffPickerOpen = true;
+    staffPickerPage = 0;
+    staffPickerTerm = '';
+    search.value = term;
+    if (typeof picker.showPopover === 'function') {
+      picker.setAttribute('popover', 'manual');
+      globalThis.CleanRoomsCombobox?.closeAll(root);
+      shiftEditorPickers?.close();
+    }
+    picker.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    refreshStaffing();
+    q('#cs-person-results').scrollTop = 0;
+    if (picker.hasAttribute('popover')) {
+      positionStaffPicker();
+      if (!staffPickerOpen) return;
+      picker.showPopover();
+    } else picker.scrollIntoView({block: 'nearest'});
+    search.focus({preventScroll:true});
   }
   function closeStaffPicker(restoreFocus = true) {
-    const wasOpen = staffPickerOpen; staffPickerOpen = false; q('#cs-person-picker').hidden = true; q('#cs-person-trigger').setAttribute('aria-expanded','false');
-    if (wasOpen && restoreFocus) { q('#cs-person-trigger').focus({preventScroll:true}); q('#cs-person-trigger').scrollIntoView({block:'nearest'}); }
+    if (!staffPickerOpen) return;
+    const picker = q('#cs-person-picker'), trigger = q('#cs-person-trigger');
+    staffPickerOpen = false;
+    if (picker.hasAttribute('popover') && picker.matches(':popover-open')) picker.hidePopover();
+    picker.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) trigger.focus({preventScroll: true});
   }
   function updatePreview() {
     if (!activeEdit) return;
@@ -3864,14 +3982,22 @@
   q('#cs-replacement-layer').addEventListener('keydown',event => trapDialog(event,q('.cs-replacement-panel'),closeReplacement));
   q('#cs-person-trigger').addEventListener('click',() => staffPickerOpen ? closeStaffPicker() : openStaffPicker());
   q('#cs-person-picker-close').addEventListener('click',() => closeStaffPicker());
-  q('#cs-person-search').addEventListener('input',renderStaffPicker);
+  q('#cs-person-search').addEventListener('input', renderStaffPicker);
+  q('.cs-editor-fields').addEventListener('scroll', positionStaffPicker);
+  window.addEventListener('resize', positionStaffPicker);
+  window.visualViewport?.addEventListener('resize', positionStaffPicker);
+  window.visualViewport?.addEventListener('scroll', positionStaffPicker);
   q('#cs-person-picker').addEventListener('keydown',event => {
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeStaffPicker(); return; }
     if (!['ArrowDown','ArrowUp','Home','End'].includes(event.key)) return;
     if (event.target === q('#cs-person-search') && !['ArrowDown','ArrowUp'].includes(event.key)) return;
-    const options = [...q('#cs-person-results').querySelectorAll('button')]; if (!options.length) return;
+    const list = q('#cs-person-results');
+    const options = [...list.querySelectorAll('button:not(:disabled)')];
+    if (!options.length) return;
     const index = options.indexOf(document.activeElement), next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : event.key === 'ArrowDown' ? Math.min(options.length - 1,index + 1) : index < 0 ? options.length - 1 : Math.max(0,index - 1);
-    event.preventDefault(); options[next].focus({preventScroll:true}); options[next].scrollIntoView({block:'nearest'});
+    event.preventDefault();
+    options[next].focus({preventScroll: true});
+    revealStaffOption(list, options[next]);
   });
   root.addEventListener('click',event=>{
     if(!editorHasDirtyDraft()||q('#cs-editor-layer').contains(event.target))return;
@@ -3879,7 +4005,11 @@
     if(!confirmEditorLeave(()=>{if(target.isConnected)target.click?.();})){event.preventDefault();event.stopImmediatePropagation();return;}
     closeEditor({force:true});
   },true);
-  root.addEventListener('click',event => { if (!event.target.isConnected) return; if (staffPickerOpen && !q('#cs-person-picker').contains(event.target) && !q('#cs-person-trigger').contains(event.target)) closeStaffPicker(false); });
+  function dismissStaffPickerOutside(event) {
+    if (staffPickerOpen && !q('#cs-person-picker').contains(event.target) && !q('#cs-person-trigger').contains(event.target)) closeStaffPicker(false);
+  }
+  root.addEventListener('pointerdown', dismissStaffPickerOutside, true);
+  root.addEventListener('focusin', dismissStaffPickerOutside);
   q('#cs-save').addEventListener('click',saveShift); q('#cs-edit-form').addEventListener('submit',event => event.preventDefault());
   q('#cs-edit-form').addEventListener('keydown',event => { if (!event.defaultPrevented && event.key === 'Enter' && (event.ctrlKey || event.metaKey)) saveShift(event); });
   q('#cs-delete').addEventListener('click',()=>{

@@ -102,15 +102,6 @@
   font-size:12px;
   line-height:19px;
 }
-#cleanrooms-studio[data-page][data-role] .cs-person-picker{
-  border-color:#d9e1e6;
-  border-radius:6px;
-  box-shadow:none;
-}
-#cleanrooms-studio[data-page][data-role] :is(.cs-person-picker-head,.cs-person-footnote){
-  background:#f5f7f8;
-  border-color:#e2e7eb;
-}
 
 /* Duration stays together; weekday tiles make the actual pattern explicit. */
 #cleanrooms-studio[data-page][data-role] .cs-editor .cs-series-period-presets{

@@ -574,7 +574,7 @@
   font-weight:700;
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
-  .cs-series-planning-preview,.cs-series-operation-note,.cs-person-picker-head,.cs-person-footnote,
+  .cs-series-planning-preview,.cs-series-operation-note,
   .cs-department-popover-footer
 ) {
   border-color:var(--cs-compass-rule);

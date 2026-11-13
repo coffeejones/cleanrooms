@@ -85,8 +85,7 @@
 #cleanrooms-studio :is(.cs-editor,.cs-review-panel,.cs-operations-panel){border-left-color:#d5dde7;box-shadow:var(--cs-shadow-sheet)}
 #cleanrooms-studio :is(.cs-editor-head,.cs-review-head,.cs-operations-head){background:#fff;border-bottom-color:#e0e6ed;box-shadow:0 2px 4px #1e293b04;z-index:1}
 #cleanrooms-studio :is(.cs-editor-actions,.cs-review-footer,.cs-operations-footer){background-color:#fcfdff;border-top-color:#dce3ec;box-shadow:0 -3px 10px #1e293b05;z-index:1}
-#cleanrooms-studio .cs-person-picker,#cleanrooms-studio .cs-date-jump-panel{border-color:#d0d9e4;border-radius:5px;box-shadow:var(--cs-shadow-popover)}
-#cleanrooms-studio .cs-person-picker-head,#cleanrooms-studio .cs-person-footnote{background:#f8fafc}
+#cleanrooms-studio .cs-date-jump-panel{border-color:#d0d9e4;border-radius:5px;box-shadow:var(--cs-shadow-popover)}
 #cleanrooms-studio .cs-toast,#cleanrooms-studio .cs-drag-status{background-color:#fff;box-shadow:var(--cs-shadow-popover)}
 #cleanrooms-studio .cs-drag-status[data-state="blocked"]{background-color:#fffdfc}
 #cleanrooms-studio .cs-selection-bar{background:#f1f5f9;box-shadow:0 -2px 5px #1e293b05}

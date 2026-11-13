@@ -117,7 +117,17 @@
             <div class="cs-field cs-staffing-field"><span class="cs-field-label" id="cs-person-label">Medarbejder</span><select id="cs-edit-person" hidden aria-hidden="true" tabindex="-1"><option value="">Ledig vagt</option></select>
               <button id="cs-person-trigger" class="cs-person-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cs-person-picker" aria-labelledby="cs-person-label cs-person-selected-name"><span id="cs-person-selected-name" class="cs-person-selected-name">Ledig vagt</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
               <div id="cs-person-summary" class="cs-person-summary" aria-live="polite"></div>
-              <section id="cs-person-picker" class="cs-person-picker" role="dialog" aria-labelledby="cs-person-picker-title" hidden><div class="cs-person-picker-head"><span id="cs-person-picker-title">Vælg medarbejder</span><button id="cs-person-picker-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk medarbejdervælger"><i data-lucide="x" aria-hidden="true"></i></button></div><p id="cs-person-context" class="cs-person-context"></p><label class="cs-sr" for="cs-person-search">Søg i medarbejdere</label><input id="cs-person-search" class="cs-person-search" type="search" placeholder="Søg medarbejder…" autocomplete="off"><div id="cs-person-results" class="cs-person-results" role="group" aria-label="Medarbejdere med tilgængelighed og timer"></div><p id="cs-person-empty" class="cs-person-empty" hidden>Ingen medarbejdere matcher din søgning.</p><p class="cs-person-footnote">Kontrollen bruger vagtplan og godkendt fravær. Aftalt timetal og afventende friønsker vises som information.</p></section>
+              <section id="cs-person-picker" class="cs-person-picker" role="dialog" aria-label="Vælg medarbejder" hidden>
+                <div class="cs-person-search-bar">
+                  <label class="cs-sr" for="cs-person-search">Søg medarbejder</label>
+                  <i data-lucide="search" aria-hidden="true"></i>
+                  <input id="cs-person-search" type="search" placeholder="Søg medarbejder…" autocomplete="off">
+                  <button id="cs-person-picker-close" type="button" class="cs-icon-button cs-quiet" aria-label="Luk medarbejdervælger"><i data-lucide="x" aria-hidden="true"></i></button>
+                </div>
+                <p id="cs-person-context" class="cs-person-context" hidden></p>
+                <div id="cs-person-results" class="cs-person-results" role="group" aria-label="Medarbejdervalg"></div>
+                <p id="cs-person-empty" class="cs-person-empty" role="status" hidden></p>
+              </section>
             </div>
           </section>
           <div id="cs-repeat-field" class="cs-repeat-toggle"><label><input id="cs-edit-repeat" type="checkbox"><span>Gentag vagten</span></label></div>

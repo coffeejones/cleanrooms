@@ -27,9 +27,7 @@
 #cleanrooms-studio #cs-edit-form .cs-person-trigger:hover:not([aria-expanded="true"]) {
   background:var(--cs-access-soft,#f6f8f7);
 }
-#cleanrooms-studio .cs-person-selected-copy{display:block;min-width:0}
 #cleanrooms-studio .cs-person-selected-name{display:block;min-width:0;color:#303b4b;font-size:13px;font-weight:500;line-height:18px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-person-selected-meta{display:block;min-width:0;margin-top:3px;color:#68717d;font-size:11px;font-weight:400;line-height:16px;overflow-wrap:anywhere}
 #cleanrooms-studio .cs-person-trigger > :is(svg,i) {
   justify-self:end;
   width:14px;
@@ -48,14 +46,18 @@
 #cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-title,#cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-warning,#cleanrooms-studio .cs-person-summary-warning[data-state="blocked"]{color:#925f54}
 #cleanrooms-studio .cs-person-summary[data-state="over-target"] .cs-person-summary-hours,#cleanrooms-studio .cs-person-summary-hours[data-state="over-target"],#cleanrooms-studio .cs-person-summary-hours[data-over-target="true"]{color:#8a6c3f}
 
-/* The list is bounded independently of the editor's outer scroller. */
+/* The picker keeps search visible while its results scroll. */
 #cleanrooms-studio #cs-edit-form .cs-person-picker {
   position:relative;
-  display:block;
+  display:flex;
+  flex-direction:column;
   min-width:0;
   max-width:100%;
-  margin-top:8px;
-  padding:0;
+  --cs-person-picker-cap:320px;
+  max-height:min(var(--cs-person-picker-room, 320px), var(--cs-person-picker-cap));
+  margin:6px 0 0;
+  padding:4px;
+  box-sizing:border-box;
   overflow:hidden;
   border:1px solid var(--cs-combobox-edge,#d4dce3);
   border-radius:8px;
@@ -63,47 +65,80 @@
   box-shadow:var(--cs-combobox-shadow,0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05));
   color:var(--cs-access-ink,#001e2b);
 }
-#cleanrooms-studio #cs-edit-form .cs-person-picker-head {
+#cleanrooms-studio #cs-edit-form .cs-person-picker[popover] {
+  position:fixed;
+  display:none;
+  inset:auto;
+  margin:0;
+  max-width:calc(100vw - 16px);
+  animation:none;
+}
+#cleanrooms-studio #cs-edit-form .cs-person-picker[popover]:popover-open {
+  display:flex;
+}
+#cleanrooms-studio #cs-edit-form .cs-person-search-bar {
+  position:relative;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  flex:none;
+  gap:3px;
   min-width:0;
-  min-height:40px;
-  padding:6px 10px;
-  background:var(--cs-access-surface,#fff);
-  color:var(--cs-access-ink,#001e2b);
-  font-size:13px;
-  font-weight:600;
-  line-height:18px;
+  padding:2px;
 }
-#cleanrooms-studio .cs-person-picker-head>span{min-width:0;overflow-wrap:anywhere}
-#cleanrooms-studio #cs-person-picker-close{flex-shrink:0;width:24px;min-height:24px;padding:4px;border:0;border-radius:0}
+#cleanrooms-studio #cs-edit-form .cs-person-search-bar > :is(svg,i) {
+  position:absolute;
+  inset-inline-start:12px;
+  width:14px;
+  height:14px;
+  color:var(--cs-access-muted,#5c6c75);
+  pointer-events:none;
+}
+#cleanrooms-studio #cs-edit-form #cs-person-picker-close {
+  width:36px;
+  min-width:36px;
+  height:36px;
+  min-height:36px;
+  border:0;
+  border-radius:5px;
+  background:transparent;
+  color:var(--cs-access-muted,#5c6c75);
+  box-shadow:none;
+}
+#cleanrooms-studio #cs-edit-form #cs-person-picker-close:hover {
+  background:var(--cs-combobox-active,#edf1f4);
+}
 #cleanrooms-studio #cs-person-picker-close svg{width:13px;height:13px}
 #cleanrooms-studio #cs-edit-form .cs-person-context {
+  flex:none;
   min-width:0;
-  margin:0;
-  padding:0 10px;
+  margin:2px 0 3px;
+  padding:0 9px;
   color:var(--cs-access-muted,#5c6c75);
   font-size:11px;
-  line-height:17px;
+  line-height:16px;
   overflow-wrap:anywhere;
 }
+#cleanrooms-studio #cs-edit-form .cs-person-context:empty{display:none}
 #cleanrooms-studio #cs-edit-form #cs-person-search {
   display:block;
-  width:calc(100% - 20px);
-  max-width:calc(100% - 20px);
+  flex:1 1 auto;
+  width:100%;
   min-width:0;
-  margin:8px 10px;
-  padding-inline:10px;
-  border-radius:var(--cs-ui-radius,8px);
+  height:36px;
+  min-height:36px;
+  margin:0;
+  padding-inline:28px 8px;
+  border-color:var(--cs-combobox-edge,#d4dce3);
+  border-radius:5px;
+  background:var(--cs-access-surface,#fff);
+  box-shadow:none;
 }
 #cleanrooms-studio .cs-person-results {
   display:block;
+  flex:1 1 auto;
+  min-height:0;
   min-width:0;
-  max-height:290px;
   margin:0;
-  padding:0 4px 4px;
   overflow-y:auto;
   overscroll-behavior:contain;
   scrollbar-width:thin;
@@ -114,9 +149,9 @@
   display:block;
   width:100%;
   min-width:0;
-  min-height:44px;
+  min-height:38px;
   margin:0;
-  padding:7px 24px 7px 9px;
+  padding:6px 25px 6px 9px;
   border:0;
   border-radius:5px;
   background:transparent;
@@ -128,10 +163,10 @@
   cursor:pointer;
   box-shadow:none;
 }
-#cleanrooms-studio #cs-edit-form .cs-person-option[aria-pressed="true"] {
+#cleanrooms-studio #cs-edit-form .cs-person-option:is([aria-pressed="true"],[aria-selected="true"]) {
   background:var(--cs-combobox-active,#edf1f4);
 }
-#cleanrooms-studio #cs-edit-form .cs-person-option[aria-pressed="true"]::after {
+#cleanrooms-studio #cs-edit-form .cs-person-option:is([aria-pressed="true"],[aria-selected="true"])::after {
   content:"";
   position:absolute;
   inset-block-start:11px;
@@ -148,34 +183,34 @@
   outline-offset:-2px;
 }
 @media (hover:hover) {
-  #cleanrooms-studio #cs-edit-form .cs-person-option:not([aria-disabled="true"],[aria-pressed="true"]):hover {
+  #cleanrooms-studio #cs-edit-form .cs-person-option:not([aria-disabled="true"],[aria-pressed="true"],[aria-selected="true"]):hover {
     background:var(--cs-access-soft,#f6f8f7);
   }
 }
-#cleanrooms-studio .cs-person-option-main{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0}
-#cleanrooms-studio .cs-person-picker .cs-person-name{display:block;flex:1;min-width:0;color:#303b4b;font-size:13px;font-weight:500;line-height:18px;white-space:normal;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-person-state{display:block;flex-shrink:0;max-width:50%;color:var(--cs-access-muted,#5c6c75);font-size:11px;font-weight:400;line-height:17px;text-align:end;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-person-option-hours{display:block;min-width:0;margin-top:3px;color:#68717d;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#cleanrooms-studio .cs-person-option-detail{display:block;min-width:0;margin-top:4px;color:#778294;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-person-option[data-status="blocked"] .cs-person-state,#cleanrooms-studio .cs-person-option[data-status="blocked"] .cs-person-option-detail{color:#925f54}
-#cleanrooms-studio .cs-person-option[data-status="incomplete"] .cs-person-state{color:#7a8492}
+#cleanrooms-studio .cs-person-option-main{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+#cleanrooms-studio .cs-person-picker .cs-person-name{display:block;flex:1;min-width:0;font-size:13px;font-weight:500;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-option-hours{flex:none;color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:17px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio .cs-person-option-detail{display:block;min-width:0;margin-top:2px;color:var(--cs-access-muted,#5c6c75);font-size:11px;line-height:16px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-option[data-status="blocked"] .cs-person-option-detail{color:var(--cs-access-danger,#a34d43)}
+#cleanrooms-studio .cs-person-option[data-unavailable="true"]:not([data-status="blocked"]) .cs-person-option-detail{color:#896032}
 #cleanrooms-studio #cs-edit-form .cs-person-option[aria-disabled="true"]{cursor:default;opacity:1}
-#cleanrooms-studio .cs-person-option[data-over-target="true"] .cs-person-option-hours,#cleanrooms-studio .cs-person-option-hours[data-over-target="true"],#cleanrooms-studio .cs-person-option-hours[data-state="over-target"]{color:#8a6c3f}
-#cleanrooms-studio .cs-person-empty{min-width:0;margin:0;padding:16px 10px;color:#68717d;font-size:12px;line-height:18px;overflow-wrap:anywhere}
-#cleanrooms-studio .cs-person-footnote{min-width:0;margin:0;padding:9px 10px;border-top:1px solid #e1e6ed;background:#fff;color:#737c88;font-size:11px;font-weight:400;line-height:17px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-person-option[data-over-target="true"] .cs-person-option-hours{color:#896032}
+#cleanrooms-studio .cs-person-empty{min-width:0;margin:0;padding:7px 9px;color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px;overflow-wrap:anywhere}
 
 @media(max-width:760px){
   #cleanrooms-studio #cs-editor-layer>.cs-editor{width:100%;border-left:0}
-  #cleanrooms-studio .cs-person-results{max-height:240px}
+  #cleanrooms-studio #cs-edit-form .cs-person-picker{--cs-person-picker-cap:270px}
 }
 @media(max-width:375px){
   #cleanrooms-studio .cs-person-option-main{gap:7px}
 }
 @media(max-height:540px){
-  #cleanrooms-studio .cs-person-results{max-height:190px}
+  #cleanrooms-studio #cs-edit-form .cs-person-picker{--cs-person-picker-cap:220px}
 }
 @media(pointer:coarse){
-  #cleanrooms-studio #cs-person-search{font-size:16px;line-height:20px}
+  #cleanrooms-studio #cs-edit-form #cs-person-search{font-size:16px;line-height:20px}
+  #cleanrooms-studio #cs-edit-form #cs-person-picker-close,
+  #cleanrooms-studio #cs-edit-form .cs-person-option{min-height:42px}
 }
 
 #cleanrooms-studio #cs-edit-form #cs-save{margin-left:auto}

@@ -72,26 +72,11 @@
 #cleanrooms-studio .cs-demo-editor-guide p{margin-top:var(--cs-space-1)}
 #cleanrooms-studio #cs-edit-find-replacement.cs-replacement-shortcut{margin-bottom:var(--cs-space-5)}
 
-/* The inline employee picker has the same12px inset from heading to footnote. */
+/* Keep the employee summary aligned with other editor fields. */
 #cleanrooms-studio .cs-person-trigger{padding-inline:var(--cs-space-3);gap:var(--cs-space-3)}
-#cleanrooms-studio .cs-person-selected-meta{margin-top:var(--cs-space-1)}
 #cleanrooms-studio .cs-person-summary{padding-top:var(--cs-space-2)}
 #cleanrooms-studio .cs-person-summary-hours,
 #cleanrooms-studio .cs-person-summary-warning{margin-top:var(--cs-space-1)}
-#cleanrooms-studio .cs-person-picker{margin-top:var(--cs-space-3)}
-#cleanrooms-studio .cs-person-picker-head{padding:var(--cs-space-2) var(--cs-space-3);gap:var(--cs-space-3)}
-#cleanrooms-studio .cs-person-context{padding:var(--cs-space-2) var(--cs-space-3) 0}
-#cleanrooms-studio #cs-person-search{
-  width:calc(100% - var(--cs-space-6));
-  max-width:calc(100% - var(--cs-space-6));
-  margin:var(--cs-space-2) var(--cs-space-3) var(--cs-space-3);
-}
-#cleanrooms-studio .cs-person-option{padding:var(--cs-space-3)}
-#cleanrooms-studio .cs-person-option-main{gap:var(--cs-space-2)}
-#cleanrooms-studio .cs-person-option-hours,
-#cleanrooms-studio .cs-person-option-detail{margin-top:var(--cs-space-1)}
-#cleanrooms-studio .cs-person-empty{padding:var(--cs-space-4) var(--cs-space-3)}
-#cleanrooms-studio .cs-person-footnote{padding:var(--cs-space-3)}
 
 /* Issue rows separate the heading, explanation and actions without extra boxes. */
 #cleanrooms-studio .cs-operations-period{margin-bottom:var(--cs-space-6)}

@@ -4835,7 +4835,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-label{display:block;margin:0 0 8px;color:var(--cs-access-body,#4b575d);font-size:13px;font-weight:500;line-height:19px}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-input{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;height:var(--cs-ui-height,40px);min-height:var(--cs-ui-height,40px);padding:0 12px;border:1px solid var(--cs-access-control-edge,#c1cbce);border-radius:var(--cs-ui-radius,8px);background:#fff;color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:var(--cs-ui-field-font,14px);line-height:22px}
 #cleanrooms-studio[data-page=&quot;people&quot;] select.cs-roster-input{padding-right:36px}
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair{display:grid;grid-template-columns:85px minmax(0,1fr);gap:16px;min-width:0}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair{display:grid;min-width:0}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-check{display:flex;align-items:center;gap:12px;margin:0;color:var(--cs-access-body,#4b575d);font-size:13px;line-height:20px}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-check input{appearance:auto;flex-shrink:0;width:16px;height:16px;min-height:16px;margin:0;padding:0;accent-color:var(--cs-access-blue,#476276)}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-help{margin:8px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px;overflow-wrap:anywhere}
@@ -4887,7 +4887,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @media(max-width:375px){
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-actions .cs-button{padding-inline:9px;font-size:12px}
-  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair{grid-template-columns:75px minmax(0,1fr);gap:12px}
 }
 @keyframes cs-roster-profile-enter{from{opacity:.5;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-profile{animation:none}}
@@ -6802,6 +6801,96 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-directory .cs-roster-table .cs-roster-week-cell{text-align:left}
 }
 
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-side:has(&gt;.cs-roster-editor:not([hidden])) {
+  padding:0;
+  border:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-side&gt;.cs-roster-editor:not([hidden]) {
+  container:roster-editor / inline-size;
+  box-sizing:border-box;
+  width:100%;
+  max-width:680px;
+  padding:0;
+  border-radius:6px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor&gt;.cs-roster-heading {
+  padding:13px 16px;
+  border-bottom:1px solid var(--cs-people-rule);
+  font-size:16px;
+  font-weight:700;
+  line-height:22px;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor&gt;.cs-roster-form {
+  gap:0;
+  margin:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor&gt;.cs-roster-form&gt;:not([hidden])~:not([hidden]) {
+  margin-top:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-form-body {
+  display:grid;
+  gap:14px;
+  padding:14px 16px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-form-section {
+  display:grid;
+  gap:10px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-form-section+.cs-roster-form-section {
+  padding-top:12px;
+  border-top:1px solid var(--cs-people-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-form-section-title {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:12px;
+  font-weight:700;
+  line-height:19px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor .cs-roster-field-pair {
+  gap:10px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair-identity {
+  grid-template-columns:minmax(0,1fr) clamp(64px,25%,110px);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair-agreement {
+  grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor .cs-roster-label {
+  margin-bottom:4px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-active-group {
+  display:grid;
+  gap:3px;
+  padding:8px 10px;
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-active-group .cs-roster-check {
+  min-height:24px;
+  gap:10px;
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-active-group input {accent-color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-active-group .cs-roster-help {
+  margin:0;
+  margin-inline-start:26px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-editor .cs-roster-form-actions {
+  padding:9px 16px;
+}
+@container roster-editor (max-width:380px){
+  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-field-pair-agreement {
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+
 /* A connected employee record on the same white canvas as the directory. */
 #cleanrooms-studio[data-page=&quot;people&quot;] #cs-employee-profile-page{background:#fff}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-page{
@@ -7976,77 +8065,357 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 .cs-leave-create-actions { display:flex; justify-content:flex-end; margin-bottom:16px; }
 .cs-review-dialog form, form.cs-review-dialog { display:flex; flex-direction:column; gap:16px; }
 
-/* One reading order for an employee&#x27;s pay: agreement, allowances, then supporting records. */
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-page{gap:32px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-head{padding:0;margin:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-title{font-size:20px;line-height:28px;letter-spacing:-.35px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group{display:flex;flex-direction:column;gap:24px;padding:0;border:0;border-radius:0;background:transparent}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-eyebrow{display:block;margin-bottom:4px;color:#78848b;font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-title{margin:0;font-size:18px;line-height:26px;font-weight:600;letter-spacing:-.25px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar{display:flex;align-items:center;gap:20px;min-width:0;padding:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar&gt;.cs-person-pay-field{flex:0 0 210px;max-width:100%}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar&gt;.cs-person-pay-help{padding-top:26px;font-size:12px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-summary{display:flex;flex-direction:column;align-items:stretch;gap:24px;padding:24px;border:0;border-radius:8px;background:#f6f8f9}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-base{display:flex;flex-direction:column;gap:6px;min-width:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-base-amount{color:#293b45;font-size:28px;font-weight:600;line-height:38px;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:0;padding-top:0;border:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts&gt;div{display:flex;flex-direction:column;gap:6px;min-width:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts dt{margin:0;color:#74818a;font-size:12px;line-height:19px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts dd{margin:0;color:#33454f;font-size:14px;font-weight:500;line-height:22px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-allowance-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-subtitle{margin:0;font-size:15px;line-height:23px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rules{gap:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,220px);gap:24px;align-items:start;padding:14px 0;border:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule&gt;div{gap:4px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-amount{max-width:none;align-items:flex-end;text-align:right}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule strong{font-size:14px;line-height:22px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule .cs-person-pay-help{font-size:12px;line-height:20px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-period{color:#89939a;font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-state{font-size:11px;line-height:18px;color:#74818a}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule[data-state=&quot;personal&quot;] .cs-person-pay-state{color:#526e83}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule[data-state=&quot;off&quot;]{color:#8a949b}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-estimate-disclosure,.cs-payroll-records){min-width:0;margin:0;border-top:1px solid #e5eaed;border-bottom:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:76px;padding:18px 0;cursor:pointer;list-style:none}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title::-webkit-details-marker{display:none}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title::after{content:&#x27;+&#x27;;flex:0 0 20px;color:#74818a;font-size:20px;font-weight:400;text-align:center}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane details[open]&gt;.cs-payroll-disclosure-title::after{content:&#x27;−&#x27;}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title&gt;span{flex:1;min-width:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title&gt;span&gt;strong{display:block;color:#34454f;font-size:15px;font-weight:600;line-height:23px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-preview-total{color:#34454f;font-size:19px;font-weight:600;line-height:28px;letter-spacing:-.25px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-calculation-tools{display:flex;justify-content:flex-start;margin:0 0 24px;padding-top:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-estimate{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,1fr);gap:20px 32px;padding:0 0 24px;border:0;background:transparent}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-total{font-size:25px;line-height:35px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-records-intro{margin:0 0 24px;padding:0;color:#78858d;font-size:12px;line-height:21px;max-width:780px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-workspace{display:flex;flex-direction:column;gap:28px;padding-bottom:24px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-agreements,.cs-payroll-supplements){width:100%;overflow:visible}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-section-head{padding:0 0 12px;border:0;background:transparent}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-rate-row,.cs-payroll-supplement-row){padding:18px 0;border:0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-rate-row+.cs-payroll-rate-row,.cs-payroll-supplement-row+.cs-payroll-supplement-row){border-top:1px solid #edf0f2}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-list-empty{padding:16px 0}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-editor{padding:24px;background:#f6f8f9;border:1px solid #e1e6e9;border-radius:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-form{padding-top:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-preview{padding:20px;background:#f6f8f9;border:1px solid #dfe6eb;border-radius:8px}
-#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-preview-columns&gt;div+div{padding-left:24px;border-left:1px solid #dfe6eb}
-@media(max-width:760px){
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-page{gap:24px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head{align-items:flex-start;flex-direction:column;gap:16px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head-actions{justify-content:flex-start}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar{align-items:flex-start;flex-direction:column;gap:8px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar&gt;.cs-person-pay-field{flex:0 0 auto;width:100%}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar&gt;.cs-person-pay-help{padding:0}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-summary{padding:20px;gap:20px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-base-amount{font-size:25px;line-height:34px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts{grid-template-columns:minmax(0,1fr);gap:16px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts&gt;div{display:grid;grid-template-columns:minmax(90px,.5fr) minmax(0,1fr);gap:16px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-allowance-head{align-items:flex-start;flex-direction:column;gap:12px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule{grid-template-columns:minmax(0,1fr);gap:10px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-amount{align-items:flex-start;text-align:left}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-estimate{grid-template-columns:minmax(0,1fr);padding-bottom:20px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-preview-total{font-size:16px;line-height:24px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title{gap:12px}
- #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-preview-columns&gt;div+div{padding:16px 0 0;border-left:0;border-top:1px solid #dfe6eb}
+/* Personal pay follows the employee profile&#x27;s compact hierarchy. */
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-page {
+  gap:12px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-head {
+  margin:0;
+  padding:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-title {
+  font-size:20px;
+  line-height:28px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group {
+  gap:14px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head {
+  align-items:center;
+  flex-flow:row wrap;
+  gap:8px 16px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-head-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-title {
+  margin:0;
+  font-size:20px;
+  font-weight:700;
+  line-height:28px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-button {
+  min-height:var(--cs-ui-height,36px)!important;
+  padding:5px 10px!important;
+  border-color:var(--cs-access-control-edge);
+  color:var(--cs-access-ink);
+  font-size:12px;
+  font-weight:600;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-button:hover:not(:disabled) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-primary {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-primary:hover:not(:disabled) {
+  background:var(--cs-access-primary-hover);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-person-pay-agreement,.cs-person-pay-read-rules,.cs-payroll-estimate-disclosure,.cs-payroll-records) {
+  min-width:0;
+  margin:0;
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:6px 16px;
+  padding:8px 12px;
+  border-radius:5px 5px 0 0;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar .cs-person-pay-field {
+  flex-direction:row;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px 10px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-label {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-datebar .cs-person-pay-input {
+  width:154px;
+  max-width:100%;
+  min-height:var(--cs-ui-height,36px)!important;
+  padding:4px 8px;
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-access-surface);
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-summary {
+  grid-template-columns:minmax(0,1fr) minmax(0,1.65fr);
+  align-items:center;
+  gap:10px 16px;
+  padding:12px;
+  border:0;
+  border-top:1px solid var(--cs-profile-rule);
+  border-radius:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-summary&gt;.cs-person-pay-help {
+  grid-column:1/-1;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-base {
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-base-amount {
+  color:var(--cs-access-ink);
+  font-size:25px;
+  font-weight:700;
+  line-height:32px;
+  letter-spacing:-.4px;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  min-width:0;
+  margin:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts&gt;div {
+  min-width:0;
+  padding-inline-start:12px;
+  border-inline-start:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts dt {
+  margin:0 0 2px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts dd {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:600;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-allowance-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:6px 12px;
+  min-height:40px;
+  padding:4px 12px;
+  border-radius:5px 5px 0 0;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-subtitle {
+  margin:0;
+  font-size:14px;
+  font-weight:700;
+  line-height:22px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,min(40%,220px));
+  align-items:start;
+  gap:8px 16px;
+  padding:10px 12px;
+  border-color:var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule&gt;div {
+  gap:1px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-amount {
+  align-items:flex-end;
+  max-width:none;
+  text-align:end;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-person-pay-period,.cs-person-pay-state,.cs-person-pay-read-rule .cs-person-pay-help) {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-read-rule[data-state=&quot;off&quot;] {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-no-allowances {
+  padding:10px 12px;
+  border-top:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px 12px;
+  min-height:48px;
+  padding:8px 12px;
+  border-radius:5px;
+  cursor:pointer;
+  list-style:none;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title:hover,
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane details[open]&gt;.cs-payroll-disclosure-title {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title::-webkit-details-marker {
+  display:none;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title::after {
+  content:&#x27;&#x27;;
+  flex:none;
+  width:6px;
+  height:6px;
+  margin:0 3px 3px;
+  border:solid var(--cs-access-muted);
+  border-width:0 1.5px 1.5px 0;
+  transform:rotate(45deg);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane details[open]&gt;.cs-payroll-disclosure-title {
+  border-radius:5px 5px 0 0;
+  box-shadow:inset 0 -1px var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane details[open]&gt;.cs-payroll-disclosure-title::after {
+  margin-block:3px 0;
+  transform:rotate(225deg);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title&gt;span {
+  flex:1;
+  min-width:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title&gt;span&gt;strong {
+  display:block;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:700;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-disclosure-title .cs-payroll-caption {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-preview-total {
+  max-width:42%;
+  color:var(--cs-access-ink);
+  font-size:15px;
+  font-weight:700;
+  line-height:22px;
+  text-align:end;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-calculation-tools {
+  display:flex;
+  justify-content:flex-start;
+  margin:0;
+  padding:12px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-estimate {
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:14px 24px;
+  padding:0 12px 12px;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-total {
+  font-size:25px;
+  line-height:35px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-records-intro {
+  max-width:780px;
+  margin:0;
+  padding:10px 12px 0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:19px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-workspace {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:10px 12px 12px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-agreements,.cs-payroll-supplements) {
+  width:100%;
+  overflow:visible;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-section-head {
+  padding:0 0 6px;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-rate-row,.cs-payroll-supplement-row) {
+  padding:8px 0;
+  border:0;
+  border-top:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-list-empty {
+  padding:6px 0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane :is(.cs-payroll-editor,.cs-person-pay-preview) {
+  padding:14px;
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-form {
+  gap:16px;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-preview-columns&gt;div+div {
+  padding-inline-start:16px;
+  border-inline-start:1px solid var(--cs-profile-rule);
+}
+@container employee-profile (max-width:680px) {
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-summary {
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts {
+    padding-top:10px;
+    border-top:1px solid var(--cs-profile-rule);
+  }
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts&gt;div:first-child {
+    padding-inline-start:0;
+    border-inline-start:0;
+  }
+}
+@container employee-profile (max-width:460px) {
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts {
+    grid-template-columns:minmax(0,1fr);
+    gap:4px;
+  }
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-facts&gt;div {
+    display:grid;
+    grid-template-columns:minmax(76px,.55fr) minmax(0,1fr);
+    gap:8px;
+    padding-inline-start:0;
+    border-inline-start:0;
+  }
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-payroll-estimate {
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page=&quot;people&quot;] #cs-payroll-pane .cs-person-pay-preview-columns&gt;div+div {
+    padding:12px 0 0;
+    border-inline-start:0;
+    border-top:1px solid var(--cs-profile-rule);
+  }
 }
 
 /* One predictable help affordance for every page. */
@@ -10457,17 +10826,58 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-week{margin-top:12px;padding-top:0;border:0}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-week-meter{height:3px;margin-top:8px}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-week-hours{margin-top:6px}
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-grid{gap:20px;margin-top:14px}
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-grid&gt;section&gt;h4 {
-  padding:6px 10px;
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-grid{align-items:start;gap:14px;max-width:960px;margin:0}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-group {
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-grid&gt;section&gt;.cs-employee-profile-information-heading {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
   border-radius:6px 6px 0 0;
   background:var(--cs-access-soft);
-  font-size:13px;
+  font-size:14px;
+  line-height:22px;
 }
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information .cs-employee-profile-details&gt;div{padding:8px 10px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-heading svg{flex:none;color:var(--cs-access-muted)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-group&gt;.cs-employee-profile-details&gt;div{grid-template-columns:minmax(110px,.8fr) minmax(0,1.2fr);gap:10px;padding:9px 14px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-group&gt;.cs-employee-profile-details&gt;div:last-child{border-bottom:0}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information .cs-employee-profile-details dt {color:var(--cs-access-muted)}
-#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information .cs-employee-profile-details dd {color:var(--cs-access-body)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information .cs-employee-profile-details dd {color:var(--cs-access-ink);font-size:13px;font-weight:500}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information .cs-employee-profile-details .cs-employee-profile-state{color:var(--cs-access-body)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-app-login&gt;.cs-employee-profile-details{max-width:none}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-app-login&gt; :is(.cs-button,.cs-employee-profile-help,.cs-employee-profile-error,.cs-employee-profile-app-login-actions,.cs-employee-profile-app-login-create,.cs-employee-profile-app-login-confirm){margin-inline:14px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-app-login&gt;:last-child:not(h4,.cs-employee-profile-details){margin-bottom:14px}
 #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-app-login-confirm {background:var(--cs-access-soft)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information.cs-employee-profile-editing {
+  max-width:680px;
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-editing&gt;.cs-employee-profile-editor-title {
+  padding:13px 16px;
+  border-bottom:1px solid var(--cs-profile-rule);
+  font-size:16px;
+  line-height:22px;
+  letter-spacing:0;
+}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-editing .cs-employee-profile-form{gap:0;margin:0}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-body{display:grid;gap:14px;padding:14px 16px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-section{gap:10px;padding-top:12px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-section&gt;.cs-employee-profile-section-title{font-size:12px;line-height:19px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-field-pair{grid-template-columns:minmax(0,1fr) minmax(72px,110px);gap:10px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-section-fields{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:10px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form .cs-employee-profile-label{margin-bottom:4px;color:var(--cs-access-muted);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form .cs-employee-profile-field&gt;.cs-publication-combobox{--cs-ui-field-inset-start:var(--cs-ui-padding,12px)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-active-group{gap:3px;padding:8px 10px;border-radius:6px;background:var(--cs-access-soft)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-active-group .cs-employee-profile-help{margin-inline-start:26px}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-check{min-height:24px;gap:10px;color:var(--cs-access-ink);font-weight:600}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-check input{accent-color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-actions{padding:9px 16px}
 
 @container employee-profile (max-width:800px) {
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-workspace{grid-template-columns:minmax(0,1fr);gap:14px}
@@ -10478,6 +10888,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-content{margin-top:14px}
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-calendar .cs-employee-profile-month-summary&gt;div{padding-inline:8px}
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-day .cs-employee-profile-calendar-shift{margin-inline:2px;padding-inline:2px}
+  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-information-group&gt;.cs-employee-profile-details&gt;div{grid-template-columns:minmax(84px,.75fr) minmax(0,1.25fr)}
 }
 @container employee-profile-calendar (max-width:670px) {
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-time-full{display:none}
@@ -10521,6 +10932,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-tabs{align-self:stretch}
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-tabs&gt;.cs-employee-profile-tab{flex:1;padding-inline:5px}
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-tabs&gt;.cs-employee-profile-tab svg{display:none}
+  #cleanrooms-studio[data-page=&quot;people&quot;] .cs-employee-profile-form-section-fields{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:420px) {
   #cleanrooms-studio[data-page=&quot;people&quot;] .cs-roster-filter-site .cs-roster-filter-icon{display:none}
@@ -18414,12 +18826,42 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const initials=input(&#x27;initials&#x27;);initials.maxLength=8;initials.autocomplete=&#x27;off&#x27;;
     const role=input(&#x27;role&#x27;);role.maxLength=120;role.autocomplete=&#x27;organization-title&#x27;;role.required=true;
     const target=input(&#x27;target&#x27;,&#x27;number&#x27;);target.min=&#x27;0&#x27;;target.max=&#x27;168&#x27;;target.step=&#x27;0.01&#x27;;target.required=true;
-    const site=node(&#x27;select&#x27;,&#x27;cs-roster-input&#x27;);site.id=prefix+&#x27;site&#x27;;site.required=true;site.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
+    const site=node(&#x27;select&#x27;,&#x27;cs-roster-input&#x27;);site.id=prefix+&#x27;site&#x27;;site.required=true;site.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);site.setAttribute(&#x27;aria-label&#x27;,&#x27;Primært arbejdssted&#x27;);
     const active=input(&#x27;active&#x27;,&#x27;checkbox&#x27;),activeField=node(&#x27;label&#x27;,&#x27;cs-roster-check&#x27;);activeField.htmlFor=active.id;activeField.append(active,node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Aktiv medarbejder&#x27;));
-    const pair=node(&#x27;div&#x27;,&#x27;cs-roster-field-pair&#x27;);pair.append(field(&#x27;Initialer&#x27;,initials),field(&#x27;Aftalte timer pr. uge&#x27;,target));
-    const editHelp=node(&#x27;p&#x27;,&#x27;cs-roster-help&#x27;,&#x27;Arkiverede medarbejdere bevares i historikken og kan aktiveres igen.&#x27;);active.setAttribute(&#x27;aria-describedby&#x27;,prefix+&#x27;active-help&#x27;);editHelp.id=prefix+&#x27;active-help&#x27;;
-    const editError=node(&#x27;p&#x27;,&#x27;cs-roster-error&#x27;);editError.hidden=true;editError.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);const editActions=node(&#x27;div&#x27;,&#x27;cs-roster-form-actions&#x27;),cancel=button(&#x27;Annuller&#x27;,()=&gt;closeEditor()),save=button(&#x27;Gem medarbejder&#x27;,()=&gt;saveEditor(),&#x27;cs-button cs-primary&#x27;);editActions.append(cancel,save);
-    form.append(field(&#x27;Navn&#x27;,name),pair,field(&#x27;Funktion&#x27;,role),field(&#x27;Primært arbejdssted&#x27;,site),activeField,editHelp,editError,editActions);editor.append(editTitle,form);
+    const identityFields=node(&#x27;section&#x27;,&#x27;cs-roster-form-section&#x27;);
+    const identityTitle=node(&#x27;h4&#x27;,&#x27;cs-roster-form-section-title&#x27;,&#x27;Stamoplysninger&#x27;);
+    identityTitle.id=prefix+&#x27;edit-identity&#x27;;
+    identityFields.setAttribute(&#x27;aria-labelledby&#x27;,identityTitle.id);
+    const identityPair=node(&#x27;div&#x27;,&#x27;cs-roster-field-pair cs-roster-field-pair-identity&#x27;);
+    identityPair.append(field(&#x27;Navn&#x27;,name),field(&#x27;Initialer&#x27;,initials));
+    identityFields.append(identityTitle,identityPair,field(&#x27;Funktion&#x27;,role));
+
+    const agreementFields=node(&#x27;section&#x27;,&#x27;cs-roster-form-section&#x27;);
+    const agreementTitle=node(&#x27;h4&#x27;,&#x27;cs-roster-form-section-title&#x27;,&#x27;Arbejdstid og arbejdssted&#x27;);
+    agreementTitle.id=prefix+&#x27;edit-agreement&#x27;;
+    agreementFields.setAttribute(&#x27;aria-labelledby&#x27;,agreementTitle.id);
+    const agreementPair=node(&#x27;div&#x27;,&#x27;cs-roster-field-pair cs-roster-field-pair-agreement&#x27;);
+    agreementPair.append(field(&#x27;Aftalte timer pr. uge&#x27;,target),field(&#x27;Primært arbejdssted&#x27;,site));
+    agreementFields.append(agreementTitle,agreementPair);
+
+    const activeGroup=node(&#x27;div&#x27;,&#x27;cs-roster-active-group&#x27;);
+    const editHelp=node(&#x27;p&#x27;,&#x27;cs-roster-help&#x27;,&#x27;Ved arkivering bevares tidligere vagter.&#x27;);
+    editHelp.id=prefix+&#x27;active-help&#x27;;
+    active.setAttribute(&#x27;aria-describedby&#x27;,editHelp.id);
+    activeGroup.append(activeField,editHelp);
+
+    const editError=node(&#x27;p&#x27;,&#x27;cs-roster-error&#x27;);
+    editError.hidden=true;
+    editError.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);
+    const editActions=node(&#x27;div&#x27;,&#x27;cs-roster-form-actions&#x27;);
+    const cancel=button(&#x27;Annuller&#x27;,()=&gt;closeEditor(),&#x27;cs-button cs-chrome-quiet&#x27;);
+    const save=button(&#x27;Opret&#x27;,()=&gt;saveEditor(),&#x27;cs-button cs-primary&#x27;);
+    const formBody=node(&#x27;div&#x27;,&#x27;cs-roster-form-body&#x27;);
+    form.setAttribute(&#x27;aria-labelledby&#x27;,editTitle.id);
+    formBody.append(identityFields,agreementFields,activeGroup,editError);
+    editActions.append(cancel,save);
+    form.append(formBody,editActions);
+    editor.append(editTitle,form);
     const importer=node(&#x27;section&#x27;,&#x27;cs-roster-import&#x27;);importer.hidden=true;importer.setAttribute(&#x27;aria-labelledby&#x27;,prefix+&#x27;import-title&#x27;);const importTitle=node(&#x27;h3&#x27;,&#x27;cs-roster-heading&#x27;,&#x27;Importér medarbejdere&#x27;);importTitle.id=prefix+&#x27;import-title&#x27;;
     const importHelp=node(&#x27;p&#x27;,&#x27;cs-roster-copy&#x27;,&#x27;Vælg en CSV-fil eller indsæt indholdet. Kontrollér forhåndsvisningen, før noget bliver gemt. Kommaseparerede og semikolonseparerede filer understøttes.&#x27;);
     const file=input(&#x27;file&#x27;,&#x27;file&#x27;);file.accept=&#x27;.csv,text/csv&#x27;;file.setAttribute(&#x27;aria-label&#x27;,&#x27;Vælg en CSV-fil&#x27;);
@@ -18431,7 +18873,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     side.append(profile,editor);workspace.append(directory,side);page.append(status,error,importer,workspace);element.replaceChildren(page);
     function showError(target,message){target.textContent=message;target.hidden=false;target.scrollIntoView?.({block:&#x27;nearest&#x27;});}
     function setBusy(value){pending=value;page.setAttribute(&#x27;aria-busy&#x27;,String(value));page.querySelectorAll(&#x27;button,input,select,textarea&#x27;).forEach(control=&gt;{control.disabled=value;});page.querySelectorAll(&#x27;.cs-roster-name-button&#x27;).forEach(control=&gt;{control.disabled=value||!editor.hidden;});createButton.disabled=value||!canEdit;importButton.disabled=value||!canEdit;}
-    function fillSites(selected){site.replaceChildren();sites.forEach((value,index)=&gt;{if(value.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);option.value=String(index);site.append(option);});site.value=String(selected);}
+    function fillSites(selected){
+      const placeholder=node(&#x27;option&#x27;,&#x27;&#x27;,&#x27;Vælg arbejdssted&#x27;);
+      placeholder.value=&#x27;&#x27;;
+      placeholder.disabled=true;
+      site.replaceChildren(placeholder);
+      sites.forEach((value,index)=&gt;{
+        if(value.restricted)return;
+        const option=node(&#x27;option&#x27;,&#x27;&#x27;,value.name);
+        option.value=String(index);
+        site.append(option);
+      });
+      site.value=sites[selected]&amp;&amp;!sites[selected].restricted?String(selected):&#x27;&#x27;;
+    }
     const hours=value=&gt;new Intl.NumberFormat(&#x27;da-DK&#x27;,{maximumFractionDigits:2}).format(value/60);
     const dateLabel=value=&gt;typeof value===&#x27;string&#x27;&amp;&amp;/^\d{4}-\d{2}-\d{2}$/.test(value)?new Date(value+&#x27;T12:00:00Z&#x27;).toLocaleDateString(&#x27;da-DK&#x27;,{day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,timeZone:&#x27;UTC&#x27;}):&#x27;Dato mangler&#x27;;
     const narrowLayout=()=&gt;Boolean((doc.defaultView||globalThis).matchMedia?.(&#x27;(max-width:1279px)&#x27;).matches);
@@ -18491,11 +18945,31 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const next=node(&#x27;td&#x27;,&#x27;cs-roster-next-cell&#x27;);next.dataset.label=&#x27;Næste vagt&#x27;;if(plan?.nextShift){next.append(node(&#x27;strong&#x27;,&#x27;&#x27;,dateLabel(plan.nextShift.date)+&#x27; · &#x27;+plan.nextShift.start+&#x27;–&#x27;+plan.nextShift.end),node(&#x27;span&#x27;,&#x27;&#x27;,sites[plan.nextShift.site]?.name||&#x27;Arbejdssted mangler&#x27;));}else next.append(node(&#x27;span&#x27;,&#x27;&#x27;,plan?&#x27;Ingen i perioden&#x27;:&#x27;Vagtdata ikke indlæst&#x27;));
         const state=node(&#x27;td&#x27;,&#x27;cs-roster-status-cell&#x27;);state.dataset.label=&#x27;Status&#x27;;state.append(stateBadge(person));row.append(identity,worksite,weekly,next,state);if(canEdit){const action=node(&#x27;td&#x27;,&#x27;cs-roster-row-action&#x27;),edit=button(&#x27;Rediger&#x27;,()=&gt;openEditor(person));edit.setAttribute(&#x27;aria-label&#x27;,&#x27;Rediger &#x27;+person.name);edit.disabled=pending;action.append(edit);row.append(action);}tbody.append(row);}syncWorkspace();
     }
-    function openEditor(person){if(!canEdit||pending||disposed)return;closeImport(false);editorReturnId=selectedId;editing=person?.id||Model.newId();editingBefore=person?clone(person):null;editTitle.textContent=person?&#x27;Rediger medarbejder&#x27;:&#x27;Ny medarbejder&#x27;;name.value=person?.name||&#x27;&#x27;;initials.value=person?.initials||&#x27;&#x27;;target.value=String(person?.target??Model.defaultEmployeeTarget);role.value=person?.role||&#x27;Servicemedarbejder&#x27;;fillSites(person?.site??0);active.checked=person?.active!==false;editError.hidden=true;editor.hidden=false;profile.hidden=true;renderDirectory();syncWorkspace();focusPanel(editor,name);}
+    function openEditor(person){
+      if(!canEdit||pending||disposed)return;
+      closeImport(false);
+      editorReturnId=selectedId;
+      editing=person?.id||Model.newId();
+      editingBefore=person?clone(person):null;
+      editTitle.textContent=person?&#x27;Rediger medarbejder&#x27;:&#x27;Opret medarbejder&#x27;;
+      save.textContent=person?&#x27;Gem ændringer&#x27;:&#x27;Opret&#x27;;
+      name.value=person?.name||&#x27;&#x27;;
+      initials.value=person?.initials||&#x27;&#x27;;
+      target.value=String(person?.target??Model.defaultEmployeeTarget);
+      role.value=person?.role||&#x27;Servicemedarbejder&#x27;;
+      fillSites(person?.site??0);
+      active.checked=person?.active!==false;
+      editError.hidden=true;
+      editor.hidden=false;
+      profile.hidden=true;
+      renderDirectory();
+      syncWorkspace();
+      focusPanel(editor,name);
+    }
     function closeEditor(restoreFocus=true){if(pending)return;const edited=editingBefore?.id,wasOpen=!editor.hidden;editor.hidden=true;editing=null;editingBefore=null;if(wasOpen)selectedId=editorReturnId;editorReturnId=null;renderDirectory();renderProfile();if(restoreFocus){if(selectedId){focusPanel(profile,profile.querySelectorAll(&#x27;h3&#x27;)[0]);}else if(edited)focusPerson(edited);else createButton.focus({preventScroll:true});}}
     function openImport(){if(!canEdit||pending||disposed)return;closeEditor(false);importer.hidden=false;profile.hidden=true;syncWorkspace();preview=null;previewBox.hidden=true;confirm.hidden=true;importError.hidden=true;csv.value=&#x27;&#x27;;file.value=&#x27;&#x27;;importer.scrollIntoView?.({block:&#x27;start&#x27;});csv.focus();}
     function closeImport(restoreFocus=true){if(pending)return;importer.hidden=true;preview=null;previewBox.hidden=true;confirm.hidden=true;renderProfile();if(restoreFocus)importButton.focus();}
-    function draft(){return {id:editing,create:!editingBefore,name:name.value.trim(),initials:initials.value.trim()||Model.initials(name.value),target:target.value.trim()===&#x27;&#x27;?NaN:Number(target.value),site:Number(site.value),role:role.value.trim(),active:active.checked};}
+    function draft(){return {id:editing,create:!editingBefore,name:name.value.trim(),initials:initials.value.trim()||Model.initials(name.value),target:target.value.trim()===&#x27;&#x27;?NaN:Number(target.value),site:site.value===&#x27;&#x27;?NaN:Number(site.value),role:role.value.trim(),active:active.checked};}
     async function perform(callback,next,metadata,target,success){
       if(pending||!canEdit||disposed)return;const token=++epoch;setBusy(true);target.hidden=true;status.hidden=true;
       try{if(typeof callback!==&#x27;function&#x27;)throw new Error(&#x27;Medarbejderkartoteket kan ikke gemmes lige nu.&#x27;);const result=await callback(clone(next),clone(metadata));if(disposed||token!==epoch)return;if(result?.ok===false)throw new Error(result.error||result.message||&#x27;Ændringen kunne ikke gemmes.&#x27;);staff=clone(result?.staff||next);status.textContent=metadata.kind===&#x27;import&#x27;?metadata.rows.length+&#x27; medarbejdere er importeret.&#x27;:&#x27;Medarbejderen er gemt.&#x27;;status.hidden=false;setBusy(false);renderDirectory();success();}
@@ -18555,20 +19029,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const field=(name,label,type=&#x27;text&#x27;)=&gt;{const wrap=node(&#x27;label&#x27;,&#x27;cs-employee-profile-field&#x27;),control=node(type===&#x27;select&#x27;?&#x27;select&#x27;:&#x27;input&#x27;,&#x27;cs-employee-profile-input&#x27;);control.id=prefix+name;control.dataset.profileFocus=&#x27;field:&#x27;+name;if(type!==&#x27;select&#x27;)control.type=type;controls[name]=control;wrap.append(node(&#x27;span&#x27;,&#x27;cs-employee-profile-label&#x27;,label),control);return wrap;};
     const nameField=field(&#x27;name&#x27;,&#x27;Navn&#x27;),initialsField=field(&#x27;initials&#x27;,&#x27;Initialer&#x27;),roleField=field(&#x27;role&#x27;,&#x27;Funktion&#x27;),targetField=field(&#x27;target&#x27;,&#x27;Aftalte timer pr. uge&#x27;,&#x27;number&#x27;),siteField=field(&#x27;site&#x27;,&#x27;Primært arbejdssted&#x27;,&#x27;select&#x27;);
     controls.name.required=true;controls.name.maxLength=120;controls.name.autocomplete=&#x27;name&#x27;;controls.initials.maxLength=8;controls.role.required=true;controls.role.maxLength=120;controls.role.autocomplete=&#x27;organization-title&#x27;;controls.target.min=&#x27;0&#x27;;controls.target.max=&#x27;168&#x27;;controls.target.step=&#x27;0.25&#x27;;
-    const pair=node(&#x27;div&#x27;,&#x27;cs-employee-profile-field-pair&#x27;);pair.append(initialsField,roleField);
+    controls.site.required=true;controls.site.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);controls.site.setAttribute(&#x27;aria-label&#x27;,&#x27;Primært arbejdssted&#x27;);
+    const pair=node(&#x27;div&#x27;,&#x27;cs-employee-profile-field-pair&#x27;);pair.append(nameField,initialsField);
     const active=node(&#x27;input&#x27;);active.type=&#x27;checkbox&#x27;;active.id=prefix+&#x27;active&#x27;;active.dataset.profileFocus=&#x27;field:active&#x27;;controls.active=active;const activeField=node(&#x27;label&#x27;,&#x27;cs-employee-profile-check&#x27;);activeField.append(active,node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Aktiv medarbejder&#x27;));
-    const activeHelp=node(&#x27;p&#x27;,&#x27;cs-employee-profile-help&#x27;,&#x27;Arkiverede medarbejdere bevares sammen med deres tidligere vagter.&#x27;);activeHelp.id=prefix+&#x27;active-help&#x27;;active.setAttribute(&#x27;aria-describedby&#x27;,activeHelp.id);const activeGroup=node(&#x27;div&#x27;,&#x27;cs-employee-profile-active-group&#x27;);activeGroup.append(activeField,activeHelp);
+    const activeHelp=node(&#x27;p&#x27;,&#x27;cs-employee-profile-help&#x27;,&#x27;Ved arkivering bevares tidligere vagter.&#x27;);activeHelp.id=prefix+&#x27;active-help&#x27;;active.setAttribute(&#x27;aria-describedby&#x27;,activeHelp.id);const activeGroup=node(&#x27;div&#x27;,&#x27;cs-employee-profile-active-group&#x27;);activeGroup.append(activeField,activeHelp);
     const error=node(&#x27;p&#x27;,&#x27;cs-employee-profile-error&#x27;);error.hidden=true;error.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);
-    const formActions=node(&#x27;div&#x27;,&#x27;cs-employee-profile-form-actions&#x27;),cancel=button(&#x27;Annuller&#x27;,()=&gt;{if(pending)return;editing=false;before=null;error.hidden=true;showTab(&#x27;information&#x27;);},&#x27;cs-button cs-quiet&#x27;,&#x27;edit:cancel&#x27;),save=button(&#x27;Gem medarbejder&#x27;,()=&gt;savePerson(),&#x27;cs-button cs-primary&#x27;,&#x27;edit:save&#x27;);formActions.append(cancel,save);
-    const identityFields=node(&#x27;section&#x27;,&#x27;cs-employee-profile-form-section&#x27;),agreementFields=node(&#x27;section&#x27;,&#x27;cs-employee-profile-form-section&#x27;),agreementPair=node(&#x27;div&#x27;,&#x27;cs-employee-profile-form-section-fields&#x27;);
-    identityFields.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Stamoplysninger&#x27;),nameField,pair);agreementPair.append(targetField,siteField);
-    agreementFields.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Arbejdstid og arbejdssted&#x27;),agreementPair,activeGroup);form.append(identityFields,agreementFields,error,formActions);
-    form.addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();savePerson();});form.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;&amp;&amp;!pending){event.preventDefault();cancel.click();}else if(event.key===&#x27;Enter&#x27;&amp;&amp;(event.ctrlKey||event.metaKey)){event.preventDefault();savePerson();}});
+    const formActions=node(&#x27;div&#x27;,&#x27;cs-employee-profile-form-actions&#x27;),cancel=button(&#x27;Annuller&#x27;,()=&gt;{if(pending)return;editing=false;before=null;error.hidden=true;showTab(&#x27;information&#x27;);},&#x27;cs-button cs-chrome-quiet&#x27;,&#x27;edit:cancel&#x27;),save=button(&#x27;Gem ændringer&#x27;,()=&gt;savePerson(),&#x27;cs-button cs-primary&#x27;,&#x27;edit:save&#x27;);formActions.append(cancel,save);
+    const formBody=node(&#x27;div&#x27;,&#x27;cs-employee-profile-form-body&#x27;),identityFields=node(&#x27;section&#x27;,&#x27;cs-employee-profile-form-section&#x27;),agreementFields=node(&#x27;section&#x27;,&#x27;cs-employee-profile-form-section&#x27;),agreementPair=node(&#x27;div&#x27;,&#x27;cs-employee-profile-form-section-fields&#x27;);
+    identityFields.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Stamoplysninger&#x27;),pair,roleField);agreementPair.append(targetField,siteField);
+    agreementFields.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Arbejdstid og arbejdssted&#x27;),agreementPair);formBody.append(identityFields,agreementFields,activeGroup,error);form.append(formBody,formActions);
+    form.addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();savePerson();});form.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.defaultPrevented||event.isComposing)return;if(event.key===&#x27;Escape&#x27;&amp;&amp;!pending){event.preventDefault();cancel.click();}else if(event.key===&#x27;Enter&#x27;&amp;&amp;(event.ctrlKey||event.metaKey)){event.preventDefault();savePerson();}});
     const siteFor=index=&gt;options.sites?.[index]||{name:&#x27;Arbejdssted mangler&#x27;,address:&#x27;&#x27;};
     const planFor=()=&gt;options.planning?.byPerson?.[person?.id]||null;
     function today(){if(validDate(options.today))return options.today;const marked=options.calendar?.weeks?.flat().find(day=&gt;day.isToday);if(marked)return marked.date;if(validDate(globalThis.CleanRoomsData?.today))return globalThis.CleanRoomsData.today;const parts=new Intl.DateTimeFormat(&#x27;en-GB&#x27;,{timeZone:&#x27;Europe/Copenhagen&#x27;,year:&#x27;numeric&#x27;,month:&#x27;2-digit&#x27;,day:&#x27;2-digit&#x27;}).formatToParts(new Date()),part=key=&gt;parts.find(item=&gt;item.type===key).value;return part(&#x27;year&#x27;)+&#x27;-&#x27;+part(&#x27;month&#x27;)+&#x27;-&#x27;+part(&#x27;day&#x27;);}
     function badge(){const state=node(&#x27;span&#x27;,&#x27;cs-employee-profile-state&#x27;,person.active===false?&#x27;Arkiveret&#x27;:&#x27;Aktiv&#x27;);state.dataset.state=person.active===false?&#x27;archived&#x27;:&#x27;active&#x27;;return state;}
     function details(rows){const list=node(&#x27;dl&#x27;,&#x27;cs-employee-profile-details&#x27;);for(const [label,value] of rows){const item=node(&#x27;div&#x27;),valueNode=node(&#x27;dd&#x27;);if(label===&#x27;Status&#x27;)valueNode.append(badge());else valueNode.textContent=value;item.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),valueNode);list.append(item);}return list;}
+    function informationHeading(label,symbol){return decorate(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title cs-employee-profile-information-heading&#x27;,label),symbol);}
     function agreementRows(){return [[&#x27;Aftalt pr. uge&#x27;,formatHours(Number(person.target||0)*60)+&#x27; timer&#x27;],[&#x27;Primært arbejdssted&#x27;,siteFor(person.site).name],...(siteFor(person.site).address?[[&#x27;Adresse&#x27;,siteFor(person.site).address]]:[])];}
     function information(){return details(agreementRows());}
     function discardStartCode(){
@@ -18731,7 +19207,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const login=options.appLogin;
       if(!login)return null;
       const group=node(&#x27;section&#x27;,&#x27;cs-employee-profile-information-group cs-employee-profile-app-login&#x27;);
-      const heading=node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;App-login&#x27;);
+      const heading=informationHeading(&#x27;App-login&#x27;,&#x27;shield-check&#x27;);
       heading.id=prefix+&#x27;app-login&#x27;;group.setAttribute(&#x27;aria-labelledby&#x27;,heading.id);group.append(heading);
       const account=login.account?.personId===person.id?login.account:null;
       if(login.status===&#x27;error&#x27;){
@@ -18773,10 +19249,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       appendAppLoginFeedback(group);
       return group;
     }
-    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab=&#x27;information&#x27;;saveMessage=&#x27;&#x27;;error.hidden=true;for(const key of [&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;role&#x27;,&#x27;target&#x27;])controls[key].value=String(person[key]??&#x27;&#x27;);controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=&gt;{if(site.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint(&#x27;field:name&#x27;);}
+    function openEditor(){
+      if(!person||!options.canEdit||pending||disposed)return;
+      discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab=&#x27;information&#x27;;saveMessage=&#x27;&#x27;;error.hidden=true;
+      for(const key of [&#x27;name&#x27;,&#x27;initials&#x27;,&#x27;role&#x27;,&#x27;target&#x27;])controls[key].value=String(person[key]??&#x27;&#x27;);
+      controls.active.checked=person.active!==false;
+      const placeholder=node(&#x27;option&#x27;,&#x27;&#x27;,&#x27;Vælg arbejdssted&#x27;);placeholder.value=&#x27;&#x27;;placeholder.disabled=true;controls.site.replaceChildren(placeholder);
+      (options.sites||[]).forEach((site,index)=&gt;{if(site.restricted)return;const option=node(&#x27;option&#x27;,&#x27;&#x27;,site.name);option.value=String(index);controls.site.append(option);});
+      controls.site.value=options.sites?.[person.site]&amp;&amp;!options.sites[person.site].restricted?String(person.site):&#x27;&#x27;;
+      paint(&#x27;field:name&#x27;);
+    }
     async function savePerson(){
       if(!editing||pending||!options.canEdit||disposed||!before)return;
-      const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===&#x27;&#x27;?NaN:Number(controls.target.value),site:Number(controls.site.value),active:controls.active.checked};
+      const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===&#x27;&#x27;?NaN:Number(controls.target.value),site:controls.site.value===&#x27;&#x27;?NaN:Number(controls.site.value),active:controls.active.checked};
       if(!draft.initials)draft.initials=globalThis.CleanRoomsRoster?.initials?.(draft.name)||draft.name.split(/\s+/).filter(Boolean).slice(0,2).map(part=&gt;part[0]).join(&#x27;&#x27;).toLocaleUpperCase(&#x27;da-DK&#x27;);
       const problem=JSON.stringify(person)!==JSON.stringify(before)?&#x27;Medarbejderen er ændret siden formularen blev åbnet. Annullér og åbn den igen.&#x27;:!draft.name||draft.name.length&gt;120?&#x27;Skriv et navn på højst 120 tegn.&#x27;:!draft.role||draft.role.length&gt;120?&#x27;Skriv en funktion på højst 120 tegn.&#x27;:draft.initials.length&gt;8?&#x27;Initialer må højst være 8 tegn.&#x27;:!Number.isFinite(draft.target)||draft.target&lt;0||draft.target&gt;168?&#x27;Aftalte timer skal være mellem 0 og 168.&#x27;:!Number.isInteger(draft.site)||!options.sites?.[draft.site]?&#x27;Vælg et arbejdssted.&#x27;:typeof onSave!==&#x27;function&#x27;?&#x27;Medarbejderen kan ikke gemmes lige nu.&#x27;:&#x27;&#x27;;
       if(problem){error.textContent=problem;error.hidden=false;return;}
@@ -18839,12 +19324,17 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         const facts=node(&#x27;section&#x27;,&#x27;cs-employee-profile-surface cs-employee-profile-facts&#x27;),factsHead=node(&#x27;header&#x27;,&#x27;cs-employee-profile-facts-head&#x27;),showInformation=button(&#x27;Se alle&#x27;,()=&gt;showTab(&#x27;information&#x27;),&#x27;cs-button cs-chrome-quiet&#x27;,&#x27;facts:information&#x27;);showInformation.disabled=pending;showInformation.setAttribute(&#x27;aria-label&#x27;,&#x27;Se alle medarbejderoplysninger&#x27;);factsHead.append(node(&#x27;h3&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Aftale og arbejdssted&#x27;),showInformation);facts.append(factsHead,information());
         const plan=planFor();if(plan&amp;&amp;Number.isFinite(plan.plannedMinutes)){const week=node(&#x27;section&#x27;,&#x27;cs-employee-profile-week&#x27;),meter=node(&#x27;div&#x27;,&#x27;cs-employee-profile-week-meter&#x27;),fill=node(&#x27;span&#x27;),difference=plan.plannedMinutes-plan.targetMinutes,weekState=node(&#x27;p&#x27;,&#x27;cs-employee-profile-week-state&#x27;,difference===0?&#x27;Planlagt som aftalt&#x27;:formatHours(Math.abs(difference))+&#x27; t &#x27;+(difference&gt;0?&#x27;over&#x27;:&#x27;under&#x27;)+&#x27; aftalt&#x27;);meter.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);meter.dataset.state=difference&gt;0?&#x27;over&#x27;:&#x27;normal&#x27;;fill.style.width=(plan.targetMinutes&gt;0?Math.min(100,Math.max(0,plan.plannedMinutes/plan.targetMinutes*100)):plan.plannedMinutes&gt;0?100:0)+&#x27;%&#x27;;meter.append(fill);weekState.dataset.state=difference&gt;0?&#x27;over&#x27;:difference===0?&#x27;balanced&#x27;:&#x27;under&#x27;;week.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Ugens plan&#x27;),node(&#x27;p&#x27;,&#x27;cs-employee-profile-help&#x27;,dateLabel(options.planning.weekStart)+&#x27; – &#x27;+dateLabel(options.planning.weekEnd)),node(&#x27;p&#x27;,&#x27;cs-employee-profile-week-hours&#x27;,formatHours(plan.plannedMinutes)+&#x27; / &#x27;+formatHours(plan.targetMinutes)+&#x27; t&#x27;),node(&#x27;p&#x27;,&#x27;cs-employee-profile-help&#x27;,&#x27;Planlagt / aftalt pr. uge&#x27;),meter,weekState);facts.append(week);}aside.append(facts);workspace.append(main,aside);content.append(workspace);
       }else if(activeTab===&#x27;information&#x27;){
-        const surface=node(&#x27;section&#x27;,&#x27;cs-employee-profile-surface cs-employee-profile-information&#x27;);surface.append(node(&#x27;h3&#x27;,&#x27;cs-employee-profile-section-title&#x27;,editing?&#x27;Rediger medarbejder&#x27;:&#x27;Medarbejderoplysninger&#x27;));
-        if(editing){Object.values(controls).forEach(control=&gt;{control.disabled=pending||!options.canEdit;});save.disabled=pending||!options.canEdit;cancel.disabled=pending;save.textContent=pending?&#x27;Gemmer…&#x27;:&#x27;Gem medarbejder&#x27;;surface.append(form);}
+        const surface=node(&#x27;section&#x27;,&#x27;cs-employee-profile-surface cs-employee-profile-information&#x27;);
+        if(editing){
+          surface.className+=&#x27; cs-employee-profile-editing&#x27;;
+          const heading=node(&#x27;h3&#x27;,&#x27;cs-employee-profile-section-title cs-employee-profile-editor-title&#x27;,&#x27;Rediger medarbejder&#x27;);heading.id=prefix+&#x27;editor-title&#x27;;form.setAttribute(&#x27;aria-labelledby&#x27;,heading.id);
+          Object.values(controls).forEach(control=&gt;{control.disabled=pending||!options.canEdit;});save.disabled=pending||!options.canEdit;cancel.disabled=pending;save.textContent=pending?&#x27;Gemmer…&#x27;:&#x27;Gem ændringer&#x27;;save.setAttribute(&#x27;aria-label&#x27;,save.textContent);surface.append(heading,form);
+        }
         else{
           const groups=node(&#x27;div&#x27;,&#x27;cs-employee-profile-information-grid&#x27;),identityGroup=node(&#x27;section&#x27;,&#x27;cs-employee-profile-information-group&#x27;),agreementGroup=node(&#x27;section&#x27;,&#x27;cs-employee-profile-information-group&#x27;);
-          identityGroup.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Stamoplysninger&#x27;),details([[&#x27;Navn&#x27;,person.name],[&#x27;Initialer&#x27;,person.initials],[&#x27;Funktion&#x27;,person.role],[&#x27;Status&#x27;,person.active===false?&#x27;Arkiveret&#x27;:&#x27;Aktiv&#x27;]]));
-          agreementGroup.append(node(&#x27;h4&#x27;,&#x27;cs-employee-profile-section-title&#x27;,&#x27;Arbejdstid og arbejdssted&#x27;),information());
+          surface.append(node(&#x27;h3&#x27;,&#x27;cs-sr&#x27;,&#x27;Medarbejderoplysninger&#x27;));
+          identityGroup.append(informationHeading(&#x27;Stamoplysninger&#x27;,&#x27;user-round&#x27;),details([[&#x27;Navn&#x27;,person.name],[&#x27;Initialer&#x27;,person.initials],[&#x27;Funktion&#x27;,person.role],[&#x27;Status&#x27;,person.active===false?&#x27;Arkiveret&#x27;:&#x27;Aktiv&#x27;]]));
+          agreementGroup.append(informationHeading(&#x27;Arbejdstid og arbejdssted&#x27;,&#x27;map-pin&#x27;),information());
           groups.append(identityGroup,agreementGroup);
           const appLogin=appLoginSection();if(appLogin)groups.append(appLogin);
           surface.append(groups);
@@ -18982,7 +19472,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         config.agreements.forEach((item,index)=&gt;{const row=node(&#x27;article&#x27;,&#x27;cs-payroll-rate-row&#x27;),copy=node(&#x27;div&#x27;),state=item.id===current?.id?&#x27;current&#x27;:item.from&gt;currentDate?&#x27;future&#x27;:&#x27;past&#x27;,badge=node(&#x27;span&#x27;,&#x27;cs-payroll-rate-state&#x27;,state===&#x27;current&#x27;?(options.linked?&#x27;Personlig sats fra denne dato&#x27;:&#x27;Gældende i dag&#x27;):state===&#x27;future&#x27;?&#x27;Kommende&#x27;:&#x27;Tidligere&#x27;);badge.dataset.state=state;copy.append(node(&#x27;strong&#x27;,&#x27;cs-payroll-rate&#x27;,money(item.amountCents)+(item.type===&#x27;hourly&#x27;?&#x27; / time&#x27;:&#x27; / måned&#x27;)),node(&#x27;span&#x27;,&#x27;cs-payroll-period&#x27;,dateLabel(item.from)+(config.agreements[index+1]?&#x27; – &#x27;+dateLabel(previousDay(config.agreements[index+1].from)):&#x27; og frem&#x27;)),badge);row.append(copy);if(options.canManage===true){const edit=button(item.from&lt;currentDay()?&#x27;Ny sats&#x27;:&#x27;Rediger&#x27;,()=&gt;openEditor(&#x27;agreement&#x27;,item),&#x27;cs-button cs-quiet&#x27;,&#x27;agreement:&#x27;+item.id+&#x27;:edit&#x27;);edit.disabled=blocked()||conflict;edit.setAttribute(&#x27;aria-label&#x27;,(item.from&lt;currentDay()?&#x27;Opret ny sats ud fra lønaftalen fra &#x27;:&#x27;Rediger lønaftalen fra &#x27;)+dateLabel(item.from));row.append(edit);}agreements.append(row);});
         const supplements=node(&#x27;section&#x27;,&#x27;cs-payroll-surface cs-payroll-supplements&#x27;),supplementHead=node(&#x27;header&#x27;,&#x27;cs-payroll-section-head&#x27;);supplementHead.append(node(&#x27;h4&#x27;,&#x27;cs-payroll-section-title&#x27;,options.linked?&#x27;Personlige tillæg&#x27;:&#x27;Tillæg&#x27;));if(options.canManage===true){const add=button(&#x27;Tilføj tillæg&#x27;,()=&gt;openEditor(&#x27;supplement&#x27;),&#x27;cs-button&#x27;,&#x27;supplement:add&#x27;);add.disabled=blocked()||conflict;supplementHead.append(add);}supplementHead.append(node(&#x27;p&#x27;,&#x27;cs-payroll-caption&#x27;,&#x27;Tillæg lægges oven i grundlønnen. Flere matchende tillæg lægges sammen.&#x27;));supplements.append(supplementHead);
         if(!config.supplements.length)supplements.append(node(&#x27;p&#x27;,&#x27;cs-payroll-list-empty&#x27;,&#x27;Ingen tillæg er registreret.&#x27;));
-        config.supplements.forEach(item=&gt;{const row=node(&#x27;article&#x27;,&#x27;cs-payroll-supplement-row&#x27;),copy=node(&#x27;div&#x27;);copy.append(node(&#x27;strong&#x27;,&#x27;cs-payroll-supplement-name&#x27;,item.name),node(&#x27;span&#x27;,&#x27;cs-payroll-rate&#x27;,money(item.amountCents)+(item.type===&#x27;hourly&#x27;?&#x27; / time&#x27;:&#x27; / måned&#x27;)),node(&#x27;span&#x27;,&#x27;cs-payroll-period&#x27;,dateLabel(item.from)+(item.to?&#x27; – &#x27;+dateLabel(item.to):&#x27; og frem&#x27;)),node(&#x27;span&#x27;,&#x27;cs-payroll-rule&#x27;,item.type===&#x27;monthly&#x27;?&#x27;Fast månedligt tillæg&#x27;:item.weekdays.map(day=&gt;days[day]).join(&#x27;, &#x27;)+&#x27; · &#x27;+(item.start?item.start+&#x27;–&#x27;+item.end+(item.end&lt;item.start?&#x27; · over midnat&#x27;:&#x27;&#x27;):&#x27;Hele dagen&#x27;)));row.append(copy);if(options.canManage===true){const actions=node(&#x27;div&#x27;,&#x27;cs-payroll-row-actions&#x27;),edit=button(item.from&lt;currentDay()?&#x27;Ny ændring&#x27;:&#x27;Rediger&#x27;,()=&gt;openEditor(&#x27;supplement&#x27;,item),&#x27;cs-button cs-quiet&#x27;,&#x27;supplement:&#x27;+item.id+&#x27;:edit&#x27;),remove=button(item.from&lt;currentDay()?&#x27;Afslut&#x27;:&#x27;Fjern&#x27;,()=&gt;openRemoval(item),&#x27;cs-button cs-quiet&#x27;,&#x27;supplement:&#x27;+item.id+&#x27;:remove&#x27;);edit.disabled=remove.disabled=blocked()||conflict;edit.setAttribute(&#x27;aria-label&#x27;,&#x27;Rediger tillægget &#x27;+item.name);remove.setAttribute(&#x27;aria-label&#x27;,&#x27;Fjern tillægget &#x27;+item.name);actions.append(edit);if(!(item.to&amp;&amp;item.to&lt;currentDay()))actions.append(remove);row.append(actions);}supplements.append(row);});workspace.append(agreements,supplements);const records=node(&#x27;details&#x27;,&#x27;cs-payroll-records&#x27;),recordsTitle=node(&#x27;summary&#x27;,&#x27;cs-payroll-disclosure-title&#x27;),recordsCopy=node(&#x27;span&#x27;);recordsCopy.append(node(&#x27;strong&#x27;,&#x27;&#x27;,&#x27;Personlige satser og historik&#x27;),node(&#x27;span&#x27;,&#x27;cs-payroll-caption&#x27;,config.agreements.length+&#x27; lønaftaler · &#x27;+config.supplements.length+&#x27; tillæg&#x27;));recordsTitle.append(recordsCopy);records.open=recordsOpen;records.addEventListener(&#x27;toggle&#x27;,()=&gt;{recordsOpen=records.open;});records.append(recordsTitle,node(&#x27;p&#x27;,&#x27;cs-payroll-records-intro&#x27;,options.linked?&#x27;Personlige satser kan afvige fra gruppens aftale. Satserne her bruges kun, når medarbejderen følger personlig grundløn eller har valgt personlige ekstratillæg.&#x27;:&#x27;Gemte grundlønsatser og tillæg. Gældende og tidligere aftaler vises i hver sin periode.&#x27;),workspace);parts.push(records);
+        config.supplements.forEach(item=&gt;{const row=node(&#x27;article&#x27;,&#x27;cs-payroll-supplement-row&#x27;),copy=node(&#x27;div&#x27;);copy.append(node(&#x27;strong&#x27;,&#x27;cs-payroll-supplement-name&#x27;,item.name),node(&#x27;span&#x27;,&#x27;cs-payroll-rate&#x27;,money(item.amountCents)+(item.type===&#x27;hourly&#x27;?&#x27; / time&#x27;:&#x27; / måned&#x27;)),node(&#x27;span&#x27;,&#x27;cs-payroll-period&#x27;,dateLabel(item.from)+(item.to?&#x27; – &#x27;+dateLabel(item.to):&#x27; og frem&#x27;)),node(&#x27;span&#x27;,&#x27;cs-payroll-rule&#x27;,item.type===&#x27;monthly&#x27;?&#x27;Fast månedligt tillæg&#x27;:item.weekdays.map(day=&gt;days[day]).join(&#x27;, &#x27;)+&#x27; · &#x27;+(item.start?item.start+&#x27;–&#x27;+item.end+(item.end&lt;item.start?&#x27; · over midnat&#x27;:&#x27;&#x27;):&#x27;Hele dagen&#x27;)));row.append(copy);if(options.canManage===true){const actions=node(&#x27;div&#x27;,&#x27;cs-payroll-row-actions&#x27;),edit=button(item.from&lt;currentDay()?&#x27;Ny ændring&#x27;:&#x27;Rediger&#x27;,()=&gt;openEditor(&#x27;supplement&#x27;,item),&#x27;cs-button cs-quiet&#x27;,&#x27;supplement:&#x27;+item.id+&#x27;:edit&#x27;),remove=button(item.from&lt;currentDay()?&#x27;Afslut&#x27;:&#x27;Fjern&#x27;,()=&gt;openRemoval(item),&#x27;cs-button cs-quiet&#x27;,&#x27;supplement:&#x27;+item.id+&#x27;:remove&#x27;);edit.disabled=remove.disabled=blocked()||conflict;edit.setAttribute(&#x27;aria-label&#x27;,&#x27;Rediger tillægget &#x27;+item.name);remove.setAttribute(&#x27;aria-label&#x27;,&#x27;Fjern tillægget &#x27;+item.name);actions.append(edit);if(!(item.to&amp;&amp;item.to&lt;currentDay()))actions.append(remove);row.append(actions);}supplements.append(row);});
+        workspace.append(agreements,supplements);
+        const records=node(&#x27;details&#x27;,&#x27;cs-payroll-records&#x27;),recordsTitle=node(&#x27;summary&#x27;,&#x27;cs-payroll-disclosure-title&#x27;),recordsCopy=node(&#x27;span&#x27;);
+        const agreementCount=config.agreements.length;
+        recordsCopy.append(node(&#x27;strong&#x27;,&#x27;&#x27;,&#x27;Personlige satser og historik&#x27;),node(&#x27;span&#x27;,&#x27;cs-payroll-caption&#x27;,agreementCount+(agreementCount===1?&#x27; lønaftale&#x27;:&#x27; lønaftaler&#x27;)+&#x27; · &#x27;+config.supplements.length+&#x27; tillæg&#x27;));
+        recordsTitle.append(recordsCopy);records.open=recordsOpen;records.addEventListener(&#x27;toggle&#x27;,()=&gt;{recordsOpen=records.open;});records.append(recordsTitle,node(&#x27;p&#x27;,&#x27;cs-payroll-records-intro&#x27;,options.linked?&#x27;Personlige satser kan afvige fra gruppens aftale. Satserne her bruges kun, når medarbejderen følger personlig grundløn eller har valgt personlige ekstratillæg.&#x27;:&#x27;Gemte grundlønsatser og tillæg. Gældende og tidligere aftaler vises i hver sin periode.&#x27;),workspace);parts.push(records);
       }
       if(options.updatedAt&amp;&amp;Number.isFinite(Date.parse(options.updatedAt)))parts.push(node(&#x27;p&#x27;,&#x27;cs-payroll-updated&#x27;,&#x27;Senest opdateret &#x27;+new Date(options.updatedAt).toLocaleString(&#x27;da-DK&#x27;,{timeZone:&#x27;Europe/Copenhagen&#x27;,dateStyle:&#x27;medium&#x27;,timeStyle:&#x27;short&#x27;})));
       finish();
@@ -19671,29 +20166,35 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     async function reload(){if(pending||typeof onReload!==&#x27;function&#x27;)return;const token=++epoch;pending=true;error=&#x27;&#x27;;paint();try{await onReload();if(disposed||token!==epoch)return;pending=false;draft=null;review=null;conflict=false;notice=&#x27;Lønoplysningerne er hentet igen.&#x27;;paint(&#x27;edit&#x27;);}catch(problem){if(disposed||token!==epoch)return;pending=false;error=problem.message||&#x27;Oplysningerne kunne ikke hentes.&#x27;;paint();}}
     function paint(requestedFocus){
       if(disposed)return;if(Boolean(draft)!==reportedEditing){reportedEditing=Boolean(draft);onEditingChange?.(reportedEditing);}const active=element.contains?.(doc.activeElement)?doc.activeElement:null,focus=requestedFocus||active?.dataset?.personPayFocus,selection=active&amp;&amp;typeof active.selectionStart===&#x27;number&#x27;?[active.selectionStart,active.selectionEnd]:null;
-      const parts=[],head=node(&#x27;header&#x27;,&#x27;cs-person-pay-head&#x27;),copy=node(&#x27;div&#x27;),headActions=node(&#x27;div&#x27;,&#x27;cs-person-pay-head-actions&#x27;);copy.append(node(&#x27;span&#x27;,&#x27;cs-person-pay-eyebrow&#x27;,&#x27;Aftale og satser&#x27;),node(&#x27;h4&#x27;,&#x27;cs-person-pay-title&#x27;,&#x27;Aktuel lønaftale&#x27;));head.append(copy);
+      const parts=[],head=node(&#x27;header&#x27;,&#x27;cs-person-pay-head&#x27;),headActions=node(&#x27;div&#x27;,&#x27;cs-person-pay-head-actions&#x27;);
+      head.append(node(&#x27;h3&#x27;,&#x27;cs-person-pay-title&#x27;,draft?&#x27;Individuelle lønvalg&#x27;:&#x27;Aktuel lønaftale&#x27;));
       if(typeof onOpenGroups===&#x27;function&#x27;){const openGroups=button(validDate(date)&amp;&amp;personId&amp;&amp;Model.linkFor(policy,personId,date)?.groupId?&#x27;Åbn løngruppe&#x27;:&#x27;Åbn løngrupper&#x27;,()=&gt;onOpenGroups(personId,{groupId:validDate(date)?Model.linkFor(policy,personId,date)?.groupId||null:null,date}),&#x27;groups&#x27;);openGroups.disabled=pending;headActions.append(openGroups);}
       if(typeof onChangeGroup===&#x27;function&#x27;&amp;&amp;options.canManageGroups===true){const changeGroup=button(&#x27;Skift løngruppe&#x27;,()=&gt;onChangeGroup(personId),&#x27;change-group&#x27;);changeGroup.disabled=pending||Boolean(draft);headActions.append(changeGroup);}head.append(headActions);parts.push(head);
       if(!personId){parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Vælg en medarbejder.&#x27;));finish();return;}
       if(invalid){parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-error&#x27;,error||&#x27;Lønvalgene kunne ikke læses sikkert.&#x27;));finish();return;}
-      const dateField=field(&#x27;date&#x27;,draft?&#x27;Gælder fra&#x27;:&#x27;Aftale pr. dato&#x27;,&#x27;date&#x27;,date,value=&gt;date=value);dateField.control.disabled=pending;const dateBar=node(&#x27;div&#x27;,&#x27;cs-person-pay-datebar&#x27;);dateBar.append(dateField.wrap,node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,draft?&#x27;Vælg datoen for ændringen. Intet gemmes før gennemgang.&#x27;:&#x27;Satserne nedenfor gælder på den valgte dato.&#x27;));parts.push(dateBar);
+      const agreementPanel=node(&#x27;section&#x27;,&#x27;cs-person-pay-agreement&#x27;);
+      const dateField=field(&#x27;date&#x27;,draft?&#x27;Gælder fra&#x27;:&#x27;Aftale pr. dato&#x27;,&#x27;date&#x27;,date,value=&gt;date=value);
+      dateField.control.disabled=pending;
+      const dateBar=node(&#x27;div&#x27;,&#x27;cs-person-pay-datebar&#x27;);
+      dateBar.append(dateField.wrap);
+      if(validDate(date)&amp;&amp;date&lt;options.today)dateBar.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Tidligere dato · oplysningerne er skrivebeskyttede.&#x27;));
+      agreementPanel.append(dateBar);
+      parts.push(agreementPanel);
       if(error){const message=node(&#x27;div&#x27;,&#x27;cs-person-pay-error&#x27;);message.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);message.append(node(&#x27;p&#x27;,&#x27;&#x27;,error));if(conflict&amp;&amp;draft)message.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Din kladde er bevaret. Hentning af de seneste oplysninger lukker kladden.&#x27;));if(typeof onReload===&#x27;function&#x27;){const retry=button(&#x27;Hent seneste oplysninger&#x27;,reload,&#x27;reload&#x27;);retry.disabled=pending;message.append(retry);}parts.push(message);}
       if(notice){const message=node(&#x27;p&#x27;,&#x27;cs-person-pay-success&#x27;,notice);message.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);parts.push(message);}
       if(!validDate(date)){parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-error&#x27;,&#x27;Vælg en gyldig dato.&#x27;));finish();return;}
       const current=linkAt(),group=groupAt(),resolved=Model.resolve({policy,personId,payroll:personal,from:date,to:date}),agreement=resolved.payroll.agreements.at(-1),summary=node(&#x27;div&#x27;,&#x27;cs-person-pay-summary&#x27;);
       const rawAgreement=(resolved.personalBase?personal.agreements:group?.revision?.payroll.agreements||[]).filter(value=&gt;value.from&lt;=date).at(-1),effectiveFrom=[rawAgreement?.from,current?.from,...(!resolved.personalBase?[group?.revision?.from]:[])].filter(Boolean).sort().at(-1);
       const baseSummary=node(&#x27;div&#x27;,&#x27;cs-person-pay-base&#x27;);baseSummary.append(node(&#x27;span&#x27;,&#x27;cs-person-pay-label&#x27;,&#x27;Grundløn&#x27;),node(&#x27;strong&#x27;,&#x27;cs-person-pay-base-amount&#x27;,resolved.missingBasePeriods.length?&#x27;Grundløn mangler&#x27;:rate(agreement)));
-      const facts=node(&#x27;dl&#x27;,&#x27;cs-person-pay-facts&#x27;);for(const [label,value] of [[&#x27;Løngruppe&#x27;,group?.name||&#x27;Ingen løngruppe&#x27;],[&#x27;Kilde&#x27;,resolved.personalBase?&#x27;Personlig grundløn&#x27;:&#x27;Grundløn fra gruppen&#x27;],[&#x27;Gælder fra&#x27;,effectiveFrom?dateLabel(effectiveFrom):&#x27;Ikke oprettet&#x27;]]){const fact=node(&#x27;div&#x27;);fact.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value));facts.append(fact);}summary.append(baseSummary,facts);if(group?.archived)summary.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Arkiveret gruppe · tidligere tilknytning bevares&#x27;));parts.push(summary);
-      if(date&lt;options.today)parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Tidligere dato · oplysningerne er skrivebeskyttede.&#x27;));
+      const facts=node(&#x27;dl&#x27;,&#x27;cs-person-pay-facts&#x27;);for(const [label,value] of [[&#x27;Løngruppe&#x27;,group?.name||&#x27;Ingen løngruppe&#x27;],[&#x27;Kilde&#x27;,resolved.personalBase?&#x27;Personlig grundløn&#x27;:&#x27;Grundløn fra gruppen&#x27;],[&#x27;Gælder fra&#x27;,effectiveFrom?dateLabel(effectiveFrom):&#x27;Ikke oprettet&#x27;]]){const fact=node(&#x27;div&#x27;);fact.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value));facts.append(fact);}summary.append(baseSummary,facts);if(group?.archived)summary.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Arkiveret gruppe · tidligere tilknytning bevares&#x27;));
+      agreementPanel.append(summary);
       if(!draft){
-        const allowances=node(&#x27;section&#x27;,&#x27;cs-person-pay-read-rules&#x27;),allowanceHead=node(&#x27;div&#x27;,&#x27;cs-person-pay-allowance-head&#x27;);allowanceHead.append(node(&#x27;h5&#x27;,&#x27;cs-person-pay-subtitle&#x27;,&#x27;Tillæg på aftalen&#x27;));if(group&amp;&amp;options.canManage===true&amp;&amp;date&gt;=options.today){const edit=button(&#x27;Rediger individuelle valg&#x27;,open,&#x27;edit&#x27;);edit.disabled=!writable();allowanceHead.append(edit);}allowances.append(allowanceHead);
+        const allowances=node(&#x27;section&#x27;,&#x27;cs-person-pay-read-rules&#x27;),allowanceHead=node(&#x27;div&#x27;,&#x27;cs-person-pay-allowance-head&#x27;);allowanceHead.append(node(&#x27;h4&#x27;,&#x27;cs-person-pay-subtitle&#x27;,&#x27;Tillæg på aftalen&#x27;));if(group&amp;&amp;options.canManage===true&amp;&amp;date&gt;=options.today){const edit=button(&#x27;Rediger individuelle valg&#x27;,open,&#x27;edit&#x27;);edit.disabled=!writable();allowanceHead.append(edit);}allowances.append(allowanceHead);
         let allowanceCount=0;
         const appendAllowance=(supplement,value,state,source)=&gt;{if(!activeOn(value,date))return;allowanceCount++;const row=node(&#x27;div&#x27;,&#x27;cs-person-pay-read-rule&#x27;),identity=node(&#x27;div&#x27;),amount=node(&#x27;div&#x27;,&#x27;cs-person-pay-read-amount&#x27;);row.dataset.state=state;identity.append(node(&#x27;strong&#x27;,&#x27;&#x27;,supplement.name),node(&#x27;span&#x27;,&#x27;cs-person-pay-help&#x27;,rule(value)),node(&#x27;span&#x27;,&#x27;cs-person-pay-period&#x27;,dateLabel(value.from)+(value.to?&#x27; – &#x27;+dateLabel(value.to):&#x27; og frem&#x27;)));amount.append(node(&#x27;strong&#x27;,&#x27;&#x27;,rate(value)),node(&#x27;span&#x27;,&#x27;cs-person-pay-state&#x27;,source));row.append(identity,amount);allowances.append(row);};
         for(const supplement of group?.revision?.payroll.supplements||[]){const override=current.supplementOverrides.find(item=&gt;item.id===supplement.id),value=override?.mode===&#x27;personal&#x27;?override.supplement:supplement,state=override?.mode||&#x27;follow&#x27;;appendAllowance(supplement,value,state,state===&#x27;personal&#x27;?&#x27;Personligt beløb&#x27;:state===&#x27;off&#x27;?&#x27;Fravalgt&#x27;:&#x27;Fra gruppen&#x27;);}
         for(const supplement of personal.supplements){const excluded=current?.excludedPersonalSupplementIds.includes(supplement.id);appendAllowance(supplement,supplement,excluded?&#x27;off&#x27;:&#x27;personal&#x27;,excluded?&#x27;Fravalgt&#x27;:&#x27;Personligt ekstra&#x27;);}
-        if(!allowanceCount)allowances.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Ingen tillæg gælder på den valgte dato.&#x27;));parts.push(allowances);
-        if(!group)parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Personlige satser og ekstratillæg administreres under Personlige satser og historik.&#x27;));
-        else if(options.canManage!==true)parts.push(node(&#x27;p&#x27;,&#x27;cs-person-pay-help&#x27;,&#x27;Individuelle valg kan ses her. Din rolle kan ikke ændre dem.&#x27;));
+        if(!allowanceCount)allowances.append(node(&#x27;p&#x27;,&#x27;cs-person-pay-help cs-person-pay-no-allowances&#x27;,&#x27;Ingen tillæg på den valgte dato.&#x27;));parts.push(allowances);
         finish();return;
       }
       const form=node(&#x27;div&#x27;,&#x27;cs-person-pay-form&#x27;);form.setAttribute(&#x27;aria-busy&#x27;,String(pending));
@@ -30608,6 +31109,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
 
 
 

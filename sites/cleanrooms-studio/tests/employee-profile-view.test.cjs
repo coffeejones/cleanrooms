@@ -82,6 +82,14 @@ test('an incoming render during save keeps the pending draft, then the confirmed
   assert.equal(fixture.field('target'),undefined);assert.ok(fixture.byClass('cs-employee-profile-information').textContent.includes('36 timer'));assert.equal(fixture.byClass('cs-employee-profile-name').textContent,'Jonas opdateret');assert.ok(fixture.byClass('cs-employee-profile-save-status'));
 });
 
+test('profile editing requires a visible workplace when the stored workplace is outside the scope',async()=>{
+  const saved=[],fixture=app({callbacks:{onSave:async draft=>{saved.push(draft);return {ok:true,person:draft};}}});
+  fixture.render({sites:[{...sites[0],restricted:true},sites[1]]});await fixture.key('edit').click();
+  assert.equal(fixture.field('site').value,'');await fixture.key('edit:save').click();
+  assert.equal(saved.length,0);assert.match(fixture.byClass('cs-employee-profile-error').textContent,/Vælg et arbejdssted/);
+  fixture.field('site').value='1';await fixture.key('edit:save').click();assert.equal(saved[0].site,1);
+});
+
 test('calendar errors preserve facts and literal user text, while an explicit missing person clears the old record',async()=>{
   const fixture=app();fixture.render({person:{...person,name:'<img src=x onerror=alert(1)>'},calendar:null,error:'Kalenderen kunne ikke beregnes.'});assert.ok(fixture.host.textContent.includes('Kalenderen kunne ikke beregnes.'));assert.ok(fixture.byClass('cs-employee-profile-facts').textContent.includes('Nordvej 12'));assert.equal(fixture.byClass('cs-employee-profile-month-totals'),undefined);assert.equal(fixture.nodes().some(item=>item.tagName==='IMG'),false);
   fixture.render({person:null,calendar:null});assert.equal(fixture.host.textContent.includes('Jonas'),false);assert.ok(fixture.host.textContent.includes('ikke tilgængelig'));

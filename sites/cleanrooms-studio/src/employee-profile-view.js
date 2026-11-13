@@ -24,20 +24,22 @@
     const field=(name,label,type='text')=>{const wrap=node('label','cs-employee-profile-field'),control=node(type==='select'?'select':'input','cs-employee-profile-input');control.id=prefix+name;control.dataset.profileFocus='field:'+name;if(type!=='select')control.type=type;controls[name]=control;wrap.append(node('span','cs-employee-profile-label',label),control);return wrap;};
     const nameField=field('name','Navn'),initialsField=field('initials','Initialer'),roleField=field('role','Funktion'),targetField=field('target','Aftalte timer pr. uge','number'),siteField=field('site','Primært arbejdssted','select');
     controls.name.required=true;controls.name.maxLength=120;controls.name.autocomplete='name';controls.initials.maxLength=8;controls.role.required=true;controls.role.maxLength=120;controls.role.autocomplete='organization-title';controls.target.min='0';controls.target.max='168';controls.target.step='0.25';
-    const pair=node('div','cs-employee-profile-field-pair');pair.append(initialsField,roleField);
+    controls.site.required=true;controls.site.setAttribute('data-select-only','');controls.site.setAttribute('aria-label','Primært arbejdssted');
+    const pair=node('div','cs-employee-profile-field-pair');pair.append(nameField,initialsField);
     const active=node('input');active.type='checkbox';active.id=prefix+'active';active.dataset.profileFocus='field:active';controls.active=active;const activeField=node('label','cs-employee-profile-check');activeField.append(active,node('span','','Aktiv medarbejder'));
-    const activeHelp=node('p','cs-employee-profile-help','Arkiverede medarbejdere bevares sammen med deres tidligere vagter.');activeHelp.id=prefix+'active-help';active.setAttribute('aria-describedby',activeHelp.id);const activeGroup=node('div','cs-employee-profile-active-group');activeGroup.append(activeField,activeHelp);
+    const activeHelp=node('p','cs-employee-profile-help','Ved arkivering bevares tidligere vagter.');activeHelp.id=prefix+'active-help';active.setAttribute('aria-describedby',activeHelp.id);const activeGroup=node('div','cs-employee-profile-active-group');activeGroup.append(activeField,activeHelp);
     const error=node('p','cs-employee-profile-error');error.hidden=true;error.setAttribute('role','alert');
-    const formActions=node('div','cs-employee-profile-form-actions'),cancel=button('Annuller',()=>{if(pending)return;editing=false;before=null;error.hidden=true;showTab('information');},'cs-button cs-quiet','edit:cancel'),save=button('Gem medarbejder',()=>savePerson(),'cs-button cs-primary','edit:save');formActions.append(cancel,save);
-    const identityFields=node('section','cs-employee-profile-form-section'),agreementFields=node('section','cs-employee-profile-form-section'),agreementPair=node('div','cs-employee-profile-form-section-fields');
-    identityFields.append(node('h4','cs-employee-profile-section-title','Stamoplysninger'),nameField,pair);agreementPair.append(targetField,siteField);
-    agreementFields.append(node('h4','cs-employee-profile-section-title','Arbejdstid og arbejdssted'),agreementPair,activeGroup);form.append(identityFields,agreementFields,error,formActions);
-    form.addEventListener('submit',event=>{event.preventDefault();savePerson();});form.addEventListener('keydown',event=>{if(event.key==='Escape'&&!pending){event.preventDefault();cancel.click();}else if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();savePerson();}});
+    const formActions=node('div','cs-employee-profile-form-actions'),cancel=button('Annuller',()=>{if(pending)return;editing=false;before=null;error.hidden=true;showTab('information');},'cs-button cs-chrome-quiet','edit:cancel'),save=button('Gem ændringer',()=>savePerson(),'cs-button cs-primary','edit:save');formActions.append(cancel,save);
+    const formBody=node('div','cs-employee-profile-form-body'),identityFields=node('section','cs-employee-profile-form-section'),agreementFields=node('section','cs-employee-profile-form-section'),agreementPair=node('div','cs-employee-profile-form-section-fields');
+    identityFields.append(node('h4','cs-employee-profile-section-title','Stamoplysninger'),pair,roleField);agreementPair.append(targetField,siteField);
+    agreementFields.append(node('h4','cs-employee-profile-section-title','Arbejdstid og arbejdssted'),agreementPair);formBody.append(identityFields,agreementFields,activeGroup,error);form.append(formBody,formActions);
+    form.addEventListener('submit',event=>{event.preventDefault();savePerson();});form.addEventListener('keydown',event=>{if(event.defaultPrevented||event.isComposing)return;if(event.key==='Escape'&&!pending){event.preventDefault();cancel.click();}else if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();savePerson();}});
     const siteFor=index=>options.sites?.[index]||{name:'Arbejdssted mangler',address:''};
     const planFor=()=>options.planning?.byPerson?.[person?.id]||null;
     function today(){if(validDate(options.today))return options.today;const marked=options.calendar?.weeks?.flat().find(day=>day.isToday);if(marked)return marked.date;if(validDate(globalThis.CleanRoomsData?.today))return globalThis.CleanRoomsData.today;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Copenhagen',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),part=key=>parts.find(item=>item.type===key).value;return part('year')+'-'+part('month')+'-'+part('day');}
     function badge(){const state=node('span','cs-employee-profile-state',person.active===false?'Arkiveret':'Aktiv');state.dataset.state=person.active===false?'archived':'active';return state;}
     function details(rows){const list=node('dl','cs-employee-profile-details');for(const [label,value] of rows){const item=node('div'),valueNode=node('dd');if(label==='Status')valueNode.append(badge());else valueNode.textContent=value;item.append(node('dt','',label),valueNode);list.append(item);}return list;}
+    function informationHeading(label,symbol){return decorate(node('h4','cs-employee-profile-section-title cs-employee-profile-information-heading',label),symbol);}
     function agreementRows(){return [['Aftalt pr. uge',formatHours(Number(person.target||0)*60)+' timer'],['Primært arbejdssted',siteFor(person.site).name],...(siteFor(person.site).address?[['Adresse',siteFor(person.site).address]]:[])];}
     function information(){return details(agreementRows());}
     function discardStartCode(){
@@ -200,7 +202,7 @@
       const login=options.appLogin;
       if(!login)return null;
       const group=node('section','cs-employee-profile-information-group cs-employee-profile-app-login');
-      const heading=node('h4','cs-employee-profile-section-title','App-login');
+      const heading=informationHeading('App-login','shield-check');
       heading.id=prefix+'app-login';group.setAttribute('aria-labelledby',heading.id);group.append(heading);
       const account=login.account?.personId===person.id?login.account:null;
       if(login.status==='error'){
@@ -242,10 +244,19 @@
       appendAppLoginFeedback(group);
       return group;
     }
-    function openEditor(){if(!person||!options.canEdit||pending||disposed)return;discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab='information';saveMessage='';error.hidden=true;for(const key of ['name','initials','role','target'])controls[key].value=String(person[key]??'');controls.active.checked=person.active!==false;controls.site.replaceChildren();(options.sites||[]).forEach((site,index)=>{if(site.restricted)return;const option=node('option','',site.name);option.value=String(index);controls.site.append(option);});controls.site.value=String(person.site);paint('field:name');}
+    function openEditor(){
+      if(!person||!options.canEdit||pending||disposed)return;
+      discardStartCode();discardAppLoginControls();before=clone(person);editing=true;activeTab='information';saveMessage='';error.hidden=true;
+      for(const key of ['name','initials','role','target'])controls[key].value=String(person[key]??'');
+      controls.active.checked=person.active!==false;
+      const placeholder=node('option','','Vælg arbejdssted');placeholder.value='';placeholder.disabled=true;controls.site.replaceChildren(placeholder);
+      (options.sites||[]).forEach((site,index)=>{if(site.restricted)return;const option=node('option','',site.name);option.value=String(index);controls.site.append(option);});
+      controls.site.value=options.sites?.[person.site]&&!options.sites[person.site].restricted?String(person.site):'';
+      paint('field:name');
+    }
     async function savePerson(){
       if(!editing||pending||!options.canEdit||disposed||!before)return;
-      const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===''?NaN:Number(controls.target.value),site:Number(controls.site.value),active:controls.active.checked};
+      const draft={...before,name:controls.name.value.trim(),initials:controls.initials.value.trim(),role:controls.role.value.trim(),target:controls.target.value.trim()===''?NaN:Number(controls.target.value),site:controls.site.value===''?NaN:Number(controls.site.value),active:controls.active.checked};
       if(!draft.initials)draft.initials=globalThis.CleanRoomsRoster?.initials?.(draft.name)||draft.name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join('').toLocaleUpperCase('da-DK');
       const problem=JSON.stringify(person)!==JSON.stringify(before)?'Medarbejderen er ændret siden formularen blev åbnet. Annullér og åbn den igen.':!draft.name||draft.name.length>120?'Skriv et navn på højst 120 tegn.':!draft.role||draft.role.length>120?'Skriv en funktion på højst 120 tegn.':draft.initials.length>8?'Initialer må højst være 8 tegn.':!Number.isFinite(draft.target)||draft.target<0||draft.target>168?'Aftalte timer skal være mellem 0 og 168.':!Number.isInteger(draft.site)||!options.sites?.[draft.site]?'Vælg et arbejdssted.':typeof onSave!=='function'?'Medarbejderen kan ikke gemmes lige nu.':'';
       if(problem){error.textContent=problem;error.hidden=false;return;}
@@ -308,12 +319,17 @@
         const facts=node('section','cs-employee-profile-surface cs-employee-profile-facts'),factsHead=node('header','cs-employee-profile-facts-head'),showInformation=button('Se alle',()=>showTab('information'),'cs-button cs-chrome-quiet','facts:information');showInformation.disabled=pending;showInformation.setAttribute('aria-label','Se alle medarbejderoplysninger');factsHead.append(node('h3','cs-employee-profile-section-title','Aftale og arbejdssted'),showInformation);facts.append(factsHead,information());
         const plan=planFor();if(plan&&Number.isFinite(plan.plannedMinutes)){const week=node('section','cs-employee-profile-week'),meter=node('div','cs-employee-profile-week-meter'),fill=node('span'),difference=plan.plannedMinutes-plan.targetMinutes,weekState=node('p','cs-employee-profile-week-state',difference===0?'Planlagt som aftalt':formatHours(Math.abs(difference))+' t '+(difference>0?'over':'under')+' aftalt');meter.setAttribute('aria-hidden','true');meter.dataset.state=difference>0?'over':'normal';fill.style.width=(plan.targetMinutes>0?Math.min(100,Math.max(0,plan.plannedMinutes/plan.targetMinutes*100)):plan.plannedMinutes>0?100:0)+'%';meter.append(fill);weekState.dataset.state=difference>0?'over':difference===0?'balanced':'under';week.append(node('h4','cs-employee-profile-section-title','Ugens plan'),node('p','cs-employee-profile-help',dateLabel(options.planning.weekStart)+' – '+dateLabel(options.planning.weekEnd)),node('p','cs-employee-profile-week-hours',formatHours(plan.plannedMinutes)+' / '+formatHours(plan.targetMinutes)+' t'),node('p','cs-employee-profile-help','Planlagt / aftalt pr. uge'),meter,weekState);facts.append(week);}aside.append(facts);workspace.append(main,aside);content.append(workspace);
       }else if(activeTab==='information'){
-        const surface=node('section','cs-employee-profile-surface cs-employee-profile-information');surface.append(node('h3','cs-employee-profile-section-title',editing?'Rediger medarbejder':'Medarbejderoplysninger'));
-        if(editing){Object.values(controls).forEach(control=>{control.disabled=pending||!options.canEdit;});save.disabled=pending||!options.canEdit;cancel.disabled=pending;save.textContent=pending?'Gemmer…':'Gem medarbejder';surface.append(form);}
+        const surface=node('section','cs-employee-profile-surface cs-employee-profile-information');
+        if(editing){
+          surface.className+=' cs-employee-profile-editing';
+          const heading=node('h3','cs-employee-profile-section-title cs-employee-profile-editor-title','Rediger medarbejder');heading.id=prefix+'editor-title';form.setAttribute('aria-labelledby',heading.id);
+          Object.values(controls).forEach(control=>{control.disabled=pending||!options.canEdit;});save.disabled=pending||!options.canEdit;cancel.disabled=pending;save.textContent=pending?'Gemmer…':'Gem ændringer';save.setAttribute('aria-label',save.textContent);surface.append(heading,form);
+        }
         else{
           const groups=node('div','cs-employee-profile-information-grid'),identityGroup=node('section','cs-employee-profile-information-group'),agreementGroup=node('section','cs-employee-profile-information-group');
-          identityGroup.append(node('h4','cs-employee-profile-section-title','Stamoplysninger'),details([['Navn',person.name],['Initialer',person.initials],['Funktion',person.role],['Status',person.active===false?'Arkiveret':'Aktiv']]));
-          agreementGroup.append(node('h4','cs-employee-profile-section-title','Arbejdstid og arbejdssted'),information());
+          surface.append(node('h3','cs-sr','Medarbejderoplysninger'));
+          identityGroup.append(informationHeading('Stamoplysninger','user-round'),details([['Navn',person.name],['Initialer',person.initials],['Funktion',person.role],['Status',person.active===false?'Arkiveret':'Aktiv']]));
+          agreementGroup.append(informationHeading('Arbejdstid og arbejdssted','map-pin'),information());
           groups.append(identityGroup,agreementGroup);
           const appLogin=appLoginSection();if(appLogin)groups.append(appLogin);
           surface.append(groups);

@@ -53,29 +53,35 @@
     async function reload(){if(pending||typeof onReload!=='function')return;const token=++epoch;pending=true;error='';paint();try{await onReload();if(disposed||token!==epoch)return;pending=false;draft=null;review=null;conflict=false;notice='Lønoplysningerne er hentet igen.';paint('edit');}catch(problem){if(disposed||token!==epoch)return;pending=false;error=problem.message||'Oplysningerne kunne ikke hentes.';paint();}}
     function paint(requestedFocus){
       if(disposed)return;if(Boolean(draft)!==reportedEditing){reportedEditing=Boolean(draft);onEditingChange?.(reportedEditing);}const active=element.contains?.(doc.activeElement)?doc.activeElement:null,focus=requestedFocus||active?.dataset?.personPayFocus,selection=active&&typeof active.selectionStart==='number'?[active.selectionStart,active.selectionEnd]:null;
-      const parts=[],head=node('header','cs-person-pay-head'),copy=node('div'),headActions=node('div','cs-person-pay-head-actions');copy.append(node('span','cs-person-pay-eyebrow','Aftale og satser'),node('h4','cs-person-pay-title','Aktuel lønaftale'));head.append(copy);
+      const parts=[],head=node('header','cs-person-pay-head'),headActions=node('div','cs-person-pay-head-actions');
+      head.append(node('h3','cs-person-pay-title',draft?'Individuelle lønvalg':'Aktuel lønaftale'));
       if(typeof onOpenGroups==='function'){const openGroups=button(validDate(date)&&personId&&Model.linkFor(policy,personId,date)?.groupId?'Åbn løngruppe':'Åbn løngrupper',()=>onOpenGroups(personId,{groupId:validDate(date)?Model.linkFor(policy,personId,date)?.groupId||null:null,date}),'groups');openGroups.disabled=pending;headActions.append(openGroups);}
       if(typeof onChangeGroup==='function'&&options.canManageGroups===true){const changeGroup=button('Skift løngruppe',()=>onChangeGroup(personId),'change-group');changeGroup.disabled=pending||Boolean(draft);headActions.append(changeGroup);}head.append(headActions);parts.push(head);
       if(!personId){parts.push(node('p','cs-person-pay-help','Vælg en medarbejder.'));finish();return;}
       if(invalid){parts.push(node('p','cs-person-pay-error',error||'Lønvalgene kunne ikke læses sikkert.'));finish();return;}
-      const dateField=field('date',draft?'Gælder fra':'Aftale pr. dato','date',date,value=>date=value);dateField.control.disabled=pending;const dateBar=node('div','cs-person-pay-datebar');dateBar.append(dateField.wrap,node('p','cs-person-pay-help',draft?'Vælg datoen for ændringen. Intet gemmes før gennemgang.':'Satserne nedenfor gælder på den valgte dato.'));parts.push(dateBar);
+      const agreementPanel=node('section','cs-person-pay-agreement');
+      const dateField=field('date',draft?'Gælder fra':'Aftale pr. dato','date',date,value=>date=value);
+      dateField.control.disabled=pending;
+      const dateBar=node('div','cs-person-pay-datebar');
+      dateBar.append(dateField.wrap);
+      if(validDate(date)&&date<options.today)dateBar.append(node('p','cs-person-pay-help','Tidligere dato · oplysningerne er skrivebeskyttede.'));
+      agreementPanel.append(dateBar);
+      parts.push(agreementPanel);
       if(error){const message=node('div','cs-person-pay-error');message.setAttribute('role','alert');message.append(node('p','',error));if(conflict&&draft)message.append(node('p','cs-person-pay-help','Din kladde er bevaret. Hentning af de seneste oplysninger lukker kladden.'));if(typeof onReload==='function'){const retry=button('Hent seneste oplysninger',reload,'reload');retry.disabled=pending;message.append(retry);}parts.push(message);}
       if(notice){const message=node('p','cs-person-pay-success',notice);message.setAttribute('role','status');parts.push(message);}
       if(!validDate(date)){parts.push(node('p','cs-person-pay-error','Vælg en gyldig dato.'));finish();return;}
       const current=linkAt(),group=groupAt(),resolved=Model.resolve({policy,personId,payroll:personal,from:date,to:date}),agreement=resolved.payroll.agreements.at(-1),summary=node('div','cs-person-pay-summary');
       const rawAgreement=(resolved.personalBase?personal.agreements:group?.revision?.payroll.agreements||[]).filter(value=>value.from<=date).at(-1),effectiveFrom=[rawAgreement?.from,current?.from,...(!resolved.personalBase?[group?.revision?.from]:[])].filter(Boolean).sort().at(-1);
       const baseSummary=node('div','cs-person-pay-base');baseSummary.append(node('span','cs-person-pay-label','Grundløn'),node('strong','cs-person-pay-base-amount',resolved.missingBasePeriods.length?'Grundløn mangler':rate(agreement)));
-      const facts=node('dl','cs-person-pay-facts');for(const [label,value] of [['Løngruppe',group?.name||'Ingen løngruppe'],['Kilde',resolved.personalBase?'Personlig grundløn':'Grundløn fra gruppen'],['Gælder fra',effectiveFrom?dateLabel(effectiveFrom):'Ikke oprettet']]){const fact=node('div');fact.append(node('dt','',label),node('dd','',value));facts.append(fact);}summary.append(baseSummary,facts);if(group?.archived)summary.append(node('p','cs-person-pay-help','Arkiveret gruppe · tidligere tilknytning bevares'));parts.push(summary);
-      if(date<options.today)parts.push(node('p','cs-person-pay-help','Tidligere dato · oplysningerne er skrivebeskyttede.'));
+      const facts=node('dl','cs-person-pay-facts');for(const [label,value] of [['Løngruppe',group?.name||'Ingen løngruppe'],['Kilde',resolved.personalBase?'Personlig grundløn':'Grundløn fra gruppen'],['Gælder fra',effectiveFrom?dateLabel(effectiveFrom):'Ikke oprettet']]){const fact=node('div');fact.append(node('dt','',label),node('dd','',value));facts.append(fact);}summary.append(baseSummary,facts);if(group?.archived)summary.append(node('p','cs-person-pay-help','Arkiveret gruppe · tidligere tilknytning bevares'));
+      agreementPanel.append(summary);
       if(!draft){
-        const allowances=node('section','cs-person-pay-read-rules'),allowanceHead=node('div','cs-person-pay-allowance-head');allowanceHead.append(node('h5','cs-person-pay-subtitle','Tillæg på aftalen'));if(group&&options.canManage===true&&date>=options.today){const edit=button('Rediger individuelle valg',open,'edit');edit.disabled=!writable();allowanceHead.append(edit);}allowances.append(allowanceHead);
+        const allowances=node('section','cs-person-pay-read-rules'),allowanceHead=node('div','cs-person-pay-allowance-head');allowanceHead.append(node('h4','cs-person-pay-subtitle','Tillæg på aftalen'));if(group&&options.canManage===true&&date>=options.today){const edit=button('Rediger individuelle valg',open,'edit');edit.disabled=!writable();allowanceHead.append(edit);}allowances.append(allowanceHead);
         let allowanceCount=0;
         const appendAllowance=(supplement,value,state,source)=>{if(!activeOn(value,date))return;allowanceCount++;const row=node('div','cs-person-pay-read-rule'),identity=node('div'),amount=node('div','cs-person-pay-read-amount');row.dataset.state=state;identity.append(node('strong','',supplement.name),node('span','cs-person-pay-help',rule(value)),node('span','cs-person-pay-period',dateLabel(value.from)+(value.to?' – '+dateLabel(value.to):' og frem')));amount.append(node('strong','',rate(value)),node('span','cs-person-pay-state',source));row.append(identity,amount);allowances.append(row);};
         for(const supplement of group?.revision?.payroll.supplements||[]){const override=current.supplementOverrides.find(item=>item.id===supplement.id),value=override?.mode==='personal'?override.supplement:supplement,state=override?.mode||'follow';appendAllowance(supplement,value,state,state==='personal'?'Personligt beløb':state==='off'?'Fravalgt':'Fra gruppen');}
         for(const supplement of personal.supplements){const excluded=current?.excludedPersonalSupplementIds.includes(supplement.id);appendAllowance(supplement,supplement,excluded?'off':'personal',excluded?'Fravalgt':'Personligt ekstra');}
-        if(!allowanceCount)allowances.append(node('p','cs-person-pay-help','Ingen tillæg gælder på den valgte dato.'));parts.push(allowances);
-        if(!group)parts.push(node('p','cs-person-pay-help','Personlige satser og ekstratillæg administreres under Personlige satser og historik.'));
-        else if(options.canManage!==true)parts.push(node('p','cs-person-pay-help','Individuelle valg kan ses her. Din rolle kan ikke ændre dem.'));
+        if(!allowanceCount)allowances.append(node('p','cs-person-pay-help cs-person-pay-no-allowances','Ingen tillæg på den valgte dato.'));parts.push(allowances);
         finish();return;
       }
       const form=node('div','cs-person-pay-form');form.setAttribute('aria-busy',String(pending));

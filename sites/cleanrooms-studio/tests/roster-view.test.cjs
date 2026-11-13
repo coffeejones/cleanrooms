@@ -41,16 +41,29 @@ test('large employee directories render one bounded page and search the entire f
 test('creating an employee while the directory is filtered keeps all other staff and shows literal text safely',async()=>{
   const staff=[person('person-anna','Anna'),person('person-bob','Bob')],app=application(staff);
   app.field('search').value='Anna';await app.field('search').dispatch('input');assert.equal(app.byClass('cs-roster-shown').textContent,'1 vist');
-  await app.button('Opret medarbejder').click();app.field('name').value='<img src=x onerror=alert(1)>';app.field('target').value='32.5';await app.button('Gem medarbejder').click();
+  await app.button('Opret medarbejder').click();app.field('name').value='<img src=x onerror=alert(1)>';app.field('target').value='32.5';await app.button('Opret').click();
   assert.equal(app.calls.length,1);assert.equal(app.calls[0].next.length,3);assert.deepEqual(app.calls[0].next.slice(0,2),staff);assert.equal(app.calls[0].metadata.kind,'create');assert.equal(app.calls[0].metadata.person.name,'<img src=x onerror=alert(1)>');assert.equal(app.calls[0].metadata.person.target,32.5);assert.equal(app.byClass('cs-roster-editor').hidden,true);
   app.field('search').value='';await app.field('search').dispatch('input');assert.ok(app.element.textContent.includes('<img src=x onerror=alert(1)>'));assert.equal(app.nodes().some(node=>node.tagName==='IMG'),false);
 });
 
 test('archiving preserves the record and its ID; a changed captured employee cannot be silently overwritten',async()=>{
   const staff=[person('person-anna','Anna'),person('person-bob','Bob')],app=application(staff);
-  await app.nodes().find(node=>node.getAttribute('aria-label')==='Rediger Anna').click();app.field('active').checked=false;await app.button('Gem medarbejder').click();
+  await app.nodes().find(node=>node.getAttribute('aria-label')==='Rediger Anna').click();app.field('active').checked=false;await app.button('Gem ændringer').click();
   assert.equal(app.calls[0].metadata.kind,'archive');assert.equal(app.calls[0].next.length,2);assert.equal(app.calls[0].next[0].id,'person-anna');assert.equal(app.calls[0].next[0].active,false);
-  app.controller.render({staff,sites,canEdit:true});await app.nodes().find(node=>node.getAttribute('aria-label')==='Rediger Anna').click();app.controller.render({staff:[{...staff[0],target:35},staff[1]],sites,canEdit:true});app.field('name').value='Overwrite';await app.button('Gem medarbejder').click();assert.equal(app.calls.length,1);assert.match(app.byClass('cs-roster-editor').textContent,/ændret siden/);
+  app.controller.render({staff,sites,canEdit:true});await app.nodes().find(node=>node.getAttribute('aria-label')==='Rediger Anna').click();app.controller.render({staff:[{...staff[0],target:35},staff[1]],sites,canEdit:true});app.field('name').value='Overwrite';await app.button('Gem ændringer').click();assert.equal(app.calls.length,1);assert.match(app.byClass('cs-roster-editor').textContent,/ændret siden/);
+});
+
+test('creating without access to the default workplace requires choosing an available one',async()=>{
+  const app=application([]);
+  app.controller.render({sites:sites.map((site,index)=>index===0?{...site,restricted:true}:site),canEdit:true});
+  await app.button('Opret medarbejder').click();
+  app.field('name').value='Camilla';
+  await app.button('Opret').click();
+  assert.equal(app.calls.length,0);
+  assert.match(app.byClass('cs-roster-editor').textContent,/Vælg et eksisterende arbejdssted/);
+  app.field('site').value='1';
+  await app.button('Opret').click();
+  assert.equal(app.calls[0].metadata.person.site,1);
 });
 
 test('a company budget does not affect new staff, existing agreements or CSV imports',async()=>{
@@ -73,7 +86,7 @@ test('CSV import requires a successful preview, includes unfiltered existing sta
 });
 
 test('failed saves keep the editable draft and readonly rendering exposes no write actions',async()=>{
-  const app=application([person('person-anna','Anna')],{onSave:async()=>({ok:false,error:'Serveren afviste ændringen.'})});await app.button('Opret medarbejder').click();app.field('name').value='Camilla';await app.button('Gem medarbejder').click();assert.equal(app.byClass('cs-roster-editor').hidden,false);assert.equal(app.field('name').value,'Camilla');assert.match(app.byClass('cs-roster-editor').textContent,/Serveren afviste/);
+  const app=application([person('person-anna','Anna')],{onSave:async()=>({ok:false,error:'Serveren afviste ændringen.'})});await app.button('Opret medarbejder').click();app.field('name').value='Camilla';await app.button('Opret').click();assert.equal(app.byClass('cs-roster-editor').hidden,false);assert.equal(app.field('name').value,'Camilla');assert.match(app.byClass('cs-roster-editor').textContent,/Serveren afviste/);
   app.controller.render({canEdit:false});assert.equal(app.button('Opret medarbejder').hidden,true);assert.equal(app.byClass('cs-roster-editor').hidden,true);assert.equal(app.nodes().some(node=>node.getAttribute('aria-label')==='Rediger Anna'),false);
 });
 
@@ -125,7 +138,7 @@ test('profile edit cancellation returns to the profile, and incoming renders whi
   app=application(staff,{onSave:async(next,metadata)=>{saved.push(metadata);app.controller.render({staff:next,sites,canEdit:true,planning:planningFor(next)});assert.equal(app.field('target').value,'18');assert.equal(app.byClass('cs-roster-editor').hidden,false);return {ok:true};}});
   app.controller.render({staff,sites,canEdit:true,planning:planningFor(staff)});await app.nodes().find(node=>node.getAttribute('aria-label')==='Åbn profil for Anna').click();await app.button('Rediger medarbejder').click();assert.equal(app.byClass('cs-roster-profile').hidden,true);
   app.field('name').value='Kladde';await app.byClass('cs-roster-editor').querySelectorAll('button').find(node=>node.textContent==='Annuller').click();assert.equal(app.byClass('cs-roster-profile').hidden,false);assert.ok(app.byClass('cs-roster-profile').textContent.includes('Anna'));
-  await app.button('Rediger medarbejder').click();app.field('target').value='18';await app.button('Gem medarbejder').click();assert.equal(saved.length,1);assert.equal(app.byClass('cs-roster-profile').hidden,false);assert.ok(app.byClass('cs-roster-table').textContent.includes('16 / 18 t'));assert.equal(app.element.ownerDocument.activeElement.className,'cs-roster-profile-name');
+  await app.button('Rediger medarbejder').click();app.field('target').value='18';await app.button('Gem ændringer').click();assert.equal(saved.length,1);assert.equal(app.byClass('cs-roster-profile').hidden,false);assert.ok(app.byClass('cs-roster-table').textContent.includes('16 / 18 t'));assert.equal(app.element.ownerDocument.activeElement.className,'cs-roster-profile-name');
 });
 
 test('inline profiles scroll their heading into view on narrow layouts without changing the directory selection',async()=>{

@@ -52,12 +52,42 @@
     const initials=input('initials');initials.maxLength=8;initials.autocomplete='off';
     const role=input('role');role.maxLength=120;role.autocomplete='organization-title';role.required=true;
     const target=input('target','number');target.min='0';target.max='168';target.step='0.01';target.required=true;
-    const site=node('select','cs-roster-input');site.id=prefix+'site';site.required=true;site.setAttribute('data-select-only','');
+    const site=node('select','cs-roster-input');site.id=prefix+'site';site.required=true;site.setAttribute('data-select-only','');site.setAttribute('aria-label','Primært arbejdssted');
     const active=input('active','checkbox'),activeField=node('label','cs-roster-check');activeField.htmlFor=active.id;activeField.append(active,node('span','','Aktiv medarbejder'));
-    const pair=node('div','cs-roster-field-pair');pair.append(field('Initialer',initials),field('Aftalte timer pr. uge',target));
-    const editHelp=node('p','cs-roster-help','Arkiverede medarbejdere bevares i historikken og kan aktiveres igen.');active.setAttribute('aria-describedby',prefix+'active-help');editHelp.id=prefix+'active-help';
-    const editError=node('p','cs-roster-error');editError.hidden=true;editError.setAttribute('role','alert');const editActions=node('div','cs-roster-form-actions'),cancel=button('Annuller',()=>closeEditor()),save=button('Gem medarbejder',()=>saveEditor(),'cs-button cs-primary');editActions.append(cancel,save);
-    form.append(field('Navn',name),pair,field('Funktion',role),field('Primært arbejdssted',site),activeField,editHelp,editError,editActions);editor.append(editTitle,form);
+    const identityFields=node('section','cs-roster-form-section');
+    const identityTitle=node('h4','cs-roster-form-section-title','Stamoplysninger');
+    identityTitle.id=prefix+'edit-identity';
+    identityFields.setAttribute('aria-labelledby',identityTitle.id);
+    const identityPair=node('div','cs-roster-field-pair cs-roster-field-pair-identity');
+    identityPair.append(field('Navn',name),field('Initialer',initials));
+    identityFields.append(identityTitle,identityPair,field('Funktion',role));
+
+    const agreementFields=node('section','cs-roster-form-section');
+    const agreementTitle=node('h4','cs-roster-form-section-title','Arbejdstid og arbejdssted');
+    agreementTitle.id=prefix+'edit-agreement';
+    agreementFields.setAttribute('aria-labelledby',agreementTitle.id);
+    const agreementPair=node('div','cs-roster-field-pair cs-roster-field-pair-agreement');
+    agreementPair.append(field('Aftalte timer pr. uge',target),field('Primært arbejdssted',site));
+    agreementFields.append(agreementTitle,agreementPair);
+
+    const activeGroup=node('div','cs-roster-active-group');
+    const editHelp=node('p','cs-roster-help','Ved arkivering bevares tidligere vagter.');
+    editHelp.id=prefix+'active-help';
+    active.setAttribute('aria-describedby',editHelp.id);
+    activeGroup.append(activeField,editHelp);
+
+    const editError=node('p','cs-roster-error');
+    editError.hidden=true;
+    editError.setAttribute('role','alert');
+    const editActions=node('div','cs-roster-form-actions');
+    const cancel=button('Annuller',()=>closeEditor(),'cs-button cs-chrome-quiet');
+    const save=button('Opret',()=>saveEditor(),'cs-button cs-primary');
+    const formBody=node('div','cs-roster-form-body');
+    form.setAttribute('aria-labelledby',editTitle.id);
+    formBody.append(identityFields,agreementFields,activeGroup,editError);
+    editActions.append(cancel,save);
+    form.append(formBody,editActions);
+    editor.append(editTitle,form);
     const importer=node('section','cs-roster-import');importer.hidden=true;importer.setAttribute('aria-labelledby',prefix+'import-title');const importTitle=node('h3','cs-roster-heading','Importér medarbejdere');importTitle.id=prefix+'import-title';
     const importHelp=node('p','cs-roster-copy','Vælg en CSV-fil eller indsæt indholdet. Kontrollér forhåndsvisningen, før noget bliver gemt. Kommaseparerede og semikolonseparerede filer understøttes.');
     const file=input('file','file');file.accept='.csv,text/csv';file.setAttribute('aria-label','Vælg en CSV-fil');
@@ -69,7 +99,19 @@
     side.append(profile,editor);workspace.append(directory,side);page.append(status,error,importer,workspace);element.replaceChildren(page);
     function showError(target,message){target.textContent=message;target.hidden=false;target.scrollIntoView?.({block:'nearest'});}
     function setBusy(value){pending=value;page.setAttribute('aria-busy',String(value));page.querySelectorAll('button,input,select,textarea').forEach(control=>{control.disabled=value;});page.querySelectorAll('.cs-roster-name-button').forEach(control=>{control.disabled=value||!editor.hidden;});createButton.disabled=value||!canEdit;importButton.disabled=value||!canEdit;}
-    function fillSites(selected){site.replaceChildren();sites.forEach((value,index)=>{if(value.restricted)return;const option=node('option','',value.name);option.value=String(index);site.append(option);});site.value=String(selected);}
+    function fillSites(selected){
+      const placeholder=node('option','','Vælg arbejdssted');
+      placeholder.value='';
+      placeholder.disabled=true;
+      site.replaceChildren(placeholder);
+      sites.forEach((value,index)=>{
+        if(value.restricted)return;
+        const option=node('option','',value.name);
+        option.value=String(index);
+        site.append(option);
+      });
+      site.value=sites[selected]&&!sites[selected].restricted?String(selected):'';
+    }
     const hours=value=>new Intl.NumberFormat('da-DK',{maximumFractionDigits:2}).format(value/60);
     const dateLabel=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)?new Date(value+'T12:00:00Z').toLocaleDateString('da-DK',{day:'numeric',month:'short',timeZone:'UTC'}):'Dato mangler';
     const narrowLayout=()=>Boolean((doc.defaultView||globalThis).matchMedia?.('(max-width:1279px)').matches);
@@ -129,11 +171,31 @@
         const next=node('td','cs-roster-next-cell');next.dataset.label='Næste vagt';if(plan?.nextShift){next.append(node('strong','',dateLabel(plan.nextShift.date)+' · '+plan.nextShift.start+'–'+plan.nextShift.end),node('span','',sites[plan.nextShift.site]?.name||'Arbejdssted mangler'));}else next.append(node('span','',plan?'Ingen i perioden':'Vagtdata ikke indlæst'));
         const state=node('td','cs-roster-status-cell');state.dataset.label='Status';state.append(stateBadge(person));row.append(identity,worksite,weekly,next,state);if(canEdit){const action=node('td','cs-roster-row-action'),edit=button('Rediger',()=>openEditor(person));edit.setAttribute('aria-label','Rediger '+person.name);edit.disabled=pending;action.append(edit);row.append(action);}tbody.append(row);}syncWorkspace();
     }
-    function openEditor(person){if(!canEdit||pending||disposed)return;closeImport(false);editorReturnId=selectedId;editing=person?.id||Model.newId();editingBefore=person?clone(person):null;editTitle.textContent=person?'Rediger medarbejder':'Ny medarbejder';name.value=person?.name||'';initials.value=person?.initials||'';target.value=String(person?.target??Model.defaultEmployeeTarget);role.value=person?.role||'Servicemedarbejder';fillSites(person?.site??0);active.checked=person?.active!==false;editError.hidden=true;editor.hidden=false;profile.hidden=true;renderDirectory();syncWorkspace();focusPanel(editor,name);}
+    function openEditor(person){
+      if(!canEdit||pending||disposed)return;
+      closeImport(false);
+      editorReturnId=selectedId;
+      editing=person?.id||Model.newId();
+      editingBefore=person?clone(person):null;
+      editTitle.textContent=person?'Rediger medarbejder':'Opret medarbejder';
+      save.textContent=person?'Gem ændringer':'Opret';
+      name.value=person?.name||'';
+      initials.value=person?.initials||'';
+      target.value=String(person?.target??Model.defaultEmployeeTarget);
+      role.value=person?.role||'Servicemedarbejder';
+      fillSites(person?.site??0);
+      active.checked=person?.active!==false;
+      editError.hidden=true;
+      editor.hidden=false;
+      profile.hidden=true;
+      renderDirectory();
+      syncWorkspace();
+      focusPanel(editor,name);
+    }
     function closeEditor(restoreFocus=true){if(pending)return;const edited=editingBefore?.id,wasOpen=!editor.hidden;editor.hidden=true;editing=null;editingBefore=null;if(wasOpen)selectedId=editorReturnId;editorReturnId=null;renderDirectory();renderProfile();if(restoreFocus){if(selectedId){focusPanel(profile,profile.querySelectorAll('h3')[0]);}else if(edited)focusPerson(edited);else createButton.focus({preventScroll:true});}}
     function openImport(){if(!canEdit||pending||disposed)return;closeEditor(false);importer.hidden=false;profile.hidden=true;syncWorkspace();preview=null;previewBox.hidden=true;confirm.hidden=true;importError.hidden=true;csv.value='';file.value='';importer.scrollIntoView?.({block:'start'});csv.focus();}
     function closeImport(restoreFocus=true){if(pending)return;importer.hidden=true;preview=null;previewBox.hidden=true;confirm.hidden=true;renderProfile();if(restoreFocus)importButton.focus();}
-    function draft(){return {id:editing,create:!editingBefore,name:name.value.trim(),initials:initials.value.trim()||Model.initials(name.value),target:target.value.trim()===''?NaN:Number(target.value),site:Number(site.value),role:role.value.trim(),active:active.checked};}
+    function draft(){return {id:editing,create:!editingBefore,name:name.value.trim(),initials:initials.value.trim()||Model.initials(name.value),target:target.value.trim()===''?NaN:Number(target.value),site:site.value===''?NaN:Number(site.value),role:role.value.trim(),active:active.checked};}
     async function perform(callback,next,metadata,target,success){
       if(pending||!canEdit||disposed)return;const token=++epoch;setBusy(true);target.hidden=true;status.hidden=true;
       try{if(typeof callback!=='function')throw new Error('Medarbejderkartoteket kan ikke gemmes lige nu.');const result=await callback(clone(next),clone(metadata));if(disposed||token!==epoch)return;if(result?.ok===false)throw new Error(result.error||result.message||'Ændringen kunne ikke gemmes.');staff=clone(result?.staff||next);status.textContent=metadata.kind==='import'?metadata.rows.length+' medarbejdere er importeret.':'Medarbejderen er gemt.';status.hidden=false;setBusy(false);renderDirectory();success();}

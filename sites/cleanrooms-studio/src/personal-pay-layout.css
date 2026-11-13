@@ -1,72 +1,352 @@
-/* One reading order for an employee's pay: agreement, allowances, then supporting records. */
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-page{gap:32px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-head{padding:0;margin:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-title{font-size:20px;line-height:28px;letter-spacing:-.35px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group{display:flex;flex-direction:column;gap:24px;padding:0;border:0;border-radius:0;background:transparent}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-eyebrow{display:block;margin-bottom:4px;color:#78848b;font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-title{margin:0;font-size:18px;line-height:26px;font-weight:600;letter-spacing:-.25px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar{display:flex;align-items:center;gap:20px;min-width:0;padding:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar>.cs-person-pay-field{flex:0 0 210px;max-width:100%}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar>.cs-person-pay-help{padding-top:26px;font-size:12px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-summary{display:flex;flex-direction:column;align-items:stretch;gap:24px;padding:24px;border:0;border-radius:8px;background:#f6f8f9}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-base{display:flex;flex-direction:column;gap:6px;min-width:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-base-amount{color:#293b45;font-size:28px;font-weight:600;line-height:38px;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:0;padding-top:0;border:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts>div{display:flex;flex-direction:column;gap:6px;min-width:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts dt{margin:0;color:#74818a;font-size:12px;line-height:19px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts dd{margin:0;color:#33454f;font-size:14px;font-weight:500;line-height:22px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-allowance-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-subtitle{margin:0;font-size:15px;line-height:23px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rules{gap:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,220px);gap:24px;align-items:start;padding:14px 0;border:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule>div{gap:4px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-amount{max-width:none;align-items:flex-end;text-align:right}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule strong{font-size:14px;line-height:22px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule .cs-person-pay-help{font-size:12px;line-height:20px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-period{color:#89939a;font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-state{font-size:11px;line-height:18px;color:#74818a}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule[data-state="personal"] .cs-person-pay-state{color:#526e83}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule[data-state="off"]{color:#8a949b}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-estimate-disclosure,.cs-payroll-records){min-width:0;margin:0;border-top:1px solid #e5eaed;border-bottom:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:76px;padding:18px 0;cursor:pointer;list-style:none}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title::-webkit-details-marker{display:none}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title::after{content:'+';flex:0 0 20px;color:#74818a;font-size:20px;font-weight:400;text-align:center}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane details[open]>.cs-payroll-disclosure-title::after{content:'−'}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title>span{flex:1;min-width:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title>span>strong{display:block;color:#34454f;font-size:15px;font-weight:600;line-height:23px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-preview-total{color:#34454f;font-size:19px;font-weight:600;line-height:28px;letter-spacing:-.25px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-calculation-tools{display:flex;justify-content:flex-start;margin:0 0 24px;padding-top:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-estimate{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,1fr);gap:20px 32px;padding:0 0 24px;border:0;background:transparent}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-total{font-size:25px;line-height:35px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-records-intro{margin:0 0 24px;padding:0;color:#78858d;font-size:12px;line-height:21px;max-width:780px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-workspace{display:flex;flex-direction:column;gap:28px;padding-bottom:24px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-agreements,.cs-payroll-supplements){width:100%;overflow:visible}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-section-head{padding:0 0 12px;border:0;background:transparent}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-rate-row,.cs-payroll-supplement-row){padding:18px 0;border:0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-rate-row+.cs-payroll-rate-row,.cs-payroll-supplement-row+.cs-payroll-supplement-row){border-top:1px solid #edf0f2}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-list-empty{padding:16px 0}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-editor{padding:24px;background:#f6f8f9;border:1px solid #e1e6e9;border-radius:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-form{padding-top:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-preview{padding:20px;background:#f6f8f9;border:1px solid #dfe6eb;border-radius:8px}
-#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-preview-columns>div+div{padding-left:24px;border-left:1px solid #dfe6eb}
-@media(max-width:760px){
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-page{gap:24px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head{align-items:flex-start;flex-direction:column;gap:16px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head-actions{justify-content:flex-start}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar{align-items:flex-start;flex-direction:column;gap:8px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar>.cs-person-pay-field{flex:0 0 auto;width:100%}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar>.cs-person-pay-help{padding:0}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-summary{padding:20px;gap:20px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-base-amount{font-size:25px;line-height:34px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts{grid-template-columns:minmax(0,1fr);gap:16px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts>div{display:grid;grid-template-columns:minmax(90px,.5fr) minmax(0,1fr);gap:16px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-allowance-head{align-items:flex-start;flex-direction:column;gap:12px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule{grid-template-columns:minmax(0,1fr);gap:10px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-amount{align-items:flex-start;text-align:left}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-estimate{grid-template-columns:minmax(0,1fr);padding-bottom:20px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-preview-total{font-size:16px;line-height:24px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title{gap:12px}
- #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-preview-columns>div+div{padding:16px 0 0;border-left:0;border-top:1px solid #dfe6eb}
+/* Personal pay follows the employee profile's compact hierarchy. */
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-page {
+  gap:12px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-head {
+  margin:0;
+  padding:0;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-title {
+  font-size:20px;
+  line-height:28px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group {
+  gap:14px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head {
+  align-items:center;
+  flex-flow:row wrap;
+  gap:8px 16px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-head-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-title {
+  margin:0;
+  font-size:20px;
+  font-weight:700;
+  line-height:28px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-button {
+  min-height:var(--cs-ui-height,36px)!important;
+  padding:5px 10px!important;
+  border-color:var(--cs-access-control-edge);
+  color:var(--cs-access-ink);
+  font-size:12px;
+  font-weight:600;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-button:hover:not(:disabled) {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-primary {
+  border-color:var(--cs-access-primary);
+  background:var(--cs-access-primary);
+  color:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-group .cs-person-pay-primary:hover:not(:disabled) {
+  background:var(--cs-access-primary-hover);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-person-pay-agreement,.cs-person-pay-read-rules,.cs-payroll-estimate-disclosure,.cs-payroll-records) {
+  min-width:0;
+  margin:0;
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:6px 16px;
+  padding:8px 12px;
+  border-radius:5px 5px 0 0;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar .cs-person-pay-field {
+  flex-direction:row;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px 10px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-label {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-datebar .cs-person-pay-input {
+  width:154px;
+  max-width:100%;
+  min-height:var(--cs-ui-height,36px)!important;
+  padding:4px 8px;
+  border-color:var(--cs-access-control-edge);
+  background:var(--cs-access-surface);
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-summary {
+  grid-template-columns:minmax(0,1fr) minmax(0,1.65fr);
+  align-items:center;
+  gap:10px 16px;
+  padding:12px;
+  border:0;
+  border-top:1px solid var(--cs-profile-rule);
+  border-radius:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-summary>.cs-person-pay-help {
+  grid-column:1/-1;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-base {
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-base-amount {
+  color:var(--cs-access-ink);
+  font-size:25px;
+  font-weight:700;
+  line-height:32px;
+  letter-spacing:-.4px;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  min-width:0;
+  margin:0;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts>div {
+  min-width:0;
+  padding-inline-start:12px;
+  border-inline-start:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts dt {
+  margin:0 0 2px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts dd {
+  margin:0;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:600;
+  line-height:20px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-allowance-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:6px 12px;
+  min-height:40px;
+  padding:4px 12px;
+  border-radius:5px 5px 0 0;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-subtitle {
+  margin:0;
+  font-size:14px;
+  font-weight:700;
+  line-height:22px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,min(40%,220px));
+  align-items:start;
+  gap:8px 16px;
+  padding:10px 12px;
+  border-color:var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule>div {
+  gap:1px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-amount {
+  align-items:flex-end;
+  max-width:none;
+  text-align:end;
+  font-variant-numeric:tabular-nums;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-person-pay-period,.cs-person-pay-state,.cs-person-pay-read-rule .cs-person-pay-help) {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-read-rule[data-state="off"] {
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-no-allowances {
+  padding:10px 12px;
+  border-top:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px 12px;
+  min-height:48px;
+  padding:8px 12px;
+  border-radius:5px;
+  cursor:pointer;
+  list-style:none;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title:hover,
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane details[open]>.cs-payroll-disclosure-title {
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title::-webkit-details-marker {
+  display:none;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title::after {
+  content:'';
+  flex:none;
+  width:6px;
+  height:6px;
+  margin:0 3px 3px;
+  border:solid var(--cs-access-muted);
+  border-width:0 1.5px 1.5px 0;
+  transform:rotate(45deg);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane details[open]>.cs-payroll-disclosure-title {
+  border-radius:5px 5px 0 0;
+  box-shadow:inset 0 -1px var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane details[open]>.cs-payroll-disclosure-title::after {
+  margin-block:3px 0;
+  transform:rotate(225deg);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title>span {
+  flex:1;
+  min-width:0;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title>span>strong {
+  display:block;
+  color:var(--cs-access-ink);
+  font-size:13px;
+  font-weight:700;
+  line-height:20px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-disclosure-title .cs-payroll-caption {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:18px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-preview-total {
+  max-width:42%;
+  color:var(--cs-access-ink);
+  font-size:15px;
+  font-weight:700;
+  line-height:22px;
+  text-align:end;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-calculation-tools {
+  display:flex;
+  justify-content:flex-start;
+  margin:0;
+  padding:12px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-estimate {
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:14px 24px;
+  padding:0 12px 12px;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-total {
+  font-size:25px;
+  line-height:35px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-records-intro {
+  max-width:780px;
+  margin:0;
+  padding:10px 12px 0;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  line-height:19px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-workspace {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:10px 12px 12px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-agreements,.cs-payroll-supplements) {
+  width:100%;
+  overflow:visible;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-section-head {
+  padding:0 0 6px;
+  border:0;
+  background:transparent;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-rate-row,.cs-payroll-supplement-row) {
+  padding:8px 0;
+  border:0;
+  border-top:1px solid var(--cs-profile-rule);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-list-empty {
+  padding:6px 0;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane :is(.cs-payroll-editor,.cs-person-pay-preview) {
+  padding:14px;
+  border:1px solid var(--cs-profile-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-form {
+  gap:16px;
+}
+#cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-preview-columns>div+div {
+  padding-inline-start:16px;
+  border-inline-start:1px solid var(--cs-profile-rule);
+}
+@container employee-profile (max-width:680px) {
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-summary {
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts {
+    padding-top:10px;
+    border-top:1px solid var(--cs-profile-rule);
+  }
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts>div:first-child {
+    padding-inline-start:0;
+    border-inline-start:0;
+  }
+}
+@container employee-profile (max-width:460px) {
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts {
+    grid-template-columns:minmax(0,1fr);
+    gap:4px;
+  }
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-facts>div {
+    display:grid;
+    grid-template-columns:minmax(76px,.55fr) minmax(0,1fr);
+    gap:8px;
+    padding-inline-start:0;
+    border-inline-start:0;
+  }
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-payroll-estimate {
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="people"] #cs-payroll-pane .cs-person-pay-preview-columns>div+div {
+    padding:12px 0 0;
+    border-inline-start:0;
+    border-top:1px solid var(--cs-profile-rule);
+  }
 }

@@ -58,7 +58,7 @@
   let planningRetryWork=null;
   const planningFullHolds=new Set(),planningScopeHolds=new Map();
   let planningCatalog=null;
-  let seriesStatus='active', editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope='one', editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=false;
+  let seriesStatus='active', editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope='one', editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=null;
   let editorOperation='create',editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorWeekAnchor=null,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
   const expandedSeriesGroups=new Set();
   let activeGroup = null, calendarDispose = null, calendarViewportBoard = null;
@@ -2772,16 +2772,23 @@
       &&times(draft)===times(source)
       &&[...draft.weekdays].sort().join(',')===[...source.weekdays].sort().join(','));
   }
+  function syncEditorDescription(reset = false) {
+    const content=readDescriptionData(),doc=descriptionEditor&&Description?.normalize(content.noteRich);
+    let tasks=0;const count=item=>{if(item.type==='taskItem')tasks++;(item.content||[]).forEach(count);};if(doc)count(doc);
+    const hasContent=Boolean(doc?tasks||Description.hasContent(doc):content.note?.trim());
+    q('#cs-description-summary-meta').textContent=tasks?tasks+(tasks===1?' opgave':' opgaver'):hasContent?'Med beskrivelse':'';
+    if(reset)q('#cs-description-details').open=!editorRepeats()&&hasContent;
+  }
   function syncSeriesEditor(repeating,source) {
     q('#cs-editor-title').textContent=repeating?(editorOperation==='extend'?'Forlæng vagtserie':editorOperation==='copy'?'Kopiér vagtserie':source?'Rediger vagtserie':'Opret vagtserie'):(activeEdit?.id?'Rediger vagt':'Opret vagt');
     syncDayTimeControls(repeating);
     q('#cs-series-operation-note').hidden=!repeating||!['copy','extend'].includes(editorOperation);
     q('#cs-series-operation-note').textContent=editorOperation==='extend'?'Tilføjer en ny periode efter '+shortDate(editorExtension?.endDate||today)+'. Eksisterende vagter og særændringer bevares.':'Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.';
     const panel=q('#cs-editor-layer .cs-editor');panel.classList?.toggle('cs-series-editor',repeating);
-    q('#cs-repeat-days-field').hidden=!repeating;q('#cs-repeat-interval').disabled=!repeating;q('#cs-series-planning-preview').hidden=!repeating;q('#cs-editor-caption').hidden=repeating;q('#cs-series-scope-block').hidden=!source;
+    q('#cs-repeat-days-field').hidden=!repeating;q('#cs-repeat-interval').disabled=!repeating;q('#cs-series-planning-preview').hidden=!repeating;q('#cs-series-scope-block').hidden=!source;
     root.querySelectorAll('[data-series-only]').forEach(element=>element.hidden=!repeating);
-    q('#cs-description-summary').hidden=!repeating;
-    if(editorWasSeries!==repeating)q('#cs-description-details').open=!repeating;
+    root.querySelectorAll('[data-single-only]').forEach(element=>element.hidden=repeating);
+    syncEditorDescription(editorWasSeries!==repeating);
     editorWasSeries=repeating;
     q('#cs-edit-find-replacement').hidden=repeating||!activeEdit?.id||!activeEdit?.person;
     q('#cs-edit-sickness').hidden=repeating||!activeEdit?.id||!activeEdit?.person||state.demoSession||!cloudCapabilities.plan;
@@ -2797,9 +2804,6 @@
     q('#cs-repeat-start').max=source&&scope==='future'&&editorSeriesManagement?source.endDate:'';
     q('#cs-repeat-start').readOnly=Boolean(editorExtension);
     syncSeriesDurationControls(repeating);
-    const content=readDescriptionData(),doc=Description?.normalize(content.noteRich)||Description?.fromText(content.note||'');
-    let tasks=0;const count=item=>{if(item?.type==='taskItem')tasks++;(item?.content||[]).forEach(count);};if(doc)count(doc);
-    q('#cs-description-summary-meta').textContent=tasks?tasks+(tasks===1?' opgave':' opgaver'):content.note?.trim()?'Med beskrivelse':'Valgfrit';
   }
   function renderSeriesPlanningPreview(draft,source,scope) {
     if(!SeriesPlanner)return;
@@ -2915,15 +2919,14 @@
     selectedStaffing = person ? assessStaffing(person,context) : null;
     if (person) staffingAssessments.set(person.id,selectedStaffing);
     q('#cs-person-selected-name').textContent = person?.name || 'Ledig vagt';
-    q('#cs-person-selected-meta').textContent = person ? staffingStatus(selectedStaffing) + (context.repeating?(context.limited?' · viste periode':' · hele perioden'):' · uge ' + weekNumber(context.weekStart)) : 'Vælg en medarbejder og se tilgængelighed';
     summary.replaceChildren(); summary.dataset.state = selectedStaffing?.status === 'blocked' ? 'blocked' : selectedStaffing?.overTargetWeeks.length ? 'over-target' : selectedStaffing?.status || 'unassigned';
     if (person) {
-      if(!context.repeating)summary.append(node('span','cs-person-summary-title','Uge ' + weekNumber(context.weekStart) + ' · ' + shortDate(context.weekStart) + ' – ' + shortDate(addDays(context.weekStart,6))),node('span','cs-person-summary-hours',staffingHours(selectedStaffing)));
+      if(!context.repeating&&context.valid)summary.append(node('span','cs-person-summary-hours','Uge '+weekNumber(context.weekStart)+' · '+staffingHours(selectedStaffing)));
       const reason = staffingReason(selectedStaffing);
       if (reason) { const line = node('span','cs-person-summary-warning',reason); line.dataset.state = selectedStaffing.status;if(selectedStaffing.unavailableDates?.length)line.dataset.kind='unavailable';summary.append(line); }
-      if (selectedStaffing.status === 'incomplete') summary.append(node('span','cs-person-summary-warning','Tilgængeligheden kan kontrolleres, når dato og tid er udfyldt.'));
+      else if (context.repeating||selectedStaffing.status==='incomplete'||['loading','unknown'].includes(selectedStaffing.availabilityStatus)) summary.append(node('span','cs-person-summary-title',staffingStatus(selectedStaffing)+(context.repeating&&context.valid?(context.limited?' · viste periode':' · hele perioden'):'')));
       if (selectedStaffing.overTargetWeeks.length) summary.append(node('span','cs-person-summary-warning','Med ' + (context.repeating ? 'vagterne' : 'vagten') + ' overskrides det aftalte timetal i ' + selectedStaffing.overTargetWeeks.length + (selectedStaffing.overTargetWeeks.length === 1 ? ' uge.' : ' uger.')));
-    } else summary.append(node('span','cs-person-summary-hours',context.repeating ? 'Vælg en medarbejder til vagtserien.' : 'Ugen og den nye vagt indgår i beregningen, når du vælger en medarbejder.'));
+    }
     q('#cs-save').disabled = Boolean(selectedStaffing?.status === 'blocked');
     if (staffPickerOpen) renderStaffPicker();
   }
@@ -3065,7 +3068,7 @@
     const copy=node('p',null,'Du har ændringer, som ikke er gemt.');copy.id='cs-editor-discard-copy';
     const actions=node('div','cs-editor-discard-actions'),cancel=node('button','cs-button cs-editor-discard-cancel','Behold kladde'),discard=node('button','cs-button cs-primary cs-editor-discard-confirm','Kassér ændringer');cancel.type=discard.type='button';
     const current={element:layer,wasInert:Boolean(q('.cs-editor').inert)};
-    current.cancel=()=>{if(editorDiscard!==current)return;dismissEditorDiscard();(origin?.isConnected?origin:q('#cs-person-trigger'))?.focus?.({preventScroll:true});};
+    current.cancel=()=>{if(editorDiscard!==current)return;dismissEditorDiscard();(origin?.isConnected?origin:q('#cs-close'))?.focus?.({preventScroll:true});};
     current.accept=()=>{if(editorDiscard!==current)return;dismissEditorDiscard();closeEditor({force:true});continuation?.();};
     cancel.addEventListener('click',current.cancel);discard.addEventListener('click',current.accept);actions.append(cancel,discard);panel.append(title,copy,actions);layer.append(panel);q('#cs-editor-layer').append(layer);editorDiscard=current;q('.cs-editor').inert=true;
     layer.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();current.cancel();}else if(event.key==='Tab'){event.preventDefault();(document.activeElement===cancel?discard:cancel).focus({preventScroll:true});}});
@@ -3093,11 +3096,10 @@
     activeEdit = {...shift,...(options.demoScenario ? {demoScenario:options.demoScenario} : {})}; renderDemoEditorGuide(); lastTrigger = trigger || q('#cs-new'); editorSeriesId = uniqueSeriesId();
     editorPlanCapture=PlanningReconcile?.capture(state,{shifts:shift.id?[shift]:[],seriesId:shift.seriesId||null,groupId:options.extension?.groupId||null})||null;
     editorOperation=options.operation||(shift.id?'edit':'create');editorTemplate=options.template||null;editorExtension=options.extension||null;seriesCalendarState={};seriesCalendarPreview=null;
-    editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||'one';editorWasSeries=false;q('#cs-description-details').open=true;q('#cs-series-delete-confirm').hidden=true;
+    editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||'one';editorWasSeries=null;q('#cs-description-details').open=false;q('#cs-series-delete-confirm').hidden=true;
     const cadenceSource=sourceSeries()||options.template;q('#cs-repeat-interval').value=String(cadenceSource?.weekInterval??1);editorWeekAnchor=cadenceSource?.weekAnchor||null;
     editorDayTimes=JSON.parse(JSON.stringify(sourceSeries()?.dayTimes||options.template?.dayTimes||{}));q('#cs-day-times-enabled').checked=Object.keys(editorDayTimes).length>0;q('#cs-day-times').dataset.days='';
     q('#cs-editor-title').textContent = options.repeat || shift.seriesId && options.scope === 'all' ? shift.seriesId ? 'Rediger vagtserie' : 'Opret vagtserie' : shift.id ? 'Rediger vagt' : 'Opret vagt';
-    q('#cs-editor-caption').textContent = fullDate(shift.date);
     q('#cs-edit-person').value = shift.person; q('#cs-edit-site').value = String(shift.site); q('#cs-edit-date').removeAttribute('min'); q('#cs-edit-date').removeAttribute('max'); q('#cs-edit-date').value = shift.date;
     q('#cs-edit-start').value = shift.start; q('#cs-edit-end').value = shift.end; q('#cs-edit-break').value=String(shift.plannedBreakMinutes??0); q('#cs-edit-note').value = shift.note || '';
     descriptionEditor?.setContent(shift);
@@ -3107,7 +3109,7 @@
     q('#cs-edit-sickness').hidden = !shift.id || !shift.person || state.demoSession || !cloudCapabilities.plan;
     configureRepeat(true,Boolean(options.template));
     if(options.template){editorSeriesId=options.template.id;applyEditorDraft(options.template);updatePreview();}
-    render();editorDirtyBaseline=editorDraftFingerprint(); q('.cs-editor-fields').scrollTop = 0; q('#cs-person-trigger').focus({preventScroll:true});
+    render();editorDirtyBaseline=editorDraftFingerprint(); q('.cs-editor-fields').scrollTop = 0; q('#cs-close').focus({preventScroll:true});
   }
   function openSeriesEditor(series, trigger) {
     const projection=seriesProjection(series);if(!scopeLoaded(projection))return withPlanningScope(projection,()=>{const fresh=state.series.find(item=>item.id===series.id);if(fresh)return openSeriesEditor(fresh,trigger);notify('Vagtserien findes ikke længere.');releasePlanningHold('editor');},'editor');
@@ -3894,7 +3896,7 @@
   q('#cs-series-delete-cancel').addEventListener('click',()=>{q('#cs-series-delete-confirm').hidden=true;q('#cs-delete').focus({preventScroll:true});});
   q('#cs-series-delete-apply').addEventListener('click',deleteEditedShift);
   q('#cs-close').addEventListener('click',closeEditor); q('#cs-backdrop').addEventListener('click',closeEditor);
-  q('#cs-edit-date').addEventListener('change',() => { if (q('#cs-edit-date').value) q('#cs-editor-caption').textContent = fullDate(q('#cs-edit-date').value); });
+  q('#cs-edit-note').addEventListener('input',() => { if(activeEdit)syncEditorDescription(); });
   q('#cs-edit-scope').addEventListener('change',changeEditorScope); q('#cs-edit-repeat').addEventListener('change',() => configureRepeat(true));
   q('#cs-preserve-exceptions').addEventListener('change',updatePreview);
   q('#cs-day-times-enabled').addEventListener('change',updatePreview);

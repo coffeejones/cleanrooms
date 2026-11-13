@@ -26,8 +26,6 @@
 #cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details{border-bottom:1px solid var(--cs-access-line);padding-bottom:20px}
 #cleanrooms-studio[data-page] .cs-series-description-details > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;list-style:none;cursor:pointer;color:var(--cs-access-ink);font-size:14px;font-weight:600}
 #cleanrooms-studio[data-page] .cs-series-description-details > summary::-webkit-details-marker{display:none}
-#cleanrooms-studio[data-page] .cs-series-description-details > summary::after{content:'+';flex-shrink:0;color:var(--cs-access-muted);font-size:20px;font-weight:400}
-#cleanrooms-studio[data-page] .cs-series-description-details[open] > summary::after{content:'−'}
 #cleanrooms-studio[data-page] #cs-description-summary-meta{margin-left:auto;color:var(--cs-access-muted);font-size:11px;font-weight:400;text-align:right}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details[open] > .cs-description-field{margin-top:16px}
 

@@ -1,0 +1,111 @@
+/* Keep the short shift form compact while the series retains its preview. */
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-fields {
+  --cs-overlay-label: 5px;
+  padding-block: 18px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-primary {
+  gap: 16px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-section {
+  gap: 10px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-timing-title {
+  margin: 0;
+  color: var(--cs-access-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-editor-assignment .cs-field {
+  margin: 0;
+}
+
+/* Align the computed duration with the pause input, including when it wraps. */
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-uniform-break:not([hidden]) {
+  grid-template-columns: 92px minmax(0, 1fr);
+  column-gap: 12px;
+  margin: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-uniform-break .cs-field {
+  margin: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-planned-break-copy {
+  display: flex;
+  align-items: center;
+  min-height: var(--cs-ui-height, 40px);
+  padding: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-edit-net-time {
+  margin: 0;
+  line-height: 18px;
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-person-trigger {
+  box-sizing: border-box;
+  height: var(--cs-ui-height, 40px);
+  min-height: var(--cs-ui-height, 40px);
+  padding-block: 0;
+  background-color: var(--cs-ui-field-background, var(--cs-access-surface, #fff));
+  color: var(--cs-ui-field-color, var(--cs-access-body));
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-person-selected-name {
+  overflow: hidden;
+  color: inherit;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle > label {
+  min-height: 36px;
+  gap: 9px;
+  color: var(--cs-access-ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle > label > span {
+  color: inherit;
+  font-size: inherit;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-edit-repeat {
+  accent-color: var(--cs-access-blue, #476276);
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary {
+  min-height: 40px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) #cs-description-summary {
+  border-top: 1px solid var(--cs-access-line);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary > :is(svg,i) {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-details[open] > summary > svg {
+  transform: rotate(180deg);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-details[open] > .cs-description-field {
+  margin-top: 10px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary-meta:empty {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  #cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-fields {
+    padding-block: 14px;
+  }
+  #cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-primary {
+    gap: 12px;
+  }
+  #cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle > label {
+    min-height: 40px;
+  }
+}

@@ -23,23 +23,14 @@
 #cleanrooms-studio .cs-sickness-layer :focus-visible {outline:2px solid var(--cs-access-blue,#016bf8);outline-offset:2px}
 @media(max-width:600px){#cleanrooms-studio .cs-sickness-layer{padding:12px}#cleanrooms-studio .cs-sickness-dialog{max-height:calc(100% - 12px)}#cleanrooms-studio .cs-sickness-head,#cleanrooms-studio .cs-sickness-body{padding:16px}#cleanrooms-studio .cs-sickness-footer{padding:12px 16px}#cleanrooms-studio .cs-sickness-dialog .cs-button{height:40px;min-height:40px}}
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
-  gap:10px 12px;
+  display:flex;
+  justify-content:flex-end;
   min-width:0;
 }
-#cleanrooms-studio[data-page][data-role] .cs-editor-context-row:not(:has(> .cs-editor-caption:not([hidden]),> .cs-shift-availability-actions > button:not([hidden]))) {display:none}
-#cleanrooms-studio[data-page][data-role] .cs-editor-context-row > .cs-editor-caption {
-  min-width:0;
-  margin:0;
-  font-size:12px;
-  line-height:18px;
-}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row:not(:has(button:not([hidden]))) {display:none}
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row > .cs-shift-availability-actions {
   display:flex;
   flex-wrap:nowrap;
-  justify-self:end;
   gap:6px;
   margin:0;
 }
@@ -58,6 +49,3 @@
   white-space:nowrap;
 }
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row :is(#cs-edit-sickness,#cs-edit-find-replacement)[hidden] {display:none}
-@media(max-width:360px) {
-  #cleanrooms-studio[data-page][data-role] .cs-editor-context-row {grid-template-columns:minmax(0,1fr)}
-}

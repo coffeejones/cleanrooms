@@ -145,6 +145,23 @@ test('choosing open-ended duration on an incomplete new form exposes validation 
  assert.doesNotThrow(()=>app.chooseSeriesLength(null));assert.equal(app.readSeriesDraft().openEnded,true);assert.equal(app.control('#cs-save').disabled,true);assert.match(app.control('#cs-series-preview').textContent,/medarbejder/i);assert.equal(app.persisted(),0);
 });
 
+test('a single shift expands its description only when there is something to edit',()=>{
+  const app=application(),details=app.control('#cs-description-details'),shift=app.at('2026-11-03');
+  const document=content=>JSON.stringify({type:'doc',content});
+  app.begin({...shift,note:'',noteRich:document([{type:'paragraph'}])});
+  assert.equal(details.open,false);
+  app.begin({...shift,note:'',noteRich:document([{type:'taskList',content:[{type:'taskItem',attrs:{checked:false},content:[{type:'paragraph'}]}]}])});
+  assert.equal(details.open,true);
+  assert.equal(app.control('#cs-description-summary-meta').textContent,'1 opgave');
+  details.open=false;
+  app.updatePreview();
+  assert.equal(details.open,false,'Recalculating the form should respect the planner’s toggle.');
+  app.scope('all');
+  assert.equal(details.open,false,'The series keeps its description collapsed.');
+  app.scope('one');
+  assert.equal(details.open,true,'The single occurrence still has a checklist.');
+});
+
 test('single-occurrence and series rich drafts remain independent when changing scope and switching back',()=>{
   const app=application(),series=app.state.series[0];Object.assign(series,rich('Seriens oprindelige instruktion'));
   const shift=app.at('2026-11-03');app.state.edits[shift.id]={...shift,...rich('En særlig instruktion til denne vagt')};

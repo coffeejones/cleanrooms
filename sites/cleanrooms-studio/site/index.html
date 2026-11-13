@@ -6464,8 +6464,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details{border-bottom:1px solid var(--cs-access-line);padding-bottom:20px}
 #cleanrooms-studio[data-page] .cs-series-description-details &gt; summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;list-style:none;cursor:pointer;color:var(--cs-access-ink);font-size:14px;font-weight:600}
 #cleanrooms-studio[data-page] .cs-series-description-details &gt; summary::-webkit-details-marker{display:none}
-#cleanrooms-studio[data-page] .cs-series-description-details &gt; summary::after{content:&#x27;+&#x27;;flex-shrink:0;color:var(--cs-access-muted);font-size:20px;font-weight:400}
-#cleanrooms-studio[data-page] .cs-series-description-details[open] &gt; summary::after{content:&#x27;−&#x27;}
 #cleanrooms-studio[data-page] #cs-description-summary-meta{margin-left:auto;color:var(--cs-access-muted);font-size:11px;font-weight:400;text-align:right}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details[open] &gt; .cs-description-field{margin-top:16px}
 
@@ -13114,23 +13112,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-sickness-layer :focus-visible {outline:2px solid var(--cs-access-blue,#016bf8);outline-offset:2px}
 @media(max-width:600px){#cleanrooms-studio .cs-sickness-layer{padding:12px}#cleanrooms-studio .cs-sickness-dialog{max-height:calc(100% - 12px)}#cleanrooms-studio .cs-sickness-head,#cleanrooms-studio .cs-sickness-body{padding:16px}#cleanrooms-studio .cs-sickness-footer{padding:12px 16px}#cleanrooms-studio .cs-sickness-dialog .cs-button{height:40px;min-height:40px}}
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
-  gap:10px 12px;
+  display:flex;
+  justify-content:flex-end;
   min-width:0;
 }
-#cleanrooms-studio[data-page][data-role] .cs-editor-context-row:not(:has(&gt; .cs-editor-caption:not([hidden]),&gt; .cs-shift-availability-actions &gt; button:not([hidden]))) {display:none}
-#cleanrooms-studio[data-page][data-role] .cs-editor-context-row &gt; .cs-editor-caption {
-  min-width:0;
-  margin:0;
-  font-size:12px;
-  line-height:18px;
-}
+#cleanrooms-studio[data-page][data-role] .cs-editor-context-row:not(:has(button:not([hidden]))) {display:none}
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row &gt; .cs-shift-availability-actions {
   display:flex;
   flex-wrap:nowrap;
-  justify-self:end;
   gap:6px;
   margin:0;
 }
@@ -13149,9 +13138,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   white-space:nowrap;
 }
 #cleanrooms-studio[data-page][data-role] .cs-editor-context-row :is(#cs-edit-sickness,#cs-edit-find-replacement)[hidden] {display:none}
-@media(max-width:360px) {
-  #cleanrooms-studio[data-page][data-role] .cs-editor-context-row {grid-template-columns:minmax(0,1fr)}
-}
 
 #cleanrooms-studio .cs-gps-address-control {
   display:grid;
@@ -13437,6 +13423,118 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 @media(max-width:600px){#cleanrooms-studio .cs-export-profile-header,#cleanrooms-studio .cs-export-profile-body,#cleanrooms-studio .cs-export-profile-footer{padding-left:16px;padding-right:16px}#cleanrooms-studio .cs-export-profile-settings{grid-template-columns:1fr;gap:12px}#cleanrooms-studio .cs-export-profile-column{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#cleanrooms-studio .cs-export-profile-column-actions{grid-column:1/-1;justify-content:flex-end}#cleanrooms-studio .cs-export-profile-rule{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#cleanrooms-studio .cs-export-profile-tabs{gap:20px}}
 @media(prefers-reduced-motion:no-preference){#cleanrooms-studio .cs-export-profile-dialog{animation:cs-export-profile-in .18s ease-out}@keyframes cs-export-profile-in{from{transform:translateX(20px);opacity:.6}to{transform:translateX(0);opacity:1}}}
 
+/* Keep the short shift form compact while the series retains its preview. */
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-fields {
+  --cs-overlay-label: 5px;
+  padding-block: 18px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-primary {
+  gap: 16px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-section {
+  gap: 10px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-timing-title {
+  margin: 0;
+  color: var(--cs-access-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-editor-assignment .cs-field {
+  margin: 0;
+}
+
+/* Align the computed duration with the pause input, including when it wraps. */
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-uniform-break:not([hidden]) {
+  grid-template-columns: 92px minmax(0, 1fr);
+  column-gap: 12px;
+  margin: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-uniform-break .cs-field {
+  margin: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-planned-break-copy {
+  display: flex;
+  align-items: center;
+  min-height: var(--cs-ui-height, 40px);
+  padding: 0;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-edit-net-time {
+  margin: 0;
+  line-height: 18px;
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-person-trigger {
+  box-sizing: border-box;
+  height: var(--cs-ui-height, 40px);
+  min-height: var(--cs-ui-height, 40px);
+  padding-block: 0;
+  background-color: var(--cs-ui-field-background, var(--cs-access-surface, #fff));
+  color: var(--cs-ui-field-color, var(--cs-access-body));
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-person-selected-name {
+  overflow: hidden;
+  color: inherit;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle &gt; label {
+  min-height: 36px;
+  gap: 9px;
+  color: var(--cs-access-ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle &gt; label &gt; span {
+  color: inherit;
+  font-size: inherit;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-edit-repeat {
+  accent-color: var(--cs-access-blue, #476276);
+}
+
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary {
+  min-height: 40px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) #cs-description-summary {
+  border-top: 1px solid var(--cs-access-line);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary &gt; :is(svg,i) {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-details[open] &gt; summary &gt; svg {
+  transform: rotate(180deg);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-details[open] &gt; .cs-description-field {
+  margin-top: 10px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-description-summary-meta:empty {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  #cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-fields {
+    padding-block: 14px;
+  }
+  #cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-primary {
+    gap: 12px;
+  }
+  #cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-repeat-toggle &gt; label {
+    min-height: 40px;
+  }
+}
+
 &lt;/style&gt;
   &lt;aside class=&quot;cs-sidebar&quot; aria-label=&quot;Navigation&quot;&gt;
     &lt;div class=&quot;cs-workspace&quot;&gt;&lt;span class=&quot;cs-logo&quot; aria-hidden=&quot;true&quot;&gt;CR&lt;/span&gt;&lt;div class=&quot;cs-workspace-copy&quot;&gt;&lt;span class=&quot;cs-workspace-name&quot;&gt;CleanRooms&lt;/span&gt;&lt;span class=&quot;cs-workspace-caption&quot;&gt;Planlæggervisning&lt;/span&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; id=&quot;cs-settings-nav&quot; data-page=&quot;workspace&quot; class=&quot;cs-nav-button&quot; aria-label=&quot;Indstillinger&quot; title=&quot;Indstillinger&quot;&gt;&lt;i data-lucide=&quot;settings&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span class=&quot;cs-nav-text&quot;&gt;Indstillinger&lt;/span&gt;&lt;span class=&quot;cs-mobile-label&quot;&gt;Indstil.&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
@@ -13524,41 +13622,41 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   &lt;div class=&quot;cs-editor-layer&quot; id=&quot;cs-editor-layer&quot; hidden&gt;
     &lt;button type=&quot;button&quot; class=&quot;cs-backdrop cursor-interaction&quot; id=&quot;cs-backdrop&quot; aria-label=&quot;Luk redigering&quot;&gt;&lt;/button&gt;
     &lt;section class=&quot;cs-editor&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;cs-editor-title&quot;&gt;
-      &lt;div class=&quot;cs-editor-head&quot;&gt;&lt;h3 id=&quot;cs-editor-title&quot;&gt;Rediger vagt&lt;/h3&gt;&lt;button id=&quot;cs-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet cursor-interaction&quot; aria-label=&quot;Luk redigering&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;cs-editor-head&quot;&gt;&lt;h3 id=&quot;cs-editor-title&quot;&gt;Rediger vagt&lt;/h3&gt;&lt;button id=&quot;cs-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet cursor-interaction&quot; aria-label=&quot;Luk vagtformular&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;
       &lt;form id=&quot;cs-edit-form&quot;&gt;
         &lt;div class=&quot;cs-editor-fields&quot;&gt;
          &lt;div class=&quot;cs-editor-primary&quot;&gt;
           &lt;div class=&quot;cs-editor-context-row&quot;&gt;
-           &lt;div class=&quot;cs-editor-caption&quot; id=&quot;cs-editor-caption&quot;&gt;Onsdag 28. oktober&lt;/div&gt;
            &lt;div class=&quot;cs-shift-availability-actions&quot;&gt;&lt;button id=&quot;cs-edit-sickness&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot; hidden&gt;Meld syg&lt;/button&gt;&lt;button id=&quot;cs-edit-find-replacement&quot; type=&quot;button&quot; class=&quot;cs-button cs-replacement-shortcut&quot; hidden&gt;Find afløser&lt;/button&gt;&lt;/div&gt;
           &lt;/div&gt;
           &lt;div id=&quot;cs-demo-editor-guide&quot; class=&quot;cs-demo-editor-guide&quot; hidden role=&quot;note&quot;&gt;&lt;/div&gt;
           &lt;div id=&quot;cs-series-scope-block&quot; class=&quot;cs-series-scope-block&quot; hidden&gt;&lt;label class=&quot;cs-field cs-scope-field&quot; id=&quot;cs-scope-field&quot; hidden&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Anvend ændringen på&lt;/span&gt;&lt;select id=&quot;cs-edit-scope&quot;&gt;&lt;option value=&quot;one&quot;&gt;Kun denne vagt&lt;/option&gt;&lt;option value=&quot;future&quot;&gt;Denne og kommende vagter&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Hele vagtserien&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
           &lt;p id=&quot;cs-series-scope-help&quot; class=&quot;cs-series-scope-help&quot; hidden&gt;&lt;/p&gt;
           &lt;/div&gt;
-          &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-assignment&quot;&gt;
-          &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Medarbejder og arbejdssted&lt;/h4&gt;
-          &lt;div class=&quot;cs-field cs-staffing-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-person-label&quot;&gt;Medarbejder&lt;/span&gt;&lt;select id=&quot;cs-edit-person&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;option value=&quot;&quot;&gt;Ledig vagt&lt;/option&gt;&lt;/select&gt;
-            &lt;button id=&quot;cs-person-trigger&quot; class=&quot;cs-person-trigger&quot; type=&quot;button&quot; aria-haspopup=&quot;dialog&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;cs-person-picker&quot; aria-labelledby=&quot;cs-person-label cs-person-selected-name&quot;&gt;&lt;span class=&quot;cs-person-selected-copy&quot;&gt;&lt;span id=&quot;cs-person-selected-name&quot; class=&quot;cs-person-selected-name&quot;&gt;Ledig vagt&lt;/span&gt;&lt;span id=&quot;cs-person-selected-meta&quot; class=&quot;cs-person-selected-meta&quot;&gt;Vælg medarbejder&lt;/span&gt;&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
-            &lt;div id=&quot;cs-person-summary&quot; class=&quot;cs-person-summary&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
-            &lt;section id=&quot;cs-person-picker&quot; class=&quot;cs-person-picker&quot; role=&quot;dialog&quot; aria-labelledby=&quot;cs-person-picker-title&quot; hidden&gt;&lt;div class=&quot;cs-person-picker-head&quot;&gt;&lt;span id=&quot;cs-person-picker-title&quot;&gt;Vælg medarbejder&lt;/span&gt;&lt;button id=&quot;cs-person-picker-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet&quot; aria-label=&quot;Luk medarbejdervælger&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;&lt;p id=&quot;cs-person-context&quot; class=&quot;cs-person-context&quot;&gt;&lt;/p&gt;&lt;label class=&quot;cs-sr&quot; for=&quot;cs-person-search&quot;&gt;Søg i medarbejdere&lt;/label&gt;&lt;input id=&quot;cs-person-search&quot; class=&quot;cs-person-search&quot; type=&quot;search&quot; placeholder=&quot;Søg medarbejder…&quot; autocomplete=&quot;off&quot;&gt;&lt;div id=&quot;cs-person-results&quot; class=&quot;cs-person-results&quot; role=&quot;group&quot; aria-label=&quot;Medarbejdere med tilgængelighed og timer&quot;&gt;&lt;/div&gt;&lt;p id=&quot;cs-person-empty&quot; class=&quot;cs-person-empty&quot; hidden&gt;Ingen medarbejdere matcher din søgning.&lt;/p&gt;&lt;p class=&quot;cs-person-footnote&quot;&gt;Kontrollen bruger vagtplan og godkendt fravær. Aftalt timetal og afventende friønsker vises som information.&lt;/p&gt;&lt;/section&gt;
-          &lt;/div&gt;
-          &lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select id=&quot;cs-edit-site&quot;&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
-          &lt;/section&gt;
-          &lt;label class=&quot;cs-field&quot; id=&quot;cs-single-date-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Dato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-edit-date&quot; required&gt;&lt;/label&gt;
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-pattern&quot;&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Ugemønster&lt;/h4&gt;
+            &lt;h4 class=&quot;cs-shift-timing-title&quot; data-single-only&gt;Tidspunkt&lt;/h4&gt;
+            &lt;label class=&quot;cs-field&quot; id=&quot;cs-single-date-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Dato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-edit-date&quot; required&gt;&lt;/label&gt;
             &lt;div id=&quot;cs-repeat-days-field&quot; hidden&gt;
             &lt;div class=&quot;cs-repeat-pattern-heading&quot;&gt;&lt;div class=&quot;cs-field-label&quot;&gt;Arbejdsdage&lt;/div&gt;&lt;label class=&quot;cs-repeat-interval-field&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Gentagelse&lt;/span&gt;&lt;select id=&quot;cs-repeat-interval&quot; aria-label=&quot;Gentagelse&quot;&gt;&lt;option value=&quot;1&quot;&gt;Hver uge&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Hver anden uge&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
             &lt;div class=&quot;cs-repeat-days&quot; role=&quot;group&quot; aria-label=&quot;Vælg faste ugedage&quot;&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;0&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Mandag&quot; title=&quot;Mandag&quot; class=&quot;cursor-interaction&quot;&gt;Man&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;1&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Tirsdag&quot; title=&quot;Tirsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tir&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;2&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Onsdag&quot; title=&quot;Onsdag&quot; class=&quot;cursor-interaction&quot;&gt;Ons&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;3&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Torsdag&quot; title=&quot;Torsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tor&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;4&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Fredag&quot; title=&quot;Fredag&quot; class=&quot;cursor-interaction&quot;&gt;Fre&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;5&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Lørdag&quot; title=&quot;Lørdag&quot; class=&quot;cursor-interaction&quot;&gt;Lør&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;6&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Søndag&quot; title=&quot;Søndag&quot; class=&quot;cursor-interaction&quot;&gt;Søn&lt;/button&gt;&lt;/div&gt;
             &lt;/div&gt;
             &lt;label id=&quot;cs-day-times-toggle&quot; class=&quot;cs-day-times-toggle&quot; hidden&gt;&lt;input id=&quot;cs-day-times-enabled&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Forskellige tider pr. dag&lt;/span&gt;&lt;/label&gt;
             &lt;div class=&quot;cs-field-pair&quot; id=&quot;cs-uniform-times&quot;&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Fra&lt;/span&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-start&quot; required step=&quot;60&quot;&gt;&lt;/label&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Til &lt;span id=&quot;cs-edit-overnight&quot; class=&quot;cs-next-day&quot; hidden&gt;+1 dag&lt;/span&gt;&lt;/span&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-end&quot; required step=&quot;60&quot;&gt;&lt;/label&gt;&lt;/div&gt;
-            &lt;div id=&quot;cs-uniform-break&quot; class=&quot;cs-planned-break-field&quot;&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Planlagt pause · minutter&lt;/span&gt;&lt;input type=&quot;number&quot; id=&quot;cs-edit-break&quot; min=&quot;0&quot; step=&quot;1&quot; value=&quot;0&quot; required aria-describedby=&quot;cs-edit-break-help&quot;&gt;&lt;/label&gt;&lt;div class=&quot;cs-planned-break-copy&quot;&gt;&lt;strong id=&quot;cs-edit-net-time&quot;&gt;&lt;/strong&gt;&lt;p id=&quot;cs-edit-break-help&quot; class=&quot;cs-field-help&quot;&gt;Ulønnet pause, som trækkes fra de planlagte timer. Medarbejderen registrerer stadig sin faktiske pause.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div id=&quot;cs-uniform-break&quot; class=&quot;cs-planned-break-field&quot;&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Pause (min.)&lt;/span&gt;&lt;input type=&quot;number&quot; id=&quot;cs-edit-break&quot; min=&quot;0&quot; step=&quot;1&quot; value=&quot;0&quot; required aria-describedby=&quot;cs-edit-break-help&quot;&gt;&lt;/label&gt;&lt;span id=&quot;cs-edit-break-help&quot; class=&quot;cs-sr&quot;&gt;Ulønnet pause, som trækkes fra de planlagte timer.&lt;/span&gt;&lt;div class=&quot;cs-planned-break-copy&quot;&gt;&lt;strong id=&quot;cs-edit-net-time&quot;&gt;&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;
             &lt;div id=&quot;cs-day-times&quot; class=&quot;cs-day-times&quot; hidden&gt;&lt;/div&gt;
-            &lt;p id=&quot;cs-day-break-help&quot; class=&quot;cs-field-help&quot; hidden&gt;Pauser angives i minutter og er ulønnede. De trækkes fra hver dags planlagte timer; den faktiske pause registreres særskilt.&lt;/p&gt;
+            &lt;p id=&quot;cs-day-break-help&quot; class=&quot;cs-field-help&quot; hidden&gt;Pauser er ulønnede og trækkes fra dagens planlagte timer.&lt;/p&gt;
           &lt;/section&gt;
-          &lt;div id=&quot;cs-repeat-field&quot; class=&quot;cs-repeat-toggle&quot;&gt;&lt;label&gt;&lt;input id=&quot;cs-edit-repeat&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;&lt;strong&gt;Gentag vagten&lt;/strong&gt;&lt;span&gt;Planlæg faste ugedage frem i tiden.&lt;/span&gt;&lt;/span&gt;&lt;i data-lucide=&quot;repeat-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/label&gt;&lt;/div&gt;
+          &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-assignment&quot;&gt;
+            &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Arbejdssted og medarbejder&lt;/h4&gt;
+            &lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select id=&quot;cs-edit-site&quot;&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+            &lt;div class=&quot;cs-field cs-staffing-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-person-label&quot;&gt;Medarbejder&lt;/span&gt;&lt;select id=&quot;cs-edit-person&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;option value=&quot;&quot;&gt;Ledig vagt&lt;/option&gt;&lt;/select&gt;
+              &lt;button id=&quot;cs-person-trigger&quot; class=&quot;cs-person-trigger&quot; type=&quot;button&quot; aria-haspopup=&quot;dialog&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;cs-person-picker&quot; aria-labelledby=&quot;cs-person-label cs-person-selected-name&quot;&gt;&lt;span id=&quot;cs-person-selected-name&quot; class=&quot;cs-person-selected-name&quot;&gt;Ledig vagt&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+              &lt;div id=&quot;cs-person-summary&quot; class=&quot;cs-person-summary&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+              &lt;section id=&quot;cs-person-picker&quot; class=&quot;cs-person-picker&quot; role=&quot;dialog&quot; aria-labelledby=&quot;cs-person-picker-title&quot; hidden&gt;&lt;div class=&quot;cs-person-picker-head&quot;&gt;&lt;span id=&quot;cs-person-picker-title&quot;&gt;Vælg medarbejder&lt;/span&gt;&lt;button id=&quot;cs-person-picker-close&quot; type=&quot;button&quot; class=&quot;cs-icon-button cs-quiet&quot; aria-label=&quot;Luk medarbejdervælger&quot;&gt;&lt;i data-lucide=&quot;x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;&lt;p id=&quot;cs-person-context&quot; class=&quot;cs-person-context&quot;&gt;&lt;/p&gt;&lt;label class=&quot;cs-sr&quot; for=&quot;cs-person-search&quot;&gt;Søg i medarbejdere&lt;/label&gt;&lt;input id=&quot;cs-person-search&quot; class=&quot;cs-person-search&quot; type=&quot;search&quot; placeholder=&quot;Søg medarbejder…&quot; autocomplete=&quot;off&quot;&gt;&lt;div id=&quot;cs-person-results&quot; class=&quot;cs-person-results&quot; role=&quot;group&quot; aria-label=&quot;Medarbejdere med tilgængelighed og timer&quot;&gt;&lt;/div&gt;&lt;p id=&quot;cs-person-empty&quot; class=&quot;cs-person-empty&quot; hidden&gt;Ingen medarbejdere matcher din søgning.&lt;/p&gt;&lt;p class=&quot;cs-person-footnote&quot;&gt;Kontrollen bruger vagtplan og godkendt fravær. Aftalt timetal og afventende friønsker vises som information.&lt;/p&gt;&lt;/section&gt;
+            &lt;/div&gt;
+          &lt;/section&gt;
+          &lt;div id=&quot;cs-repeat-field&quot; class=&quot;cs-repeat-toggle&quot;&gt;&lt;label&gt;&lt;input id=&quot;cs-edit-repeat&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Gentag vagten&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;
           &lt;section id=&quot;cs-repeat-options&quot; class=&quot;cs-editor-section cs-repeat-options&quot; hidden&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot;&gt;Periode&lt;/h4&gt;
             &lt;p id=&quot;cs-series-operation-note&quot; class=&quot;cs-series-operation-note&quot; hidden&gt;&lt;/p&gt;
@@ -13566,8 +13664,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             &lt;div class=&quot;cs-field-pair&quot;&gt;&lt;label class=&quot;cs-field&quot; for=&quot;cs-repeat-start&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-series-start-label&quot;&gt;Startdato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-start&quot;&gt;&lt;/label&gt;&lt;label id=&quot;cs-repeat-end-field&quot; class=&quot;cs-field&quot; for=&quot;cs-repeat-end&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Slutdato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-end&quot;&gt;&lt;/label&gt;&lt;/div&gt;
             &lt;p id=&quot;cs-repeat-unlimited-hint&quot; class=&quot;cs-field-help&quot; hidden&gt;Gentages, indtil du afslutter serien.&lt;/p&gt;
           &lt;/section&gt;
-          &lt;details id=&quot;cs-description-details&quot; class=&quot;cs-series-description-details&quot; open&gt;&lt;summary id=&quot;cs-description-summary&quot; hidden&gt;&lt;span&gt;Beskrivelse og tjekliste&lt;/span&gt;&lt;span id=&quot;cs-description-summary-meta&quot;&gt;Valgfrit&lt;/span&gt;&lt;/summary&gt;
-          &lt;div class=&quot;cs-field cs-description-field&quot;&gt;&lt;span id=&quot;cs-description-label&quot; class=&quot;cs-field-label&quot;&gt;Beskrivelse &lt;span class=&quot;cs-optional&quot;&gt;Valgfrit&lt;/span&gt;&lt;/span&gt;&lt;div id=&quot;cs-description-editor&quot; aria-labelledby=&quot;cs-description-label&quot;&gt;&lt;/div&gt;&lt;textarea id=&quot;cs-edit-note&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;/textarea&gt;&lt;span id=&quot;cs-description-help&quot; class=&quot;cs-field-help&quot;&gt;Skriv instruktioner, formatér teksten, eller tilføj en tjekliste til medarbejderen. Plads til lange beskrivelser.&lt;/span&gt;&lt;/div&gt;
+          &lt;details id=&quot;cs-description-details&quot; class=&quot;cs-series-description-details&quot;&gt;&lt;summary id=&quot;cs-description-summary&quot;&gt;&lt;span&gt;Beskrivelse og tjekliste&lt;/span&gt;&lt;span id=&quot;cs-description-summary-meta&quot;&gt;&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/summary&gt;
+          &lt;div class=&quot;cs-field cs-description-field&quot;&gt;&lt;span id=&quot;cs-description-label&quot; class=&quot;cs-sr&quot;&gt;Beskrivelse&lt;/span&gt;&lt;div id=&quot;cs-description-editor&quot; aria-labelledby=&quot;cs-description-label&quot;&gt;&lt;/div&gt;&lt;textarea id=&quot;cs-edit-note&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
           &lt;/details&gt;
           &lt;div id=&quot;cs-checklist-planner-progress&quot; class=&quot;cs-checklist-planner-progress&quot; hidden&gt;&lt;/div&gt;
           &lt;div id=&quot;cs-edit-error&quot; class=&quot;cs-editor-error&quot; role=&quot;alert&quot; hidden&gt;&lt;/div&gt;
@@ -25506,7 +25604,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   let planningRetryWork=null;
   const planningFullHolds=new Set(),planningScopeHolds=new Map();
   let planningCatalog=null;
-  let seriesStatus=&#x27;active&#x27;, editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope=&#x27;one&#x27;, editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=false;
+  let seriesStatus=&#x27;active&#x27;, editorSeriesManagement=false, editorSeriesCreation=false, editorPreviousScope=&#x27;one&#x27;, editorScopeDrafts=new Map(), editorSharedSeriesDraft=null, editorWasSeries=null;
   let editorOperation=&#x27;create&#x27;,editorTemplate=null,editorExtension=null,editorOpenEnded=false,editorWeekAnchor=null,editorDayTimes={},seriesCalendarState={},seriesCalendarPreview=null;
   const expandedSeriesGroups=new Set();
   let activeGroup = null, calendarDispose = null, calendarViewportBoard = null;
@@ -28220,16 +28318,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       &amp;&amp;times(draft)===times(source)
       &amp;&amp;[...draft.weekdays].sort().join(&#x27;,&#x27;)===[...source.weekdays].sort().join(&#x27;,&#x27;));
   }
+  function syncEditorDescription(reset = false) {
+    const content=readDescriptionData(),doc=descriptionEditor&amp;&amp;Description?.normalize(content.noteRich);
+    let tasks=0;const count=item=&gt;{if(item.type===&#x27;taskItem&#x27;)tasks++;(item.content||[]).forEach(count);};if(doc)count(doc);
+    const hasContent=Boolean(doc?tasks||Description.hasContent(doc):content.note?.trim());
+    q(&#x27;#cs-description-summary-meta&#x27;).textContent=tasks?tasks+(tasks===1?&#x27; opgave&#x27;:&#x27; opgaver&#x27;):hasContent?&#x27;Med beskrivelse&#x27;:&#x27;&#x27;;
+    if(reset)q(&#x27;#cs-description-details&#x27;).open=!editorRepeats()&amp;&amp;hasContent;
+  }
   function syncSeriesEditor(repeating,source) {
     q(&#x27;#cs-editor-title&#x27;).textContent=repeating?(editorOperation===&#x27;extend&#x27;?&#x27;Forlæng vagtserie&#x27;:editorOperation===&#x27;copy&#x27;?&#x27;Kopiér vagtserie&#x27;:source?&#x27;Rediger vagtserie&#x27;:&#x27;Opret vagtserie&#x27;):(activeEdit?.id?&#x27;Rediger vagt&#x27;:&#x27;Opret vagt&#x27;);
     syncDayTimeControls(repeating);
     q(&#x27;#cs-series-operation-note&#x27;).hidden=!repeating||![&#x27;copy&#x27;,&#x27;extend&#x27;].includes(editorOperation);
     q(&#x27;#cs-series-operation-note&#x27;).textContent=editorOperation===&#x27;extend&#x27;?&#x27;Tilføjer en ny periode efter &#x27;+shortDate(editorExtension?.endDate||today)+&#x27;. Eksisterende vagter og særændringer bevares.&#x27;:&#x27;Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.&#x27;;
     const panel=q(&#x27;#cs-editor-layer .cs-editor&#x27;);panel.classList?.toggle(&#x27;cs-series-editor&#x27;,repeating);
-    q(&#x27;#cs-repeat-days-field&#x27;).hidden=!repeating;q(&#x27;#cs-repeat-interval&#x27;).disabled=!repeating;q(&#x27;#cs-series-planning-preview&#x27;).hidden=!repeating;q(&#x27;#cs-editor-caption&#x27;).hidden=repeating;q(&#x27;#cs-series-scope-block&#x27;).hidden=!source;
+    q(&#x27;#cs-repeat-days-field&#x27;).hidden=!repeating;q(&#x27;#cs-repeat-interval&#x27;).disabled=!repeating;q(&#x27;#cs-series-planning-preview&#x27;).hidden=!repeating;q(&#x27;#cs-series-scope-block&#x27;).hidden=!source;
     root.querySelectorAll(&#x27;[data-series-only]&#x27;).forEach(element=&gt;element.hidden=!repeating);
-    q(&#x27;#cs-description-summary&#x27;).hidden=!repeating;
-    if(editorWasSeries!==repeating)q(&#x27;#cs-description-details&#x27;).open=!repeating;
+    root.querySelectorAll(&#x27;[data-single-only]&#x27;).forEach(element=&gt;element.hidden=repeating);
+    syncEditorDescription(editorWasSeries!==repeating);
     editorWasSeries=repeating;
     q(&#x27;#cs-edit-find-replacement&#x27;).hidden=repeating||!activeEdit?.id||!activeEdit?.person;
     q(&#x27;#cs-edit-sickness&#x27;).hidden=repeating||!activeEdit?.id||!activeEdit?.person||state.demoSession||!cloudCapabilities.plan;
@@ -28245,9 +28350,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-repeat-start&#x27;).max=source&amp;&amp;scope===&#x27;future&#x27;&amp;&amp;editorSeriesManagement?source.endDate:&#x27;&#x27;;
     q(&#x27;#cs-repeat-start&#x27;).readOnly=Boolean(editorExtension);
     syncSeriesDurationControls(repeating);
-    const content=readDescriptionData(),doc=Description?.normalize(content.noteRich)||Description?.fromText(content.note||&#x27;&#x27;);
-    let tasks=0;const count=item=&gt;{if(item?.type===&#x27;taskItem&#x27;)tasks++;(item?.content||[]).forEach(count);};if(doc)count(doc);
-    q(&#x27;#cs-description-summary-meta&#x27;).textContent=tasks?tasks+(tasks===1?&#x27; opgave&#x27;:&#x27; opgaver&#x27;):content.note?.trim()?&#x27;Med beskrivelse&#x27;:&#x27;Valgfrit&#x27;;
   }
   function renderSeriesPlanningPreview(draft,source,scope) {
     if(!SeriesPlanner)return;
@@ -28363,15 +28465,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     selectedStaffing = person ? assessStaffing(person,context) : null;
     if (person) staffingAssessments.set(person.id,selectedStaffing);
     q(&#x27;#cs-person-selected-name&#x27;).textContent = person?.name || &#x27;Ledig vagt&#x27;;
-    q(&#x27;#cs-person-selected-meta&#x27;).textContent = person ? staffingStatus(selectedStaffing) + (context.repeating?(context.limited?&#x27; · viste periode&#x27;:&#x27; · hele perioden&#x27;):&#x27; · uge &#x27; + weekNumber(context.weekStart)) : &#x27;Vælg en medarbejder og se tilgængelighed&#x27;;
     summary.replaceChildren(); summary.dataset.state = selectedStaffing?.status === &#x27;blocked&#x27; ? &#x27;blocked&#x27; : selectedStaffing?.overTargetWeeks.length ? &#x27;over-target&#x27; : selectedStaffing?.status || &#x27;unassigned&#x27;;
     if (person) {
-      if(!context.repeating)summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-title&#x27;,&#x27;Uge &#x27; + weekNumber(context.weekStart) + &#x27; · &#x27; + shortDate(context.weekStart) + &#x27; – &#x27; + shortDate(addDays(context.weekStart,6))),node(&#x27;span&#x27;,&#x27;cs-person-summary-hours&#x27;,staffingHours(selectedStaffing)));
+      if(!context.repeating&amp;&amp;context.valid)summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-hours&#x27;,&#x27;Uge &#x27;+weekNumber(context.weekStart)+&#x27; · &#x27;+staffingHours(selectedStaffing)));
       const reason = staffingReason(selectedStaffing);
       if (reason) { const line = node(&#x27;span&#x27;,&#x27;cs-person-summary-warning&#x27;,reason); line.dataset.state = selectedStaffing.status;if(selectedStaffing.unavailableDates?.length)line.dataset.kind=&#x27;unavailable&#x27;;summary.append(line); }
-      if (selectedStaffing.status === &#x27;incomplete&#x27;) summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-warning&#x27;,&#x27;Tilgængeligheden kan kontrolleres, når dato og tid er udfyldt.&#x27;));
+      else if (context.repeating||selectedStaffing.status===&#x27;incomplete&#x27;||[&#x27;loading&#x27;,&#x27;unknown&#x27;].includes(selectedStaffing.availabilityStatus)) summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-title&#x27;,staffingStatus(selectedStaffing)+(context.repeating&amp;&amp;context.valid?(context.limited?&#x27; · viste periode&#x27;:&#x27; · hele perioden&#x27;):&#x27;&#x27;)));
       if (selectedStaffing.overTargetWeeks.length) summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-warning&#x27;,&#x27;Med &#x27; + (context.repeating ? &#x27;vagterne&#x27; : &#x27;vagten&#x27;) + &#x27; overskrides det aftalte timetal i &#x27; + selectedStaffing.overTargetWeeks.length + (selectedStaffing.overTargetWeeks.length === 1 ? &#x27; uge.&#x27; : &#x27; uger.&#x27;)));
-    } else summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-hours&#x27;,context.repeating ? &#x27;Vælg en medarbejder til vagtserien.&#x27; : &#x27;Ugen og den nye vagt indgår i beregningen, når du vælger en medarbejder.&#x27;));
+    }
     q(&#x27;#cs-save&#x27;).disabled = Boolean(selectedStaffing?.status === &#x27;blocked&#x27;);
     if (staffPickerOpen) renderStaffPicker();
   }
@@ -28513,7 +28614,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const copy=node(&#x27;p&#x27;,null,&#x27;Du har ændringer, som ikke er gemt.&#x27;);copy.id=&#x27;cs-editor-discard-copy&#x27;;
     const actions=node(&#x27;div&#x27;,&#x27;cs-editor-discard-actions&#x27;),cancel=node(&#x27;button&#x27;,&#x27;cs-button cs-editor-discard-cancel&#x27;,&#x27;Behold kladde&#x27;),discard=node(&#x27;button&#x27;,&#x27;cs-button cs-primary cs-editor-discard-confirm&#x27;,&#x27;Kassér ændringer&#x27;);cancel.type=discard.type=&#x27;button&#x27;;
     const current={element:layer,wasInert:Boolean(q(&#x27;.cs-editor&#x27;).inert)};
-    current.cancel=()=&gt;{if(editorDiscard!==current)return;dismissEditorDiscard();(origin?.isConnected?origin:q(&#x27;#cs-person-trigger&#x27;))?.focus?.({preventScroll:true});};
+    current.cancel=()=&gt;{if(editorDiscard!==current)return;dismissEditorDiscard();(origin?.isConnected?origin:q(&#x27;#cs-close&#x27;))?.focus?.({preventScroll:true});};
     current.accept=()=&gt;{if(editorDiscard!==current)return;dismissEditorDiscard();closeEditor({force:true});continuation?.();};
     cancel.addEventListener(&#x27;click&#x27;,current.cancel);discard.addEventListener(&#x27;click&#x27;,current.accept);actions.append(cancel,discard);panel.append(title,copy,actions);layer.append(panel);q(&#x27;#cs-editor-layer&#x27;).append(layer);editorDiscard=current;q(&#x27;.cs-editor&#x27;).inert=true;
     layer.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;){event.preventDefault();event.stopPropagation();current.cancel();}else if(event.key===&#x27;Tab&#x27;){event.preventDefault();(document.activeElement===cancel?discard:cancel).focus({preventScroll:true});}});
@@ -28541,11 +28642,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     activeEdit = {...shift,...(options.demoScenario ? {demoScenario:options.demoScenario} : {})}; renderDemoEditorGuide(); lastTrigger = trigger || q(&#x27;#cs-new&#x27;); editorSeriesId = uniqueSeriesId();
     editorPlanCapture=PlanningReconcile?.capture(state,{shifts:shift.id?[shift]:[],seriesId:shift.seriesId||null,groupId:options.extension?.groupId||null})||null;
     editorOperation=options.operation||(shift.id?&#x27;edit&#x27;:&#x27;create&#x27;);editorTemplate=options.template||null;editorExtension=options.extension||null;seriesCalendarState={};seriesCalendarPreview=null;
-    editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||&#x27;one&#x27;;editorWasSeries=false;q(&#x27;#cs-description-details&#x27;).open=true;q(&#x27;#cs-series-delete-confirm&#x27;).hidden=true;
+    editorSeriesManagement=options.seriesManagement===true;editorSeriesCreation=options.repeat===true;editorScopeDrafts=new Map();editorSharedSeriesDraft=null;editorPreviousScope=options.scope||&#x27;one&#x27;;editorWasSeries=null;q(&#x27;#cs-description-details&#x27;).open=false;q(&#x27;#cs-series-delete-confirm&#x27;).hidden=true;
     const cadenceSource=sourceSeries()||options.template;q(&#x27;#cs-repeat-interval&#x27;).value=String(cadenceSource?.weekInterval??1);editorWeekAnchor=cadenceSource?.weekAnchor||null;
     editorDayTimes=JSON.parse(JSON.stringify(sourceSeries()?.dayTimes||options.template?.dayTimes||{}));q(&#x27;#cs-day-times-enabled&#x27;).checked=Object.keys(editorDayTimes).length&gt;0;q(&#x27;#cs-day-times&#x27;).dataset.days=&#x27;&#x27;;
     q(&#x27;#cs-editor-title&#x27;).textContent = options.repeat || shift.seriesId &amp;&amp; options.scope === &#x27;all&#x27; ? shift.seriesId ? &#x27;Rediger vagtserie&#x27; : &#x27;Opret vagtserie&#x27; : shift.id ? &#x27;Rediger vagt&#x27; : &#x27;Opret vagt&#x27;;
-    q(&#x27;#cs-editor-caption&#x27;).textContent = fullDate(shift.date);
     q(&#x27;#cs-edit-person&#x27;).value = shift.person; q(&#x27;#cs-edit-site&#x27;).value = String(shift.site); q(&#x27;#cs-edit-date&#x27;).removeAttribute(&#x27;min&#x27;); q(&#x27;#cs-edit-date&#x27;).removeAttribute(&#x27;max&#x27;); q(&#x27;#cs-edit-date&#x27;).value = shift.date;
     q(&#x27;#cs-edit-start&#x27;).value = shift.start; q(&#x27;#cs-edit-end&#x27;).value = shift.end; q(&#x27;#cs-edit-break&#x27;).value=String(shift.plannedBreakMinutes??0); q(&#x27;#cs-edit-note&#x27;).value = shift.note || &#x27;&#x27;;
     descriptionEditor?.setContent(shift);
@@ -28555,7 +28655,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-edit-sickness&#x27;).hidden = !shift.id || !shift.person || state.demoSession || !cloudCapabilities.plan;
     configureRepeat(true,Boolean(options.template));
     if(options.template){editorSeriesId=options.template.id;applyEditorDraft(options.template);updatePreview();}
-    render();editorDirtyBaseline=editorDraftFingerprint(); q(&#x27;.cs-editor-fields&#x27;).scrollTop = 0; q(&#x27;#cs-person-trigger&#x27;).focus({preventScroll:true});
+    render();editorDirtyBaseline=editorDraftFingerprint(); q(&#x27;.cs-editor-fields&#x27;).scrollTop = 0; q(&#x27;#cs-close&#x27;).focus({preventScroll:true});
   }
   function openSeriesEditor(series, trigger) {
     const projection=seriesProjection(series);if(!scopeLoaded(projection))return withPlanningScope(projection,()=&gt;{const fresh=state.series.find(item=&gt;item.id===series.id);if(fresh)return openSeriesEditor(fresh,trigger);notify(&#x27;Vagtserien findes ikke længere.&#x27;);releasePlanningHold(&#x27;editor&#x27;);},&#x27;editor&#x27;);
@@ -29342,7 +29442,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   q(&#x27;#cs-series-delete-cancel&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{q(&#x27;#cs-series-delete-confirm&#x27;).hidden=true;q(&#x27;#cs-delete&#x27;).focus({preventScroll:true});});
   q(&#x27;#cs-series-delete-apply&#x27;).addEventListener(&#x27;click&#x27;,deleteEditedShift);
   q(&#x27;#cs-close&#x27;).addEventListener(&#x27;click&#x27;,closeEditor); q(&#x27;#cs-backdrop&#x27;).addEventListener(&#x27;click&#x27;,closeEditor);
-  q(&#x27;#cs-edit-date&#x27;).addEventListener(&#x27;change&#x27;,() =&gt; { if (q(&#x27;#cs-edit-date&#x27;).value) q(&#x27;#cs-editor-caption&#x27;).textContent = fullDate(q(&#x27;#cs-edit-date&#x27;).value); });
+  q(&#x27;#cs-edit-note&#x27;).addEventListener(&#x27;input&#x27;,() =&gt; { if(activeEdit)syncEditorDescription(); });
   q(&#x27;#cs-edit-scope&#x27;).addEventListener(&#x27;change&#x27;,changeEditorScope); q(&#x27;#cs-edit-repeat&#x27;).addEventListener(&#x27;change&#x27;,() =&gt; configureRepeat(true));
   q(&#x27;#cs-preserve-exceptions&#x27;).addEventListener(&#x27;change&#x27;,updatePreview);
   q(&#x27;#cs-day-times-enabled&#x27;).addEventListener(&#x27;change&#x27;,updatePreview);
@@ -29475,6 +29575,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
 
 
 

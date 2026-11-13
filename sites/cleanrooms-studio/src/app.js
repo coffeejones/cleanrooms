@@ -3036,58 +3036,29 @@
     else if (row.bottom > bounds.bottom) list.scrollTop += row.bottom - bounds.bottom;
   }
 
-  function positionStaffPicker() {
-    if (!staffPickerOpen) return;
-    const picker = q('#cs-person-picker');
-    if (!picker.hasAttribute('popover')) return;
-    const trigger = q('#cs-person-trigger'), rect = trigger.getBoundingClientRect();
-    const fields = q('.cs-editor-fields').getBoundingClientRect();
-    if (!trigger.getClientRects().length || rect.bottom <= fields.top || rect.top >= fields.bottom) { closeStaffPicker(false); return; }
-    const viewport = window.visualViewport, gap = 5, inset = 8;
-    const left = viewport?.offsetLeft ?? 0, top = viewport?.offsetTop ?? 0;
-    const right = left + (viewport?.width ?? window.innerWidth), bottom = top + (viewport?.height ?? window.innerHeight);
-    const width = Math.min(rect.width, right - left - 2 * inset);
-    const below = bottom - rect.bottom - gap - inset, above = rect.top - top - gap - inset;
-    const flip = below < 260 && above > below;
-    picker.style.width = width + 'px';
-    picker.style.left = Math.min(Math.max(rect.left, left + inset), right - inset - width) + 'px';
-    picker.style.top = flip ? 'auto' : Math.max(top + inset, rect.bottom + gap) + 'px';
-    picker.style.bottom = flip ? window.innerHeight - Math.min(rect.top - gap, bottom - inset) + 'px' : 'auto';
-    picker.style.setProperty('--cs-person-picker-room', Math.max(0, flip ? above : below) + 'px');
-  }
-
   function openStaffPicker(term = '') {
     if (!activeEdit) return;
     const picker = q('#cs-person-picker'), trigger = q('#cs-person-trigger'), search = q('#cs-person-search');
-    trigger.scrollIntoView({block: 'nearest'});
     staffPickerOpen = true;
     staffPickerPage = 0;
     staffPickerTerm = '';
     search.value = term;
-    if (typeof picker.showPopover === 'function') {
-      picker.setAttribute('popover', 'manual');
-      globalThis.CleanRoomsCombobox?.closeAll(root);
-      shiftEditorPickers?.close();
-    }
+    globalThis.CleanRoomsCombobox?.closeAll(root);
+    shiftEditorPickers?.close();
     picker.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
     refreshStaffing();
     q('#cs-person-results').scrollTop = 0;
-    if (picker.hasAttribute('popover')) {
-      positionStaffPicker();
-      if (!staffPickerOpen) return;
-      picker.showPopover();
-    } else picker.scrollIntoView({block: 'nearest'});
+    picker.scrollIntoView({block: 'nearest'});
     search.focus({preventScroll:true});
   }
   function closeStaffPicker(restoreFocus = true) {
     if (!staffPickerOpen) return;
     const picker = q('#cs-person-picker'), trigger = q('#cs-person-trigger');
     staffPickerOpen = false;
-    if (picker.hasAttribute('popover') && picker.matches(':popover-open')) picker.hidePopover();
     picker.hidden = true;
     trigger.setAttribute('aria-expanded', 'false');
-    if (restoreFocus) trigger.focus({preventScroll: true});
+    if (restoreFocus) trigger.focus();
   }
   function updatePreview() {
     if (!activeEdit) return;
@@ -3983,10 +3954,6 @@
   q('#cs-person-trigger').addEventListener('click',() => staffPickerOpen ? closeStaffPicker() : openStaffPicker());
   q('#cs-person-picker-close').addEventListener('click',() => closeStaffPicker());
   q('#cs-person-search').addEventListener('input', renderStaffPicker);
-  q('.cs-editor-fields').addEventListener('scroll', positionStaffPicker);
-  window.addEventListener('resize', positionStaffPicker);
-  window.visualViewport?.addEventListener('resize', positionStaffPicker);
-  window.visualViewport?.addEventListener('scroll', positionStaffPicker);
   q('#cs-person-picker').addEventListener('keydown',event => {
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeStaffPicker(); return; }
     if (!['ArrowDown','ArrowUp','Home','End'].includes(event.key)) return;
@@ -4008,8 +3975,7 @@
   function dismissStaffPickerOutside(event) {
     if (staffPickerOpen && !q('#cs-person-picker').contains(event.target) && !q('#cs-person-trigger').contains(event.target)) closeStaffPicker(false);
   }
-  root.addEventListener('pointerdown', dismissStaffPickerOutside, true);
-  root.addEventListener('focusin', dismissStaffPickerOutside);
+  root.addEventListener('click', dismissStaffPickerOutside);
   q('#cs-save').addEventListener('click',saveShift); q('#cs-edit-form').addEventListener('submit',event => event.preventDefault());
   q('#cs-edit-form').addEventListener('keydown',event => { if (!event.defaultPrevented && event.key === 'Enter' && (event.ctrlKey || event.metaKey)) saveShift(event); });
   q('#cs-delete').addEventListener('click',()=>{

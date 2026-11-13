@@ -46,15 +46,14 @@
 #cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-title,#cleanrooms-studio .cs-person-summary[data-state="blocked"] .cs-person-summary-warning,#cleanrooms-studio .cs-person-summary-warning[data-state="blocked"]{color:#925f54}
 #cleanrooms-studio .cs-person-summary[data-state="over-target"] .cs-person-summary-hours,#cleanrooms-studio .cs-person-summary-hours[data-state="over-target"],#cleanrooms-studio .cs-person-summary-hours[data-over-target="true"]{color:#8a6c3f}
 
-/* The picker keeps search visible while its results scroll. */
+/* The picker expands in the form. Only its results scroll independently. */
 #cleanrooms-studio #cs-edit-form .cs-person-picker {
   position:relative;
   display:flex;
   flex-direction:column;
   min-width:0;
   max-width:100%;
-  --cs-person-picker-cap:320px;
-  max-height:min(var(--cs-person-picker-room, 320px), var(--cs-person-picker-cap));
+  max-height:320px;
   margin:6px 0 0;
   padding:4px;
   box-sizing:border-box;
@@ -65,17 +64,6 @@
   box-shadow:var(--cs-combobox-shadow,0 8px 24px rgb(0 30 43 / .13),0 2px 5px rgb(0 30 43 / .05));
   color:var(--cs-access-ink,#001e2b);
 }
-#cleanrooms-studio #cs-edit-form .cs-person-picker[popover] {
-  position:fixed;
-  display:none;
-  inset:auto;
-  margin:0;
-  max-width:calc(100vw - 16px);
-  animation:none;
-}
-#cleanrooms-studio #cs-edit-form .cs-person-picker[popover]:popover-open {
-  display:flex;
-}
 #cleanrooms-studio #cs-edit-form .cs-person-search-bar {
   position:relative;
   display:flex;
@@ -83,11 +71,11 @@
   flex:none;
   gap:3px;
   min-width:0;
-  padding:2px;
+  padding:4px 4px 8px;
 }
 #cleanrooms-studio #cs-edit-form .cs-person-search-bar > :is(svg,i) {
   position:absolute;
-  inset-inline-start:12px;
+  inset-inline-start:14px;
   width:14px;
   height:14px;
   color:var(--cs-access-muted,#5c6c75);
@@ -128,10 +116,13 @@
   min-height:36px;
   margin:0;
   padding-inline:28px 8px;
-  border-color:var(--cs-combobox-edge,#d4dce3);
+  border-color:var(--cs-ui-field-border,var(--cs-combobox-edge,#d4dce3));
   border-radius:5px;
   background:var(--cs-access-surface,#fff);
   box-shadow:none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form #cs-person-search:focus-visible {
+  outline-offset:-2px;
 }
 #cleanrooms-studio .cs-person-results {
   display:block;
@@ -199,13 +190,13 @@
 
 @media(max-width:760px){
   #cleanrooms-studio #cs-editor-layer>.cs-editor{width:100%;border-left:0}
-  #cleanrooms-studio #cs-edit-form .cs-person-picker{--cs-person-picker-cap:270px}
+  #cleanrooms-studio #cs-edit-form .cs-person-picker{max-height:270px}
 }
 @media(max-width:375px){
   #cleanrooms-studio .cs-person-option-main{gap:7px}
 }
 @media(max-height:540px){
-  #cleanrooms-studio #cs-edit-form .cs-person-picker{--cs-person-picker-cap:220px}
+  #cleanrooms-studio #cs-edit-form .cs-person-picker{max-height:220px}
 }
 @media(pointer:coarse){
   #cleanrooms-studio #cs-edit-form #cs-person-search{font-size:16px;line-height:20px}

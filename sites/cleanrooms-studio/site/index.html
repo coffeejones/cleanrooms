@@ -9208,7 +9208,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   box-shadow:inset 0 1px 0 #ffffffb3;
   transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease;
 }
-#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days &gt; button:hover:not(:disabled){
+#cleanrooms-studio[data-page][data-role] .cs-editor .cs-repeat-days &gt; button[aria-pressed=&quot;false&quot;]:hover:not(:disabled){
   border-color:#bac5cc;
   background:#eaf0f3;
   color:#344d5c;
@@ -13786,7 +13786,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
            &lt;div class=&quot;cs-shift-availability-actions&quot;&gt;&lt;button id=&quot;cs-edit-sickness&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot; hidden&gt;Meld syg&lt;/button&gt;&lt;button id=&quot;cs-edit-find-replacement&quot; type=&quot;button&quot; class=&quot;cs-button cs-replacement-shortcut&quot; hidden&gt;Find afløser&lt;/button&gt;&lt;/div&gt;
           &lt;/div&gt;
           &lt;div id=&quot;cs-demo-editor-guide&quot; class=&quot;cs-demo-editor-guide&quot; hidden role=&quot;note&quot;&gt;&lt;/div&gt;
-          &lt;div id=&quot;cs-series-scope-block&quot; class=&quot;cs-series-scope-block&quot; hidden&gt;&lt;label class=&quot;cs-field cs-scope-field&quot; id=&quot;cs-scope-field&quot; hidden&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Ændringen gælder&lt;/span&gt;&lt;select id=&quot;cs-edit-scope&quot;&gt;&lt;option value=&quot;one&quot;&gt;Kun denne vagt&lt;/option&gt;&lt;option value=&quot;future&quot;&gt;Denne og kommende vagter&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Hele vagtserien&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+          &lt;div id=&quot;cs-series-scope-block&quot; class=&quot;cs-series-scope-block&quot; hidden&gt;&lt;label class=&quot;cs-field cs-scope-field&quot; id=&quot;cs-scope-field&quot; hidden&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Ændringen gælder&lt;/span&gt;&lt;select id=&quot;cs-edit-scope&quot; data-select-only&gt;&lt;option value=&quot;one&quot;&gt;Kun denne vagt&lt;/option&gt;&lt;option value=&quot;future&quot;&gt;Denne og kommende vagter&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Hele vagtserien&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
           &lt;p id=&quot;cs-series-scope-help&quot; class=&quot;cs-series-scope-help&quot; hidden&gt;&lt;/p&gt;
           &lt;/div&gt;
           &lt;p id=&quot;cs-series-operation-note&quot; class=&quot;cs-series-operation-note&quot; hidden&gt;&lt;/p&gt;
@@ -30310,6 +30310,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

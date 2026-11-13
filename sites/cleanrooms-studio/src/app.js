@@ -421,7 +421,7 @@
     const person=staff.find(item=>item.id===employeeProfileId);if(!person){employeeProfileId=null;renderRoster();return;}
     if(!employeeProfileView){
       employeeProfileElement=node('div','cs-secondary-page');employeeProfileElement.id='cs-employee-profile-page';
-      employeeProfileView=globalThis.CleanRoomsEmployeeProfileView?.mount({element:employeeProfileElement,onBack:closeEmployeeProfile,onSave:saveEmployeeProfile,onHelp:trigger=>openPageHelp(trigger),
+      employeeProfileView=globalThis.CleanRoomsEmployeeProfileView?.mount({element:employeeProfileElement,icon,onBack:closeEmployeeProfile,onSave:saveEmployeeProfile,onHelp:trigger=>openPageHelp(trigger),
         onMonthChange:month=>{if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return;employeeProfileMonth=month;payrollMonth=month;render();},
         onTabChange:tab=>{
           renderPageHelp();
@@ -1752,6 +1752,9 @@
       'bell': [['path', {d:'M18 8a6 6 0 0 0-12 0c0 6-3 7-3 9h18c0-2-3-3-3-9Zm-8 12a2 2 0 0 0 4 0'}]],
       'check': [['path', {d:'M5 12l4 4L19 6'}]],
       'plus': [['path', {d:'M12 5v14M5 12h14'}]],
+      'arrow-left': [['path', {d:'m12 19-7-7 7-7M5 12h14'}]],
+      'pencil': [['path', {d:'m15 5 4 4M4 20l4.5-1 11-11a2.8 2.8 0 0 0-4-4l-11 11L4 20Z'}]],
+      'map-pin': [['path', {d:'M20 10c0 5-8 11-8 11s-8-6-8-11a8 8 0 1 1 16 0Z'}], ['circle', {cx:12,cy:10,r:2.5}]],
       'chevron-left': [['path', {d:'M15 18l-6-6 6-6'}]],
       'chevron-right': [['path', {d:'M9 6l6 6-6 6'}]],
       'search': [

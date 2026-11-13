@@ -1,9 +1,7 @@
 /* The roster is an operational directory; the side panel exists only on request. */
 #cleanrooms-studio[data-page="people"] .cs-roster-page{display:flex;flex-direction:column;gap:20px;width:100%;height:100%;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overflow-anchor:none;padding-bottom:12px;color:var(--cs-access-ink,#29343c);font-size:14px;line-height:1.5;scrollbar-width:thin}
 #cleanrooms-studio[data-page="people"] .cs-roster-page [hidden]{display:none!important}
-#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
 #cleanrooms-studio[data-page="people"] .cs-roster-heading{margin:0;color:var(--cs-access-ink,#29343c);font-size:16px;font-weight:600;line-height:24px;letter-spacing:-.2px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page="people"] .cs-roster-count{margin:4px 0 0;color:var(--cs-access-muted,#687076);font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page="people"] :is(.cs-roster-actions,.cs-roster-form-actions,.cs-roster-profile-actions){display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;min-width:0}
 #cleanrooms-studio[data-page="people"] .cs-roster-page .cs-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--cs-ui-height,40px);max-width:100%;padding:0 12px;border:1px solid var(--cs-access-border,#d5dcde);border-radius:var(--cs-ui-radius,8px);background:var(--cs-access-surface,#fff);color:var(--cs-access-body,#4b575d);font-family:inherit;font-size:13px;font-weight:500;line-height:20px;white-space:nowrap}
 #cleanrooms-studio[data-page="people"] .cs-roster-page .cs-button:hover:not(:disabled){border-color:var(--cs-access-control-edge,#c1cbce);background:var(--cs-access-soft,#f2f4f4)}
@@ -126,7 +124,6 @@
   #cleanrooms-studio[data-page="people"] .cs-roster-workspace[data-aside-open="true"] .cs-roster-directory{grid-row:2}
 }
 @media(max-width:760px){
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:flex-start;flex-direction:column;gap:12px}
   #cleanrooms-studio[data-page="people"] .cs-roster-actions{width:100%;justify-content:flex-start}
   #cleanrooms-studio[data-page="people"] .cs-roster-directory-head{padding:16px}
   #cleanrooms-studio[data-page="people"] .cs-roster-filter-row{grid-template-columns:minmax(0,1fr)}

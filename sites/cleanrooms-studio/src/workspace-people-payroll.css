@@ -18,7 +18,6 @@
 #cleanrooms-studio[data-page="payroll"] .cs-paygroups-member-filter:hover:not(:disabled){background:#f3f6f8;color:#344d5c}
 
 @media(min-width:761px){
- #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-heading{color:#526673;font-weight:500}
  #cleanrooms-studio[data-page="people"] .cs-roster-actions{align-items:center}
  #cleanrooms-studio[data-page="people"] .cs-employee-profile-breadcrumb{gap:12px;margin-bottom:12px;color:#7b8992}
  #cleanrooms-studio[data-page="people"][data-role] .cs-employee-profile-breadcrumb .cs-employee-profile-back{padding-inline:8px;border-radius:5px}

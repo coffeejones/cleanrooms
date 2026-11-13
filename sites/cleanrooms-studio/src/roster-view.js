@@ -4,7 +4,7 @@
   const Model=globalThis.CleanRoomsRoster||(typeof require==='function'?require('./roster-model.js'):null);
   let sequence=0;
   const clone=value=>JSON.parse(JSON.stringify(value));
-  function mount({element,onSave,onImport,onShowPlan,onOpenPerson,sites:initialSites=[]}={}) {
+  function mount({element,actionsHost,onSave,onImport,onShowPlan,onOpenPerson,sites:initialSites=[]}={}) {
     if(!element?.ownerDocument)throw new TypeError('Medarbejdersiden kræver et indholdsfelt.');
     const doc=element.ownerDocument,prefix='cs-roster-'+(++sequence)+'-';
     let staff=[],sites=initialSites,planning=null,canEdit=false,pending=false,disposed=false,editing=null,editingBefore=null,selectedId=null,editorReturnId=null,preview=null,previewBase='',epoch=0,pageIndex=0;
@@ -13,19 +13,22 @@
     const button=(text,action,className='cs-button')=>{const value=node('button',className,text);value.type='button';value.addEventListener('click',action);return value;};
     const input=(name,type='text')=>{const value=node('input','cs-roster-input');value.type=type;value.id=prefix+name;return value;};
     const field=(label,control)=>{const wrap=node('label','cs-roster-field');wrap.htmlFor=control.id;wrap.append(node('span','cs-roster-label',label),control);return wrap;};
-    const page=node('div','cs-roster-page'),toolbar=node('div','cs-roster-toolbar'),summary=node('div','cs-roster-summary'),count=node('p','cs-roster-count'),actions=node('div','cs-roster-actions');
-    summary.append(node('h3','cs-roster-heading','Teamoversigt'),count);
-    const importButton=button('Importér CSV',()=>openImport(),'cs-button cs-chrome-quiet'),createButton=button('Opret medarbejder',()=>openEditor(null),'cs-button cs-primary');actions.append(importButton,createButton);toolbar.append(summary,actions);
+    const page=node('div','cs-roster-page'),actions=node('div','cs-roster-actions');
+    const importButton=button('Importér CSV',()=>openImport(),'cs-button cs-chrome-quiet'),createButton=button('Opret medarbejder',()=>openEditor(null),'cs-button cs-primary');actions.append(importButton,createButton);
+    (actionsHost||page).append(actions);
     const status=node('p','cs-roster-status'),error=node('p','cs-roster-error');status.hidden=true;error.hidden=true;status.setAttribute('role','status');status.setAttribute('aria-live','polite');error.setAttribute('role','alert');
     const workspace=node('div','cs-roster-workspace'),directory=node('section','cs-roster-directory'),directoryHead=node('div','cs-roster-directory-head');directory.setAttribute('aria-label','Medarbejdere');
-    const search=input('search','search');search.placeholder='Søg efter navn eller funktion';search.setAttribute('aria-label','Søg i medarbejdere');
+    const search=input('search','search');search.placeholder='Søg medarbejder';search.setAttribute('aria-label','Søg i medarbejdere');
     const filter=node('select','cs-roster-input');filter.id=prefix+'filter';filter.hidden=true;filter.tabIndex=-1;filter.setAttribute('aria-hidden','true');filter.setAttribute('aria-label','Vis medarbejdere');for(const [value,label] of [['active','Aktive medarbejdere'],['all','Alle medarbejdere'],['archived','Arkiverede medarbejdere']]){const option=node('option','',label);option.value=value;filter.append(option);}filter.value='active';
     const tabs=node('div','cs-roster-status-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Medarbejderstatus');const statusTabs=[];
-    for(const [value,label] of [['active','Aktive'],['all','Alle'],['archived','Arkiverede']]){const tab=button(label,()=>{filter.value=value;pageIndex=0;renderDirectory();});tab.className='cs-roster-status-tab';tab.dataset.status=value;tab.dataset.productFocus='roster:status:'+value;statusTabs.push(tab);tabs.append(tab);}
-    const siteFilter=node('select','cs-roster-input');siteFilter.id=prefix+'site-filter';siteFilter.setAttribute('aria-label','Filtrer efter primært arbejdssted');siteFilter.value='all';
+    for(const [value,label] of [['active','Aktive'],['all','Alle'],['archived','Arkiverede']]){
+      const tab=button(label,()=>{filter.value=value;pageIndex=0;renderDirectory();},'cs-roster-status-tab'),count=node('span','cs-roster-tab-count');
+      tab.dataset.status=value;tab.dataset.productFocus='roster:status:'+value;tab.append(count);statusTabs.push({tab,count,label});tabs.append(tab);
+    }
+    const siteFilter=node('select','cs-roster-input');siteFilter.id=prefix+'site-filter';siteFilter.setAttribute('aria-label','Filtrer efter primært arbejdssted');siteFilter.setAttribute('data-select-only','');siteFilter.value='all';
     const filterRow=node('div','cs-roster-filter-row cs-filter-rail'),shown=node('span','cs-roster-shown');shown.setAttribute('role','status');const siteFilterWrap=node('div','cs-roster-filter-site');siteFilterWrap.append(siteFilter);filterRow.append(search,siteFilterWrap);const context=node('div','cs-roster-week-context'),planningNotice=node('p','cs-roster-planning-notice');planningNotice.hidden=true;planningNotice.setAttribute('role','status');directoryHead.append(filter,tabs,filterRow,context,planningNotice,shown);
-    const table=node('table','cs-roster-table'),thead=node('thead'),headingRow=node('tr'),tbody=node('tbody');let weeklyHead;
-    for(const [label,className] of [['Medarbejder','person'],['Primært arbejdssted','site'],['Aftalt pr. uge','week'],['Næste vagt','next'],['Status','status'],['','action']]){const th=node('th','cs-roster-col-'+className,label);th.scope='col';if(className==='week')weeklyHead=th;headingRow.append(th);}thead.append(headingRow);table.append(thead,tbody);
+    const table=node('table','cs-roster-table'),thead=node('thead'),headingRow=node('tr'),tbody=node('tbody');table.setAttribute('role','table');let weeklyHead,actionHead;
+    for(const [label,className] of [['Medarbejder','person'],['Primært arbejdssted','site'],['Aftalt pr. uge','week'],['Næste vagt','next'],['Status','status'],['','action']]){const th=node('th','cs-roster-col-'+className,label);th.scope='col';if(className==='week')weeklyHead=th;if(className==='action')actionHead=th;headingRow.append(th);}thead.append(headingRow);table.append(thead,tbody);
     const pagination=node('nav','cs-roster-pagination cs-roster-actions'),pageRange=node('span','cs-roster-shown'),previousPage=button('Forrige',()=>changePage(-1),'cs-button cs-chrome-quiet'),nextPage=button('Næste',()=>changePage(1),'cs-button cs-chrome-quiet');pagination.setAttribute('aria-label','Sider i medarbejderkartoteket');pageRange.setAttribute('role','status');previousPage.dataset.productFocus='roster:page:previous';nextPage.dataset.productFocus='roster:page:next';pagination.append(pageRange,previousPage,nextPage);pagination.hidden=true;
     const empty=node('div','cs-roster-empty');directory.append(directoryHead,table,empty,pagination);
     const side=node('aside','cs-roster-side'),profile=node('section','cs-roster-profile');side.hidden=true;side.setAttribute('aria-label','Valgt medarbejder');profile.hidden=true;profile.setAttribute('aria-labelledby',prefix+'profile-title');
@@ -35,7 +38,7 @@
     const initials=input('initials');initials.maxLength=8;initials.autocomplete='off';
     const role=input('role');role.maxLength=120;role.autocomplete='organization-title';role.required=true;
     const target=input('target','number');target.min='0';target.max='168';target.step='0.01';target.required=true;
-    const site=node('select','cs-roster-input');site.id=prefix+'site';site.required=true;
+    const site=node('select','cs-roster-input');site.id=prefix+'site';site.required=true;site.setAttribute('data-select-only','');
     const active=input('active','checkbox'),activeField=node('label','cs-roster-check');activeField.htmlFor=active.id;activeField.append(active,node('span','','Aktiv medarbejder'));
     const pair=node('div','cs-roster-field-pair');pair.append(field('Initialer',initials),field('Aftalte timer pr. uge',target));
     const editHelp=node('p','cs-roster-help','Arkiverede medarbejdere bevares i historikken og kan aktiveres igen.');active.setAttribute('aria-describedby',prefix+'active-help');editHelp.id=prefix+'active-help';
@@ -49,7 +52,7 @@
     const previewButton=button('Kontrollér import',()=>reviewImport()),previewBox=node('div','cs-roster-preview'),importError=node('div','cs-roster-error');importError.hidden=true;importError.setAttribute('role','alert');previewBox.hidden=true;
     const importActions=node('div','cs-roster-form-actions'),importCancel=button('Annuller',()=>closeImport()),confirm=button('Gem import',()=>saveImport(),'cs-button cs-primary');confirm.hidden=true;importActions.append(importCancel,confirm);
     importer.append(importTitle,importHelp,file,field('CSV-indhold',csv),csvHelp,previewButton,importError,previewBox,importActions);
-    side.append(profile,editor);workspace.append(directory,side);page.append(toolbar,status,error,importer,workspace);element.replaceChildren(page);
+    side.append(profile,editor);workspace.append(directory,side);page.append(status,error,importer,workspace);element.replaceChildren(page);
     function showError(target,message){target.textContent=message;target.hidden=false;target.scrollIntoView?.({block:'nearest'});}
     function setBusy(value){pending=value;page.setAttribute('aria-busy',String(value));page.querySelectorAll('button,input,select,textarea').forEach(control=>{control.disabled=value;});page.querySelectorAll('.cs-roster-name-button').forEach(control=>{control.disabled=value||!editor.hidden;});createButton.disabled=value||!canEdit;importButton.disabled=value||!canEdit;}
     function fillSites(selected){site.replaceChildren();sites.forEach((value,index)=>{if(value.restricted)return;const option=node('option','',value.name);option.value=String(index);site.append(option);});site.value=String(selected);}
@@ -81,16 +84,33 @@
     function openProfile(person){if(pending||disposed||!editor.hidden)return;if(typeof onOpenPerson==='function'){onOpenPerson(clone(person));return;}closeImport(false);selectedId=person.id;renderDirectory();renderProfile();focusPanel(profile,profile.querySelectorAll('h3')[0]);}
     function changePage(direction){if(pending||disposed)return;pageIndex+=direction;renderDirectory();directoryHead.scrollIntoView?.({block:'nearest'});}
     function renderDirectory(){
-      const activeCount=staff.filter(person=>person.active!==false).length,archivedCount=staff.length-activeCount;count.textContent=staff.length+(staff.length===1?' medarbejder':' medarbejdere')+' · '+activeCount+(activeCount===1?' aktiv':' aktive')+' · '+archivedCount+(archivedCount===1?' arkiveret':' arkiverede');
-      statusTabs.forEach(tab=>{tab.setAttribute('aria-pressed',String(tab.dataset.status===filter.value));tab.disabled=pending;});if(planning)weeklyHead.replaceChildren(node('span','','Denne uge'),node('small','cs-roster-week-legend','Planlagt / aftalt'));else weeklyHead.textContent='Aftalt pr. uge';context.hidden=!planning;context.textContent=planning?'Vagtplan · '+dateLabel(planning.weekStart)+' – '+dateLabel(planning.weekEnd)+' · næste vagter frem til '+dateLabel(planning.horizonEnd):'';
+      const activeCount=staff.filter(person=>person.active!==false).length;
+      const counts={active:activeCount,all:staff.length,archived:staff.length-activeCount};
+      for(const {tab,count,label} of statusTabs){
+        const value=tab.dataset.status;
+        count.textContent=counts[value];
+        tab.setAttribute('aria-label',label+' · '+counts[value]);
+        tab.setAttribute('aria-pressed',String(value===filter.value));
+        tab.disabled=pending;
+      }
+      actionHead.hidden=!canEdit;
+      if(planning)weeklyHead.replaceChildren(node('span','','Denne uge'),node('small','cs-roster-week-legend','Planlagt / aftalt'));else weeklyHead.textContent='Aftalt pr. uge';context.hidden=!planning;context.textContent=planning?dateLabel(planning.weekStart)+' – '+dateLabel(planning.weekEnd)+' · næste vagter frem til '+dateLabel(planning.horizonEnd):'';
       const selectedSite=siteFilter.value||'all';siteFilter.replaceChildren();const all=node('option','','Alle arbejdssteder');all.value='all';siteFilter.append(all);sites.forEach((value,index)=>{if(value.restricted)return;const option=node('option','',value.name);option.value=String(index);siteFilter.append(option);});siteFilter.value=selectedSite==='all'||sites[Number(selectedSite)]?selectedSite:'all';
       const query=search.value.trim().toLocaleLowerCase('da-DK'),people=staff.filter(person=>(filter.value==='all'||(filter.value==='archived'?person.active===false:person.active!==false))&&(siteFilter.value==='all'||person.site===Number(siteFilter.value))&&(!query||[person.name,person.role,sites[person.site]?.name].some(value=>String(value||'').toLocaleLowerCase('da-DK').includes(query))));
       pageIndex=Math.min(Math.max(0,pageIndex),Math.max(0,Math.ceil(people.length/PAGE_SIZE)-1));const start=pageIndex*PAGE_SIZE;pagination.hidden=people.length<=PAGE_SIZE;pageRange.textContent=start+1+'–'+Math.min(start+PAGE_SIZE,people.length)+' af '+people.length;previousPage.disabled=pending||pageIndex===0;nextPage.disabled=pending||start+PAGE_SIZE>=people.length;
-      const archivedEmpty=filter.value==='archived'&&!query&&siteFilter.value==='all';shown.textContent=people.length+' vist';tbody.replaceChildren();table.hidden=!people.length;empty.hidden=Boolean(people.length);empty.replaceChildren(node('h4','cs-roster-empty-title',archivedEmpty?'Ingen arkiverede medarbejdere':staff.length?'Ingen medarbejdere matcher':'Opret jeres første medarbejder'),node('p','cs-roster-copy',archivedEmpty?'Arkiverede medarbejdere vises her. Tidligere vagter bevares.':staff.length?'Tilpas søgningen eller arbejdsstedet, eller vælg Alle.':'Tilføj medarbejdere enkeltvis, eller importér listen fra en CSV-fil.'));
+      const hasSearchOrSite=Boolean(query)||siteFilter.value!=='all';
+      const archivedEmpty=filter.value==='archived'&&!hasSearchOrSite;
+      shown.textContent=people.length+' vist';shown.className=hasSearchOrSite?'cs-roster-shown':'cs-roster-shown cs-sr';
+      tbody.replaceChildren();table.hidden=!people.length;empty.hidden=Boolean(people.length);
+      const emptyTitle=hasSearchOrSite?'Ingen medarbejdere matcher':archivedEmpty?'Ingen arkiverede medarbejdere':staff.length?'Ingen aktive medarbejdere':'Ingen medarbejdere endnu';
+      empty.replaceChildren(node('h3','cs-roster-empty-title',emptyTitle));
+      if(hasSearchOrSite)empty.append(node('p','cs-roster-copy','Tilpas søgningen eller vælg et andet arbejdssted.'));
+      else if(archivedEmpty)empty.append(node('p','cs-roster-copy','Tidligere vagter bevares.'));
+      else if(!staff.length&&canEdit)empty.append(node('p','cs-roster-copy','Opret en medarbejder, eller importér en CSV-fil.'));
       for(const person of people.slice(start,start+PAGE_SIZE)){const row=node('tr');row.dataset.personId=person.id;row.dataset.selected=String(editing===person.id||selectedId===person.id);const identity=node('td','cs-roster-person-cell'),identityWrap=button('',()=>openProfile(person),'cs-roster-name-button'),avatar=node('span','cs-roster-avatar',person.initials),copy=node('div','cs-roster-identity-copy');identityWrap.dataset.personId=person.id;identityWrap.dataset.productFocus='roster:'+person.id+':profile';identityWrap.setAttribute('aria-label','Åbn profil for '+person.name);identityWrap.disabled=pending||!editor.hidden;avatar.setAttribute('aria-hidden','true');copy.append(node('strong','cs-roster-person-name',person.name),node('span','cs-roster-person-role',person.role));identityWrap.append(avatar,copy);identity.append(identityWrap);const worksite=node('td','cs-roster-site-cell',sites[person.site]?.name||'Arbejdssted mangler');worksite.dataset.label='Primært arbejdssted';const plan=planFor(person),weekly=node('td','cs-roster-hours cs-roster-week-cell');weekly.dataset.label=planning?'Denne uge · planlagt / aftalt':'Aftalt pr. uge';
         if(plan){weekly.append(node('strong','cs-roster-week-value',hours(plan.plannedMinutes)+' / '+hours(plan.targetMinutes)+' t'),meter(plan));if(plan.overTarget)weekly.append(node('span','cs-roster-week-over',hours(Math.max(0,plan.plannedMinutes-plan.targetMinutes))+' t over aftalt'));}else weekly.append(node('strong','cs-roster-week-value',hours(person.target*60)+' t aftalt'));
         const next=node('td','cs-roster-next-cell');next.dataset.label='Næste vagt';if(plan?.nextShift){next.append(node('strong','',dateLabel(plan.nextShift.date)+' · '+plan.nextShift.start+'–'+plan.nextShift.end),node('span','',sites[plan.nextShift.site]?.name||'Arbejdssted mangler'));}else next.append(node('span','',plan?'Ingen i perioden':'Vagtdata ikke indlæst'));
-        const state=node('td','cs-roster-status-cell');state.dataset.label='Status';state.append(stateBadge(person));const action=node('td','cs-roster-row-action');if(canEdit){const edit=button('Rediger',()=>openEditor(person),'cs-button cs-chrome-quiet');edit.setAttribute('aria-label','Rediger '+person.name);edit.disabled=pending;action.append(edit);}row.append(identity,worksite,weekly,next,state,action);tbody.append(row);}syncWorkspace();
+        const state=node('td','cs-roster-status-cell');state.dataset.label='Status';state.append(stateBadge(person));row.append(identity,worksite,weekly,next,state);if(canEdit){const action=node('td','cs-roster-row-action'),edit=button('Rediger',()=>openEditor(person));edit.setAttribute('aria-label','Rediger '+person.name);edit.disabled=pending;action.append(edit);row.append(action);}tbody.append(row);}syncWorkspace();
     }
     function openEditor(person){if(!canEdit||pending||disposed)return;closeImport(false);editorReturnId=selectedId;editing=person?.id||Model.newId();editingBefore=person?clone(person):null;editTitle.textContent=person?'Rediger medarbejder':'Ny medarbejder';name.value=person?.name||'';initials.value=person?.initials||'';target.value=String(person?.target??Model.defaultEmployeeTarget);role.value=person?.role||'Servicemedarbejder';fillSites(person?.site??0);active.checked=person?.active!==false;editError.hidden=true;editor.hidden=false;profile.hidden=true;renderDirectory();syncWorkspace();focusPanel(editor,name);}
     function closeEditor(restoreFocus=true){if(pending)return;const edited=editingBefore?.id,wasOpen=!editor.hidden;editor.hidden=true;editing=null;editingBefore=null;if(wasOpen)selectedId=editorReturnId;editorReturnId=null;renderDirectory();renderProfile();if(restoreFocus){if(selectedId){focusPanel(profile,profile.querySelectorAll('h3')[0]);}else if(edited)focusPerson(edited);else createButton.focus({preventScroll:true});}}
@@ -125,7 +145,7 @@
       if(disposed)return;if(options.staff!==undefined)staff=clone(options.staff);if(options.sites!==undefined)sites=options.sites;if(Object.hasOwn(options,'planning'))planning=options.planning||null;if(Object.hasOwn(options,'planningError')){planningNotice.textContent=options.planningError||'';planningNotice.hidden=!options.planningError;}canEdit=options.canEdit===true;createButton.hidden=!canEdit;importButton.hidden=!canEdit;
       if(!canEdit&&!pending){closeEditor(false);closeImport(false);}setBusy(pending);renderDirectory();renderProfile();
     }
-    render();return Object.freeze({render,destroy(){disposed=true;epoch++;element.replaceChildren();}});
+    render();return Object.freeze({render,destroy(){disposed=true;epoch++;actionsHost?.replaceChildren();element.replaceChildren();}});
   }
   const api=Object.freeze({mount});globalThis.CleanRoomsRosterView=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })();

@@ -4,9 +4,7 @@
 #cleanrooms-studio[data-page="people"] .cs-main>.cs-page-head{padding:28px var(--cs-people-gutter) 24px;border:0;border-bottom:1px solid var(--cs-people-rule);box-shadow:none}
 #cleanrooms-studio[data-page="people"] .cs-main>.cs-content{padding-inline:var(--cs-people-gutter)}
 #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:24px;padding-bottom:32px;background:#fff}
-#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:flex-start;gap:18px}
 #cleanrooms-studio[data-page="people"] .cs-roster-heading{font-size:20px;line-height:28px;letter-spacing:-.35px}
-#cleanrooms-studio[data-page="people"] .cs-roster-count{margin-top:7px;color:#788187;line-height:20px}
 #cleanrooms-studio[data-page="people"] .cs-roster-actions{padding-top:2px}
 #cleanrooms-studio[data-page="people"] .cs-roster-workspace{gap:28px}
 #cleanrooms-studio[data-page="people"] :is(.cs-roster-directory,.cs-roster-editor,.cs-roster-profile,.cs-roster-import){border:0;border-radius:0;box-shadow:none;background:transparent}
@@ -41,7 +39,6 @@
  #cleanrooms-studio[data-page="people"]{--cs-people-gutter:20px;--cs-layout-header-gap:20px}
  #cleanrooms-studio[data-page="people"] .cs-main>.cs-page-head{padding-top:22px;padding-bottom:18px}
  #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:22px;padding-bottom:24px}
- #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{gap:14px}
  #cleanrooms-studio[data-page="people"] .cs-roster-heading{font-size:19px;line-height:27px}
  #cleanrooms-studio[data-page="people"] .cs-roster-directory-head{padding:0 0 18px;gap:14px 16px}
  #cleanrooms-studio[data-page="people"] .cs-roster-status-tabs{gap:20px}

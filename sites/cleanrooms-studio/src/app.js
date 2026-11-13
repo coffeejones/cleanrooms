@@ -338,7 +338,7 @@
   function renderRoster(){
     if(employeeProfileId&&staff.some(person=>person.id===employeeProfileId)){renderEmployeeProfile();return;}
     employeeProfileId=null;
-    if(!rosterView){rosterElement=node('div','cs-secondary-page');rosterView=globalThis.CleanRoomsRosterView?.mount({element:rosterElement,onSave:saveRoster,onImport:saveRoster,sites,onOpenPerson:person=>openEmployeeProfile(person.id),onShowPlan:(person,shift)=>navigateTo(shift?.date||today,person.id)});}
+    if(!rosterView){rosterElement=node('div','cs-secondary-page');rosterView=globalThis.CleanRoomsRosterView?.mount({element:rosterElement,actionsHost:q('#cs-roster-header-actions'),onSave:saveRoster,onImport:saveRoster,sites,onOpenPerson:person=>openEmployeeProfile(person.id),onShowPlan:(person,shift)=>navigateTo(shift?.date||today,person.id)});}
     if(!rosterElement?.isConnected)q('#cs-page-content').replaceChildren(rosterElement);
     const {planning,planningError}=rosterPlanningModel();
     rosterView?.render({staff,sites,canEdit:canEditWorkspace(),planning,planningError});

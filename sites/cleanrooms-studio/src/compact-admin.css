@@ -2,11 +2,6 @@
 @media(min-width:761px){
   /* Employee directory: its context and actions share a single heading row. */
   #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:12px}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{align-items:center;gap:12px}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-summary{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-heading{margin:0;font-size:15px;line-height:22px;letter-spacing:-.15px}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar .cs-roster-count{margin:0;line-height:20px}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-actions{padding-top:0}
   #cleanrooms-studio[data-page="people"] .cs-main .cs-roster-directory-head{padding-block:0 12px;gap:8px 16px}
   #cleanrooms-studio[data-page="people"] .cs-roster-directory-head>.cs-roster-status-tabs{gap:16px}
   #cleanrooms-studio[data-page="people"] .cs-roster-directory-head .cs-roster-status-tab{min-height:40px}
@@ -61,8 +56,6 @@
 }
 
 @media(min-width:761px) and (max-width:1100px){
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar{flex-wrap:wrap;row-gap:8px}
-  #cleanrooms-studio[data-page="people"] .cs-roster-toolbar>.cs-roster-actions{margin-left:auto}
   #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head{flex-wrap:wrap;row-gap:8px}
   #cleanrooms-studio[data-page="payroll"] .cs-paygroups-directory-surface>.cs-paygroups-section-head>div{flex-basis:100%}
 }

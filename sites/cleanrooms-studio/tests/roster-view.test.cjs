@@ -91,7 +91,7 @@ test('dedicated employee navigation forwards the real identity and retains direc
 test('directory fills the page initially and status tabs, hidden filter, worksite and search compose',async()=>{
   const staff=[person('person-anna','Anna'),person('person-bob','Bob',{site:1}),person('person-camilla','Camilla',{active:false,site:1})],app=application(staff);
   assert.equal(app.byClass('cs-roster-side').hidden,true);assert.equal(app.byClass('cs-roster-workspace').dataset.asideOpen,'false');assert.equal(app.nodes().some(node=>node.className==='cs-roster-guide'),false);assert.equal(app.field('filter').hidden,true);
-  assert.equal(app.byClass('cs-roster-count').textContent,'3 medarbejdere · 2 aktive · 1 arkiveret');assert.equal(app.byClass('cs-roster-shown').textContent,'2 vist');
+  assert.deepEqual(app.nodes().filter(node=>node.dataset.status).map(node=>node.getAttribute('aria-label')),['Aktive · 2','Alle · 3','Arkiverede · 1']);assert.equal(app.byClass('cs-roster-shown').textContent,'2 vist');
   await app.nodes().find(node=>node.dataset.status==='all').click();assert.equal(app.field('filter').value,'all');assert.equal(app.byClass('cs-roster-shown').textContent,'3 vist');
   app.field('site-filter').value='1';await app.field('site-filter').dispatch('change');assert.equal(app.byClass('cs-roster-shown').textContent,'2 vist');
   app.field('search').value='Cam';await app.field('search').dispatch('input');assert.equal(app.byClass('cs-roster-shown').textContent,'1 vist');

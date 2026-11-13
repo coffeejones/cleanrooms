@@ -45,7 +45,6 @@
 
 /* Directories and settings use the same section interval at every width. */
 #cleanrooms-studio[data-page="people"] .cs-roster-page{gap:var(--cs-layout-section-gap)}
-#cleanrooms-studio[data-page="people"] .cs-roster-toolbar{gap:var(--cs-layout-control-gap)}
 #cleanrooms-studio[data-page] .cs-main :is(
   .cs-roster-workspace,.cs-accounts-workspace,.cs-accounts-main-column,
   .cs-accounts-side-column,.cs-guide-workspace,.cs-workspace-presentation

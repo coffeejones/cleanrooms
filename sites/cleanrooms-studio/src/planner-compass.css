@@ -154,6 +154,8 @@
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-workspace-toolbar #cs-site-filter-label {
   flex:0 1 155px;
   min-width:142px;
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) {
   border-inline-start:1px solid var(--cs-compass-rule);
 }
 #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar #cs-site-filter {
@@ -174,6 +176,11 @@
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role] .cs-workspace-toolbar :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox:hover {
   --cs-ui-field-background:var(--cs-access-soft);
+}
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role] .cs-workspace-toolbar
+  :is(#cs-site-filter-label,#cs-department-switcher) .cs-publication-combobox > .cs-publication-combobox-input[readonly]:not(:disabled) {
+  --cs-ui-field-background:inherit;
+  --cs-ui-field-shadow:inherit;
 }
 #cleanrooms-studio[data-page="schedule"][data-role] .cs-workspace-toolbar :is(.cs-department-trigger,#cs-site-filter,#cs-attention) {
   height:var(--cs-ui-height);
@@ -248,7 +255,7 @@
   #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-workspace-toolbar .cs-filter-left > :is(.cs-search,#cs-department-switcher,#cs-site-filter-label,#cs-attention) {
     grid-area:auto;
   }
-  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label) {
+  #cleanrooms-studio:is([data-page="schedule"],[data-page="series"]) .cs-main .cs-workspace-toolbar :is(.cs-search,#cs-site-filter-label,#cs-department-switcher) {
     border:0;
     padding:0;
   }

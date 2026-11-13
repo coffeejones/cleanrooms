@@ -116,24 +116,24 @@
   #cleanrooms-studio[data-page][data-role] .cs-person-selected-meta{font-size:13px}
 }
 
-/* Native date editors have their own internal box; center it within the shared field height. */
-#cleanrooms-studio[data-page][data-role] input[type="date"]{
+/* Center the native editors inside date fields and weekday time fields. */
+#cleanrooms-studio[data-page][data-role] input:is([type="date"],[type="time"]:where([data-series-time])){
   --cs-ui-field-line-height:normal;
   line-height:normal;
   align-items:center;
 }
-#cleanrooms-studio[data-page][data-role] input[type="date"]::-webkit-datetime-edit{
+#cleanrooms-studio[data-page][data-role] input:is([type="date"],[type="time"]:where([data-series-time]))::-webkit-datetime-edit{
   display:flex;
   align-items:center;
   height:100%;
   padding:0;
 }
-#cleanrooms-studio[data-page][data-role] input[type="date"]::-webkit-datetime-edit-fields-wrapper{
+#cleanrooms-studio[data-page][data-role] input:is([type="date"],[type="time"]:where([data-series-time]))::-webkit-datetime-edit-fields-wrapper{
   display:inline-flex;
   align-items:center;
   padding:0;
 }
-#cleanrooms-studio[data-page][data-role] input[type="date"]::-webkit-date-and-time-value{
+#cleanrooms-studio[data-page][data-role] input:is([type="date"],[type="time"]:where([data-series-time]))::-webkit-date-and-time-value{
   display:flex;
   align-items:center;
   height:100%;

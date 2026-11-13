@@ -6414,24 +6414,24 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio[data-page][data-role] .cs-person-selected-meta{font-size:13px}
 }
 
-/* Native date editors have their own internal box; center it within the shared field height. */
-#cleanrooms-studio[data-page][data-role] input[type=&quot;date&quot;]{
+/* Center the native editors inside date fields and weekday time fields. */
+#cleanrooms-studio[data-page][data-role] input:is([type=&quot;date&quot;],[type=&quot;time&quot;]:where([data-series-time])){
   --cs-ui-field-line-height:normal;
   line-height:normal;
   align-items:center;
 }
-#cleanrooms-studio[data-page][data-role] input[type=&quot;date&quot;]::-webkit-datetime-edit{
+#cleanrooms-studio[data-page][data-role] input:is([type=&quot;date&quot;],[type=&quot;time&quot;]:where([data-series-time]))::-webkit-datetime-edit{
   display:flex;
   align-items:center;
   height:100%;
   padding:0;
 }
-#cleanrooms-studio[data-page][data-role] input[type=&quot;date&quot;]::-webkit-datetime-edit-fields-wrapper{
+#cleanrooms-studio[data-page][data-role] input:is([type=&quot;date&quot;],[type=&quot;time&quot;]:where([data-series-time]))::-webkit-datetime-edit-fields-wrapper{
   display:inline-flex;
   align-items:center;
   padding:0;
 }
-#cleanrooms-studio[data-page][data-role] input[type=&quot;date&quot;]::-webkit-date-and-time-value{
+#cleanrooms-studio[data-page][data-role] input:is([type=&quot;date&quot;],[type=&quot;time&quot;]:where([data-series-time]))::-webkit-date-and-time-value{
   display:flex;
   align-items:center;
   height:100%;
@@ -26850,9 +26850,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     departmentView?.render({organization:state.organization,selectedId:state.departmentId === &#x27;all&#x27; ? null : state.departmentId,canManage:canManageDepartments(),scopeRestricted:cloudCapabilities.scopeRestricted===true});
     const available = sites.map((site,index) =&gt; ({site,index})).filter(({index}) =&gt; inDepartment(index));
     if (state.site !== &#x27;all&#x27; &amp;&amp; !available.some(({index}) =&gt; String(index) === state.site)) state.site = &#x27;all&#x27;;
-    const filter = q(&#x27;#cs-site-filter&#x27;); filter.replaceChildren();
+    const filter = q(&#x27;#cs-site-filter&#x27;);
+    const selectOnly = state.page === &#x27;series&#x27;;
+    const modeChanged = (&#x27;selectOnly&#x27; in filter.dataset) !== selectOnly;
+    const previousControl = modeChanged ? globalThis.CleanRoomsCombobox?.get(filter) : null;
+    const restoreFocus = previousControl &amp;&amp; document.activeElement === previousControl.input;
+    if (modeChanged) {
+      previousControl?.dispose();
+      if (selectOnly) filter.dataset.selectOnly = &#x27;&#x27;;
+      else delete filter.dataset.selectOnly;
+    }
+    filter.replaceChildren();
     const all = node(&#x27;option&#x27;,null,&#x27;Alle arbejdssteder&#x27;); all.value = &#x27;all&#x27;; filter.append(all);
     available.forEach(({site,index}) =&gt; { const option = node(&#x27;option&#x27;,null,site.name); option.value = String(index); filter.append(option); }); filter.value = state.site;
+    if (previousControl) {
+      const control = globalThis.CleanRoomsCombobox.enhance(filter);
+      if (restoreFocus) control?.input.focus({preventScroll:true});
+    }
     for (const selector of [&#x27;#cs-edit-site&#x27;,&#x27;#cs-need-site&#x27;]) {
       const select = q(selector), old = select.value; select.replaceChildren();
       sites.forEach((site,index) =&gt; { if(!allowedSite(index))return;const option = node(&#x27;option&#x27;,null,site.name); option.value = String(index); select.append(option); });
@@ -30314,6 +30328,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

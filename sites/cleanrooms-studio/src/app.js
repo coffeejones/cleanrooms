@@ -711,9 +711,23 @@
     departmentView?.render({organization:state.organization,selectedId:state.departmentId === 'all' ? null : state.departmentId,canManage:canManageDepartments(),scopeRestricted:cloudCapabilities.scopeRestricted===true});
     const available = sites.map((site,index) => ({site,index})).filter(({index}) => inDepartment(index));
     if (state.site !== 'all' && !available.some(({index}) => String(index) === state.site)) state.site = 'all';
-    const filter = q('#cs-site-filter'); filter.replaceChildren();
+    const filter = q('#cs-site-filter');
+    const selectOnly = state.page === 'series';
+    const modeChanged = ('selectOnly' in filter.dataset) !== selectOnly;
+    const previousControl = modeChanged ? globalThis.CleanRoomsCombobox?.get(filter) : null;
+    const restoreFocus = previousControl && document.activeElement === previousControl.input;
+    if (modeChanged) {
+      previousControl?.dispose();
+      if (selectOnly) filter.dataset.selectOnly = '';
+      else delete filter.dataset.selectOnly;
+    }
+    filter.replaceChildren();
     const all = node('option',null,'Alle arbejdssteder'); all.value = 'all'; filter.append(all);
     available.forEach(({site,index}) => { const option = node('option',null,site.name); option.value = String(index); filter.append(option); }); filter.value = state.site;
+    if (previousControl) {
+      const control = globalThis.CleanRoomsCombobox.enhance(filter);
+      if (restoreFocus) control?.input.focus({preventScroll:true});
+    }
     for (const selector of ['#cs-edit-site','#cs-need-site']) {
       const select = q(selector), old = select.value; select.replaceChildren();
       sites.forEach((site,index) => { if(!allowedSite(index))return;const option = node('option',null,site.name); option.value = String(index); select.append(option); });

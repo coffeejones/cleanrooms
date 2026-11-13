@@ -41,6 +41,7 @@
     const wrapper=node('div','cs-department-control');
     const selector=id(node('select','cs-department-trigger'),'select');
     selector.setAttribute('aria-label','Vælg afdeling');
+    selector.setAttribute('data-select-only','');
     selector.addEventListener('change',()=>{
       if(disabled())return;
       const department=departments().find(item=>String(item.id)===selector.value);
@@ -51,7 +52,7 @@
     wrapper.append(selector,menuFooter);element.replaceChildren(wrapper);
     element.classList.add('cs-department-slot');portal.classList.add('cs-department-portal');
     const combobox=globalThis.CleanRoomsCombobox;
-    const selectorCombo=combobox?.enhance(selector,{describeOption:option=>option.dataset.description,searchOption:option=>option.dataset.search,footer:menuFooter});
+    const selectorCombo=combobox?.enhance(selector,{describeOption:option=>option.dataset.description,footer:menuFooter});
     const layer=id(node('div','cs-department-layer'),'layer');layer.hidden=true;
     const backdrop=button('Luk afdelingsadministration','cs-department-backdrop',()=>{if(!pending)closeManager(true);},'');backdrop.tabIndex=-1;backdrop.setAttribute('aria-hidden','true');
     const dialog=id(node('section','cs-department-dialog'),'dialog');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.tabIndex=-1;
@@ -80,12 +81,10 @@
       const all=node('option','',allLabel());
       all.value='all';
       all.dataset.description=scopeRestricted?'Vis dine arbejdssteder':'Vis alle arbejdssteder';
-      all.dataset.search='Alle afdelinger';
       const options=departments().map(department=>{
         const option=node('option','',department.name);
         option.value=String(department.id);
         option.dataset.description=metaFor(department);
-        option.dataset.search=visibleSitesFor(department).map(site=>site.name).join(' ');
         return option;
       });
       const selected=options.find(option=>option.value===String(selectedId))||all;

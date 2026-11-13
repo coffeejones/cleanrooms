@@ -712,7 +712,7 @@
     const available = sites.map((site,index) => ({site,index})).filter(({index}) => inDepartment(index));
     if (state.site !== 'all' && !available.some(({index}) => String(index) === state.site)) state.site = 'all';
     const filter = q('#cs-site-filter');
-    const selectOnly = state.page === 'series';
+    const selectOnly = state.page === 'schedule' || state.page === 'series';
     const modeChanged = ('selectOnly' in filter.dataset) !== selectOnly;
     const previousControl = modeChanged ? globalThis.CleanRoomsCombobox?.get(filter) : null;
     const restoreFocus = previousControl && document.activeElement === previousControl.input;

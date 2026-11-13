@@ -15602,6 +15602,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const wrapper=node(&#x27;div&#x27;,&#x27;cs-department-control&#x27;);
     const selector=id(node(&#x27;select&#x27;,&#x27;cs-department-trigger&#x27;),&#x27;select&#x27;);
     selector.setAttribute(&#x27;aria-label&#x27;,&#x27;Vælg afdeling&#x27;);
+    selector.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
     selector.addEventListener(&#x27;change&#x27;,()=&gt;{
       if(disabled())return;
       const department=departments().find(item=&gt;String(item.id)===selector.value);
@@ -15612,7 +15613,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     wrapper.append(selector,menuFooter);element.replaceChildren(wrapper);
     element.classList.add(&#x27;cs-department-slot&#x27;);portal.classList.add(&#x27;cs-department-portal&#x27;);
     const combobox=globalThis.CleanRoomsCombobox;
-    const selectorCombo=combobox?.enhance(selector,{describeOption:option=&gt;option.dataset.description,searchOption:option=&gt;option.dataset.search,footer:menuFooter});
+    const selectorCombo=combobox?.enhance(selector,{describeOption:option=&gt;option.dataset.description,footer:menuFooter});
     const layer=id(node(&#x27;div&#x27;,&#x27;cs-department-layer&#x27;),&#x27;layer&#x27;);layer.hidden=true;
     const backdrop=button(&#x27;Luk afdelingsadministration&#x27;,&#x27;cs-department-backdrop&#x27;,()=&gt;{if(!pending)closeManager(true);},&#x27;&#x27;);backdrop.tabIndex=-1;backdrop.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
     const dialog=id(node(&#x27;section&#x27;,&#x27;cs-department-dialog&#x27;),&#x27;dialog&#x27;);dialog.setAttribute(&#x27;role&#x27;,&#x27;dialog&#x27;);dialog.setAttribute(&#x27;aria-modal&#x27;,&#x27;true&#x27;);dialog.tabIndex=-1;
@@ -15641,12 +15642,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const all=node(&#x27;option&#x27;,&#x27;&#x27;,allLabel());
       all.value=&#x27;all&#x27;;
       all.dataset.description=scopeRestricted?&#x27;Vis dine arbejdssteder&#x27;:&#x27;Vis alle arbejdssteder&#x27;;
-      all.dataset.search=&#x27;Alle afdelinger&#x27;;
       const options=departments().map(department=&gt;{
         const option=node(&#x27;option&#x27;,&#x27;&#x27;,department.name);
         option.value=String(department.id);
         option.dataset.description=metaFor(department);
-        option.dataset.search=visibleSitesFor(department).map(site=&gt;site.name).join(&#x27; &#x27;);
         return option;
       });
       const selected=options.find(option=&gt;option.value===String(selectedId))||all;
@@ -26851,7 +26850,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const available = sites.map((site,index) =&gt; ({site,index})).filter(({index}) =&gt; inDepartment(index));
     if (state.site !== &#x27;all&#x27; &amp;&amp; !available.some(({index}) =&gt; String(index) === state.site)) state.site = &#x27;all&#x27;;
     const filter = q(&#x27;#cs-site-filter&#x27;);
-    const selectOnly = state.page === &#x27;series&#x27;;
+    const selectOnly = state.page === &#x27;schedule&#x27; || state.page === &#x27;series&#x27;;
     const modeChanged = (&#x27;selectOnly&#x27; in filter.dataset) !== selectOnly;
     const previousControl = modeChanged ? globalThis.CleanRoomsCombobox?.get(filter) : null;
     const restoreFocus = previousControl &amp;&amp; document.activeElement === previousControl.input;
@@ -30328,6 +30327,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

@@ -11941,6 +11941,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-publication-combobox-input:focus {
   text-overflow:clip;
 }
+#cleanrooms-studio[data-page][data-role] .cs-publication-combobox[data-select-only=&quot;true&quot;] .cs-publication-combobox-input[readonly]:not(:disabled) {
+  --cs-ui-field-background:var(--cs-access-surface,#fff);
+  --cs-ui-field-shadow:0 1px 2px #25303b03;
+  cursor:pointer;
+}
 #cleanrooms-studio .cs-publication-combobox-toggle {
   position:absolute;
   inset-block-start:0;
@@ -13523,6 +13528,157 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   display: none;
 }
 
+/* Keep the native input editable and give both picker buttons the combobox inset. */
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field {
+  position: relative;
+  min-width: 0;
+  --cs-ui-field-inset-start: 10px;
+  --cs-ui-field-inset-end: 34px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field &gt; input {
+  align-items: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input::-webkit-datetime-edit {
+  padding: 0;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline-end: 1px;
+  display: grid;
+  place-items: center;
+  width: calc(var(--cs-ui-field-inset-end) - 1px);
+  padding: 0;
+  border: 0;
+  border-radius: 0 calc(var(--cs-ui-radius) - 1px) calc(var(--cs-ui-radius) - 1px) 0;
+  background: transparent;
+  color: var(--cs-access-muted);
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger &gt; svg {
+  width: 15px;
+  height: 15px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
+  display: none;
+}
+#cleanrooms-studio #cs-edit-form .cs-day-time-row .cs-shift-picker-field {
+  --cs-ui-field-inset-start: 6px;
+  --cs-ui-field-inset-end: 23px;
+}
+
+#cleanrooms-studio #cs-edit-form .cs-shift-picker {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--cs-combobox-edge);
+  border-radius: 8px;
+  background: var(--cs-access-surface);
+  box-shadow: var(--cs-combobox-shadow);
+  color: var(--cs-access-ink);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 5px 6px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-title {
+  font-weight: 650;
+  text-transform: capitalize;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-nav {
+  display: flex;
+  gap: 2px;
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button) {
+  min-width: 0;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-nav &gt; button {
+  width: 34px;
+  font-size: 21px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-weekday {
+  padding: 4px 0;
+  color: var(--cs-access-muted);
+  font-size: 11px;
+  text-align: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-day[data-today] {
+  box-shadow: inset 0 0 0 1px var(--cs-combobox-edge);
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button):disabled {
+  color: var(--cs-access-disabled);
+  cursor: default;
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav &gt; button):hover:not(:disabled),
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option:hover {
+  background: var(--cs-combobox-active);
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger[aria-expanded=&quot;true&quot;],
+#cleanrooms-studio #cs-edit-form .cs-shift-date-day[aria-pressed=&quot;true&quot;],
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option[aria-selected=&quot;true&quot;] {
+  background: var(--cs-combobox-active);
+  color: var(--cs-access-ink);
+  font-weight: 650;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-label {
+  padding: 4px 0 7px;
+  color: var(--cs-access-muted);
+  font-size: 12px;
+  text-align: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-list {
+  max-height: 160px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: 5px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option {
+  padding: 7px 0;
+  line-height: 18px;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cs-combobox-edge);
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-actions &gt; button {
+  width: 100%;
+}
+
 @media (max-width: 760px) {
   #cleanrooms-studio[data-page][data-role] #cs-editor-layer &gt; .cs-editor:not(.cs-series-editor) .cs-editor-fields {
     padding-block: 14px;
@@ -13636,20 +13792,20 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-pattern&quot;&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Ugemønster&lt;/h4&gt;
             &lt;h4 class=&quot;cs-shift-timing-title&quot; data-single-only&gt;Tidspunkt&lt;/h4&gt;
-            &lt;label class=&quot;cs-field&quot; id=&quot;cs-single-date-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Dato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-edit-date&quot; required&gt;&lt;/label&gt;
+            &lt;div class=&quot;cs-field&quot; id=&quot;cs-single-date-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-edit-date&quot;&gt;Dato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-edit-date&quot; required&gt;&lt;/div&gt;
             &lt;div id=&quot;cs-repeat-days-field&quot; hidden&gt;
             &lt;div class=&quot;cs-repeat-pattern-heading&quot;&gt;&lt;div class=&quot;cs-field-label&quot;&gt;Arbejdsdage&lt;/div&gt;&lt;label class=&quot;cs-repeat-interval-field&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Gentagelse&lt;/span&gt;&lt;select id=&quot;cs-repeat-interval&quot; aria-label=&quot;Gentagelse&quot;&gt;&lt;option value=&quot;1&quot;&gt;Hver uge&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Hver anden uge&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
             &lt;div class=&quot;cs-repeat-days&quot; role=&quot;group&quot; aria-label=&quot;Vælg faste ugedage&quot;&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;0&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Mandag&quot; title=&quot;Mandag&quot; class=&quot;cursor-interaction&quot;&gt;Man&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;1&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Tirsdag&quot; title=&quot;Tirsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tir&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;2&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Onsdag&quot; title=&quot;Onsdag&quot; class=&quot;cursor-interaction&quot;&gt;Ons&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;3&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Torsdag&quot; title=&quot;Torsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tor&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;4&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Fredag&quot; title=&quot;Fredag&quot; class=&quot;cursor-interaction&quot;&gt;Fre&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;5&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Lørdag&quot; title=&quot;Lørdag&quot; class=&quot;cursor-interaction&quot;&gt;Lør&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;6&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Søndag&quot; title=&quot;Søndag&quot; class=&quot;cursor-interaction&quot;&gt;Søn&lt;/button&gt;&lt;/div&gt;
             &lt;/div&gt;
             &lt;label id=&quot;cs-day-times-toggle&quot; class=&quot;cs-day-times-toggle&quot; hidden&gt;&lt;input id=&quot;cs-day-times-enabled&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Forskellige tider pr. dag&lt;/span&gt;&lt;/label&gt;
-            &lt;div class=&quot;cs-field-pair&quot; id=&quot;cs-uniform-times&quot;&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Fra&lt;/span&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-start&quot; required step=&quot;60&quot;&gt;&lt;/label&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Til &lt;span id=&quot;cs-edit-overnight&quot; class=&quot;cs-next-day&quot; hidden&gt;+1 dag&lt;/span&gt;&lt;/span&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-end&quot; required step=&quot;60&quot;&gt;&lt;/label&gt;&lt;/div&gt;
+            &lt;div class=&quot;cs-field-pair&quot; id=&quot;cs-uniform-times&quot;&gt;&lt;div class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-edit-start&quot;&gt;Fra&lt;/label&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-start&quot; required step=&quot;60&quot;&gt;&lt;/div&gt;&lt;div class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-edit-end&quot;&gt;Til &lt;span id=&quot;cs-edit-overnight&quot; class=&quot;cs-next-day&quot; hidden&gt;+1 dag&lt;/span&gt;&lt;/label&gt;&lt;input type=&quot;time&quot; id=&quot;cs-edit-end&quot; required step=&quot;60&quot;&gt;&lt;/div&gt;&lt;/div&gt;
             &lt;div id=&quot;cs-uniform-break&quot; class=&quot;cs-planned-break-field&quot;&gt;&lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Pause (min.)&lt;/span&gt;&lt;input type=&quot;number&quot; id=&quot;cs-edit-break&quot; min=&quot;0&quot; step=&quot;1&quot; value=&quot;0&quot; required aria-describedby=&quot;cs-edit-break-help&quot;&gt;&lt;/label&gt;&lt;span id=&quot;cs-edit-break-help&quot; class=&quot;cs-sr&quot;&gt;Ulønnet pause, som trækkes fra de planlagte timer.&lt;/span&gt;&lt;div class=&quot;cs-planned-break-copy&quot;&gt;&lt;strong id=&quot;cs-edit-net-time&quot;&gt;&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;
             &lt;div id=&quot;cs-day-times&quot; class=&quot;cs-day-times&quot; hidden&gt;&lt;/div&gt;
             &lt;p id=&quot;cs-day-break-help&quot; class=&quot;cs-field-help&quot; hidden&gt;Pauser er ulønnede og trækkes fra dagens planlagte timer.&lt;/p&gt;
           &lt;/section&gt;
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-assignment&quot;&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Arbejdssted og medarbejder&lt;/h4&gt;
-            &lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select id=&quot;cs-edit-site&quot;&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+            &lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select id=&quot;cs-edit-site&quot; data-select-only&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
             &lt;div class=&quot;cs-field cs-staffing-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-person-label&quot;&gt;Medarbejder&lt;/span&gt;&lt;select id=&quot;cs-edit-person&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;option value=&quot;&quot;&gt;Ledig vagt&lt;/option&gt;&lt;/select&gt;
               &lt;button id=&quot;cs-person-trigger&quot; class=&quot;cs-person-trigger&quot; type=&quot;button&quot; aria-haspopup=&quot;dialog&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;cs-person-picker&quot; aria-labelledby=&quot;cs-person-label cs-person-selected-name&quot;&gt;&lt;span id=&quot;cs-person-selected-name&quot; class=&quot;cs-person-selected-name&quot;&gt;Ledig vagt&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
               &lt;div id=&quot;cs-person-summary&quot; class=&quot;cs-person-summary&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
@@ -13661,7 +13817,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             &lt;h4 class=&quot;cs-series-section-title&quot;&gt;Periode&lt;/h4&gt;
             &lt;p id=&quot;cs-series-operation-note&quot; class=&quot;cs-series-operation-note&quot; hidden&gt;&lt;/p&gt;
             &lt;div class=&quot;cs-series-period-presets&quot; role=&quot;group&quot; aria-label=&quot;Vælg periodens længde&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;1&quot; aria-pressed=&quot;false&quot;&gt;1 måned&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;3&quot; aria-pressed=&quot;false&quot;&gt;3 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-six&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;6&quot; aria-pressed=&quot;false&quot;&gt;6 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-unlimited&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-unlimited aria-pressed=&quot;false&quot;&gt;Uden slutdato&lt;/button&gt;&lt;/div&gt;
-            &lt;div class=&quot;cs-field-pair&quot;&gt;&lt;label class=&quot;cs-field&quot; for=&quot;cs-repeat-start&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-series-start-label&quot;&gt;Startdato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-start&quot;&gt;&lt;/label&gt;&lt;label id=&quot;cs-repeat-end-field&quot; class=&quot;cs-field&quot; for=&quot;cs-repeat-end&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Slutdato&lt;/span&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-end&quot;&gt;&lt;/label&gt;&lt;/div&gt;
+            &lt;div class=&quot;cs-field-pair&quot;&gt;&lt;div class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; id=&quot;cs-series-start-label&quot; for=&quot;cs-repeat-start&quot;&gt;Startdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-start&quot;&gt;&lt;/div&gt;&lt;div id=&quot;cs-repeat-end-field&quot; class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-repeat-end&quot;&gt;Slutdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-end&quot;&gt;&lt;/div&gt;&lt;/div&gt;
             &lt;p id=&quot;cs-repeat-unlimited-hint&quot; class=&quot;cs-field-help&quot; hidden&gt;Gentages, indtil du afslutter serien.&lt;/p&gt;
           &lt;/section&gt;
           &lt;details id=&quot;cs-description-details&quot; class=&quot;cs-series-description-details&quot;&gt;&lt;summary id=&quot;cs-description-summary&quot;&gt;&lt;span&gt;Beskrivelse og tjekliste&lt;/span&gt;&lt;span id=&quot;cs-description-summary-meta&quot;&gt;&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/summary&gt;
@@ -23867,6 +24023,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     };
     const wrapper = node(&#x27;div&#x27;, &#x27;&#x27;);
     const input = node(&#x27;input&#x27;, &#x27;input&#x27;);
+    const selectOnly = select.hasAttribute(&#x27;data-select-only&#x27;);
     const toggle = node(&#x27;span&#x27;, &#x27;toggle&#x27;);
     const menu = node(&#x27;div&#x27;, &#x27;menu&#x27;);
     const list = node(&#x27;div&#x27;, &#x27;list&#x27;);
@@ -23895,7 +24052,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     input.autocapitalize = &#x27;none&#x27;;
     input.spellcheck = false;
     input.setAttribute(&#x27;role&#x27;, &#x27;combobox&#x27;);
-    input.setAttribute(&#x27;aria-autocomplete&#x27;, &#x27;list&#x27;);
+    if (selectOnly) {
+      wrapper.dataset.selectOnly = &#x27;true&#x27;;
+      input.readOnly = true;
+      input.inputMode = &#x27;none&#x27;;
+    } else {
+      input.setAttribute(&#x27;aria-autocomplete&#x27;, &#x27;list&#x27;);
+    }
     input.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
     input.setAttribute(&#x27;aria-controls&#x27;, prefix + &#x27;-list&#x27;);
     toggle.setAttribute(&#x27;aria-hidden&#x27;, &#x27;true&#x27;);
@@ -23929,7 +24092,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
     function resetInput() {
       const selected = selectedOption();
-      input.value = selected &amp;&amp; (!selected.disabled || selected.value) ? selected.label : &#x27;&#x27;;
+      input.value = selected &amp;&amp; (!selected.disabled || selected.value || selectOnly) ? selected.label : &#x27;&#x27;;
     }
 
     function positionMenu() {
@@ -24163,7 +24326,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       for (const attribute of [&#x27;aria-describedby&#x27;, &#x27;aria-required&#x27;, &#x27;title&#x27;, &#x27;tabindex&#x27;]) mirrorAttribute(attribute);
       const invalid = select.getAttribute(&#x27;aria-invalid&#x27;) || (input.validity?.customError &amp;&amp; !select.validity?.valid ? &#x27;true&#x27; : null);
       mirrorAttribute(&#x27;aria-invalid&#x27;, invalid);
-      if (select.validity?.valid || input.disabled) input.setCustomValidity?.(&#x27;&#x27;);
+      if (!selectOnly &amp;&amp; (select.validity?.valid || input.disabled)) input.setCustomValidity?.(&#x27;&#x27;);
       if (select.required) input.setAttribute(&#x27;aria-required&#x27;, &#x27;true&#x27;);
       for (const key of mirroredFocusKeys) delete input.dataset[key];
       mirroredFocusKeys.clear();
@@ -24182,13 +24345,14 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if (disposed || input.disabled || wrapper.hidden) return;
       input.focus();
       if (showMenu &amp;&amp; !open) {
-        input.select();
+        if (!selectOnly) input.select();
         openMenu();
       }
     }
 
     function changeQuery(event) {
       event.stopPropagation();
+      if (selectOnly) { resetInput(); return; }
       if (event.isComposing) return;
       if (!open) openMenu(input.value);
       else {
@@ -24198,10 +24362,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       }
     }
 
-    input.addEventListener(&#x27;focus&#x27;, () =&gt; { if (!open) input.select(); });
+    input.addEventListener(&#x27;focus&#x27;, () =&gt; { if (!open &amp;&amp; !selectOnly) input.select(); });
     input.addEventListener(&#x27;click&#x27;, () =&gt; {
-      if (open) return;
-      input.select();
+      if (open) {
+        if (selectOnly) close();
+        return;
+      }
+      if (!selectOnly) input.select();
       openMenu();
     });
     input.addEventListener(&#x27;input&#x27;, changeQuery);
@@ -24218,7 +24385,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           event.preventDefault();
           event.stopPropagation();
           close();
-          input.select();
+          if (!selectOnly) input.select();
           break;
         case &#x27;Tab&#x27;: {
           const action = footer?.matches(&#x27;button&#x27;) ? footer : footer?.querySelector(&#x27;button:not([disabled])&#x27;);
@@ -24234,10 +24401,28 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         case &#x27;ArrowDown&#x27;:
         case &#x27;ArrowUp&#x27;:
           event.preventDefault();
-          if (!open) openMenu();
+          if (!open) {
+            openMenu();
+            if (selectOnly &amp;&amp; event.key === &#x27;ArrowUp&#x27;) highlight(rows.length - 1);
+          }
           else if (rows.length) highlight(Math.min(rows.length - 1, Math.max(0, active + (event.key === &#x27;ArrowDown&#x27; ? 1 : -1))));
           break;
+        case &#x27;Home&#x27;:
+        case &#x27;End&#x27;:
+          if (!selectOnly) return;
+          event.preventDefault();
+          if (!open) openMenu();
+          highlight(event.key === &#x27;Home&#x27; ? 0 : rows.length - 1);
+          break;
+        case &#x27; &#x27;:
+          if (!selectOnly) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (!open) openMenu();
+          else if (rows[active]) choose(rows[active].option);
+          break;
         case &#x27;Enter&#x27;:
+          if (selectOnly &amp;&amp; !open &amp;&amp; (event.ctrlKey || event.metaKey)) return;
           event.preventDefault();
           event.stopPropagation();
           if (!open) openMenu();
@@ -24269,6 +24454,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       event.preventDefault();
       if (wrapper.hidden || !input.getClientRects().length) return;
       input.setAttribute(&#x27;aria-invalid&#x27;, &#x27;true&#x27;);
+      if (selectOnly) {
+        input.focus();
+        return;
+      }
       input.setCustomValidity(select.validationMessage);
       input.reportValidity();
     }
@@ -25545,6 +25734,393 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 })();
 
 (() =&gt; {
+  &#x27;use strict&#x27;;
+
+  const firstDate = &#x27;0001-01-01&#x27;;
+  const lastDate = &#x27;9999-12-31&#x27;;
+  const asDate = value =&gt; new Date(value + &#x27;T12:00:00Z&#x27;);
+  const firstInstant = asDate(firstDate).getTime();
+  const lastInstant = asDate(lastDate).getTime();
+  const weekdays = [&#x27;Man&#x27;, &#x27;Tir&#x27;, &#x27;Ons&#x27;, &#x27;Tor&#x27;, &#x27;Fre&#x27;, &#x27;Lør&#x27;, &#x27;Søn&#x27;];
+  const monthLabel = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, { month: &#x27;long&#x27;, year: &#x27;numeric&#x27;, timeZone: &#x27;UTC&#x27; });
+  const dayLabel = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, { weekday: &#x27;long&#x27;, day: &#x27;numeric&#x27;, month: &#x27;long&#x27;, year: &#x27;numeric&#x27;, timeZone: &#x27;UTC&#x27; });
+  const localDay = new Intl.DateTimeFormat(&#x27;en-CA&#x27;, { year: &#x27;numeric&#x27;, month: &#x27;2-digit&#x27;, day: &#x27;2-digit&#x27;, timeZone: &#x27;Europe/Copenhagen&#x27; });
+  const validDate = value =&gt; /^\d{4}-\d{2}-\d{2}$/.test(value) &amp;&amp; value &gt;= firstDate &amp;&amp; value &lt;= lastDate &amp;&amp;
+    Number.isFinite(asDate(value).getTime()) &amp;&amp; asDate(value).toISOString().slice(0, 10) === value;
+  const isoDate = value =&gt; new Date(Math.max(firstInstant, Math.min(lastInstant, value.getTime()))).toISOString().slice(0, 10);
+  const monthStart = value =&gt; value.slice(0, 7) + &#x27;-01&#x27;;
+  const mondayIndex = value =&gt; (asDate(value).getUTCDay() + 6) % 7;
+
+  function addDays(value, days) {
+    const day = asDate(value);
+    day.setUTCDate(day.getUTCDate() + days);
+    return isoDate(day);
+  }
+
+  function daysInMonth(value) {
+    const day = asDate(monthStart(value));
+    day.setUTCMonth(day.getUTCMonth() + 1, 0);
+    return day.getUTCDate();
+  }
+
+  function addMonths(value, months) {
+    const shifted = asDate(monthStart(value));
+    shifted.setUTCMonth(shifted.getUTCMonth() + months);
+    const target = isoDate(shifted);
+    shifted.setUTCDate(Math.min(asDate(value).getUTCDate(), daysInMonth(target)));
+    return isoDate(shifted);
+  }
+
+  function render({ panel, input, select }) {
+    const document = panel.ownerDocument;
+    const selected = validDate(input.value) ? input.value : null;
+    const min = validDate(input.min) ? input.min : firstDate;
+    const max = validDate(input.max) ? input.max : lastDate;
+    const parts = Object.fromEntries(localDay.formatToParts(new Date()).map(({ type, value }) =&gt; [type, value]));
+    const today = `${parts.year}-${parts.month}-${parts.day}`;
+    const withinRange = value =&gt; min &lt;= value &amp;&amp; value &lt;= max;
+    const clamp = value =&gt; value &lt; min ? min : value &gt; max ? max : value;
+    let active = min &lt;= max ? clamp(selected ?? today) : selected ?? today;
+    let month = monthStart(active);
+    const days = new Map();
+
+    function element(tag, className, text) {
+      const result = document.createElement(tag);
+      if (className) result.className = className;
+      if (text !== undefined) result.textContent = text;
+      return result;
+    }
+
+    function button(label, text, className) {
+      const result = element(&#x27;button&#x27;, className, text);
+      result.type = &#x27;button&#x27;;
+      result.setAttribute(&#x27;aria-label&#x27;, label);
+      return result;
+    }
+
+    const head = element(&#x27;div&#x27;, &#x27;cs-shift-date-head&#x27;);
+    const title = element(&#x27;div&#x27;, &#x27;cs-shift-date-title&#x27;);
+    title.setAttribute(&#x27;aria-live&#x27;, &#x27;polite&#x27;);
+    title.setAttribute(&#x27;aria-atomic&#x27;, &#x27;true&#x27;);
+    const nav = element(&#x27;div&#x27;, &#x27;cs-shift-date-nav&#x27;);
+    const previous = button(&#x27;Forrige måned&#x27;, &#x27;‹&#x27;);
+    const next = button(&#x27;Næste måned&#x27;, &#x27;›&#x27;);
+    nav.append(previous, next);
+    head.append(title, nav);
+    const grid = element(&#x27;div&#x27;, &#x27;cs-shift-date-grid&#x27;);
+    grid.setAttribute(&#x27;role&#x27;, &#x27;group&#x27;);
+    panel.replaceChildren(head, grid);
+
+    function paint() {
+      const label = monthLabel.format(asDate(month));
+      title.textContent = label;
+      grid.setAttribute(&#x27;aria-label&#x27;, &#x27;Vælg dato i &#x27; + label);
+      previous.disabled = min &gt; max || month &lt;= monthStart(min);
+      next.disabled = min &gt; max || month &gt;= monthStart(max);
+      days.clear();
+      const cells = [];
+      for (const weekday of weekdays) {
+        const cell = element(&#x27;span&#x27;, &#x27;cs-shift-date-weekday&#x27;, weekday);
+        cell.setAttribute(&#x27;aria-hidden&#x27;, &#x27;true&#x27;);
+        cells.push(cell);
+      }
+      for (let index = 0; index &lt; mondayIndex(month); index++) {
+        const cell = element(&#x27;span&#x27;);
+        cell.setAttribute(&#x27;aria-hidden&#x27;, &#x27;true&#x27;);
+        cells.push(cell);
+      }
+      const dayCount = daysInMonth(month);
+      for (let index = 1; index &lt;= dayCount; index++) {
+        const date = month.slice(0, 8) + String(index).padStart(2, &#x27;0&#x27;);
+        const cell = button(dayLabel.format(asDate(date)), String(index), &#x27;cs-shift-date-day&#x27;);
+        cell.dataset.date = date;
+        cell.disabled = !withinRange(date);
+        cell.tabIndex = !cell.disabled &amp;&amp; date === active ? 0 : -1;
+        cell.setAttribute(&#x27;aria-pressed&#x27;, String(date === selected));
+        if (date === today) {
+          cell.dataset.today = &#x27;&#x27;;
+          cell.setAttribute(&#x27;aria-current&#x27;, &#x27;date&#x27;);
+        }
+        cell.addEventListener(&#x27;click&#x27;, () =&gt; select(date));
+        cell.addEventListener(&#x27;keydown&#x27;, event =&gt; moveByKey(event, date));
+        days.set(date, cell);
+        cells.push(cell);
+      }
+      grid.replaceChildren(...cells);
+    }
+
+    function setActive(value) {
+      const day = clamp(value);
+      const old = days.get(active);
+      active = day;
+      const destination = monthStart(day);
+      if (destination !== month) {
+        month = destination;
+        paint();
+      } else {
+        if (old) old.tabIndex = -1;
+        days.get(day).tabIndex = 0;
+      }
+      return days.get(day);
+    }
+
+    function moveByKey(event, value) {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      let destination;
+      switch (event.key) {
+        case &#x27;ArrowLeft&#x27;: destination = addDays(value, -1); break;
+        case &#x27;ArrowRight&#x27;: destination = addDays(value, 1); break;
+        case &#x27;ArrowUp&#x27;: destination = addDays(value, -7); break;
+        case &#x27;ArrowDown&#x27;: destination = addDays(value, 7); break;
+        case &#x27;Home&#x27;: destination = addDays(value, -mondayIndex(value)); break;
+        case &#x27;End&#x27;: destination = addDays(value, 6 - mondayIndex(value)); break;
+        case &#x27;PageUp&#x27;: destination = addMonths(value, event.shiftKey ? -12 : -1); break;
+        case &#x27;PageDown&#x27;: destination = addMonths(value, event.shiftKey ? 12 : 1); break;
+        default: return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      setActive(destination).focus();
+    }
+
+    function moveMonth(direction, control) {
+      control.focus();
+      const day = setActive(addMonths(active, direction));
+      if (control.disabled) day.focus();
+    }
+    previous.addEventListener(&#x27;click&#x27;, () =&gt; moveMonth(-1, previous));
+    next.addEventListener(&#x27;click&#x27;, () =&gt; moveMonth(1, next));
+    paint();
+    if (min &lt;= max) return days.get(active);
+    panel.tabIndex = -1;
+    return panel;
+  }
+
+  const api = Object.freeze({ render });
+  globalThis.CleanRoomsShiftDateCalendar = api;
+  if (typeof module !== &#x27;undefined&#x27; &amp;&amp; module.exports) module.exports = api;
+})();
+
+/* A 24-hour selection, committed only after confirmation. */
+(() =&gt; {
+  &#x27;use strict&#x27;;
+
+  let nextId = 0;
+  const pad = value =&gt; String(value).padStart(2, &#x27;0&#x27;);
+
+  function render({panel, input, select}) {
+    const doc = panel.ownerDocument;
+    const prefix = &#x27;cs-shift-time-&#x27; + ++nextId;
+    const initial = /^(\d{2}):(\d{2})/.exec(input.value) || [&#x27;&#x27;, &#x27;07&#x27;, &#x27;00&#x27;];
+    const draft = [Number(initial[1]), Number(initial[2])];
+    const node = (tag, className, text) =&gt; {
+      const element = doc.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    };
+    const columns = node(&#x27;div&#x27;, &#x27;cs-shift-time-columns&#x27;);
+
+    function column(title, size, part) {
+      const wrapper = node(&#x27;div&#x27;, &#x27;cs-shift-time-column&#x27;);
+      const label = node(&#x27;div&#x27;, &#x27;cs-shift-time-label&#x27;, title);
+      const list = node(&#x27;div&#x27;, &#x27;cs-shift-time-list&#x27;);
+      label.id = prefix + &#x27;-label-&#x27; + part;
+      list.tabIndex = 0;
+      list.setAttribute(&#x27;role&#x27;, &#x27;listbox&#x27;);
+      list.setAttribute(&#x27;aria-labelledby&#x27;, label.id);
+      const options = Array.from({length: size}, (_, value) =&gt; {
+        const option = node(&#x27;div&#x27;, &#x27;cs-shift-time-option&#x27;, pad(value));
+        option.id = prefix + &#x27;-&#x27; + part + &#x27;-&#x27; + value;
+        option.setAttribute(&#x27;role&#x27;, &#x27;option&#x27;);
+        option.addEventListener(&#x27;click&#x27;, () =&gt; {
+          choose(value);
+          list.focus({preventScroll: true});
+        });
+        return option;
+      });
+      list.append(...options);
+      wrapper.append(label, list);
+      columns.append(wrapper);
+
+      function reveal() {
+        const option = options[draft[part]];
+        const bounds = list.getBoundingClientRect();
+        const target = option.getBoundingClientRect();
+        if (target.top &lt; bounds.top) list.scrollTop += target.top - bounds.top;
+        else if (target.bottom &gt; bounds.bottom) list.scrollTop += target.bottom - bounds.bottom;
+      }
+
+      function paint() {
+        const chosen = options[draft[part]];
+        for (const option of options) option.setAttribute(&#x27;aria-selected&#x27;, String(option === chosen));
+        list.setAttribute(&#x27;aria-activedescendant&#x27;, chosen.id);
+      }
+
+      function choose(value) {
+        draft[part] = Math.max(0, Math.min(size - 1, value));
+        paint();
+        reveal();
+      }
+
+      list.addEventListener(&#x27;keydown&#x27;, event =&gt; {
+        const value = draft[part];
+        const next = {ArrowDown: value + 1, ArrowUp: value - 1, Home: 0, End: size - 1};
+        if (!Object.hasOwn(next, event.key)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        choose(next[event.key]);
+      });
+      draft[part] = Math.min(draft[part], size - 1);
+      paint();
+      return {list, center() {
+        const option = options[draft[part]], bounds = list.getBoundingClientRect(), target = option.getBoundingClientRect();
+        list.scrollTop += target.top - bounds.top - Math.floor(list.clientHeight / target.height / 2) * target.height;
+      }};
+    }
+
+    const hours = column(&#x27;Timer&#x27;, 24, 0);
+    const minutes = column(&#x27;Minutter&#x27;, 60, 1);
+    const actions = node(&#x27;div&#x27;, &#x27;cs-shift-time-actions&#x27;);
+    const confirm = node(&#x27;button&#x27;, &#x27;cs-button cs-primary&#x27;, &#x27;Vælg tid&#x27;);
+    confirm.type = &#x27;button&#x27;;
+    confirm.addEventListener(&#x27;click&#x27;, () =&gt; select(draft.map(pad).join(&#x27;:&#x27;)));
+    actions.append(confirm);
+    panel.replaceChildren(columns, actions);
+    doc.defaultView.requestAnimationFrame(() =&gt; {
+      if (hours.list.isConnected) { hours.center(); minutes.center(); }
+    });
+    return hours.list;
+  }
+
+  globalThis.CleanRoomsShiftTimeOptions = Object.freeze({render});
+})();
+
+(() =&gt; {
+  &#x27;use strict&#x27;;
+
+  function mount(form, icon) {
+    const date = globalThis.CleanRoomsShiftDateCalendar;
+    const time = globalThis.CleanRoomsShiftTimeOptions;
+    if (!form || !date || !time) return null;
+    const doc = form.ownerDocument, win = doc.defaultView;
+    const panel = doc.createElement(&#x27;div&#x27;);
+    if (typeof panel.showPopover !== &#x27;function&#x27;) return null;
+    panel.id = &#x27;cs-shift-picker&#x27;;
+    panel.className = &#x27;cs-shift-picker&#x27;;
+    panel.setAttribute(&#x27;role&#x27;, &#x27;dialog&#x27;);
+    panel.setAttribute(&#x27;popover&#x27;, &#x27;manual&#x27;);
+    panel.hidden = true;
+    form.append(panel);
+    let current = null;
+
+    function position() {
+      if (!current) return;
+      const {trigger, wrapper, input} = current;
+      if (!trigger.getClientRects().length || input.disabled || input.readOnly) { close(); return; }
+      const rect = wrapper.getBoundingClientRect();
+      const viewport = win.visualViewport;
+      const left = viewport?.offsetLeft ?? 0, top = viewport?.offsetTop ?? 0;
+      const right = left + (viewport?.width ?? win.innerWidth), bottom = top + (viewport?.height ?? win.innerHeight);
+      const scrollArea = form.querySelector(&#x27;.cs-editor-fields&#x27;).getBoundingClientRect();
+      if (rect.bottom &lt;= scrollArea.top || rect.top &gt;= scrollArea.bottom) { close(); return; }
+      const inset = 8, gap = 6;
+      const width = Math.min(panel.dataset.kind === &#x27;date&#x27; ? 288 : 208, right - left - inset * 2);
+      panel.style.inlineSize = width + &#x27;px&#x27;;
+      const below = bottom - rect.bottom - gap - inset, above = rect.top - top - gap - inset;
+      const flip = below &lt; panel.scrollHeight &amp;&amp; above &gt; below;
+      const anchor = rect.width &gt;= width ? rect.right - width : rect.left;
+      panel.style.left = Math.min(Math.max(anchor, left + inset), right - width - inset) + &#x27;px&#x27;;
+      panel.style.top = flip ? &#x27;auto&#x27; : Math.max(top + inset, rect.bottom + gap) + &#x27;px&#x27;;
+      panel.style.bottom = flip ? win.innerHeight - Math.min(rect.top - gap, bottom - inset) + &#x27;px&#x27; : &#x27;auto&#x27;;
+      panel.style.maxHeight = Math.max(0, flip ? above : below) + &#x27;px&#x27;;
+    }
+
+    function close(restoreFocus = false) {
+      if (!current) return;
+      const {trigger} = current;
+      current = null;
+      trigger.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+      if (panel.matches(&#x27;:popover-open&#x27;)) panel.hidePopover();
+      panel.hidden = true;
+      panel.replaceChildren();
+      if (restoreFocus &amp;&amp; trigger.getClientRects().length) trigger.focus({preventScroll: true});
+    }
+
+    function attach(input) {
+      if (!input || input.parentElement.classList.contains(&#x27;cs-shift-picker-field&#x27;)) return;
+      const kind = input.type === &#x27;date&#x27; ? &#x27;date&#x27; : &#x27;time&#x27;;
+      const wrapper = doc.createElement(&#x27;div&#x27;), trigger = doc.createElement(&#x27;button&#x27;);
+      wrapper.className = &#x27;cs-shift-picker-field&#x27;;
+      trigger.type = &#x27;button&#x27;;
+      trigger.className = &#x27;cs-shift-picker-trigger&#x27;;
+      trigger.dataset.kind = kind;
+      trigger.append(icon(kind === &#x27;date&#x27; ? &#x27;calendar-days&#x27; : &#x27;clock-3&#x27;));
+      trigger.setAttribute(&#x27;aria-haspopup&#x27;, &#x27;dialog&#x27;);
+      trigger.setAttribute(&#x27;aria-controls&#x27;, panel.id);
+      trigger.setAttribute(&#x27;aria-expanded&#x27;, &#x27;false&#x27;);
+      const updateLabel = () =&gt; {
+        const name = input.getAttribute(&#x27;aria-label&#x27;) || [...input.labels].map(label =&gt; label.firstChild?.textContent.trim()).filter(Boolean).join(&#x27; &#x27;);
+        const label = (kind === &#x27;date&#x27; ? &#x27;Vælg dato&#x27; : &#x27;Vælg klokkeslæt&#x27;) + (name ? &#x27;: &#x27; + name : &#x27;&#x27;);
+        trigger.setAttribute(&#x27;aria-label&#x27;, label);
+        return label;
+      };
+      input.before(wrapper);
+      wrapper.append(input, trigger);
+      updateLabel();
+      // An editor scope can rename Startdato to Gælder fra.
+      if (input.id === &#x27;cs-repeat-start&#x27;) {
+        const label = input.labels[0];
+        if (label) new win.MutationObserver(updateLabel).observe(label, {childList: true});
+      }
+      trigger.addEventListener(&#x27;click&#x27;, () =&gt; {
+        if (current?.trigger === trigger) { close(true); return; }
+        close();
+        if (input.disabled || input.readOnly) return;
+        current = {input, wrapper, trigger};
+        wrapper.append(panel);
+        panel.dataset.kind = kind;
+        panel.setAttribute(&#x27;aria-label&#x27;, updateLabel());
+        trigger.setAttribute(&#x27;aria-expanded&#x27;, &#x27;true&#x27;);
+        const target = (kind === &#x27;date&#x27; ? date : time).render({panel, input, select(value) {
+          close(true);
+          if (value === input.value) return;
+          input.value = value;
+          input.dispatchEvent(new win.Event(&#x27;input&#x27;, {bubbles: true}));
+          input.dispatchEvent(new win.Event(&#x27;change&#x27;, {bubbles: true}));
+        }});
+        panel.hidden = false;
+        panel.showPopover();
+        position();
+        target.focus({preventScroll: true});
+      });
+    }
+
+    form.querySelectorAll(&#x27;input[type=&quot;date&quot;],input[type=&quot;time&quot;]&#x27;).forEach(attach);
+    doc.addEventListener(&#x27;pointerdown&#x27;, event =&gt; {
+      if (current &amp;&amp; !panel.contains(event.target) &amp;&amp; !current.trigger.contains(event.target)) close();
+    }, true);
+    doc.addEventListener(&#x27;focusin&#x27;, event =&gt; {
+      if (current &amp;&amp; !panel.contains(event.target) &amp;&amp; current.trigger !== event.target) close();
+    });
+    form.addEventListener(&#x27;keydown&#x27;, event =&gt; {
+      if (current &amp;&amp; event.key === &#x27;Escape&#x27;) {
+        event.preventDefault();
+        event.stopPropagation();
+        close(true);
+      }
+    });
+    win.addEventListener(&#x27;resize&#x27;, position);
+    win.addEventListener(&#x27;scroll&#x27;, position, true);
+    win.visualViewport?.addEventListener(&#x27;resize&#x27;, position);
+    win.visualViewport?.addEventListener(&#x27;scroll&#x27;, position);
+    return {attach, close};
+  }
+
+  globalThis.CleanRoomsShiftEditorPickers = Object.freeze({mount});
+})();
+
+(() =&gt; {
   const root = document.getElementById(&#x27;cleanrooms-studio&#x27;);
   const q = selector =&gt; root.querySelector(selector);
   const staff = globalThis.CleanRoomsData.staffFor({}).map(person=&gt;({...person}));
@@ -25580,6 +26156,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   const PlanningRecords=globalThis.CleanRoomsPlanningRecords,PlanningScope=globalThis.CleanRoomsPlanningScope;
   const PlanningReconcile=globalThis.CleanRoomsPlanningReconcile;
   const descriptionEditor = globalThis.CleanRoomsRichEditor?.mount({element:q(&#x27;#cs-description-editor&#x27;),sourceInput:q(&#x27;#cs-edit-note&#x27;)});
+  const shiftEditorPickers = globalThis.CleanRoomsShiftEditorPickers?.mount(q(&#x27;#cs-edit-form&#x27;), icon);
   if (!descriptionEditor) { q(&#x27;#cs-edit-note&#x27;).hidden = false; q(&#x27;#cs-edit-note&#x27;).removeAttribute(&#x27;aria-hidden&#x27;); q(&#x27;#cs-edit-note&#x27;).removeAttribute(&#x27;tabindex&#x27;); q(&#x27;#cs-edit-note&#x27;).setAttribute(&#x27;aria-labelledby&#x27;,&#x27;cs-description-label&#x27;); }
   const initialSeries = {id:&#x27;jonas-plan&#x27;,person:&#x27;p0&#x27;,site:0,startDate:anchor,endDate:Engine.addMonths(anchor,6),weekdays:[1,3],start:&#x27;07:00&#x27;,end:&#x27;15:00&#x27;,note:&#x27;&#x27;};
   const leaveRequests = PlanData.leaveRequests();
@@ -28293,7 +28870,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       days.forEach(day=&gt;{
         if(!editorDayTimes[day])editorDayTimes[day]={start:q(&#x27;#cs-edit-start&#x27;).value,end:q(&#x27;#cs-edit-end&#x27;).value,plannedBreakMinutes:readPlannedBreak()};
         const row=node(&#x27;div&#x27;,&#x27;cs-day-time-row&#x27;);row.append(node(&#x27;span&#x27;,&#x27;cs-day-time-name&#x27;,dayNames[day]));
-        [&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;].forEach(field=&gt;{const isPause=field===&#x27;plannedBreakMinutes&#x27;,label=node(&#x27;label&#x27;,&#x27;cs-field&#x27;),text=node(&#x27;span&#x27;,&#x27;cs-sr&#x27;,dayNames[day]+(isPause?&#x27; planlagt pause i minutter&#x27;:field===&#x27;start&#x27;?&#x27; fra&#x27;:&#x27; til&#x27;)),input=node(&#x27;input&#x27;);input.type=isPause?&#x27;number&#x27;:&#x27;time&#x27;;input.step=isPause?&#x27;1&#x27;:&#x27;60&#x27;;if(isPause)input.min=&#x27;0&#x27;;input.value=String(editorDayTimes[day][field]??readPlannedBreak());input.dataset.seriesDay=String(day);input.dataset.seriesTime=field;input.setAttribute(&#x27;aria-label&#x27;,text.textContent);input.addEventListener(&#x27;input&#x27;,()=&gt;{editorDayTimes[day][field]=isPause?Number(input.value||0):input.value;updatePreview();});label.append(text,input);row.append(label);});container.append(row);
+        [&#x27;start&#x27;,&#x27;end&#x27;,&#x27;plannedBreakMinutes&#x27;].forEach(field=&gt;{const isPause=field===&#x27;plannedBreakMinutes&#x27;,cell=node(&#x27;div&#x27;,&#x27;cs-field&#x27;),input=node(&#x27;input&#x27;);input.type=isPause?&#x27;number&#x27;:&#x27;time&#x27;;input.step=isPause?&#x27;1&#x27;:&#x27;60&#x27;;if(isPause)input.min=&#x27;0&#x27;;input.value=String(editorDayTimes[day][field]??readPlannedBreak());input.dataset.seriesDay=String(day);input.dataset.seriesTime=field;input.setAttribute(&#x27;aria-label&#x27;,dayNames[day]+(isPause?&#x27; planlagt pause i minutter&#x27;:field===&#x27;start&#x27;?&#x27; fra&#x27;:&#x27; til&#x27;));input.addEventListener(&#x27;input&#x27;,()=&gt;{editorDayTimes[day][field]=isPause?Number(input.value||0):input.value;updatePreview();});cell.append(input);if(!isPause)shiftEditorPickers?.attach(input);row.append(cell);});container.append(row);
       });
     }
     root.querySelectorAll(&#x27;[data-series-time]&#x27;).forEach(input=&gt;{input.disabled=!custom;input.required=custom;});
@@ -28687,6 +29264,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function closeEditor(options={}) {
     if(!options.force&amp;&amp;!confirmEditorLeave(()=&gt;closeEditor({force:true})))return false;
     dismissEditorDiscard();
+    shiftEditorPickers?.close();
     cancelPlannerDetails();
     releasePlanningHold(&#x27;editor&#x27;);
     q(&#x27;#cs-demo-editor-guide&#x27;).hidden = true;
@@ -29575,6 +30153,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

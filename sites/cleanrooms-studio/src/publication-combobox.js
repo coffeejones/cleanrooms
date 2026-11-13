@@ -62,6 +62,7 @@
     };
     const wrapper = node('div', '');
     const input = node('input', 'input');
+    const selectOnly = select.hasAttribute('data-select-only');
     const toggle = node('span', 'toggle');
     const menu = node('div', 'menu');
     const list = node('div', 'list');
@@ -90,7 +91,13 @@
     input.autocapitalize = 'none';
     input.spellcheck = false;
     input.setAttribute('role', 'combobox');
-    input.setAttribute('aria-autocomplete', 'list');
+    if (selectOnly) {
+      wrapper.dataset.selectOnly = 'true';
+      input.readOnly = true;
+      input.inputMode = 'none';
+    } else {
+      input.setAttribute('aria-autocomplete', 'list');
+    }
     input.setAttribute('aria-expanded', 'false');
     input.setAttribute('aria-controls', prefix + '-list');
     toggle.setAttribute('aria-hidden', 'true');
@@ -124,7 +131,7 @@
 
     function resetInput() {
       const selected = selectedOption();
-      input.value = selected && (!selected.disabled || selected.value) ? selected.label : '';
+      input.value = selected && (!selected.disabled || selected.value || selectOnly) ? selected.label : '';
     }
 
     function positionMenu() {
@@ -358,7 +365,7 @@
       for (const attribute of ['aria-describedby', 'aria-required', 'title', 'tabindex']) mirrorAttribute(attribute);
       const invalid = select.getAttribute('aria-invalid') || (input.validity?.customError && !select.validity?.valid ? 'true' : null);
       mirrorAttribute('aria-invalid', invalid);
-      if (select.validity?.valid || input.disabled) input.setCustomValidity?.('');
+      if (!selectOnly && (select.validity?.valid || input.disabled)) input.setCustomValidity?.('');
       if (select.required) input.setAttribute('aria-required', 'true');
       for (const key of mirroredFocusKeys) delete input.dataset[key];
       mirroredFocusKeys.clear();
@@ -377,13 +384,14 @@
       if (disposed || input.disabled || wrapper.hidden) return;
       input.focus();
       if (showMenu && !open) {
-        input.select();
+        if (!selectOnly) input.select();
         openMenu();
       }
     }
 
     function changeQuery(event) {
       event.stopPropagation();
+      if (selectOnly) { resetInput(); return; }
       if (event.isComposing) return;
       if (!open) openMenu(input.value);
       else {
@@ -393,10 +401,13 @@
       }
     }
 
-    input.addEventListener('focus', () => { if (!open) input.select(); });
+    input.addEventListener('focus', () => { if (!open && !selectOnly) input.select(); });
     input.addEventListener('click', () => {
-      if (open) return;
-      input.select();
+      if (open) {
+        if (selectOnly) close();
+        return;
+      }
+      if (!selectOnly) input.select();
       openMenu();
     });
     input.addEventListener('input', changeQuery);
@@ -413,7 +424,7 @@
           event.preventDefault();
           event.stopPropagation();
           close();
-          input.select();
+          if (!selectOnly) input.select();
           break;
         case 'Tab': {
           const action = footer?.matches('button') ? footer : footer?.querySelector('button:not([disabled])');
@@ -429,10 +440,28 @@
         case 'ArrowDown':
         case 'ArrowUp':
           event.preventDefault();
-          if (!open) openMenu();
+          if (!open) {
+            openMenu();
+            if (selectOnly && event.key === 'ArrowUp') highlight(rows.length - 1);
+          }
           else if (rows.length) highlight(Math.min(rows.length - 1, Math.max(0, active + (event.key === 'ArrowDown' ? 1 : -1))));
           break;
+        case 'Home':
+        case 'End':
+          if (!selectOnly) return;
+          event.preventDefault();
+          if (!open) openMenu();
+          highlight(event.key === 'Home' ? 0 : rows.length - 1);
+          break;
+        case ' ':
+          if (!selectOnly) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (!open) openMenu();
+          else if (rows[active]) choose(rows[active].option);
+          break;
         case 'Enter':
+          if (selectOnly && !open && (event.ctrlKey || event.metaKey)) return;
           event.preventDefault();
           event.stopPropagation();
           if (!open) openMenu();
@@ -464,6 +493,10 @@
       event.preventDefault();
       if (wrapper.hidden || !input.getClientRects().length) return;
       input.setAttribute('aria-invalid', 'true');
+      if (selectOnly) {
+        input.focus();
+        return;
+      }
       input.setCustomValidity(select.validationMessage);
       input.reportValidity();
     }

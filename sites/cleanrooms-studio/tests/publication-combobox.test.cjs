@@ -240,3 +240,33 @@ test('an exact duration takes precedence over a current partial match', () => {
   assert.equal(select.value, '2');
   combo.dispose();
 });
+
+test('select-only control opens and picks with the keyboard without accepting typed values', () => {
+  const {select, option, withClass} = fixture();
+  select.setAttribute('data-select-only', '');
+  select.append(option('0', 'Kontor Nord'), option('1', 'Klinikken'), option('2', 'Havnegade', true));
+  select.value = '0';
+  const combo = Combobox.enhance(select, {label: 'Arbejdssted'});
+  assert.equal(combo.input.readOnly, true);
+  assert.equal(combo.input.inputMode, 'none');
+  assert.equal(combo.input.getAttribute('aria-autocomplete'), null);
+  combo.input.value = 'not an option';
+  dispatch(combo.input, 'input');
+  assert.equal(combo.input.value, 'Kontor Nord');
+  assert.equal(combo.input.getAttribute('aria-expanded'), 'false');
+
+  const key = value => dispatch(combo.input, 'keydown', {key: value});
+  assert.equal(key(' ').defaultPrevented, true);
+  assert.deepEqual(withClass('option-label').map(item => item.textContent), ['Kontor Nord', 'Klinikken']);
+  key('End');
+  key('Escape');
+  assert.equal(select.value, '0');
+  key('ArrowDown');
+  key('ArrowDown');
+  key('Enter');
+  assert.equal(select.value, '1');
+  assert.equal(combo.input.value, 'Klinikken');
+  assert.equal(combo.input.getAttribute('aria-expanded'), 'false');
+  assert.equal(dispatch(combo.input, 'keydown', {key: 'Enter', metaKey: true}).defaultPrevented, false);
+  combo.dispose();
+});

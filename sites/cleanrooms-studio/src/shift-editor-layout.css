@@ -98,6 +98,157 @@
   display: none;
 }
 
+/* Keep the native input editable and give both picker buttons the combobox inset. */
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field {
+  position: relative;
+  min-width: 0;
+  --cs-ui-field-inset-start: 10px;
+  --cs-ui-field-inset-end: 34px;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field > input {
+  align-items: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field > input::-webkit-datetime-edit {
+  padding: 0;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field > input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline-end: 1px;
+  display: grid;
+  place-items: center;
+  width: calc(var(--cs-ui-field-inset-end) - 1px);
+  padding: 0;
+  border: 0;
+  border-radius: 0 calc(var(--cs-ui-radius) - 1px) calc(var(--cs-ui-radius) - 1px) 0;
+  background: transparent;
+  color: var(--cs-access-muted);
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger > svg {
+  width: 15px;
+  height: 15px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field > input:is(:read-only, :disabled) + button {
+  display: none;
+}
+#cleanrooms-studio #cs-edit-form .cs-day-time-row .cs-shift-picker-field {
+  --cs-ui-field-inset-start: 6px;
+  --cs-ui-field-inset-end: 23px;
+}
+
+#cleanrooms-studio #cs-edit-form .cs-shift-picker {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--cs-combobox-edge);
+  border-radius: 8px;
+  background: var(--cs-access-surface);
+  box-shadow: var(--cs-combobox-shadow);
+  color: var(--cs-access-ink);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 5px 6px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-title {
+  font-weight: 650;
+  text-transform: capitalize;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-nav {
+  display: flex;
+  gap: 2px;
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav > button) {
+  min-width: 0;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-nav > button {
+  width: 34px;
+  font-size: 21px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-weekday {
+  padding: 4px 0;
+  color: var(--cs-access-muted);
+  font-size: 11px;
+  text-align: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-date-day[data-today] {
+  box-shadow: inset 0 0 0 1px var(--cs-combobox-edge);
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav > button):disabled {
+  color: var(--cs-access-disabled);
+  cursor: default;
+}
+#cleanrooms-studio #cs-edit-form :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav > button):hover:not(:disabled),
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option:hover {
+  background: var(--cs-combobox-active);
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger[aria-expanded="true"],
+#cleanrooms-studio #cs-edit-form .cs-shift-date-day[aria-pressed="true"],
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option[aria-selected="true"] {
+  background: var(--cs-combobox-active);
+  color: var(--cs-access-ink);
+  font-weight: 650;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-label {
+  padding: 4px 0 7px;
+  color: var(--cs-access-muted);
+  font-size: 12px;
+  text-align: center;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-list {
+  max-height: 160px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: 5px;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-option {
+  padding: 7px 0;
+  line-height: 18px;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cs-combobox-edge);
+}
+#cleanrooms-studio #cs-edit-form .cs-shift-time-actions > button {
+  width: 100%;
+}
+
 @media (max-width: 760px) {
   #cleanrooms-studio[data-page][data-role] #cs-editor-layer > .cs-editor:not(.cs-series-editor) .cs-editor-fields {
     padding-block: 14px;

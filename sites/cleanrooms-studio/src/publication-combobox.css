@@ -31,6 +31,11 @@
 #cleanrooms-studio .cs-publication-combobox-input:focus {
   text-overflow:clip;
 }
+#cleanrooms-studio[data-page][data-role] .cs-publication-combobox[data-select-only="true"] .cs-publication-combobox-input[readonly]:not(:disabled) {
+  --cs-ui-field-background:var(--cs-access-surface,#fff);
+  --cs-ui-field-shadow:0 1px 2px #25303b03;
+  cursor:pointer;
+}
 #cleanrooms-studio .cs-publication-combobox-toggle {
   position:absolute;
   inset-block-start:0;

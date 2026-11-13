@@ -34,6 +34,7 @@
   const PlanningRecords=globalThis.CleanRoomsPlanningRecords,PlanningScope=globalThis.CleanRoomsPlanningScope;
   const PlanningReconcile=globalThis.CleanRoomsPlanningReconcile;
   const descriptionEditor = globalThis.CleanRoomsRichEditor?.mount({element:q('#cs-description-editor'),sourceInput:q('#cs-edit-note')});
+  const shiftEditorPickers = globalThis.CleanRoomsShiftEditorPickers?.mount(q('#cs-edit-form'), icon);
   if (!descriptionEditor) { q('#cs-edit-note').hidden = false; q('#cs-edit-note').removeAttribute('aria-hidden'); q('#cs-edit-note').removeAttribute('tabindex'); q('#cs-edit-note').setAttribute('aria-labelledby','cs-description-label'); }
   const initialSeries = {id:'jonas-plan',person:'p0',site:0,startDate:anchor,endDate:Engine.addMonths(anchor,6),weekdays:[1,3],start:'07:00',end:'15:00',note:''};
   const leaveRequests = PlanData.leaveRequests();
@@ -2747,7 +2748,7 @@
       days.forEach(day=>{
         if(!editorDayTimes[day])editorDayTimes[day]={start:q('#cs-edit-start').value,end:q('#cs-edit-end').value,plannedBreakMinutes:readPlannedBreak()};
         const row=node('div','cs-day-time-row');row.append(node('span','cs-day-time-name',dayNames[day]));
-        ['start','end','plannedBreakMinutes'].forEach(field=>{const isPause=field==='plannedBreakMinutes',label=node('label','cs-field'),text=node('span','cs-sr',dayNames[day]+(isPause?' planlagt pause i minutter':field==='start'?' fra':' til')),input=node('input');input.type=isPause?'number':'time';input.step=isPause?'1':'60';if(isPause)input.min='0';input.value=String(editorDayTimes[day][field]??readPlannedBreak());input.dataset.seriesDay=String(day);input.dataset.seriesTime=field;input.setAttribute('aria-label',text.textContent);input.addEventListener('input',()=>{editorDayTimes[day][field]=isPause?Number(input.value||0):input.value;updatePreview();});label.append(text,input);row.append(label);});container.append(row);
+        ['start','end','plannedBreakMinutes'].forEach(field=>{const isPause=field==='plannedBreakMinutes',cell=node('div','cs-field'),input=node('input');input.type=isPause?'number':'time';input.step=isPause?'1':'60';if(isPause)input.min='0';input.value=String(editorDayTimes[day][field]??readPlannedBreak());input.dataset.seriesDay=String(day);input.dataset.seriesTime=field;input.setAttribute('aria-label',dayNames[day]+(isPause?' planlagt pause i minutter':field==='start'?' fra':' til'));input.addEventListener('input',()=>{editorDayTimes[day][field]=isPause?Number(input.value||0):input.value;updatePreview();});cell.append(input);if(!isPause)shiftEditorPickers?.attach(input);row.append(cell);});container.append(row);
       });
     }
     root.querySelectorAll('[data-series-time]').forEach(input=>{input.disabled=!custom;input.required=custom;});
@@ -3141,6 +3142,7 @@
   function closeEditor(options={}) {
     if(!options.force&&!confirmEditorLeave(()=>closeEditor({force:true})))return false;
     dismissEditorDiscard();
+    shiftEditorPickers?.close();
     cancelPlannerDetails();
     releasePlanningHold('editor');
     q('#cs-demo-editor-guide').hidden = true;

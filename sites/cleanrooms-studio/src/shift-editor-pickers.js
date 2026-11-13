@@ -70,6 +70,13 @@
       input.before(wrapper);
       wrapper.append(input, trigger);
       updateLabel();
+      if (kind === 'date') {
+        for (const label of input.labels) label.addEventListener('click', event => {
+          if (input.disabled || input.readOnly) return;
+          event.preventDefault();
+          trigger.click();
+        });
+      }
       // An editor scope can rename Startdato to Gælder fra.
       if (input.id === 'cs-repeat-start') {
         const label = input.labels[0];

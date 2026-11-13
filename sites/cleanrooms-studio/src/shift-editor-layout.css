@@ -132,6 +132,21 @@
   width: 15px;
   height: 15px;
 }
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field > input[type="date"] {
+  /* The button handles pointer input across the field. The native input remains
+     available for direct keyboard entry and form validation. */
+  pointer-events: none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind="date"] {
+  inset-inline: 1px;
+  width: auto;
+  justify-items: end;
+  padding-inline-end: calc((var(--cs-ui-field-inset-end) - 16px) / 2);
+  border-radius: calc(var(--cs-ui-radius) - 1px);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind="date"]:is(:hover, [aria-expanded="true"]) {
+  background: color-mix(in srgb, var(--cs-combobox-active) 42%, transparent);
+}
 #cleanrooms-studio #cs-edit-form .cs-shift-picker-field > input:is(:read-only, :disabled) + button {
   display: none;
 }

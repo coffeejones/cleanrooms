@@ -13562,6 +13562,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   width: 15px;
   height: 15px;
 }
+#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input[type=&quot;date&quot;] {
+  /* The button handles pointer input across the field. The native input remains
+     available for direct keyboard entry and form validation. */
+  pointer-events: none;
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind=&quot;date&quot;] {
+  inset-inline: 1px;
+  width: auto;
+  justify-items: end;
+  padding-inline-end: calc((var(--cs-ui-field-inset-end) - 16px) / 2);
+  border-radius: calc(var(--cs-ui-radius) - 1px);
+}
+#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind=&quot;date&quot;]:is(:hover, [aria-expanded=&quot;true&quot;]) {
+  background: color-mix(in srgb, var(--cs-combobox-active) 42%, transparent);
+}
 #cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
   display: none;
 }
@@ -26068,6 +26083,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       input.before(wrapper);
       wrapper.append(input, trigger);
       updateLabel();
+      if (kind === &#x27;date&#x27;) {
+        for (const label of input.labels) label.addEventListener(&#x27;click&#x27;, event =&gt; {
+          if (input.disabled || input.readOnly) return;
+          event.preventDefault();
+          trigger.click();
+        });
+      }
       // An editor scope can rename Startdato to Gælder fra.
       if (input.id === &#x27;cs-repeat-start&#x27;) {
         const label = input.labels[0];
@@ -30153,6 +30175,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

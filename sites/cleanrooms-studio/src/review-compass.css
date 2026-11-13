@@ -178,11 +178,17 @@
 #cleanrooms-studio[data-page="leave"] .cs-review-badge[data-state="approved"]{color:#386550}
 #cleanrooms-studio[data-page="leave"] .cs-review-badge[data-state="rejected"]{color:#865349}
 #cleanrooms-studio[data-page="leave"] .cs-review-row-actions{min-width:0}
-#cleanrooms-studio[data-page="leave"][data-role] .cs-review-table .cs-leave-open{
-  height:auto;min-height:34px;gap:5px;padding-inline:8px;border-radius:6px;background:var(--cs-access-surface);font-size:12px;font-weight:600;white-space:nowrap;
+#cleanrooms-studio[data-page="leave"][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open{
+  height:auto;min-height:34px;gap:6px;padding:3px 4px 3px 7px;border-color:transparent;
+  border-radius:6px;background:transparent;color:var(--cs-access-ink);font-size:12px;font-weight:600;white-space:nowrap;
 }
-#cleanrooms-studio[data-page="leave"][data-role] .cs-review-table .cs-leave-open:hover:not(:disabled){background:var(--cs-compass-selected)}
-#cleanrooms-studio[data-page="leave"] .cs-leave-open>svg{flex:none;width:13px;height:13px}
+#cleanrooms-studio[data-page="leave"][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open:hover:not(:disabled){background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-page="leave"] .cs-leave-open-arrow{
+  display:grid;place-items:center;flex:none;width:23px;height:23px;border-radius:4px;
+  background:var(--cs-access-soft);color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="leave"] .cs-leave-open:hover .cs-leave-open-arrow{background:var(--cs-access-surface);color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page="leave"] .cs-leave-open-arrow svg{width:13px;height:13px}
 #cleanrooms-studio[data-page="leave"] .cs-review-pager{gap:8px;margin-top:10px}
 #cleanrooms-studio[data-page="leave"][data-role] .cs-review-dialog {
   border-color:var(--cs-compass-rule);
@@ -277,7 +283,7 @@
   #cleanrooms-studio[data-page="leave"] .cs-review-table .cs-leave-type-cell{grid-area:3/1;padding-inline-start:41px}
   #cleanrooms-studio[data-page="leave"] .cs-review-table .cs-leave-status-cell{grid-area:1/2;text-align:end}
   #cleanrooms-studio[data-page="leave"] .cs-review-table .cs-review-row-actions{grid-area:2/2/4;align-self:end}
-  #cleanrooms-studio[data-page="leave"][data-role] .cs-review-table .cs-leave-open{min-height:40px}
+  #cleanrooms-studio[data-page="leave"][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open{min-height:40px}
 }
 @media(pointer:coarse) {
   #cleanrooms-studio:is([data-page="leave"],[data-page="activity"]) :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) {

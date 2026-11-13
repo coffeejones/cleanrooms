@@ -67,7 +67,7 @@
     }
     function setBusy(value){busy=value;dismiss.disabled=value;panel.setAttribute('aria-busy',String(value));if(value)panel.focus();}
     function showError(message){error.textContent=message;error.hidden=false;}
-    return {panel,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
+    return {layer,panel,header,heading,dismiss,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
   }
   function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
     const {node,button,field}=kit(element.ownerDocument);
@@ -75,22 +75,28 @@
     const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
     const canRespond=Boolean(canDecide&&typeof onDecision==='function'&&(request.status==='pending'||initialRejection));
     const name=text(request.name)||'Medarbejder',status=request.status||'pending';
-    const context=node('section','cs-leave-context'),identity=node('div','cs-leave-identity');
+    dialog.layer.className+=' cs-leave-detail-modal';
+    const identity=node('div','cs-leave-identity'),copy=node('div','cs-leave-identity-copy');
     const avatar=node('span','cs-leave-avatar',request.initials||name.split(/\s+/).slice(0,2).map(part=>part[0]).join(''));
     avatar.setAttribute('aria-hidden','true');
     const badge=node('span','cs-leave-state',STATUS[status]||status);badge.dataset.state=status;
-    identity.append(avatar,node('strong','',name),badge);
+    dialog.header.replaceChildren(identity,dialog.dismiss);
+    dialog.heading.textContent=name;
+    copy.append(node('p','cs-leave-detail-kicker',title),dialog.heading,badge);
+    identity.append(avatar,copy);
     const facts=node('dl','cs-leave-facts');
     for(const [label,value] of [['Periode',leaveDetailPeriod(request)],['Fraværstype',request.type]]){
-      const fact=node('div');fact.append(node('dt','',label),node('dd','',value||'—'));facts.append(fact);
+      const fact=node('div'),detail=node('dd','',value||'—');
+      if(label==='Periode'&&request.days?.length>1)detail.append(node('span','cs-leave-detail-days',request.days.length+' dage'));
+      fact.append(node('dt','',label),detail);facts.append(fact);
     }
-    context.append(identity,facts);dialog.body.append(context);
+    dialog.body.append(facts);
     if(text(request.comment)){
       const note=node('section','cs-leave-message');
       note.append(node('h4','','Kommentar'),node('p','',request.comment));dialog.body.append(note);
     }
     if(request.decision){
-      const {reason,decidedBy,decidedAt}=request.decision,response=node('section','cs-leave-message');
+      const {reason,decidedBy,decidedAt}=request.decision,response=node('section','cs-leave-message cs-leave-response');
       response.append(node('h4','','Svar'));
       if(text(reason))response.append(node('p','',reason));
       const actor=decidedBy?.name||'Planlægger';
@@ -246,7 +252,7 @@
           modalRequest={id:request.id,status:request.status,version:request.version,canDecide};
           modal=leaveDetails({element,request:{...request,name:nameText,dates},canDecide,onDecision:decision,trigger:open,focusFallback:()=>statusButtons[status]||search,onClose:()=>{modal=null;modalRequest=null;}});
         },'cs-button cs-leave-open');
-        if(icon)open.append(icon('chevron-right'));
+        if(icon){const arrow=node('span','cs-leave-open-arrow');arrow.append(icon('chevron-right'));open.append(arrow);}
         open.setAttribute('aria-label','Se anmodning for '+nameText);open.setAttribute('aria-haspopup','dialog');actions.append(open);
         row.setAttribute('role','row');const cells=[name,period,node('td','cs-leave-type-cell',request.type),stateCell,actions];for(const cell of cells)cell.setAttribute('role','cell');row.append(...cells);body.append(row);
       }

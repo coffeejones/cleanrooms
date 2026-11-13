@@ -136,58 +136,91 @@
   overscroll-behavior:contain;
   padding:16px;
 }
-#cleanrooms-studio .cs-leave-context {
-  display:grid;
-  gap:10px;
-  min-width:0;
-  padding:12px;
-  border:1px solid var(--cs-compass-rule,#dce2e5);
-  border-radius:6px;
-  background:var(--cs-access-soft,#f6f8f7);
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal>.cs-leave-dialog {
+  width:min(100%,510px);
+  border-radius:10px;
+  box-shadow:0 18px 64px rgb(11 28 37 / .22);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal {
+  background:rgb(15 31 40 / .33);
+  backdrop-filter:blur(2px);
+}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dialog-header {
+  align-items:flex-start;
+  padding:17px 20px 14px;
+  border-bottom:0;
+}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dismiss {
+  margin-top:-5px;
 }
 #cleanrooms-studio .cs-leave-identity {
   display:flex;
   align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
+  gap:12px;
   min-width:0;
-  color:var(--cs-access-ink,#001e2b);
-  font-size:14px;
-  line-height:20px;
+}
+#cleanrooms-studio .cs-leave-identity-copy {
+  display:flex;
+  flex-flow:column;
+  align-items:flex-start;
+  gap:2px;
+  min-width:0;
   overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-leave-detail-kicker {
+  margin:0;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:11px;
+  font-weight:600;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-leave-identity-copy h3 {
+  font-size:22px;
+  line-height:28px;
+  letter-spacing:-.3px;
 }
 #cleanrooms-studio .cs-leave-avatar {
   display:grid;
   place-items:center;
-  width:32px;
-  height:32px;
-  flex:0 0 32px;
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
   border:1px solid var(--cs-compass-rule,#dce2e5);
   border-radius:6px;
-  background:var(--cs-access-surface,#fff);
-  font-size:11px;
+  background:var(--cs-access-soft,#f6f8f7);
+  font-size:14px;
   font-weight:700;
 }
 #cleanrooms-studio .cs-leave-state {
   display:inline-flex;
   align-items:center;
   gap:5px;
-  margin-inline-start:auto;
   color:var(--cs-access-muted,#5c6c75);
   font-size:12px;
-  line-height:20px;
+  line-height:18px;
 }
-#cleanrooms-studio .cs-leave-state::before {content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+#cleanrooms-studio .cs-leave-state::before {content:"";flex:none;width:5px;height:5px;border-radius:50%;background:currentColor}
 #cleanrooms-studio .cs-leave-state[data-state="pending"] {color:#795b2e}
 #cleanrooms-studio .cs-leave-state[data-state="approved"] {color:var(--cs-access-success,#42715a)}
 #cleanrooms-studio .cs-leave-state[data-state="rejected"] {color:var(--cs-access-danger,#a43d36)}
 #cleanrooms-studio .cs-leave-facts,
 #cleanrooms-studio .cs-leave-form-dates {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
-#cleanrooms-studio .cs-leave-facts {grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);padding-top:9px;border-top:1px solid var(--cs-compass-rule,#dce2e5)}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dialog-body {gap:15px;padding:0 20px 17px}
+#cleanrooms-studio .cs-leave-facts {
+  grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+  gap:0;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-soft,#f6f8f7);
+}
+#cleanrooms-studio .cs-leave-facts>div {min-width:0;padding:10px 12px}
+#cleanrooms-studio .cs-leave-facts>div+div {border-inline-start:1px solid var(--cs-compass-rule,#dce2e5)}
 #cleanrooms-studio .cs-leave-facts dt {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
-#cleanrooms-studio .cs-leave-facts dd {margin:0;font-size:13px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-facts dd {margin:2px 0 0;font-size:14px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-detail-days {display:block;color:var(--cs-access-muted,#5c6c75);font-size:11px;line-height:17px;font-weight:400}
 #cleanrooms-studio .cs-leave-message h4 {margin:0 0 4px;font-size:13px;font-weight:700;line-height:20px}
 #cleanrooms-studio .cs-leave-message p {margin:0;font-size:13px;line-height:21px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-response {padding-inline-start:11px;border-inline-start:2px solid var(--cs-compass-rule,#dce2e5)}
 #cleanrooms-studio .cs-leave-dialog .cs-review-muted {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
 #cleanrooms-studio .cs-leave-message > p + .cs-review-muted {margin-top:5px}
 #cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
@@ -202,6 +235,7 @@
   padding:10px 16px;
   border-color:var(--cs-compass-rule,#dce2e5);
 }
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal .cs-leave-dialog-actions {padding:10px 20px;background:var(--cs-access-soft,#f6f8f7)}
 #cleanrooms-studio .cs-leave-dialog [hidden] {display:none!important}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions > .cs-leave-danger:not(.cs-primary) {
   border-color:transparent;
@@ -217,6 +251,9 @@
 }
 @media(max-width:760px) {
   #cleanrooms-studio[data-page][data-role] .cs-leave-modal > .cs-leave-dialog {max-height:calc(100dvh - 32px)}
+  #cleanrooms-studio .cs-leave-detail-modal :is(.cs-leave-dialog-header,.cs-leave-dialog-body),
+  #cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal .cs-leave-dialog-actions {padding-inline:14px}
+  #cleanrooms-studio .cs-leave-identity-copy h3 {font-size:20px;line-height:25px}
 }
 @media(max-width:370px) {
   #cleanrooms-studio .cs-leave-form-dates {grid-template-columns:minmax(0,1fr)}

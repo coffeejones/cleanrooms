@@ -8110,58 +8110,91 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   overscroll-behavior:contain;
   padding:16px;
 }
-#cleanrooms-studio .cs-leave-context {
-  display:grid;
-  gap:10px;
-  min-width:0;
-  padding:12px;
-  border:1px solid var(--cs-compass-rule,#dce2e5);
-  border-radius:6px;
-  background:var(--cs-access-soft,#f6f8f7);
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal&gt;.cs-leave-dialog {
+  width:min(100%,510px);
+  border-radius:10px;
+  box-shadow:0 18px 64px rgb(11 28 37 / .22);
+}
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal {
+  background:rgb(15 31 40 / .33);
+  backdrop-filter:blur(2px);
+}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dialog-header {
+  align-items:flex-start;
+  padding:17px 20px 14px;
+  border-bottom:0;
+}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dismiss {
+  margin-top:-5px;
 }
 #cleanrooms-studio .cs-leave-identity {
   display:flex;
   align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
+  gap:12px;
   min-width:0;
-  color:var(--cs-access-ink,#001e2b);
-  font-size:14px;
-  line-height:20px;
+}
+#cleanrooms-studio .cs-leave-identity-copy {
+  display:flex;
+  flex-flow:column;
+  align-items:flex-start;
+  gap:2px;
+  min-width:0;
   overflow-wrap:anywhere;
+}
+#cleanrooms-studio .cs-leave-detail-kicker {
+  margin:0;
+  color:var(--cs-access-muted,#5c6c75);
+  font-size:11px;
+  font-weight:600;
+  line-height:16px;
+}
+#cleanrooms-studio .cs-leave-identity-copy h3 {
+  font-size:22px;
+  line-height:28px;
+  letter-spacing:-.3px;
 }
 #cleanrooms-studio .cs-leave-avatar {
   display:grid;
   place-items:center;
-  width:32px;
-  height:32px;
-  flex:0 0 32px;
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
   border:1px solid var(--cs-compass-rule,#dce2e5);
   border-radius:6px;
-  background:var(--cs-access-surface,#fff);
-  font-size:11px;
+  background:var(--cs-access-soft,#f6f8f7);
+  font-size:14px;
   font-weight:700;
 }
 #cleanrooms-studio .cs-leave-state {
   display:inline-flex;
   align-items:center;
   gap:5px;
-  margin-inline-start:auto;
   color:var(--cs-access-muted,#5c6c75);
   font-size:12px;
-  line-height:20px;
+  line-height:18px;
 }
-#cleanrooms-studio .cs-leave-state::before {content:&quot;&quot;;width:5px;height:5px;border-radius:50%;background:currentColor}
+#cleanrooms-studio .cs-leave-state::before {content:&quot;&quot;;flex:none;width:5px;height:5px;border-radius:50%;background:currentColor}
 #cleanrooms-studio .cs-leave-state[data-state=&quot;pending&quot;] {color:#795b2e}
 #cleanrooms-studio .cs-leave-state[data-state=&quot;approved&quot;] {color:var(--cs-access-success,#42715a)}
 #cleanrooms-studio .cs-leave-state[data-state=&quot;rejected&quot;] {color:var(--cs-access-danger,#a43d36)}
 #cleanrooms-studio .cs-leave-facts,
 #cleanrooms-studio .cs-leave-form-dates {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}
-#cleanrooms-studio .cs-leave-facts {grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);padding-top:9px;border-top:1px solid var(--cs-compass-rule,#dce2e5)}
+#cleanrooms-studio .cs-leave-detail-modal .cs-leave-dialog-body {gap:15px;padding:0 20px 17px}
+#cleanrooms-studio .cs-leave-facts {
+  grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+  gap:0;
+  border:1px solid var(--cs-compass-rule,#dce2e5);
+  border-radius:6px;
+  background:var(--cs-access-soft,#f6f8f7);
+}
+#cleanrooms-studio .cs-leave-facts&gt;div {min-width:0;padding:10px 12px}
+#cleanrooms-studio .cs-leave-facts&gt;div+div {border-inline-start:1px solid var(--cs-compass-rule,#dce2e5)}
 #cleanrooms-studio .cs-leave-facts dt {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
-#cleanrooms-studio .cs-leave-facts dd {margin:0;font-size:13px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-facts dd {margin:2px 0 0;font-size:14px;font-weight:600;line-height:20px;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-detail-days {display:block;color:var(--cs-access-muted,#5c6c75);font-size:11px;line-height:17px;font-weight:400}
 #cleanrooms-studio .cs-leave-message h4 {margin:0 0 4px;font-size:13px;font-weight:700;line-height:20px}
 #cleanrooms-studio .cs-leave-message p {margin:0;font-size:13px;line-height:21px;white-space:pre-wrap;overflow-wrap:anywhere}
+#cleanrooms-studio .cs-leave-response {padding-inline-start:11px;border-inline-start:2px solid var(--cs-compass-rule,#dce2e5)}
 #cleanrooms-studio .cs-leave-dialog .cs-review-muted {color:var(--cs-access-muted,#5c6c75);font-size:12px;line-height:18px}
 #cleanrooms-studio .cs-leave-message &gt; p + .cs-review-muted {margin-top:5px}
 #cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
@@ -8176,6 +8209,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   padding:10px 16px;
   border-color:var(--cs-compass-rule,#dce2e5);
 }
+#cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal .cs-leave-dialog-actions {padding:10px 20px;background:var(--cs-access-soft,#f6f8f7)}
 #cleanrooms-studio .cs-leave-dialog [hidden] {display:none!important}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-leave-dialog-actions &gt; .cs-leave-danger:not(.cs-primary) {
   border-color:transparent;
@@ -8191,6 +8225,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 @media(max-width:760px) {
   #cleanrooms-studio[data-page][data-role] .cs-leave-modal &gt; .cs-leave-dialog {max-height:calc(100dvh - 32px)}
+  #cleanrooms-studio .cs-leave-detail-modal :is(.cs-leave-dialog-header,.cs-leave-dialog-body),
+  #cleanrooms-studio[data-page][data-role] .cs-leave-detail-modal .cs-leave-dialog-actions {padding-inline:14px}
+  #cleanrooms-studio .cs-leave-identity-copy h3 {font-size:20px;line-height:25px}
 }
 @media(max-width:370px) {
   #cleanrooms-studio .cs-leave-form-dates {grid-template-columns:minmax(0,1fr)}
@@ -11253,11 +11290,17 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;approved&quot;]{color:#386550}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-badge[data-state=&quot;rejected&quot;]{color:#865349}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-row-actions{min-width:0}
-#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open{
-  height:auto;min-height:34px;gap:5px;padding-inline:8px;border-radius:6px;background:var(--cs-access-surface);font-size:12px;font-weight:600;white-space:nowrap;
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open{
+  height:auto;min-height:34px;gap:6px;padding:3px 4px 3px 7px;border-color:transparent;
+  border-radius:6px;background:transparent;color:var(--cs-access-ink);font-size:12px;font-weight:600;white-space:nowrap;
 }
-#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open:hover:not(:disabled){background:var(--cs-compass-selected)}
-#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-open&gt;svg{flex:none;width:13px;height:13px}
+#cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open:hover:not(:disabled){background:var(--cs-compass-selected)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-open-arrow{
+  display:grid;place-items:center;flex:none;width:23px;height:23px;border-radius:4px;
+  background:var(--cs-access-soft);color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-open:hover .cs-leave-open-arrow{background:var(--cs-access-surface);color:var(--cs-access-ink)}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-open-arrow svg{width:13px;height:13px}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-pager{gap:8px;margin-top:10px}
 #cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-dialog {
   border-color:var(--cs-compass-rule);
@@ -11352,7 +11395,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-leave-type-cell{grid-area:3/1;padding-inline-start:41px}
   #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-leave-status-cell{grid-area:1/2;text-align:end}
   #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-table .cs-review-row-actions{grid-area:2/2/4;align-self:end}
-  #cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-review-table .cs-leave-open{min-height:40px}
+  #cleanrooms-studio[data-page=&quot;leave&quot;][data-role] .cs-leave-review-page .cs-review-table .cs-leave-open{min-height:40px}
 }
 @media(pointer:coarse) {
   #cleanrooms-studio:is([data-page=&quot;leave&quot;],[data-page=&quot;activity&quot;]) :is(.cs-leave-review-page,.cs-history-review,.cs-review-dialog) {
@@ -24275,7 +24318,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     }
     function setBusy(value){busy=value;dismiss.disabled=value;panel.setAttribute(&#x27;aria-busy&#x27;,String(value));if(value)panel.focus();}
     function showError(message){error.textContent=message;error.hidden=false;}
-    return {panel,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
+    return {layer,panel,header,heading,dismiss,body,actions,error,open,close,setBusy,showError,get busy(){return busy;},get closed(){return closed;}};
   }
   function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
     const {node,button,field}=kit(element.ownerDocument);
@@ -24283,22 +24326,28 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
     const canRespond=Boolean(canDecide&amp;&amp;typeof onDecision===&#x27;function&#x27;&amp;&amp;(request.status===&#x27;pending&#x27;||initialRejection));
     const name=text(request.name)||&#x27;Medarbejder&#x27;,status=request.status||&#x27;pending&#x27;;
-    const context=node(&#x27;section&#x27;,&#x27;cs-leave-context&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-leave-identity&#x27;);
+    dialog.layer.className+=&#x27; cs-leave-detail-modal&#x27;;
+    const identity=node(&#x27;div&#x27;,&#x27;cs-leave-identity&#x27;),copy=node(&#x27;div&#x27;,&#x27;cs-leave-identity-copy&#x27;);
     const avatar=node(&#x27;span&#x27;,&#x27;cs-leave-avatar&#x27;,request.initials||name.split(/\s+/).slice(0,2).map(part=&gt;part[0]).join(&#x27;&#x27;));
     avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
     const badge=node(&#x27;span&#x27;,&#x27;cs-leave-state&#x27;,STATUS[status]||status);badge.dataset.state=status;
-    identity.append(avatar,node(&#x27;strong&#x27;,&#x27;&#x27;,name),badge);
+    dialog.header.replaceChildren(identity,dialog.dismiss);
+    dialog.heading.textContent=name;
+    copy.append(node(&#x27;p&#x27;,&#x27;cs-leave-detail-kicker&#x27;,title),dialog.heading,badge);
+    identity.append(avatar,copy);
     const facts=node(&#x27;dl&#x27;,&#x27;cs-leave-facts&#x27;);
     for(const [label,value] of [[&#x27;Periode&#x27;,leaveDetailPeriod(request)],[&#x27;Fraværstype&#x27;,request.type]]){
-      const fact=node(&#x27;div&#x27;);fact.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),node(&#x27;dd&#x27;,&#x27;&#x27;,value||&#x27;—&#x27;));facts.append(fact);
+      const fact=node(&#x27;div&#x27;),detail=node(&#x27;dd&#x27;,&#x27;&#x27;,value||&#x27;—&#x27;);
+      if(label===&#x27;Periode&#x27;&amp;&amp;request.days?.length&gt;1)detail.append(node(&#x27;span&#x27;,&#x27;cs-leave-detail-days&#x27;,request.days.length+&#x27; dage&#x27;));
+      fact.append(node(&#x27;dt&#x27;,&#x27;&#x27;,label),detail);facts.append(fact);
     }
-    context.append(identity,facts);dialog.body.append(context);
+    dialog.body.append(facts);
     if(text(request.comment)){
       const note=node(&#x27;section&#x27;,&#x27;cs-leave-message&#x27;);
       note.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Kommentar&#x27;),node(&#x27;p&#x27;,&#x27;&#x27;,request.comment));dialog.body.append(note);
     }
     if(request.decision){
-      const {reason,decidedBy,decidedAt}=request.decision,response=node(&#x27;section&#x27;,&#x27;cs-leave-message&#x27;);
+      const {reason,decidedBy,decidedAt}=request.decision,response=node(&#x27;section&#x27;,&#x27;cs-leave-message cs-leave-response&#x27;);
       response.append(node(&#x27;h4&#x27;,&#x27;&#x27;,&#x27;Svar&#x27;));
       if(text(reason))response.append(node(&#x27;p&#x27;,&#x27;&#x27;,reason));
       const actor=decidedBy?.name||&#x27;Planlægger&#x27;;
@@ -24454,7 +24503,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           modalRequest={id:request.id,status:request.status,version:request.version,canDecide};
           modal=leaveDetails({element,request:{...request,name:nameText,dates},canDecide,onDecision:decision,trigger:open,focusFallback:()=&gt;statusButtons[status]||search,onClose:()=&gt;{modal=null;modalRequest=null;}});
         },&#x27;cs-button cs-leave-open&#x27;);
-        if(icon)open.append(icon(&#x27;chevron-right&#x27;));
+        if(icon){const arrow=node(&#x27;span&#x27;,&#x27;cs-leave-open-arrow&#x27;);arrow.append(icon(&#x27;chevron-right&#x27;));open.append(arrow);}
         open.setAttribute(&#x27;aria-label&#x27;,&#x27;Se anmodning for &#x27;+nameText);open.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);actions.append(open);
         row.setAttribute(&#x27;role&#x27;,&#x27;row&#x27;);const cells=[name,period,node(&#x27;td&#x27;,&#x27;cs-leave-type-cell&#x27;,request.type),stateCell,actions];for(const cell of cells)cell.setAttribute(&#x27;role&#x27;,&#x27;cell&#x27;);row.append(...cells);body.append(row);
       }
@@ -31483,6 +31532,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

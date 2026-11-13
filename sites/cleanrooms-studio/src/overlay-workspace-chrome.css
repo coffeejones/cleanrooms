@@ -188,31 +188,6 @@
   background:#f5f7f8;
 }
 
-/* The effective agreement stays visibly separate from the editable form. */
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-fields{column-gap:24px}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-section{border-bottom-color:#e6ebee}
-#cleanrooms-studio[data-page][data-role] .cs-series-section-title{
-  color:var(--cs-access-ink,#29343c);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{
-  padding:18px;
-  border:0;
-  border-radius:6px;
-  background:#f5f7f8;
-  box-shadow:inset 0 0 0 1px #e1e6ea;
-}
-#cleanrooms-studio[data-page][data-role] .cs-series-preview-eyebrow{color:#74818b}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-preview{border-color:#dfe6ea}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-description-details{border-bottom-color:#e6ebee}
-#cleanrooms-studio[data-page][data-role] .cs-series-operation-note{
-  padding:12px;
-  border-color:#dfe6ea;
-  border-radius:6px;
-  background:#f5f7f8;
-}
-
 /* Small dialogs keep the same title scale and gutter without changing flow. */
 #cleanrooms-studio[data-page][data-role] :is(.cs-review-dialog,.cs-page-help-dialog,.cs-accounts-help-dialog){border-radius:8px}
 #cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:24px}
@@ -222,7 +197,6 @@
 
 @media(max-width:760px){
   #cleanrooms-studio[data-page][data-role] :is(.cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,.cs-page-help-head,.cs-accounts-help-head){min-height:60px}
-  #cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{padding:16px}
   #cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:20px}
 }
 @media(max-height:540px){

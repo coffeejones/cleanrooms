@@ -8,71 +8,90 @@
 #cleanrooms-studio[data-page] .cs-series-description-details .cs-description-field{margin:0}
 #cleanrooms-studio[data-page] .cs-editor{transition:width 180ms cubic-bezier(.2,.7,.3,1)}
 #cleanrooms-studio[data-page] #cs-editor-layer > .cs-editor.cs-series-editor{width:min(920px,100%)}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:grid;grid-template-columns:minmax(0,1fr) 272px;align-content:start;align-items:start;gap:28px;padding-block:24px}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:24px}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:16px;padding:0 0 24px;border-bottom:1px solid var(--cs-access-line)}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{
+  --cs-overlay-label:5px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,35%);
+  align-content:start;
+  align-items:start;
+  gap:24px;
+  padding-block:18px;
+}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:16px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:10px}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section .cs-field{margin:0}
-#cleanrooms-studio[data-page] .cs-series-section-title{display:flex;align-items:center;gap:10px;margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:600;line-height:22px;letter-spacing:-.1px}
+#cleanrooms-studio[data-page] :is(.cs-series-section-title,.cs-series-preview-heading){margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:600;line-height:20px}
+#cleanrooms-studio[data-page] .cs-series-section-title{display:flex;align-items:center;gap:10px}
 #cleanrooms-studio[data-page] .cs-series-section-title > span{color:var(--cs-access-muted);font-size:10px;font-weight:500;letter-spacing:.04em;font-variant-numeric:tabular-nums}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-scope-field .cs-field-label{font-size:12px;color:var(--cs-access-muted)}
 #cleanrooms-studio[data-page] .cs-series-scope-block{display:flex;flex-direction:column;gap:8px;min-width:0}
 #cleanrooms-studio[data-page] .cs-series-scope-block > .cs-field{margin:0}
 #cleanrooms-studio[data-page] .cs-series-scope-help{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-days{margin:0}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-options > .cs-field-pair .cs-field-label{min-height:20px}
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-repeat-options .cs-field-pair .cs-field-label{min-height:20px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-options{margin:0}
 #cleanrooms-studio[data-page] .cs-series-period-presets{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
 #cleanrooms-studio[data-page][data-role] .cs-series-period-presets > .cs-button{flex:1 1 90px;background:var(--cs-access-surface);box-shadow:none}
 #cleanrooms-studio[data-page][data-role] .cs-series-period-presets > .cs-button[aria-pressed="true"]{border-color:var(--cs-access-blue);background:var(--cs-access-blue-soft);color:var(--cs-access-blue);box-shadow:inset 0 1px 2px #29343c08}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details{border-bottom:1px solid var(--cs-access-line);padding-bottom:20px}
 #cleanrooms-studio[data-page] .cs-series-description-details > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;list-style:none;cursor:pointer;color:var(--cs-access-ink);font-size:14px;font-weight:600}
 #cleanrooms-studio[data-page] .cs-series-description-details > summary::-webkit-details-marker{display:none}
 #cleanrooms-studio[data-page] #cs-description-summary-meta{margin-left:auto;color:var(--cs-access-muted);font-size:11px;font-weight:400;text-align:right}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details[open] > .cs-description-field{margin-top:16px}
 
-/* The preview explains the effective plan, including retained exceptions. */
-#cleanrooms-studio[data-page] .cs-series-planning-preview{position:sticky;top:0;min-width:0;margin:0;padding:18px;background:#f3f6f6;border:1px solid #dce4e6;border-radius:8px;color:var(--cs-access-body)}
-#cleanrooms-studio[data-page] .cs-series-preview-eyebrow{display:block;margin:0 0 10px;color:var(--cs-access-muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-#cleanrooms-studio[data-page] .cs-series-sentence{margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:500;line-height:23px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-preview{margin:18px 0;padding:16px 0;border-color:#d6dfe1;color:var(--cs-access-body);line-height:19px}
+/* A single boundary separates the preview from the editable fields. */
+#cleanrooms-studio[data-page] .cs-series-planning-preview{
+  position:sticky;
+  top:0;
+  min-width:0;
+  margin:0;
+  padding-inline-start:20px;
+  border-inline-start:1px solid var(--cs-access-line);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page] .cs-series-sentence{margin:6px 0 0;color:var(--cs-access-muted);font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-series-preview{
+  margin:10px 0 14px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--cs-access-body);
+  line-height:18px;
+}
 #cleanrooms-studio[data-page] .cs-series-result-total{display:flex;align-items:baseline;gap:8px}
-#cleanrooms-studio[data-page] .cs-series-result-total strong{font-size:28px;font-weight:600;line-height:34px;letter-spacing:-1px;color:var(--cs-access-ink);font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-result-total span{font-size:12px;color:var(--cs-access-muted)}
-#cleanrooms-studio[data-page] .cs-series-result-effect{margin:6px 0 0;font-size:11px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-result-preserved{margin:8px 0 0;color:var(--cs-access-muted);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-series-result-total strong{font-size:23px;font-weight:600;line-height:28px;letter-spacing:-.5px;color:var(--cs-access-ink);font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-series-result-total span{font-size:12px;color:var(--cs-access-body)}
+#cleanrooms-studio[data-page] :is(.cs-series-result-period,.cs-series-result-effect){margin:3px 0 0;color:var(--cs-access-muted);font-size:12px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-series-result-preserved{margin:8px 0 0;color:var(--cs-access-muted);font-size:12px;line-height:18px}
 #cleanrooms-studio[data-page] .cs-series-preview-error{margin:0;color:var(--cs-access-danger,#a34d43);font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-calendar h4{margin:0 0 10px;color:var(--cs-access-ink);font-size:12px;font-weight:600;line-height:20px;text-transform:capitalize}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;min-width:0}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid > span{display:flex;align-items:center;justify-content:center;min-width:0;min-height:26px;font-size:11px;font-variant-numeric:tabular-nums}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid > .cs-series-calendar-weekday{min-height:20px;color:var(--cs-access-muted);font-size:10px}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid > .has-shift{border:1px solid #c2cfd5;border-radius:4px;background:#e2eaf0;color:#354e5e;font-weight:600}
-#cleanrooms-studio[data-page] .cs-series-next-head{margin-top:20px}
-#cleanrooms-studio[data-page] .cs-series-next-head h4{margin:0;font-size:12px;font-weight:600;color:var(--cs-access-ink)}
-#cleanrooms-studio[data-page] .cs-series-next-dates{list-style:none;margin:8px 0 0;padding:0}
-#cleanrooms-studio[data-page] .cs-series-next-dates li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #dce4e6;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-next-dates li:last-child{border-bottom:0}
-#cleanrooms-studio[data-page] .cs-series-next-dates li span{white-space:nowrap;color:var(--cs-access-muted)}
-#cleanrooms-studio[data-page] .cs-series-exceptions{margin-top:16px;border-top:1px solid #dce4e6;padding-top:12px}
+#cleanrooms-studio[data-page] .cs-series-exceptions{margin-top:14px;border-top:1px solid var(--cs-access-line);padding-top:10px}
 #cleanrooms-studio[data-page] .cs-series-exceptions > summary{cursor:pointer;color:var(--cs-access-ink);font-size:12px;line-height:20px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field{margin:12px 0 0;padding:0;border:0;border-radius:0;background:none;gap:8px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field strong{font-size:11px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field small{font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page] .cs-series-exception-list{max-height:160px;overflow-y:auto;margin:8px 0 0;padding-left:16px;color:var(--cs-access-muted);font-size:11px;line-height:20px}
-#cleanrooms-studio[data-page] .cs-series-draft-note{margin:16px 0 0;color:var(--cs-access-muted);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-series-exception-list{margin:8px 0 0;padding-left:16px;color:var(--cs-access-muted);font-size:11px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-actions{align-items:center}
+#cleanrooms-studio[data-page] .cs-editor-save{display:flex;align-items:center;gap:10px;min-width:0;margin-inline-start:auto}
+#cleanrooms-studio[data-page] .cs-editor-save > #cs-save{flex-shrink:0}
+#cleanrooms-studio[data-page] .cs-series-draft-note{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:16px;text-align:right}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm{flex-shrink:0;padding:12px var(--cs-overlay-gutter);border-top:1px solid #dfc4c0;background:#fff7f6;color:#8e3933;font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm p{margin:4px 0 12px}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm > div{display:flex;justify-content:flex-end;gap:8px}
 #cleanrooms-studio[data-page][data-role] #cs-series-delete-apply{border-color:#a34d43;background:#a34d43;color:#fff}
 @media(max-width:760px){
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:flex;align-items:stretch;gap:20px;padding-block:16px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:20px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:16px;padding-bottom:20px}
- #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static;width:100%;padding:16px}
+ #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:flex;align-items:stretch;gap:18px;padding-block:14px}
+ #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static;padding:14px 0 0;border-inline-start:0;border-block-start:1px solid var(--cs-access-line)}
  #cleanrooms-studio[data-page] .cs-series-calendar-grid > span{min-height:30px}
 }
 @media(max-height:540px){
  #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{padding-block:12px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:16px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{padding-bottom:16px}
+ #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static}
+}
+@media(max-width:520px){
+ #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-actions:has(#cs-delete:not([hidden])) .cs-editor-save{flex-direction:column;align-items:flex-end;gap:3px}
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page] .cs-editor{transition:none}}
 /* Optional detail stays quiet until the planner needs it. */
@@ -82,7 +101,7 @@
 #cleanrooms-studio[data-page] .cs-day-time-row{display:grid;grid-template-columns:minmax(70px,.8fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center;padding:0}
 #cleanrooms-studio[data-page] .cs-day-time-name{font-size:13px;font-weight:500;color:var(--cs-access-ink)}
 #cleanrooms-studio[data-page] .cs-day-time-row input{box-sizing:border-box;display:block;width:100%;min-width:0;height:var(--cs-ui-height);min-height:var(--cs-ui-height);border:1px solid var(--cs-ui-border);border-radius:var(--cs-ui-radius);background:var(--cs-ui-field);padding:0 10px;color:var(--cs-ui-ink);font:inherit;font-size:14px;font-variant-numeric:tabular-nums;box-shadow:var(--cs-ui-shadow)}
-#cleanrooms-studio[data-page] .cs-series-operation-note{margin:0;padding:12px 14px;border:1px solid #ccd6dc;border-radius:6px;background:#f0f4f6;color:#50616a;font-size:12px;line-height:1.65}
+#cleanrooms-studio[data-page] .cs-series-operation-note{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:18px}
 #cleanrooms-studio[data-page] #cs-repeat-start[readonly]{background:#f0f3f4;color:#63717a;cursor:default}
 #cleanrooms-studio[data-page] .cs-series-calendar-head{display:grid;grid-template-columns:30px minmax(0,1fr) 30px;gap:8px;align-items:center;margin-bottom:10px}
 #cleanrooms-studio[data-page] .cs-series-calendar-head h4{text-align:center;margin:0;font-size:12px}
@@ -107,5 +126,6 @@
 
 #cleanrooms-studio .cs-repeat-pattern-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
 #cleanrooms-studio .cs-repeat-pattern-heading .cs-field-label{margin:0}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-pattern-heading{gap:8px;margin-bottom:6px}
 #cleanrooms-studio .cs-repeat-interval-field{display:block;min-width:160px;margin:0}
 #cleanrooms-studio .cs-repeat-interval-field select{width:100%}

@@ -2784,7 +2784,9 @@
     q('#cs-editor-title').textContent=repeating?(editorOperation==='extend'?'Forlæng vagtserie':editorOperation==='copy'?'Kopiér vagtserie':source?'Rediger vagtserie':'Opret vagtserie'):(activeEdit?.id?'Rediger vagt':'Opret vagt');
     syncDayTimeControls(repeating);
     q('#cs-series-operation-note').hidden=!repeating||!['copy','extend'].includes(editorOperation);
-    q('#cs-series-operation-note').textContent=editorOperation==='extend'?'Tilføjer en ny periode efter '+shortDate(editorExtension?.endDate||today)+'. Eksisterende vagter og særændringer bevares.':'Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.';
+    q('#cs-series-operation-note').textContent=editorOperation==='extend'
+      ? 'Den nye periode begynder efter '+shortDate(editorExtension?.endDate||today)+'.'
+      : 'Kopien indeholder ugemønster, beskrivelse og tjekliste. Manuelle ændringer og afkrydsninger følger ikke med.';
     const panel=q('#cs-editor-layer .cs-editor');panel.classList?.toggle('cs-series-editor',repeating);
     q('#cs-repeat-days-field').hidden=!repeating;q('#cs-repeat-interval').disabled=!repeating;q('#cs-series-planning-preview').hidden=!repeating;q('#cs-series-scope-block').hidden=!source;
     root.querySelectorAll('[data-series-only]').forEach(element=>element.hidden=!repeating);
@@ -2798,8 +2800,8 @@
     if(oneOption){oneOption.hidden=editorSeriesManagement;oneOption.disabled=editorSeriesManagement;}
     const future=[...(q('#cs-edit-scope').options||[])].find(option=>option.value==='future');
     if(future){future.textContent=editorSeriesManagement?'Fra en dato og frem':'Denne og kommende vagter';future.disabled=Boolean(editorSeriesManagement&&source&&today>source.endDate);}
-    q('#cs-series-scope-help').hidden=!repeating||!source;
-    q('#cs-series-scope-help').textContent=scope==='all'?'Hele serien ændres, også vagter før i dag.':editorSeriesManagement?'Vagter før datoen i “Gælder fra” bevares.':'Ændringen gælder den valgte vagt og resten af serien.';
+    q('#cs-series-scope-help').hidden=!repeating||!source||scope!=='all'||source.startDate>=today;
+    q('#cs-series-scope-help').textContent='Ændringen omfatter også tidligere vagter i serien.';
     q('#cs-series-start-label').textContent=source&&scope==='future'&&editorSeriesManagement?'Gælder fra':'Startdato';
     q('#cs-repeat-start').min=source&&scope==='future'?(editorSeriesManagement?[today,source.startDate].sort().at(-1):occurrenceAnchor(activeEdit.id,source.id)):'';
     q('#cs-repeat-start').max=source&&scope==='future'&&editorSeriesManagement?source.endDate:'';
@@ -2809,33 +2811,70 @@
   function renderSeriesPlanningPreview(draft,source,scope) {
     if(!SeriesPlanner)return;
     const result=SeriesPlanner.preview({draft,source:source||null,scope:source?scope:'all',cutoff:editorCutoff(source,scope),edits:state.edits,deleted:state.deleted,preserve:q('#cs-preserve-exceptions').checked,today});
-    const person=personName(draft.person),site=sites[draft.site]?.name||'det valgte arbejdssted',days=draft.weekdays.map(day=>dayNames[day].toLocaleLowerCase('da-DK'));
-    const pattern=days.length>1?days.slice(0,-1).join(', ')+' og '+days.at(-1):days[0]||'de valgte dage';
-    q('#cs-series-sentence').textContent=(draft.person?person:'Medarbejderen')+' arbejder '+pattern+(Engine.weekInterval(draft)===2?' hver anden uge':'')+(Object.keys(draft.dayTimes||{}).length?' med tider pr. dag':' kl. '+clockLabel(draft))+' hos '+site+'.';
-    const previewValid=result.valid&&result.attached.length>0,summary=q('#cs-series-preview');summary.replaceChildren();summary.dataset.valid=String(previewValid);
-    if(!previewValid)summary.append(node('p','cs-series-preview-error',result.errors[0]||'Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.'));
-    else{
-      const total=node('div','cs-series-result-total');total.append(node('strong',null,result.openEnded?'Uden slutdato':String(result.total)),node('span',null,result.openEnded?(Engine.weekInterval(draft)===2?'gentages hver anden uge':'gentages hver uge'):result.limited?'vagter i forhåndsvisningen':editorOperation==='extend'?'nye vagter i forlængelsen':'vagter efter gemning'));summary.append(total);
-      const effect=source?(Engine.isOpenEnded(source)&&!Engine.isOpenEnded(draft)?'Serien afsluttes '+shortDate(draft.endDate)+'.':!Engine.isOpenEnded(source)&&Engine.isOpenEnded(draft)?'Serien fortsætter uden slutdato.':result.changedCount?[result.updatedCount+' ændres',result.createdCount+' nye',result.removedCount+' udgår'].join(' · '):'Ingen vagter ændres.'):'Fra '+shortDate(draft.startDate)+(Engine.isOpenEnded(draft)?' · uden slutdato':' til '+shortDate(draft.endDate));
-      summary.append(node('p','cs-series-result-effect',effect));
-      if(result.limited)summary.append(node('p','cs-series-result-preserved','Forhåndsvisning: '+shortDate(result.range.from)+' – '+shortDate(result.range.to)+(result.openEnded?'. Serien fortsætter herefter.':'.')));
-      if(result.preservedCount||result.deletedCount)summary.append(node('p','cs-series-result-preserved',[result.preservedCount?result.preservedCount+(result.preservedCount===1?' særændring':' særændringer'):null,result.deletedCount?result.deletedCount+(result.deletedCount===1?' aflysning':' aflysninger'):null].filter(Boolean).join(' og ')+' bevares.'));
+    const previewValid = result.valid && result.attached.length > 0;
+    const sentence = q('#cs-series-sentence');
+    const summary = q('#cs-series-preview');
+    sentence.hidden = !previewValid;
+    summary.replaceChildren();
+    summary.dataset.valid = String(previewValid);
+    if (!previewValid) {
+      sentence.textContent = '';
+      const message = result.errors[0] || 'Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.';
+      const waitingForPerson = result.errors.length === 1 && !draft.person && message === 'Vælg en medarbejder.';
+      summary.append(node('p', waitingForPerson ? 'cs-series-result-effect' : 'cs-series-preview-error', message));
+    } else {
+      const days = draft.weekdays.map(day => dayNames[day].slice(0, 3).toLocaleLowerCase('da-DK') + '.');
+      const cadence = Engine.weekInterval(draft) === 2 ? ' hver anden uge' : '';
+      const times = Object.keys(draft.dayTimes || {}).length ? 'Tider pr. dag' : clockLabel(draft);
+      sentence.textContent = days.join(', ') + cadence + ' · ' + times;
+      const total = node('div', 'cs-series-result-total');
+      const noun = result.total === 1 ? 'vagt' : 'vagter';
+      const target = result.limited ? noun + ' i forhåndsvisningen' : editorOperation === 'extend'
+        ? (result.total === 1 ? 'ny ' : 'nye ') + noun + ' i forlængelsen' : noun + ' efter gemning';
+      total.append(node('strong', null, String(result.total)), node('span', null, target));
+      summary.append(total);
+
+      const formatDate = new Intl.DateTimeFormat('da-DK', {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+      const period = result.openEnded ? 'Uden slutdato · fra ' + formatDate.format(date(draft.startDate))
+        : formatDate.formatRange(date(draft.startDate), date(draft.endDate));
+      summary.append(node('p', 'cs-series-result-period', period));
+      if (result.limited) summary.append(node('p', 'cs-series-result-effect',
+        'Viser ' + formatDate.formatRange(date(result.range.from), date(result.range.to))));
+      if (source) {
+        const effects = [
+          result.updatedCount && result.updatedCount + ' ændres',
+          result.createdCount && result.createdCount + (result.createdCount === 1 ? ' ny' : ' nye'),
+          result.removedCount && result.removedCount + ' udgår'
+        ].filter(Boolean);
+        if (Engine.isOpenEnded(source) && !Engine.isOpenEnded(draft)) effects.unshift('Serien afsluttes');
+        if (effects.length) summary.append(node('p', 'cs-series-result-effect', effects.join(' · ')));
+        else if (Engine.isOpenEnded(source) === Engine.isOpenEnded(draft)) {
+          summary.append(node('p', 'cs-series-result-effect', result.limited ? 'Ingen ændringer i forhåndsvisningen' : 'Ingen vagter ændres'));
+        }
+      }
     }
-    const dates=previewValid?result.shifts.filter(shift=>shift.date>=today):[],next=dates.length?dates:previewValid?result.shifts:[];
-    q('#cs-series-next-title').textContent=dates.length?'De næste vagter':'Vagter i perioden';const list=q('#cs-series-next-dates');list.replaceChildren();
-    next.slice(0,4).forEach(shift=>{const row=node('li');row.append(node('time',null,shortDate(shift.date)),node('span',null,clockLabel(shift)));list.append(row);});
-    if(!next.length)list.append(node('li','cs-series-no-dates','Vælg medarbejder, dage og periode.'));
-    const calendar=q('#cs-series-calendar');calendar.replaceChildren();const focus=next[0]?.date||draft.startDate;
-    const calendarAssessment=seriesCalendarAssessment(draft,result,source,scope);seriesCalendarPreview={draft,result,assessment:calendarAssessment};
-    if(SeriesCalendar)renderSeriesCalendar();
-    else if(Actions.validDate(focus)){
+
+    const calendar = q('#cs-series-calendar');
+    const calendarAssessment = seriesCalendarAssessment(draft, result, source, scope);
+    calendar.hidden = !previewValid;
+    seriesCalendarPreview = previewValid ? {draft, result, assessment:calendarAssessment} : null;
+    if (!previewValid) calendar.replaceChildren();
+    else if (SeriesCalendar) renderSeriesCalendar();
+    else {
+      calendar.replaceChildren();
+      const focus = result.shifts.find(shift => shift.date >= today)?.date || result.first?.date || draft.startDate;
       const first=focus.slice(0,7)+'-01',month=date(first),label=month.toLocaleDateString('da-DK',{month:'long',year:'numeric',timeZone:'UTC'}),grid=node('div','cs-series-calendar-grid');
       calendar.setAttribute('aria-label','Vagter i '+label);calendar.append(node('h4',null,label));['M','T','O','T','F','L','S'].forEach(day=>grid.append(node('span','cs-series-calendar-weekday',day)));
-      const offset=(month.getUTCDay()+6)%7,marked=new Set(previewValid?result.shifts.map(shift=>shift.date):[]);
+      const offset=(month.getUTCDay()+6)%7,marked=new Set(result.shifts.map(shift=>shift.date));
       for(let index=0;index<offset;index++)grid.append(node('span','cs-series-calendar-blank'));
       for(let day=first;day.slice(0,7)===first.slice(0,7);day=addDays(day,1)){const cell=node('span','cs-series-calendar-date'+(marked.has(day)?' has-shift':''),String(Number(day.slice(-2))));if(marked.has(day))cell.setAttribute('aria-label',fullDate(day)+' · vagt');grid.append(cell);}calendar.append(grid);
     }
-    const exceptions=result.exceptions;q('#cs-series-exceptions').hidden=!exceptions.count;q('#cs-series-exceptions-title').textContent=exceptions.count+(exceptions.count===1?' manuel ændring':' manuelle ændringer');
+    const exceptions=result.exceptions;q('#cs-series-exceptions').hidden=!exceptions.count;q('#cs-series-exceptions-title').textContent='Manuelle ændringer ('+exceptions.count+')';
+    const preservation = [
+      result.preservedCount && result.preservedCount + (result.preservedCount === 1 ? ' særændring' : ' særændringer'),
+      result.deletedCount && result.deletedCount + (result.deletedCount === 1 ? ' aflysning' : ' aflysninger')
+    ].filter(Boolean).join(' og ');
+    if (preservation) q('#cs-exceptions-summary').textContent = preservation + ' bevares.';
     const exceptionList=q('#cs-series-exception-list');exceptionList.replaceChildren();exceptions.ids.slice(0,10).forEach(id=>{const shift=state.edits[id],removed=state.deleted.includes(id),day=shift?.date||occurrenceAnchor(id,source?.id);exceptionList.append(node('li',null,(day?shortDate(day):'Vagt')+' · '+(removed?'Aflyst':shift?clockLabel(shift):'Manuelt ændret')));});
     if(exceptions.ids.length>10)exceptionList.append(node('li',null,'Og '+(exceptions.ids.length-10)+' flere.'));
     const lifecycleError=previewValid?seriesDraftError(draft,source,scope):'';
@@ -2851,10 +2890,18 @@
   function renderSeriesCalendar() {
     if(!SeriesCalendar||!seriesCalendarPreview)return;
     const {draft,result,assessment}=seriesCalendarPreview;
+    const calendar=q('#cs-series-calendar');
     const previous=document.activeElement?.dataset?.seriesCalendarFocus;
-    SeriesCalendar.render({element:q('#cs-series-calendar'),document,draft:result.limited?{...draft,startDate:result.range.from,endDate:result.range.to}:draft,shifts:result.valid?result.shifts:[],conflicts:assessment.conflicts,pendingRequests:assessment.pendingRequests,unavailableDates:unavailableDatesFor(draft.person,result.shifts||[]),availabilityStatus:selectedStaffing?.availabilityStatus,today,sites,personName,state:seriesCalendarState,
+    SeriesCalendar.render({element:calendar,document,draft:result.limited?{...draft,startDate:result.range.from,endDate:result.range.to}:draft,shifts:result.shifts,conflicts:assessment.conflicts,pendingRequests:assessment.pendingRequests,unavailableDates:unavailableDatesFor(draft.person,result.shifts),availabilityStatus:selectedStaffing?.availabilityStatus,today,sites,personName,state:seriesCalendarState,
       onChange:next=>{seriesCalendarState=next;renderSeriesCalendar();}});
-    if(previous)q('#cs-series-calendar').querySelector?.('[data-series-calendar-focus="'+previous+'"]')?.focus({preventScroll:true});
+    if (previous) {
+      const find = key => calendar.querySelector?.('[data-series-calendar-focus="'+key+'"]');
+      const restored = find(previous);
+      const fallback = previous === 'next' ? find('previous') : find('next');
+      const control = restored && !restored.disabled ? restored : fallback && !fallback.disabled ? fallback
+        : calendar.querySelector?.('button[aria-pressed="true"],button[data-date]');
+      control?.focus({preventScroll:true});
+    }
   }
   function staffingMonday(value) { return addDays(value,-((date(value).getUTCDay() + 6) % 7)); }
   function workTime(minutes) { const hours = Math.floor(minutes / 60), rest = minutes % 60; return hours + ' t' + (rest ? ' ' + rest + ' min' : ''); }
@@ -2919,7 +2966,7 @@
     if(person&&context.valid)requestPlanningAvailability(context.templates,[person.id],true);
     selectedStaffing = person ? assessStaffing(person,context) : null;
     if (person) staffingAssessments.set(person.id,selectedStaffing);
-    q('#cs-person-selected-name').textContent = person?.name || 'Ledig vagt';
+    q('#cs-person-selected-name').textContent = person?.name || (context.repeating ? 'Vælg medarbejder' : 'Ledig vagt');
     summary.replaceChildren(); summary.dataset.state = selectedStaffing?.status === 'blocked' ? 'blocked' : selectedStaffing?.overTargetWeeks.length ? 'over-target' : selectedStaffing?.status || 'unassigned';
     if (person) {
       if(!context.repeating&&context.valid)summary.append(node('span','cs-person-summary-hours','Uge '+weekNumber(context.weekStart)+' · '+staffingHours(selectedStaffing)));
@@ -3115,7 +3162,7 @@
   function syncSeriesDurationControls(repeating=editorRepeats()) {
     root.querySelectorAll('[data-series-months]').forEach(button=>{let selected=false;try{selected=!editorOpenEnded&&Engine.addMonths(editorExtension?.endDate||q('#cs-repeat-start').value,Number(button.dataset.seriesMonths))===q('#cs-repeat-end').value;}catch{}button.setAttribute('aria-pressed',String(selected));});
     q('#cs-repeat-unlimited').setAttribute('aria-pressed',String(editorOpenEnded));
-    q('#cs-repeat-end-field').hidden=editorOpenEnded;q('#cs-repeat-unlimited-hint').hidden=!repeating||!editorOpenEnded;
+    q('#cs-repeat-end-field').hidden=editorOpenEnded;
     q('#cs-repeat-end').disabled=!repeating||editorOpenEnded;q('#cs-repeat-end').required=repeating&&!editorOpenEnded;
   }
   function chooseSeriesLength(months) {

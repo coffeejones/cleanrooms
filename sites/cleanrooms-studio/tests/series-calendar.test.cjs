@@ -12,6 +12,25 @@ test('calendar starts on the first conflict across months and keeps explicit mon
   const initial=Calendar.model(options);assert.equal(initial.month,'2026-11-01');assert.equal(initial.selected,'2026-11-03');assert.equal(initial.issues.length,1);assert.equal(initial.previous,true);assert.equal(initial.next,true);
   const selected=Calendar.model({...options,state:{month:'2026-10-01',selected:'2026-10-27'}});assert.equal(selected.month,'2026-10-01');assert.equal(selected.selected,'2026-10-27');assert.equal(selected.previous,false);
 });
+test('month navigation never presents the previous month’s selected shift details',()=>{
+  class Element {
+    constructor(){this.children=[];this.dataset={};this.listeners={};}
+    append(...children){this.children.push(...children);}
+    replaceChildren(){this.children=[];}
+    setAttribute(){}
+    addEventListener(event,callback){this.listeners[event]=callback;}
+  }
+  const element=new Element(),document={createElement:()=>new Element()};
+  const options={element,document,draft:{startDate:'2026-10-26',endDate:'2026-12-20'},
+    shifts:[shift('first','2026-10-27'),shift('second','2026-11-03')],today:'2026-10-26'};
+  options.onChange=state=>Calendar.render({...options,state});
+  Calendar.render(options);
+  assert.ok(element.children.some(child=>child.className==='cs-series-date-detail'));
+  element.children[0].children.find(child=>child.dataset.seriesCalendarFocus==='next').listeners.click();
+  assert.equal(element.children.some(child=>child.className==='cs-series-date-detail'),false);
+  element.children[1].children.find(child=>child.dataset.date==='2026-11-03').listeners.click();
+  assert.ok(element.children.some(child=>child.className==='cs-series-date-detail'));
+});
 test('pending leave is informational and exact-day conflicts remain blocking',()=>{
   const shifts=[shift('first','2026-11-03')],assessment=Calendar.assess({shifts,pendingRequests:[{person:'p0',date:'2026-11-03',type:'Friønske'}]});assert.equal(assessment.conflicts.length,0);
   const value=Calendar.model({draft:{startDate:'2026-11-01',endDate:'2026-11-30'},shifts,...assessment,today:'2026-10-30'});assert.equal(value.warnings.length,1);assert.equal(value.issues.length,0);

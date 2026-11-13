@@ -56,7 +56,7 @@
       if(pending)notices.append(el('p','cs-series-calendar-pending-note',pending+(pending===1?' dato med afventende friønske':' datoer med afventende friønsker')));
       element.append(notices);
     }
-    const selected=value.days.get(value.selected);
+    const selected=value.selected?.slice(0,7)===value.month.slice(0,7) ? value.days.get(value.selected) : null;
     if(selected){
       const detail=el('section','cs-series-date-detail');detail.setAttribute('aria-label','Detaljer for '+label(value.selected));detail.append(el('h5',null,label(value.selected)));
       selected.shifts.forEach(shift=>detail.append(el('p','cs-series-date-shift',shift.start+'–'+shift.end+(shift.end<shift.start?' +1 dag':'')+' · '+(options.personName?.(shift.person)||'')+' · '+(sites[shift.site]?.name||'Arbejdssted')+(shift.plannedBreakMinutes?' · '+shift.plannedBreakMinutes+' min pause':''))));

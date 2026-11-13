@@ -94,15 +94,16 @@
            <div class="cs-shift-availability-actions"><button id="cs-edit-sickness" type="button" class="cs-button cs-quiet" hidden>Meld syg</button><button id="cs-edit-find-replacement" type="button" class="cs-button cs-replacement-shortcut" hidden>Find afløser</button></div>
           </div>
           <div id="cs-demo-editor-guide" class="cs-demo-editor-guide" hidden role="note"></div>
-          <div id="cs-series-scope-block" class="cs-series-scope-block" hidden><label class="cs-field cs-scope-field" id="cs-scope-field" hidden><span class="cs-field-label">Anvend ændringen på</span><select id="cs-edit-scope"><option value="one">Kun denne vagt</option><option value="future">Denne og kommende vagter</option><option value="all">Hele vagtserien</option></select></label>
+          <div id="cs-series-scope-block" class="cs-series-scope-block" hidden><label class="cs-field cs-scope-field" id="cs-scope-field" hidden><span class="cs-field-label">Ændringen gælder</span><select id="cs-edit-scope"><option value="one">Kun denne vagt</option><option value="future">Denne og kommende vagter</option><option value="all">Hele vagtserien</option></select></label>
           <p id="cs-series-scope-help" class="cs-series-scope-help" hidden></p>
           </div>
+          <p id="cs-series-operation-note" class="cs-series-operation-note" hidden></p>
           <section class="cs-editor-section" id="cs-editor-pattern">
             <h4 class="cs-series-section-title" data-series-only hidden>Ugemønster</h4>
             <h4 class="cs-shift-timing-title" data-single-only>Tidspunkt</h4>
             <div class="cs-field" id="cs-single-date-field"><label class="cs-field-label" for="cs-edit-date">Dato</label><input type="date" id="cs-edit-date" required></div>
             <div id="cs-repeat-days-field" hidden>
-            <div class="cs-repeat-pattern-heading"><div class="cs-field-label">Arbejdsdage</div><label class="cs-repeat-interval-field"><span class="cs-sr">Gentagelse</span><select id="cs-repeat-interval" aria-label="Gentagelse"><option value="1">Hver uge</option><option value="2">Hver anden uge</option></select></label></div>
+            <div class="cs-repeat-pattern-heading"><div class="cs-field-label">Ugedage</div><label class="cs-repeat-interval-field"><span class="cs-sr">Gentagelse</span><select id="cs-repeat-interval" aria-label="Gentagelse"><option value="1">Hver uge</option><option value="2">Hver anden uge</option></select></label></div>
             <div class="cs-repeat-days" role="group" aria-label="Vælg faste ugedage"><button type="button" data-repeat-day="0" aria-pressed="false" aria-label="Mandag" title="Mandag" class="cursor-interaction">Man</button><button type="button" data-repeat-day="1" aria-pressed="false" aria-label="Tirsdag" title="Tirsdag" class="cursor-interaction">Tir</button><button type="button" data-repeat-day="2" aria-pressed="false" aria-label="Onsdag" title="Onsdag" class="cursor-interaction">Ons</button><button type="button" data-repeat-day="3" aria-pressed="false" aria-label="Torsdag" title="Torsdag" class="cursor-interaction">Tor</button><button type="button" data-repeat-day="4" aria-pressed="false" aria-label="Fredag" title="Fredag" class="cursor-interaction">Fre</button><button type="button" data-repeat-day="5" aria-pressed="false" aria-label="Lørdag" title="Lørdag" class="cursor-interaction">Lør</button><button type="button" data-repeat-day="6" aria-pressed="false" aria-label="Søndag" title="Søndag" class="cursor-interaction">Søn</button></div>
             </div>
             <label id="cs-day-times-toggle" class="cs-day-times-toggle" hidden><input id="cs-day-times-enabled" type="checkbox"><span>Forskellige tider pr. dag</span></label>
@@ -111,8 +112,12 @@
             <div id="cs-day-times" class="cs-day-times" hidden></div>
             <p id="cs-day-break-help" class="cs-field-help" hidden>Pauser er ulønnede og trækkes fra dagens planlagte timer.</p>
           </section>
+          <section id="cs-repeat-options" class="cs-editor-section cs-repeat-options" hidden>
+            <h4 class="cs-series-section-title">Periode</h4>
+            <div class="cs-field-pair"><div class="cs-field"><label class="cs-field-label" id="cs-series-start-label" for="cs-repeat-start">Startdato</label><input type="date" id="cs-repeat-start"></div><div id="cs-repeat-end-field" class="cs-field"><label class="cs-field-label" for="cs-repeat-end">Slutdato</label><input type="date" id="cs-repeat-end"></div></div>
+            <div class="cs-series-period-presets" role="group" aria-label="Vælg periodens længde"><button type="button" class="cs-button" data-series-months="1" aria-pressed="false">1 måned</button><button type="button" class="cs-button" data-series-months="3" aria-pressed="false">3 måneder</button><button id="cs-repeat-six" type="button" class="cs-button" data-series-months="6" aria-pressed="false">6 måneder</button><button id="cs-repeat-unlimited" type="button" class="cs-button" data-series-unlimited aria-pressed="false">Uden slutdato</button></div>
+          </section>
           <section class="cs-editor-section" id="cs-editor-assignment">
-            <h4 class="cs-series-section-title" data-series-only hidden>Arbejdssted og medarbejder</h4>
             <label class="cs-field"><span class="cs-field-label">Arbejdssted</span><select id="cs-edit-site" data-select-only><option value="0">Kontor Nord</option><option value="1">Klinikken</option><option value="2">Havnegade</option></select></label>
             <div class="cs-field cs-staffing-field"><span class="cs-field-label" id="cs-person-label">Medarbejder</span><select id="cs-edit-person" hidden aria-hidden="true" tabindex="-1"><option value="">Ledig vagt</option></select>
               <button id="cs-person-trigger" class="cs-person-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cs-person-picker" aria-labelledby="cs-person-label cs-person-selected-name"><span id="cs-person-selected-name" class="cs-person-selected-name">Ledig vagt</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
@@ -131,30 +136,22 @@
             </div>
           </section>
           <div id="cs-repeat-field" class="cs-repeat-toggle"><label><input id="cs-edit-repeat" type="checkbox"><span>Gentag vagten</span></label></div>
-          <section id="cs-repeat-options" class="cs-editor-section cs-repeat-options" hidden>
-            <h4 class="cs-series-section-title">Periode</h4>
-            <p id="cs-series-operation-note" class="cs-series-operation-note" hidden></p>
-            <div class="cs-series-period-presets" role="group" aria-label="Vælg periodens længde"><button type="button" class="cs-button" data-series-months="1" aria-pressed="false">1 måned</button><button type="button" class="cs-button" data-series-months="3" aria-pressed="false">3 måneder</button><button id="cs-repeat-six" type="button" class="cs-button" data-series-months="6" aria-pressed="false">6 måneder</button><button id="cs-repeat-unlimited" type="button" class="cs-button" data-series-unlimited aria-pressed="false">Uden slutdato</button></div>
-            <div class="cs-field-pair"><div class="cs-field"><label class="cs-field-label" id="cs-series-start-label" for="cs-repeat-start">Startdato</label><input type="date" id="cs-repeat-start"></div><div id="cs-repeat-end-field" class="cs-field"><label class="cs-field-label" for="cs-repeat-end">Slutdato</label><input type="date" id="cs-repeat-end"></div></div>
-            <p id="cs-repeat-unlimited-hint" class="cs-field-help" hidden>Gentages, indtil du afslutter serien.</p>
-          </section>
           <details id="cs-description-details" class="cs-series-description-details"><summary id="cs-description-summary"><span>Beskrivelse og tjekliste</span><span id="cs-description-summary-meta"></span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
           <div class="cs-field cs-description-field"><span id="cs-description-label" class="cs-sr">Beskrivelse</span><div id="cs-description-editor" aria-labelledby="cs-description-label"></div><textarea id="cs-edit-note" hidden aria-hidden="true" tabindex="-1"></textarea></div>
           </details>
           <div id="cs-checklist-planner-progress" class="cs-checklist-planner-progress" hidden></div>
           <div id="cs-edit-error" class="cs-editor-error" role="alert" hidden></div>
          </div>
-         <aside id="cs-series-planning-preview" class="cs-series-planning-preview" aria-label="Forhåndsvisning af vagtserien" hidden>
-          <span class="cs-series-preview-eyebrow">Aftalen</span><p id="cs-series-sentence" class="cs-series-sentence"></p>
+         <aside id="cs-series-planning-preview" class="cs-series-planning-preview" aria-labelledby="cs-series-preview-heading" hidden>
+          <h4 id="cs-series-preview-heading" class="cs-series-preview-heading">Forhåndsvisning</h4>
+          <p id="cs-series-sentence" class="cs-series-sentence" hidden></p>
           <div id="cs-series-preview" class="cs-series-preview" role="status" aria-live="polite" hidden></div>
           <div id="cs-series-calendar" class="cs-series-calendar"></div>
-          <div class="cs-series-next-head"><h4 id="cs-series-next-title">De næste vagter</h4></div><ol id="cs-series-next-dates" class="cs-series-next-dates"></ol>
           <details id="cs-series-exceptions" class="cs-series-exceptions" hidden><summary id="cs-series-exceptions-title">Manuelle ændringer</summary><label class="cs-exceptions-field" id="cs-exceptions-field" hidden><input type="checkbox" id="cs-preserve-exceptions" checked><span><strong>Behold manuelle ændringer</strong><small id="cs-exceptions-summary"></small></span></label><ul id="cs-series-exception-list" class="cs-series-exception-list"></ul></details>
-          <p class="cs-series-draft-note">Gemmer som kladde. Medarbejderne ser ændringerne, når planen udgives.</p>
          </aside>
         </div>
         <div id="cs-series-delete-confirm" class="cs-series-delete-confirm" hidden role="alert"><strong>Slet vagtserie?</strong><p id="cs-series-delete-message"></p><div><button id="cs-series-delete-cancel" type="button" class="cs-button">Annuller</button><button id="cs-series-delete-apply" type="button" class="cs-button">Slet vagter</button></div></div>
-        <div class="cs-editor-actions"><button id="cs-delete" type="button" class="cs-button cs-quiet cs-delete cursor-interaction"><i data-lucide="trash-2" aria-hidden="true"></i>Slet vagt</button><span id="cs-edit-budget-impact" hidden role="status" aria-live="polite"></span><button id="cs-save" type="button" class="cs-button cs-primary cursor-interaction"><span id="cs-save-label">Gem ændringer</span><i data-lucide="check" aria-hidden="true"></i></button></div>
+        <div class="cs-editor-actions"><button id="cs-delete" type="button" class="cs-button cs-quiet cs-delete cursor-interaction"><i data-lucide="trash-2" aria-hidden="true"></i>Slet vagt</button><span id="cs-edit-budget-impact" hidden role="status" aria-live="polite"></span><div class="cs-editor-save"><span class="cs-series-draft-note" data-series-only hidden>Gemmes som kladde</span><button id="cs-save" type="button" class="cs-button cs-primary cursor-interaction"><span id="cs-save-label">Gem ændringer</span><i data-lucide="check" aria-hidden="true"></i></button></div></div>
       </form>
     </section>
   </div>

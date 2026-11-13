@@ -116,7 +116,7 @@ test('the actual editor saves an open-ended template and keeps future calendar r
  const app=application(),Engine=require('../src/series-engine.js');app.state.demoSeed=false;
  app.openSeriesEditor(app.state.series[0],app.control('#fixture-open'));app.scope('all');app.chooseSeriesLength(null);
  const draft=app.readSeriesDraft();assert.equal(draft.openEnded,true);assert.equal(draft.endDate,Engine.OPEN_END);
- assert.equal(app.control('#cs-repeat-end').disabled,true);assert.equal(app.control('#cs-repeat-end').required,false);assert.equal(app.control('#cs-repeat-end-field').hidden,true);assert.equal(app.control('#cs-repeat-unlimited-hint').hidden,false);
+ assert.equal(app.control('#cs-repeat-end').disabled,true);assert.equal(app.control('#cs-repeat-end').required,false);assert.equal(app.control('#cs-repeat-end-field').hidden,true);
  assert.match(app.control('#cs-series-preview').textContent,/Uden slutdato/);assert.doesNotMatch(app.control('#cs-series-preview').textContent,/2100/);
  const projection=app.editorProjection();assert.ok(projection.ranges.every(range=>(Date.parse(range.to)-Date.parse(range.from))/86400000<366&&range.to<'2030'));
  app.save();assert.equal(app.persisted(),1);assert.equal(app.state.series.length,1);assert.equal(app.state.series[0].openEnded,true);
@@ -126,7 +126,7 @@ test('the actual editor saves an open-ended template and keeps future calendar r
 test('1, 3 and 6 month choices leave the open-ended mode and a finite conversion can be saved',()=>{
  const app=application(),Engine=require('../src/series-engine.js');app.state.demoSeed=false;Object.assign(app.state.series[0],{openEnded:true,endDate:Engine.OPEN_END});
  app.openSeriesEditor(app.state.series[0],app.control('#fixture-open'));app.scope('all');
- for(const months of [1,3,6]){app.chooseSeriesLength(null);app.chooseSeriesLength(months);const draft=app.readSeriesDraft();assert.equal(draft.openEnded,false);assert.equal(draft.endDate,Engine.addMonths(draft.startDate,months));assert.equal(app.control('#cs-repeat-end').disabled,false);assert.equal(app.control('#cs-repeat-end-field').hidden,false);assert.equal(app.control('#cs-repeat-unlimited-hint').hidden,true);}
+ for(const months of [1,3,6]){app.chooseSeriesLength(null);app.chooseSeriesLength(months);const draft=app.readSeriesDraft();assert.equal(draft.openEnded,false);assert.equal(draft.endDate,Engine.addMonths(draft.startDate,months));assert.equal(app.control('#cs-repeat-end').disabled,false);assert.equal(app.control('#cs-repeat-end-field').hidden,false);}
  assert.match(app.control('#cs-series-preview').textContent,/Serien afsluttes/);assert.doesNotMatch(app.control('#cs-series-preview').textContent,/Ingen vagter ændres/);
  app.save();assert.equal(app.persisted(),1);assert.equal(app.state.series[0].openEnded,false);assert.equal(app.shiftsInRange('2031-01-01','2031-01-07').length,0);
 });
@@ -241,7 +241,8 @@ test('effective live preview and transaction preserve detached exceptions and ca
   app.state.edits[special.id]={...special,start:'17:00',end:'19:00',...rich('Særbesøg')};app.state.deleted=[cancelled.id];
   app.begin(special,{scope:'all'});app.days([0]);app.updatePreview();
   const summary=app.control('#cs-series-preview').textContent;
-  assert.equal(app.control('#cs-series-preview').dataset.valid,'true');assert.match(summary,/1 særændring og 1 aflysning bevares/);
+  assert.equal(app.control('#cs-series-preview').dataset.valid,'true');
+  assert.match(app.control('#cs-exceptions-summary').textContent,/1 særændring og 1 aflysning bevares/);
   const draft=app.readSeriesDraft(),preview=require('../src/series-planner.js').preview({draft:plain(draft),source:plain(series),scope:'all',edits:plain(app.state.edits),deleted:Array.from(app.state.deleted),preserve:true,today:'2026-10-30'});
   assert.ok(preview.detached.some(shift=>shift.id===special.id));assert.match(summary,new RegExp('^'+preview.total+'vagter efter gemning'));
   app.save();assert.equal(app.persisted(),1);assert.equal(app.state.edits[special.id].seriesId,undefined);assert.equal(app.state.edits[special.id].note,'Særbesøg');
@@ -260,7 +261,7 @@ test('a detached exception cannot make an empty recurrence look savable, and sin
   const app=application(),special=app.at('2026-11-03');app.state.edits[special.id]={...special,start:'17:00',end:'19:00',...rich('Bevar særbesøget')};
   app.begin(special,{scope:'all'});app.control('#cs-repeat-start').value='2026-11-04';app.control('#cs-repeat-end').value='2026-11-04';app.days([1]);app.updatePreview();
   assert.equal(app.control('#cs-series-preview').dataset.valid,'false');assert.match(app.control('#cs-series-preview').textContent,/ingen planlagte vagter/);
-  assert.equal(app.control('#cs-save').disabled,true);assert.equal(app.control('#cs-series-next-dates').children.some(row=>row.tagName==='LI'&&row.children.length>0),false);
+  assert.equal(app.control('#cs-save').disabled,true);assert.equal(app.control('#cs-series-calendar').hidden,true);
   assert.equal(app.persisted(),0);
   app.scope('one');assert.equal(app.control('#cs-save').disabled,false,'The real staffing refresh must release a valid single edit from the series preview state.');
 });
@@ -478,7 +479,7 @@ test('duration controls react immediately while a changed series horizon waits f
  const app=application(),client=periodClient(app);app.state.demoSeed=false;
  app.openSeriesEditor(app.state.series[0],app.control('#fixture-open'));await client.reply(0);
  app.chooseSeriesLength(null);assert.equal(client.reads.length,2);assert.equal(app.planningStatus().busy,true);
- assert.equal(app.control('#cs-repeat-unlimited').getAttribute('aria-pressed'),'true');assert.equal(app.control('#cs-repeat-end-field').hidden,true);assert.equal(app.control('#cs-repeat-end').disabled,true);assert.equal(app.control('#cs-repeat-end').required,false);assert.equal(app.control('#cs-repeat-unlimited-hint').hidden,false);assert.equal(app.control('#cs-save').disabled,true);
+ assert.equal(app.control('#cs-repeat-unlimited').getAttribute('aria-pressed'),'true');assert.equal(app.control('#cs-repeat-end-field').hidden,true);assert.equal(app.control('#cs-repeat-end').disabled,true);assert.equal(app.control('#cs-repeat-end').required,false);assert.equal(app.control('#cs-save').disabled,true);
  await client.reply(1);assert.match(app.control('#cs-series-preview').textContent,/Uden slutdato/);assert.equal(app.planningStatus().busy,false);assert.equal(app.persisted(),0);
 });
 

@@ -6453,71 +6453,90 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page] .cs-series-description-details .cs-description-field{margin:0}
 #cleanrooms-studio[data-page] .cs-editor{transition:width 180ms cubic-bezier(.2,.7,.3,1)}
 #cleanrooms-studio[data-page] #cs-editor-layer &gt; .cs-editor.cs-series-editor{width:min(920px,100%)}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:grid;grid-template-columns:minmax(0,1fr) 272px;align-content:start;align-items:start;gap:28px;padding-block:24px}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:24px}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:16px;padding:0 0 24px;border-bottom:1px solid var(--cs-access-line)}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{
+  --cs-overlay-label:5px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,35%);
+  align-content:start;
+  align-items:start;
+  gap:24px;
+  padding-block:18px;
+}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:16px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:10px}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section .cs-field{margin:0}
-#cleanrooms-studio[data-page] .cs-series-section-title{display:flex;align-items:center;gap:10px;margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:600;line-height:22px;letter-spacing:-.1px}
+#cleanrooms-studio[data-page] :is(.cs-series-section-title,.cs-series-preview-heading){margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:600;line-height:20px}
+#cleanrooms-studio[data-page] .cs-series-section-title{display:flex;align-items:center;gap:10px}
 #cleanrooms-studio[data-page] .cs-series-section-title &gt; span{color:var(--cs-access-muted);font-size:10px;font-weight:500;letter-spacing:.04em;font-variant-numeric:tabular-nums}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-scope-field .cs-field-label{font-size:12px;color:var(--cs-access-muted)}
 #cleanrooms-studio[data-page] .cs-series-scope-block{display:flex;flex-direction:column;gap:8px;min-width:0}
 #cleanrooms-studio[data-page] .cs-series-scope-block &gt; .cs-field{margin:0}
 #cleanrooms-studio[data-page] .cs-series-scope-help{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-days{margin:0}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-options &gt; .cs-field-pair .cs-field-label{min-height:20px}
+#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-repeat-options .cs-field-pair .cs-field-label{min-height:20px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-options{margin:0}
 #cleanrooms-studio[data-page] .cs-series-period-presets{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
 #cleanrooms-studio[data-page][data-role] .cs-series-period-presets &gt; .cs-button{flex:1 1 90px;background:var(--cs-access-surface);box-shadow:none}
 #cleanrooms-studio[data-page][data-role] .cs-series-period-presets &gt; .cs-button[aria-pressed=&quot;true&quot;]{border-color:var(--cs-access-blue);background:var(--cs-access-blue-soft);color:var(--cs-access-blue);box-shadow:inset 0 1px 2px #29343c08}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details{border-bottom:1px solid var(--cs-access-line);padding-bottom:20px}
 #cleanrooms-studio[data-page] .cs-series-description-details &gt; summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;list-style:none;cursor:pointer;color:var(--cs-access-ink);font-size:14px;font-weight:600}
 #cleanrooms-studio[data-page] .cs-series-description-details &gt; summary::-webkit-details-marker{display:none}
 #cleanrooms-studio[data-page] #cs-description-summary-meta{margin-left:auto;color:var(--cs-access-muted);font-size:11px;font-weight:400;text-align:right}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-description-details[open] &gt; .cs-description-field{margin-top:16px}
 
-/* The preview explains the effective plan, including retained exceptions. */
-#cleanrooms-studio[data-page] .cs-series-planning-preview{position:sticky;top:0;min-width:0;margin:0;padding:18px;background:#f3f6f6;border:1px solid #dce4e6;border-radius:8px;color:var(--cs-access-body)}
-#cleanrooms-studio[data-page] .cs-series-preview-eyebrow{display:block;margin:0 0 10px;color:var(--cs-access-muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-#cleanrooms-studio[data-page] .cs-series-sentence{margin:0;color:var(--cs-access-ink);font-size:14px;font-weight:500;line-height:23px;overflow-wrap:anywhere}
-#cleanrooms-studio[data-page] .cs-series-editor .cs-series-preview{margin:18px 0;padding:16px 0;border-color:#d6dfe1;color:var(--cs-access-body);line-height:19px}
+/* A single boundary separates the preview from the editable fields. */
+#cleanrooms-studio[data-page] .cs-series-planning-preview{
+  position:sticky;
+  top:0;
+  min-width:0;
+  margin:0;
+  padding-inline-start:20px;
+  border-inline-start:1px solid var(--cs-access-line);
+  color:var(--cs-access-body);
+}
+#cleanrooms-studio[data-page] .cs-series-sentence{margin:6px 0 0;color:var(--cs-access-muted);font-size:12px;line-height:18px;overflow-wrap:anywhere}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-series-preview{
+  margin:10px 0 14px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--cs-access-body);
+  line-height:18px;
+}
 #cleanrooms-studio[data-page] .cs-series-result-total{display:flex;align-items:baseline;gap:8px}
-#cleanrooms-studio[data-page] .cs-series-result-total strong{font-size:28px;font-weight:600;line-height:34px;letter-spacing:-1px;color:var(--cs-access-ink);font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-result-total span{font-size:12px;color:var(--cs-access-muted)}
-#cleanrooms-studio[data-page] .cs-series-result-effect{margin:6px 0 0;font-size:11px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-result-preserved{margin:8px 0 0;color:var(--cs-access-muted);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-series-result-total strong{font-size:23px;font-weight:600;line-height:28px;letter-spacing:-.5px;color:var(--cs-access-ink);font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-series-result-total span{font-size:12px;color:var(--cs-access-body)}
+#cleanrooms-studio[data-page] :is(.cs-series-result-period,.cs-series-result-effect){margin:3px 0 0;color:var(--cs-access-muted);font-size:12px;font-variant-numeric:tabular-nums}
+#cleanrooms-studio[data-page] .cs-series-result-preserved{margin:8px 0 0;color:var(--cs-access-muted);font-size:12px;line-height:18px}
 #cleanrooms-studio[data-page] .cs-series-preview-error{margin:0;color:var(--cs-access-danger,#a34d43);font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-calendar h4{margin:0 0 10px;color:var(--cs-access-ink);font-size:12px;font-weight:600;line-height:20px;text-transform:capitalize}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;min-width:0}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid &gt; span{display:flex;align-items:center;justify-content:center;min-width:0;min-height:26px;font-size:11px;font-variant-numeric:tabular-nums}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid &gt; .cs-series-calendar-weekday{min-height:20px;color:var(--cs-access-muted);font-size:10px}
 #cleanrooms-studio[data-page] .cs-series-calendar-grid &gt; .has-shift{border:1px solid #c2cfd5;border-radius:4px;background:#e2eaf0;color:#354e5e;font-weight:600}
-#cleanrooms-studio[data-page] .cs-series-next-head{margin-top:20px}
-#cleanrooms-studio[data-page] .cs-series-next-head h4{margin:0;font-size:12px;font-weight:600;color:var(--cs-access-ink)}
-#cleanrooms-studio[data-page] .cs-series-next-dates{list-style:none;margin:8px 0 0;padding:0}
-#cleanrooms-studio[data-page] .cs-series-next-dates li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #dce4e6;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
-#cleanrooms-studio[data-page] .cs-series-next-dates li:last-child{border-bottom:0}
-#cleanrooms-studio[data-page] .cs-series-next-dates li span{white-space:nowrap;color:var(--cs-access-muted)}
-#cleanrooms-studio[data-page] .cs-series-exceptions{margin-top:16px;border-top:1px solid #dce4e6;padding-top:12px}
+#cleanrooms-studio[data-page] .cs-series-exceptions{margin-top:14px;border-top:1px solid var(--cs-access-line);padding-top:10px}
 #cleanrooms-studio[data-page] .cs-series-exceptions &gt; summary{cursor:pointer;color:var(--cs-access-ink);font-size:12px;line-height:20px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field{margin:12px 0 0;padding:0;border:0;border-radius:0;background:none;gap:8px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field strong{font-size:11px}
 #cleanrooms-studio[data-page] .cs-series-exceptions .cs-exceptions-field small{font-size:11px;line-height:18px}
-#cleanrooms-studio[data-page] .cs-series-exception-list{max-height:160px;overflow-y:auto;margin:8px 0 0;padding-left:16px;color:var(--cs-access-muted);font-size:11px;line-height:20px}
-#cleanrooms-studio[data-page] .cs-series-draft-note{margin:16px 0 0;color:var(--cs-access-muted);font-size:11px;line-height:18px}
+#cleanrooms-studio[data-page] .cs-series-exception-list{margin:8px 0 0;padding-left:16px;color:var(--cs-access-muted);font-size:11px;line-height:20px}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-editor-actions{align-items:center}
+#cleanrooms-studio[data-page] .cs-editor-save{display:flex;align-items:center;gap:10px;min-width:0;margin-inline-start:auto}
+#cleanrooms-studio[data-page] .cs-editor-save &gt; #cs-save{flex-shrink:0}
+#cleanrooms-studio[data-page] .cs-series-draft-note{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:16px;text-align:right}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm{flex-shrink:0;padding:12px var(--cs-overlay-gutter);border-top:1px solid #dfc4c0;background:#fff7f6;color:#8e3933;font-size:12px;line-height:19px}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm p{margin:4px 0 12px}
 #cleanrooms-studio[data-page] .cs-series-delete-confirm &gt; div{display:flex;justify-content:flex-end;gap:8px}
 #cleanrooms-studio[data-page][data-role] #cs-series-delete-apply{border-color:#a34d43;background:#a34d43;color:#fff}
 @media(max-width:760px){
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:flex;align-items:stretch;gap:20px;padding-block:16px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:20px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{gap:16px;padding-bottom:20px}
- #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static;width:100%;padding:16px}
+ #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{display:flex;align-items:stretch;gap:18px;padding-block:14px}
+ #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static;padding:14px 0 0;border-inline-start:0;border-block-start:1px solid var(--cs-access-line)}
  #cleanrooms-studio[data-page] .cs-series-calendar-grid &gt; span{min-height:30px}
 }
 @media(max-height:540px){
  #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-fields{padding-block:12px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-primary{gap:16px}
- #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-section{padding-bottom:16px}
+ #cleanrooms-studio[data-page] .cs-series-planning-preview{position:static}
+}
+@media(max-width:520px){
+ #cleanrooms-studio[data-page] .cs-series-editor .cs-editor-actions:has(#cs-delete:not([hidden])) .cs-editor-save{flex-direction:column;align-items:flex-end;gap:3px}
 }
 @media(prefers-reduced-motion:reduce){#cleanrooms-studio[data-page] .cs-editor{transition:none}}
 /* Optional detail stays quiet until the planner needs it. */
@@ -6527,7 +6546,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio[data-page] .cs-day-time-row{display:grid;grid-template-columns:minmax(70px,.8fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center;padding:0}
 #cleanrooms-studio[data-page] .cs-day-time-name{font-size:13px;font-weight:500;color:var(--cs-access-ink)}
 #cleanrooms-studio[data-page] .cs-day-time-row input{box-sizing:border-box;display:block;width:100%;min-width:0;height:var(--cs-ui-height);min-height:var(--cs-ui-height);border:1px solid var(--cs-ui-border);border-radius:var(--cs-ui-radius);background:var(--cs-ui-field);padding:0 10px;color:var(--cs-ui-ink);font:inherit;font-size:14px;font-variant-numeric:tabular-nums;box-shadow:var(--cs-ui-shadow)}
-#cleanrooms-studio[data-page] .cs-series-operation-note{margin:0;padding:12px 14px;border:1px solid #ccd6dc;border-radius:6px;background:#f0f4f6;color:#50616a;font-size:12px;line-height:1.65}
+#cleanrooms-studio[data-page] .cs-series-operation-note{margin:0;color:var(--cs-access-muted);font-size:12px;line-height:18px}
 #cleanrooms-studio[data-page] #cs-repeat-start[readonly]{background:#f0f3f4;color:#63717a;cursor:default}
 #cleanrooms-studio[data-page] .cs-series-calendar-head{display:grid;grid-template-columns:30px minmax(0,1fr) 30px;gap:8px;align-items:center;margin-bottom:10px}
 #cleanrooms-studio[data-page] .cs-series-calendar-head h4{text-align:center;margin:0;font-size:12px}
@@ -6552,6 +6571,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 #cleanrooms-studio .cs-repeat-pattern-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
 #cleanrooms-studio .cs-repeat-pattern-heading .cs-field-label{margin:0}
+#cleanrooms-studio[data-page] .cs-series-editor .cs-repeat-pattern-heading{gap:8px;margin-bottom:6px}
 #cleanrooms-studio .cs-repeat-interval-field{display:block;min-width:160px;margin:0}
 #cleanrooms-studio .cs-repeat-interval-field select{width:100%}
 
@@ -9210,31 +9230,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:#f5f7f8;
 }
 
-/* The effective agreement stays visibly separate from the editable form. */
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-fields{column-gap:24px}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-editor-section{border-bottom-color:#e6ebee}
-#cleanrooms-studio[data-page][data-role] .cs-series-section-title{
-  color:var(--cs-access-ink,#29343c);
-  font-size:13px;
-  line-height:20px;
-}
-#cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{
-  padding:18px;
-  border:0;
-  border-radius:6px;
-  background:#f5f7f8;
-  box-shadow:inset 0 0 0 1px #e1e6ea;
-}
-#cleanrooms-studio[data-page][data-role] .cs-series-preview-eyebrow{color:#74818b}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-preview{border-color:#dfe6ea}
-#cleanrooms-studio[data-page][data-role] .cs-series-editor .cs-series-description-details{border-bottom-color:#e6ebee}
-#cleanrooms-studio[data-page][data-role] .cs-series-operation-note{
-  padding:12px;
-  border-color:#dfe6ea;
-  border-radius:6px;
-  background:#f5f7f8;
-}
-
 /* Small dialogs keep the same title scale and gutter without changing flow. */
 #cleanrooms-studio[data-page][data-role] :is(.cs-review-dialog,.cs-page-help-dialog,.cs-accounts-help-dialog){border-radius:8px}
 #cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:24px}
@@ -9244,7 +9239,6 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 @media(max-width:760px){
   #cleanrooms-studio[data-page][data-role] :is(.cs-editor-head,.cs-review-head,.cs-operations-head,.cs-department-head,.cs-page-help-head,.cs-accounts-help-head){min-height:60px}
-  #cleanrooms-studio[data-page][data-role] .cs-series-planning-preview{padding:16px}
   #cleanrooms-studio[data-page][data-role] .cs-review-dialog{padding:20px}
 }
 @media(max-height:540px){
@@ -11544,15 +11538,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color:var(--cs-access-ink);
   font-weight:700;
 }
-#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] :is(
-  .cs-series-planning-preview,.cs-series-operation-note,
-  .cs-department-popover-footer
-) {
+#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-department-popover-footer {
   border-color:var(--cs-compass-rule);
   background:var(--cs-access-soft);
-}
-#cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-series-planning-preview {
-  box-shadow:inset 0 0 0 1px var(--cs-compass-rule);
 }
 #cleanrooms-studio:is([data-page=&quot;schedule&quot;],[data-page=&quot;series&quot;])[data-role=&quot;admin&quot;] .cs-editor :is(.cs-repeat-days,.cs-series-period-presets)&gt;button[aria-pressed=&quot;true&quot;] {
   border-color:var(--cs-access-ink);
@@ -13798,15 +13786,16 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
            &lt;div class=&quot;cs-shift-availability-actions&quot;&gt;&lt;button id=&quot;cs-edit-sickness&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet&quot; hidden&gt;Meld syg&lt;/button&gt;&lt;button id=&quot;cs-edit-find-replacement&quot; type=&quot;button&quot; class=&quot;cs-button cs-replacement-shortcut&quot; hidden&gt;Find afløser&lt;/button&gt;&lt;/div&gt;
           &lt;/div&gt;
           &lt;div id=&quot;cs-demo-editor-guide&quot; class=&quot;cs-demo-editor-guide&quot; hidden role=&quot;note&quot;&gt;&lt;/div&gt;
-          &lt;div id=&quot;cs-series-scope-block&quot; class=&quot;cs-series-scope-block&quot; hidden&gt;&lt;label class=&quot;cs-field cs-scope-field&quot; id=&quot;cs-scope-field&quot; hidden&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Anvend ændringen på&lt;/span&gt;&lt;select id=&quot;cs-edit-scope&quot;&gt;&lt;option value=&quot;one&quot;&gt;Kun denne vagt&lt;/option&gt;&lt;option value=&quot;future&quot;&gt;Denne og kommende vagter&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Hele vagtserien&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+          &lt;div id=&quot;cs-series-scope-block&quot; class=&quot;cs-series-scope-block&quot; hidden&gt;&lt;label class=&quot;cs-field cs-scope-field&quot; id=&quot;cs-scope-field&quot; hidden&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Ændringen gælder&lt;/span&gt;&lt;select id=&quot;cs-edit-scope&quot;&gt;&lt;option value=&quot;one&quot;&gt;Kun denne vagt&lt;/option&gt;&lt;option value=&quot;future&quot;&gt;Denne og kommende vagter&lt;/option&gt;&lt;option value=&quot;all&quot;&gt;Hele vagtserien&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
           &lt;p id=&quot;cs-series-scope-help&quot; class=&quot;cs-series-scope-help&quot; hidden&gt;&lt;/p&gt;
           &lt;/div&gt;
+          &lt;p id=&quot;cs-series-operation-note&quot; class=&quot;cs-series-operation-note&quot; hidden&gt;&lt;/p&gt;
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-pattern&quot;&gt;
             &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Ugemønster&lt;/h4&gt;
             &lt;h4 class=&quot;cs-shift-timing-title&quot; data-single-only&gt;Tidspunkt&lt;/h4&gt;
             &lt;div class=&quot;cs-field&quot; id=&quot;cs-single-date-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-edit-date&quot;&gt;Dato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-edit-date&quot; required&gt;&lt;/div&gt;
             &lt;div id=&quot;cs-repeat-days-field&quot; hidden&gt;
-            &lt;div class=&quot;cs-repeat-pattern-heading&quot;&gt;&lt;div class=&quot;cs-field-label&quot;&gt;Arbejdsdage&lt;/div&gt;&lt;label class=&quot;cs-repeat-interval-field&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Gentagelse&lt;/span&gt;&lt;select id=&quot;cs-repeat-interval&quot; aria-label=&quot;Gentagelse&quot;&gt;&lt;option value=&quot;1&quot;&gt;Hver uge&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Hver anden uge&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
+            &lt;div class=&quot;cs-repeat-pattern-heading&quot;&gt;&lt;div class=&quot;cs-field-label&quot;&gt;Ugedage&lt;/div&gt;&lt;label class=&quot;cs-repeat-interval-field&quot;&gt;&lt;span class=&quot;cs-sr&quot;&gt;Gentagelse&lt;/span&gt;&lt;select id=&quot;cs-repeat-interval&quot; aria-label=&quot;Gentagelse&quot;&gt;&lt;option value=&quot;1&quot;&gt;Hver uge&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Hver anden uge&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
             &lt;div class=&quot;cs-repeat-days&quot; role=&quot;group&quot; aria-label=&quot;Vælg faste ugedage&quot;&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;0&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Mandag&quot; title=&quot;Mandag&quot; class=&quot;cursor-interaction&quot;&gt;Man&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;1&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Tirsdag&quot; title=&quot;Tirsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tir&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;2&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Onsdag&quot; title=&quot;Onsdag&quot; class=&quot;cursor-interaction&quot;&gt;Ons&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;3&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Torsdag&quot; title=&quot;Torsdag&quot; class=&quot;cursor-interaction&quot;&gt;Tor&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;4&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Fredag&quot; title=&quot;Fredag&quot; class=&quot;cursor-interaction&quot;&gt;Fre&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;5&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Lørdag&quot; title=&quot;Lørdag&quot; class=&quot;cursor-interaction&quot;&gt;Lør&lt;/button&gt;&lt;button type=&quot;button&quot; data-repeat-day=&quot;6&quot; aria-pressed=&quot;false&quot; aria-label=&quot;Søndag&quot; title=&quot;Søndag&quot; class=&quot;cursor-interaction&quot;&gt;Søn&lt;/button&gt;&lt;/div&gt;
             &lt;/div&gt;
             &lt;label id=&quot;cs-day-times-toggle&quot; class=&quot;cs-day-times-toggle&quot; hidden&gt;&lt;input id=&quot;cs-day-times-enabled&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Forskellige tider pr. dag&lt;/span&gt;&lt;/label&gt;
@@ -13815,8 +13804,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             &lt;div id=&quot;cs-day-times&quot; class=&quot;cs-day-times&quot; hidden&gt;&lt;/div&gt;
             &lt;p id=&quot;cs-day-break-help&quot; class=&quot;cs-field-help&quot; hidden&gt;Pauser er ulønnede og trækkes fra dagens planlagte timer.&lt;/p&gt;
           &lt;/section&gt;
+          &lt;section id=&quot;cs-repeat-options&quot; class=&quot;cs-editor-section cs-repeat-options&quot; hidden&gt;
+            &lt;h4 class=&quot;cs-series-section-title&quot;&gt;Periode&lt;/h4&gt;
+            &lt;div class=&quot;cs-field-pair&quot;&gt;&lt;div class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; id=&quot;cs-series-start-label&quot; for=&quot;cs-repeat-start&quot;&gt;Startdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-start&quot;&gt;&lt;/div&gt;&lt;div id=&quot;cs-repeat-end-field&quot; class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-repeat-end&quot;&gt;Slutdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-end&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div class=&quot;cs-series-period-presets&quot; role=&quot;group&quot; aria-label=&quot;Vælg periodens længde&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;1&quot; aria-pressed=&quot;false&quot;&gt;1 måned&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;3&quot; aria-pressed=&quot;false&quot;&gt;3 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-six&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;6&quot; aria-pressed=&quot;false&quot;&gt;6 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-unlimited&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-unlimited aria-pressed=&quot;false&quot;&gt;Uden slutdato&lt;/button&gt;&lt;/div&gt;
+          &lt;/section&gt;
           &lt;section class=&quot;cs-editor-section&quot; id=&quot;cs-editor-assignment&quot;&gt;
-            &lt;h4 class=&quot;cs-series-section-title&quot; data-series-only hidden&gt;Arbejdssted og medarbejder&lt;/h4&gt;
             &lt;label class=&quot;cs-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot;&gt;Arbejdssted&lt;/span&gt;&lt;select id=&quot;cs-edit-site&quot; data-select-only&gt;&lt;option value=&quot;0&quot;&gt;Kontor Nord&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;Klinikken&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;Havnegade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
             &lt;div class=&quot;cs-field cs-staffing-field&quot;&gt;&lt;span class=&quot;cs-field-label&quot; id=&quot;cs-person-label&quot;&gt;Medarbejder&lt;/span&gt;&lt;select id=&quot;cs-edit-person&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;option value=&quot;&quot;&gt;Ledig vagt&lt;/option&gt;&lt;/select&gt;
               &lt;button id=&quot;cs-person-trigger&quot; class=&quot;cs-person-trigger&quot; type=&quot;button&quot; aria-haspopup=&quot;dialog&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;cs-person-picker&quot; aria-labelledby=&quot;cs-person-label cs-person-selected-name&quot;&gt;&lt;span id=&quot;cs-person-selected-name&quot; class=&quot;cs-person-selected-name&quot;&gt;Ledig vagt&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
@@ -13835,30 +13828,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
             &lt;/div&gt;
           &lt;/section&gt;
           &lt;div id=&quot;cs-repeat-field&quot; class=&quot;cs-repeat-toggle&quot;&gt;&lt;label&gt;&lt;input id=&quot;cs-edit-repeat&quot; type=&quot;checkbox&quot;&gt;&lt;span&gt;Gentag vagten&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;
-          &lt;section id=&quot;cs-repeat-options&quot; class=&quot;cs-editor-section cs-repeat-options&quot; hidden&gt;
-            &lt;h4 class=&quot;cs-series-section-title&quot;&gt;Periode&lt;/h4&gt;
-            &lt;p id=&quot;cs-series-operation-note&quot; class=&quot;cs-series-operation-note&quot; hidden&gt;&lt;/p&gt;
-            &lt;div class=&quot;cs-series-period-presets&quot; role=&quot;group&quot; aria-label=&quot;Vælg periodens længde&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;1&quot; aria-pressed=&quot;false&quot;&gt;1 måned&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;3&quot; aria-pressed=&quot;false&quot;&gt;3 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-six&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-months=&quot;6&quot; aria-pressed=&quot;false&quot;&gt;6 måneder&lt;/button&gt;&lt;button id=&quot;cs-repeat-unlimited&quot; type=&quot;button&quot; class=&quot;cs-button&quot; data-series-unlimited aria-pressed=&quot;false&quot;&gt;Uden slutdato&lt;/button&gt;&lt;/div&gt;
-            &lt;div class=&quot;cs-field-pair&quot;&gt;&lt;div class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; id=&quot;cs-series-start-label&quot; for=&quot;cs-repeat-start&quot;&gt;Startdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-start&quot;&gt;&lt;/div&gt;&lt;div id=&quot;cs-repeat-end-field&quot; class=&quot;cs-field&quot;&gt;&lt;label class=&quot;cs-field-label&quot; for=&quot;cs-repeat-end&quot;&gt;Slutdato&lt;/label&gt;&lt;input type=&quot;date&quot; id=&quot;cs-repeat-end&quot;&gt;&lt;/div&gt;&lt;/div&gt;
-            &lt;p id=&quot;cs-repeat-unlimited-hint&quot; class=&quot;cs-field-help&quot; hidden&gt;Gentages, indtil du afslutter serien.&lt;/p&gt;
-          &lt;/section&gt;
           &lt;details id=&quot;cs-description-details&quot; class=&quot;cs-series-description-details&quot;&gt;&lt;summary id=&quot;cs-description-summary&quot;&gt;&lt;span&gt;Beskrivelse og tjekliste&lt;/span&gt;&lt;span id=&quot;cs-description-summary-meta&quot;&gt;&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/summary&gt;
           &lt;div class=&quot;cs-field cs-description-field&quot;&gt;&lt;span id=&quot;cs-description-label&quot; class=&quot;cs-sr&quot;&gt;Beskrivelse&lt;/span&gt;&lt;div id=&quot;cs-description-editor&quot; aria-labelledby=&quot;cs-description-label&quot;&gt;&lt;/div&gt;&lt;textarea id=&quot;cs-edit-note&quot; hidden aria-hidden=&quot;true&quot; tabindex=&quot;-1&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
           &lt;/details&gt;
           &lt;div id=&quot;cs-checklist-planner-progress&quot; class=&quot;cs-checklist-planner-progress&quot; hidden&gt;&lt;/div&gt;
           &lt;div id=&quot;cs-edit-error&quot; class=&quot;cs-editor-error&quot; role=&quot;alert&quot; hidden&gt;&lt;/div&gt;
          &lt;/div&gt;
-         &lt;aside id=&quot;cs-series-planning-preview&quot; class=&quot;cs-series-planning-preview&quot; aria-label=&quot;Forhåndsvisning af vagtserien&quot; hidden&gt;
-          &lt;span class=&quot;cs-series-preview-eyebrow&quot;&gt;Aftalen&lt;/span&gt;&lt;p id=&quot;cs-series-sentence&quot; class=&quot;cs-series-sentence&quot;&gt;&lt;/p&gt;
+         &lt;aside id=&quot;cs-series-planning-preview&quot; class=&quot;cs-series-planning-preview&quot; aria-labelledby=&quot;cs-series-preview-heading&quot; hidden&gt;
+          &lt;h4 id=&quot;cs-series-preview-heading&quot; class=&quot;cs-series-preview-heading&quot;&gt;Forhåndsvisning&lt;/h4&gt;
+          &lt;p id=&quot;cs-series-sentence&quot; class=&quot;cs-series-sentence&quot; hidden&gt;&lt;/p&gt;
           &lt;div id=&quot;cs-series-preview&quot; class=&quot;cs-series-preview&quot; role=&quot;status&quot; aria-live=&quot;polite&quot; hidden&gt;&lt;/div&gt;
           &lt;div id=&quot;cs-series-calendar&quot; class=&quot;cs-series-calendar&quot;&gt;&lt;/div&gt;
-          &lt;div class=&quot;cs-series-next-head&quot;&gt;&lt;h4 id=&quot;cs-series-next-title&quot;&gt;De næste vagter&lt;/h4&gt;&lt;/div&gt;&lt;ol id=&quot;cs-series-next-dates&quot; class=&quot;cs-series-next-dates&quot;&gt;&lt;/ol&gt;
           &lt;details id=&quot;cs-series-exceptions&quot; class=&quot;cs-series-exceptions&quot; hidden&gt;&lt;summary id=&quot;cs-series-exceptions-title&quot;&gt;Manuelle ændringer&lt;/summary&gt;&lt;label class=&quot;cs-exceptions-field&quot; id=&quot;cs-exceptions-field&quot; hidden&gt;&lt;input type=&quot;checkbox&quot; id=&quot;cs-preserve-exceptions&quot; checked&gt;&lt;span&gt;&lt;strong&gt;Behold manuelle ændringer&lt;/strong&gt;&lt;small id=&quot;cs-exceptions-summary&quot;&gt;&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;ul id=&quot;cs-series-exception-list&quot; class=&quot;cs-series-exception-list&quot;&gt;&lt;/ul&gt;&lt;/details&gt;
-          &lt;p class=&quot;cs-series-draft-note&quot;&gt;Gemmer som kladde. Medarbejderne ser ændringerne, når planen udgives.&lt;/p&gt;
          &lt;/aside&gt;
         &lt;/div&gt;
         &lt;div id=&quot;cs-series-delete-confirm&quot; class=&quot;cs-series-delete-confirm&quot; hidden role=&quot;alert&quot;&gt;&lt;strong&gt;Slet vagtserie?&lt;/strong&gt;&lt;p id=&quot;cs-series-delete-message&quot;&gt;&lt;/p&gt;&lt;div&gt;&lt;button id=&quot;cs-series-delete-cancel&quot; type=&quot;button&quot; class=&quot;cs-button&quot;&gt;Annuller&lt;/button&gt;&lt;button id=&quot;cs-series-delete-apply&quot; type=&quot;button&quot; class=&quot;cs-button&quot;&gt;Slet vagter&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
-        &lt;div class=&quot;cs-editor-actions&quot;&gt;&lt;button id=&quot;cs-delete&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet cs-delete cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;trash-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Slet vagt&lt;/button&gt;&lt;span id=&quot;cs-edit-budget-impact&quot; hidden role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;button id=&quot;cs-save&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;span id=&quot;cs-save-label&quot;&gt;Gem ændringer&lt;/span&gt;&lt;i data-lucide=&quot;check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;
+        &lt;div class=&quot;cs-editor-actions&quot;&gt;&lt;button id=&quot;cs-delete&quot; type=&quot;button&quot; class=&quot;cs-button cs-quiet cs-delete cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;trash-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Slet vagt&lt;/button&gt;&lt;span id=&quot;cs-edit-budget-impact&quot; hidden role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;div class=&quot;cs-editor-save&quot;&gt;&lt;span class=&quot;cs-series-draft-note&quot; data-series-only hidden&gt;Gemmes som kladde&lt;/span&gt;&lt;button id=&quot;cs-save&quot; type=&quot;button&quot; class=&quot;cs-button cs-primary cursor-interaction&quot;&gt;&lt;span id=&quot;cs-save-label&quot;&gt;Gem ændringer&lt;/span&gt;&lt;i data-lucide=&quot;check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;/form&gt;
     &lt;/section&gt;
   &lt;/div&gt;
@@ -16918,7 +16903,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(pending)notices.append(el(&#x27;p&#x27;,&#x27;cs-series-calendar-pending-note&#x27;,pending+(pending===1?&#x27; dato med afventende friønske&#x27;:&#x27; datoer med afventende friønsker&#x27;)));
       element.append(notices);
     }
-    const selected=value.days.get(value.selected);
+    const selected=value.selected?.slice(0,7)===value.month.slice(0,7) ? value.days.get(value.selected) : null;
     if(selected){
       const detail=el(&#x27;section&#x27;,&#x27;cs-series-date-detail&#x27;);detail.setAttribute(&#x27;aria-label&#x27;,&#x27;Detaljer for &#x27;+label(value.selected));detail.append(el(&#x27;h5&#x27;,null,label(value.selected)));
       selected.shifts.forEach(shift=&gt;detail.append(el(&#x27;p&#x27;,&#x27;cs-series-date-shift&#x27;,shift.start+&#x27;–&#x27;+shift.end+(shift.end&lt;shift.start?&#x27; +1 dag&#x27;:&#x27;&#x27;)+&#x27; · &#x27;+(options.personName?.(shift.person)||&#x27;&#x27;)+&#x27; · &#x27;+(sites[shift.site]?.name||&#x27;Arbejdssted&#x27;)+(shift.plannedBreakMinutes?&#x27; · &#x27;+shift.plannedBreakMinutes+&#x27; min pause&#x27;:&#x27;&#x27;))));
@@ -28935,7 +28920,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     q(&#x27;#cs-editor-title&#x27;).textContent=repeating?(editorOperation===&#x27;extend&#x27;?&#x27;Forlæng vagtserie&#x27;:editorOperation===&#x27;copy&#x27;?&#x27;Kopiér vagtserie&#x27;:source?&#x27;Rediger vagtserie&#x27;:&#x27;Opret vagtserie&#x27;):(activeEdit?.id?&#x27;Rediger vagt&#x27;:&#x27;Opret vagt&#x27;);
     syncDayTimeControls(repeating);
     q(&#x27;#cs-series-operation-note&#x27;).hidden=!repeating||![&#x27;copy&#x27;,&#x27;extend&#x27;].includes(editorOperation);
-    q(&#x27;#cs-series-operation-note&#x27;).textContent=editorOperation===&#x27;extend&#x27;?&#x27;Tilføjer en ny periode efter &#x27;+shortDate(editorExtension?.endDate||today)+&#x27;. Eksisterende vagter og særændringer bevares.&#x27;:&#x27;Kopi af ugemønster, beskrivelse og tjekliste. Vælg medarbejder og arbejdssted. Særændringer og udførte opgaver kopieres ikke.&#x27;;
+    q(&#x27;#cs-series-operation-note&#x27;).textContent=editorOperation===&#x27;extend&#x27;
+      ? &#x27;Den nye periode begynder efter &#x27;+shortDate(editorExtension?.endDate||today)+&#x27;.&#x27;
+      : &#x27;Kopien indeholder ugemønster, beskrivelse og tjekliste. Manuelle ændringer og afkrydsninger følger ikke med.&#x27;;
     const panel=q(&#x27;#cs-editor-layer .cs-editor&#x27;);panel.classList?.toggle(&#x27;cs-series-editor&#x27;,repeating);
     q(&#x27;#cs-repeat-days-field&#x27;).hidden=!repeating;q(&#x27;#cs-repeat-interval&#x27;).disabled=!repeating;q(&#x27;#cs-series-planning-preview&#x27;).hidden=!repeating;q(&#x27;#cs-series-scope-block&#x27;).hidden=!source;
     root.querySelectorAll(&#x27;[data-series-only]&#x27;).forEach(element=&gt;element.hidden=!repeating);
@@ -28949,8 +28936,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(oneOption){oneOption.hidden=editorSeriesManagement;oneOption.disabled=editorSeriesManagement;}
     const future=[...(q(&#x27;#cs-edit-scope&#x27;).options||[])].find(option=&gt;option.value===&#x27;future&#x27;);
     if(future){future.textContent=editorSeriesManagement?&#x27;Fra en dato og frem&#x27;:&#x27;Denne og kommende vagter&#x27;;future.disabled=Boolean(editorSeriesManagement&amp;&amp;source&amp;&amp;today&gt;source.endDate);}
-    q(&#x27;#cs-series-scope-help&#x27;).hidden=!repeating||!source;
-    q(&#x27;#cs-series-scope-help&#x27;).textContent=scope===&#x27;all&#x27;?&#x27;Hele serien ændres, også vagter før i dag.&#x27;:editorSeriesManagement?&#x27;Vagter før datoen i “Gælder fra” bevares.&#x27;:&#x27;Ændringen gælder den valgte vagt og resten af serien.&#x27;;
+    q(&#x27;#cs-series-scope-help&#x27;).hidden=!repeating||!source||scope!==&#x27;all&#x27;||source.startDate&gt;=today;
+    q(&#x27;#cs-series-scope-help&#x27;).textContent=&#x27;Ændringen omfatter også tidligere vagter i serien.&#x27;;
     q(&#x27;#cs-series-start-label&#x27;).textContent=source&amp;&amp;scope===&#x27;future&#x27;&amp;&amp;editorSeriesManagement?&#x27;Gælder fra&#x27;:&#x27;Startdato&#x27;;
     q(&#x27;#cs-repeat-start&#x27;).min=source&amp;&amp;scope===&#x27;future&#x27;?(editorSeriesManagement?[today,source.startDate].sort().at(-1):occurrenceAnchor(activeEdit.id,source.id)):&#x27;&#x27;;
     q(&#x27;#cs-repeat-start&#x27;).max=source&amp;&amp;scope===&#x27;future&#x27;&amp;&amp;editorSeriesManagement?source.endDate:&#x27;&#x27;;
@@ -28960,33 +28947,70 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function renderSeriesPlanningPreview(draft,source,scope) {
     if(!SeriesPlanner)return;
     const result=SeriesPlanner.preview({draft,source:source||null,scope:source?scope:&#x27;all&#x27;,cutoff:editorCutoff(source,scope),edits:state.edits,deleted:state.deleted,preserve:q(&#x27;#cs-preserve-exceptions&#x27;).checked,today});
-    const person=personName(draft.person),site=sites[draft.site]?.name||&#x27;det valgte arbejdssted&#x27;,days=draft.weekdays.map(day=&gt;dayNames[day].toLocaleLowerCase(&#x27;da-DK&#x27;));
-    const pattern=days.length&gt;1?days.slice(0,-1).join(&#x27;, &#x27;)+&#x27; og &#x27;+days.at(-1):days[0]||&#x27;de valgte dage&#x27;;
-    q(&#x27;#cs-series-sentence&#x27;).textContent=(draft.person?person:&#x27;Medarbejderen&#x27;)+&#x27; arbejder &#x27;+pattern+(Engine.weekInterval(draft)===2?&#x27; hver anden uge&#x27;:&#x27;&#x27;)+(Object.keys(draft.dayTimes||{}).length?&#x27; med tider pr. dag&#x27;:&#x27; kl. &#x27;+clockLabel(draft))+&#x27; hos &#x27;+site+&#x27;.&#x27;;
-    const previewValid=result.valid&amp;&amp;result.attached.length&gt;0,summary=q(&#x27;#cs-series-preview&#x27;);summary.replaceChildren();summary.dataset.valid=String(previewValid);
-    if(!previewValid)summary.append(node(&#x27;p&#x27;,&#x27;cs-series-preview-error&#x27;,result.errors[0]||&#x27;Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.&#x27;));
-    else{
-      const total=node(&#x27;div&#x27;,&#x27;cs-series-result-total&#x27;);total.append(node(&#x27;strong&#x27;,null,result.openEnded?&#x27;Uden slutdato&#x27;:String(result.total)),node(&#x27;span&#x27;,null,result.openEnded?(Engine.weekInterval(draft)===2?&#x27;gentages hver anden uge&#x27;:&#x27;gentages hver uge&#x27;):result.limited?&#x27;vagter i forhåndsvisningen&#x27;:editorOperation===&#x27;extend&#x27;?&#x27;nye vagter i forlængelsen&#x27;:&#x27;vagter efter gemning&#x27;));summary.append(total);
-      const effect=source?(Engine.isOpenEnded(source)&amp;&amp;!Engine.isOpenEnded(draft)?&#x27;Serien afsluttes &#x27;+shortDate(draft.endDate)+&#x27;.&#x27;:!Engine.isOpenEnded(source)&amp;&amp;Engine.isOpenEnded(draft)?&#x27;Serien fortsætter uden slutdato.&#x27;:result.changedCount?[result.updatedCount+&#x27; ændres&#x27;,result.createdCount+&#x27; nye&#x27;,result.removedCount+&#x27; udgår&#x27;].join(&#x27; · &#x27;):&#x27;Ingen vagter ændres.&#x27;):&#x27;Fra &#x27;+shortDate(draft.startDate)+(Engine.isOpenEnded(draft)?&#x27; · uden slutdato&#x27;:&#x27; til &#x27;+shortDate(draft.endDate));
-      summary.append(node(&#x27;p&#x27;,&#x27;cs-series-result-effect&#x27;,effect));
-      if(result.limited)summary.append(node(&#x27;p&#x27;,&#x27;cs-series-result-preserved&#x27;,&#x27;Forhåndsvisning: &#x27;+shortDate(result.range.from)+&#x27; – &#x27;+shortDate(result.range.to)+(result.openEnded?&#x27;. Serien fortsætter herefter.&#x27;:&#x27;.&#x27;)));
-      if(result.preservedCount||result.deletedCount)summary.append(node(&#x27;p&#x27;,&#x27;cs-series-result-preserved&#x27;,[result.preservedCount?result.preservedCount+(result.preservedCount===1?&#x27; særændring&#x27;:&#x27; særændringer&#x27;):null,result.deletedCount?result.deletedCount+(result.deletedCount===1?&#x27; aflysning&#x27;:&#x27; aflysninger&#x27;):null].filter(Boolean).join(&#x27; og &#x27;)+&#x27; bevares.&#x27;));
+    const previewValid = result.valid &amp;&amp; result.attached.length &gt; 0;
+    const sentence = q(&#x27;#cs-series-sentence&#x27;);
+    const summary = q(&#x27;#cs-series-preview&#x27;);
+    sentence.hidden = !previewValid;
+    summary.replaceChildren();
+    summary.dataset.valid = String(previewValid);
+    if (!previewValid) {
+      sentence.textContent = &#x27;&#x27;;
+      const message = result.errors[0] || &#x27;Perioden indeholder ingen planlagte vagter. Vælg andre dage eller datoer.&#x27;;
+      const waitingForPerson = result.errors.length === 1 &amp;&amp; !draft.person &amp;&amp; message === &#x27;Vælg en medarbejder.&#x27;;
+      summary.append(node(&#x27;p&#x27;, waitingForPerson ? &#x27;cs-series-result-effect&#x27; : &#x27;cs-series-preview-error&#x27;, message));
+    } else {
+      const days = draft.weekdays.map(day =&gt; dayNames[day].slice(0, 3).toLocaleLowerCase(&#x27;da-DK&#x27;) + &#x27;.&#x27;);
+      const cadence = Engine.weekInterval(draft) === 2 ? &#x27; hver anden uge&#x27; : &#x27;&#x27;;
+      const times = Object.keys(draft.dayTimes || {}).length ? &#x27;Tider pr. dag&#x27; : clockLabel(draft);
+      sentence.textContent = days.join(&#x27;, &#x27;) + cadence + &#x27; · &#x27; + times;
+      const total = node(&#x27;div&#x27;, &#x27;cs-series-result-total&#x27;);
+      const noun = result.total === 1 ? &#x27;vagt&#x27; : &#x27;vagter&#x27;;
+      const target = result.limited ? noun + &#x27; i forhåndsvisningen&#x27; : editorOperation === &#x27;extend&#x27;
+        ? (result.total === 1 ? &#x27;ny &#x27; : &#x27;nye &#x27;) + noun + &#x27; i forlængelsen&#x27; : noun + &#x27; efter gemning&#x27;;
+      total.append(node(&#x27;strong&#x27;, null, String(result.total)), node(&#x27;span&#x27;, null, target));
+      summary.append(total);
+
+      const formatDate = new Intl.DateTimeFormat(&#x27;da-DK&#x27;, {day:&#x27;numeric&#x27;,month:&#x27;short&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;});
+      const period = result.openEnded ? &#x27;Uden slutdato · fra &#x27; + formatDate.format(date(draft.startDate))
+        : formatDate.formatRange(date(draft.startDate), date(draft.endDate));
+      summary.append(node(&#x27;p&#x27;, &#x27;cs-series-result-period&#x27;, period));
+      if (result.limited) summary.append(node(&#x27;p&#x27;, &#x27;cs-series-result-effect&#x27;,
+        &#x27;Viser &#x27; + formatDate.formatRange(date(result.range.from), date(result.range.to))));
+      if (source) {
+        const effects = [
+          result.updatedCount &amp;&amp; result.updatedCount + &#x27; ændres&#x27;,
+          result.createdCount &amp;&amp; result.createdCount + (result.createdCount === 1 ? &#x27; ny&#x27; : &#x27; nye&#x27;),
+          result.removedCount &amp;&amp; result.removedCount + &#x27; udgår&#x27;
+        ].filter(Boolean);
+        if (Engine.isOpenEnded(source) &amp;&amp; !Engine.isOpenEnded(draft)) effects.unshift(&#x27;Serien afsluttes&#x27;);
+        if (effects.length) summary.append(node(&#x27;p&#x27;, &#x27;cs-series-result-effect&#x27;, effects.join(&#x27; · &#x27;)));
+        else if (Engine.isOpenEnded(source) === Engine.isOpenEnded(draft)) {
+          summary.append(node(&#x27;p&#x27;, &#x27;cs-series-result-effect&#x27;, result.limited ? &#x27;Ingen ændringer i forhåndsvisningen&#x27; : &#x27;Ingen vagter ændres&#x27;));
+        }
+      }
     }
-    const dates=previewValid?result.shifts.filter(shift=&gt;shift.date&gt;=today):[],next=dates.length?dates:previewValid?result.shifts:[];
-    q(&#x27;#cs-series-next-title&#x27;).textContent=dates.length?&#x27;De næste vagter&#x27;:&#x27;Vagter i perioden&#x27;;const list=q(&#x27;#cs-series-next-dates&#x27;);list.replaceChildren();
-    next.slice(0,4).forEach(shift=&gt;{const row=node(&#x27;li&#x27;);row.append(node(&#x27;time&#x27;,null,shortDate(shift.date)),node(&#x27;span&#x27;,null,clockLabel(shift)));list.append(row);});
-    if(!next.length)list.append(node(&#x27;li&#x27;,&#x27;cs-series-no-dates&#x27;,&#x27;Vælg medarbejder, dage og periode.&#x27;));
-    const calendar=q(&#x27;#cs-series-calendar&#x27;);calendar.replaceChildren();const focus=next[0]?.date||draft.startDate;
-    const calendarAssessment=seriesCalendarAssessment(draft,result,source,scope);seriesCalendarPreview={draft,result,assessment:calendarAssessment};
-    if(SeriesCalendar)renderSeriesCalendar();
-    else if(Actions.validDate(focus)){
+
+    const calendar = q(&#x27;#cs-series-calendar&#x27;);
+    const calendarAssessment = seriesCalendarAssessment(draft, result, source, scope);
+    calendar.hidden = !previewValid;
+    seriesCalendarPreview = previewValid ? {draft, result, assessment:calendarAssessment} : null;
+    if (!previewValid) calendar.replaceChildren();
+    else if (SeriesCalendar) renderSeriesCalendar();
+    else {
+      calendar.replaceChildren();
+      const focus = result.shifts.find(shift =&gt; shift.date &gt;= today)?.date || result.first?.date || draft.startDate;
       const first=focus.slice(0,7)+&#x27;-01&#x27;,month=date(first),label=month.toLocaleDateString(&#x27;da-DK&#x27;,{month:&#x27;long&#x27;,year:&#x27;numeric&#x27;,timeZone:&#x27;UTC&#x27;}),grid=node(&#x27;div&#x27;,&#x27;cs-series-calendar-grid&#x27;);
       calendar.setAttribute(&#x27;aria-label&#x27;,&#x27;Vagter i &#x27;+label);calendar.append(node(&#x27;h4&#x27;,null,label));[&#x27;M&#x27;,&#x27;T&#x27;,&#x27;O&#x27;,&#x27;T&#x27;,&#x27;F&#x27;,&#x27;L&#x27;,&#x27;S&#x27;].forEach(day=&gt;grid.append(node(&#x27;span&#x27;,&#x27;cs-series-calendar-weekday&#x27;,day)));
-      const offset=(month.getUTCDay()+6)%7,marked=new Set(previewValid?result.shifts.map(shift=&gt;shift.date):[]);
+      const offset=(month.getUTCDay()+6)%7,marked=new Set(result.shifts.map(shift=&gt;shift.date));
       for(let index=0;index&lt;offset;index++)grid.append(node(&#x27;span&#x27;,&#x27;cs-series-calendar-blank&#x27;));
       for(let day=first;day.slice(0,7)===first.slice(0,7);day=addDays(day,1)){const cell=node(&#x27;span&#x27;,&#x27;cs-series-calendar-date&#x27;+(marked.has(day)?&#x27; has-shift&#x27;:&#x27;&#x27;),String(Number(day.slice(-2))));if(marked.has(day))cell.setAttribute(&#x27;aria-label&#x27;,fullDate(day)+&#x27; · vagt&#x27;);grid.append(cell);}calendar.append(grid);
     }
-    const exceptions=result.exceptions;q(&#x27;#cs-series-exceptions&#x27;).hidden=!exceptions.count;q(&#x27;#cs-series-exceptions-title&#x27;).textContent=exceptions.count+(exceptions.count===1?&#x27; manuel ændring&#x27;:&#x27; manuelle ændringer&#x27;);
+    const exceptions=result.exceptions;q(&#x27;#cs-series-exceptions&#x27;).hidden=!exceptions.count;q(&#x27;#cs-series-exceptions-title&#x27;).textContent=&#x27;Manuelle ændringer (&#x27;+exceptions.count+&#x27;)&#x27;;
+    const preservation = [
+      result.preservedCount &amp;&amp; result.preservedCount + (result.preservedCount === 1 ? &#x27; særændring&#x27; : &#x27; særændringer&#x27;),
+      result.deletedCount &amp;&amp; result.deletedCount + (result.deletedCount === 1 ? &#x27; aflysning&#x27; : &#x27; aflysninger&#x27;)
+    ].filter(Boolean).join(&#x27; og &#x27;);
+    if (preservation) q(&#x27;#cs-exceptions-summary&#x27;).textContent = preservation + &#x27; bevares.&#x27;;
     const exceptionList=q(&#x27;#cs-series-exception-list&#x27;);exceptionList.replaceChildren();exceptions.ids.slice(0,10).forEach(id=&gt;{const shift=state.edits[id],removed=state.deleted.includes(id),day=shift?.date||occurrenceAnchor(id,source?.id);exceptionList.append(node(&#x27;li&#x27;,null,(day?shortDate(day):&#x27;Vagt&#x27;)+&#x27; · &#x27;+(removed?&#x27;Aflyst&#x27;:shift?clockLabel(shift):&#x27;Manuelt ændret&#x27;)));});
     if(exceptions.ids.length&gt;10)exceptionList.append(node(&#x27;li&#x27;,null,&#x27;Og &#x27;+(exceptions.ids.length-10)+&#x27; flere.&#x27;));
     const lifecycleError=previewValid?seriesDraftError(draft,source,scope):&#x27;&#x27;;
@@ -29002,10 +29026,18 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function renderSeriesCalendar() {
     if(!SeriesCalendar||!seriesCalendarPreview)return;
     const {draft,result,assessment}=seriesCalendarPreview;
+    const calendar=q(&#x27;#cs-series-calendar&#x27;);
     const previous=document.activeElement?.dataset?.seriesCalendarFocus;
-    SeriesCalendar.render({element:q(&#x27;#cs-series-calendar&#x27;),document,draft:result.limited?{...draft,startDate:result.range.from,endDate:result.range.to}:draft,shifts:result.valid?result.shifts:[],conflicts:assessment.conflicts,pendingRequests:assessment.pendingRequests,unavailableDates:unavailableDatesFor(draft.person,result.shifts||[]),availabilityStatus:selectedStaffing?.availabilityStatus,today,sites,personName,state:seriesCalendarState,
+    SeriesCalendar.render({element:calendar,document,draft:result.limited?{...draft,startDate:result.range.from,endDate:result.range.to}:draft,shifts:result.shifts,conflicts:assessment.conflicts,pendingRequests:assessment.pendingRequests,unavailableDates:unavailableDatesFor(draft.person,result.shifts),availabilityStatus:selectedStaffing?.availabilityStatus,today,sites,personName,state:seriesCalendarState,
       onChange:next=&gt;{seriesCalendarState=next;renderSeriesCalendar();}});
-    if(previous)q(&#x27;#cs-series-calendar&#x27;).querySelector?.(&#x27;[data-series-calendar-focus=&quot;&#x27;+previous+&#x27;&quot;]&#x27;)?.focus({preventScroll:true});
+    if (previous) {
+      const find = key =&gt; calendar.querySelector?.(&#x27;[data-series-calendar-focus=&quot;&#x27;+key+&#x27;&quot;]&#x27;);
+      const restored = find(previous);
+      const fallback = previous === &#x27;next&#x27; ? find(&#x27;previous&#x27;) : find(&#x27;next&#x27;);
+      const control = restored &amp;&amp; !restored.disabled ? restored : fallback &amp;&amp; !fallback.disabled ? fallback
+        : calendar.querySelector?.(&#x27;button[aria-pressed=&quot;true&quot;],button[data-date]&#x27;);
+      control?.focus({preventScroll:true});
+    }
   }
   function staffingMonday(value) { return addDays(value,-((date(value).getUTCDay() + 6) % 7)); }
   function workTime(minutes) { const hours = Math.floor(minutes / 60), rest = minutes % 60; return hours + &#x27; t&#x27; + (rest ? &#x27; &#x27; + rest + &#x27; min&#x27; : &#x27;&#x27;); }
@@ -29070,7 +29102,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(person&amp;&amp;context.valid)requestPlanningAvailability(context.templates,[person.id],true);
     selectedStaffing = person ? assessStaffing(person,context) : null;
     if (person) staffingAssessments.set(person.id,selectedStaffing);
-    q(&#x27;#cs-person-selected-name&#x27;).textContent = person?.name || &#x27;Ledig vagt&#x27;;
+    q(&#x27;#cs-person-selected-name&#x27;).textContent = person?.name || (context.repeating ? &#x27;Vælg medarbejder&#x27; : &#x27;Ledig vagt&#x27;);
     summary.replaceChildren(); summary.dataset.state = selectedStaffing?.status === &#x27;blocked&#x27; ? &#x27;blocked&#x27; : selectedStaffing?.overTargetWeeks.length ? &#x27;over-target&#x27; : selectedStaffing?.status || &#x27;unassigned&#x27;;
     if (person) {
       if(!context.repeating&amp;&amp;context.valid)summary.append(node(&#x27;span&#x27;,&#x27;cs-person-summary-hours&#x27;,&#x27;Uge &#x27;+weekNumber(context.weekStart)+&#x27; · &#x27;+staffingHours(selectedStaffing)));
@@ -29266,7 +29298,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function syncSeriesDurationControls(repeating=editorRepeats()) {
     root.querySelectorAll(&#x27;[data-series-months]&#x27;).forEach(button=&gt;{let selected=false;try{selected=!editorOpenEnded&amp;&amp;Engine.addMonths(editorExtension?.endDate||q(&#x27;#cs-repeat-start&#x27;).value,Number(button.dataset.seriesMonths))===q(&#x27;#cs-repeat-end&#x27;).value;}catch{}button.setAttribute(&#x27;aria-pressed&#x27;,String(selected));});
     q(&#x27;#cs-repeat-unlimited&#x27;).setAttribute(&#x27;aria-pressed&#x27;,String(editorOpenEnded));
-    q(&#x27;#cs-repeat-end-field&#x27;).hidden=editorOpenEnded;q(&#x27;#cs-repeat-unlimited-hint&#x27;).hidden=!repeating||!editorOpenEnded;
+    q(&#x27;#cs-repeat-end-field&#x27;).hidden=editorOpenEnded;
     q(&#x27;#cs-repeat-end&#x27;).disabled=!repeating||editorOpenEnded;q(&#x27;#cs-repeat-end&#x27;).required=repeating&amp;&amp;!editorOpenEnded;
   }
   function chooseSeriesLength(months) {
@@ -30278,6 +30310,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

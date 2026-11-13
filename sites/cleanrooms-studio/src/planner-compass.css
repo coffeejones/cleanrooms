@@ -573,15 +573,9 @@
   color:var(--cs-access-ink);
   font-weight:700;
 }
-#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] :is(
-  .cs-series-planning-preview,.cs-series-operation-note,
-  .cs-department-popover-footer
-) {
+#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-department-popover-footer {
   border-color:var(--cs-compass-rule);
   background:var(--cs-access-soft);
-}
-#cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-series-planning-preview {
-  box-shadow:inset 0 0 0 1px var(--cs-compass-rule);
 }
 #cleanrooms-studio:is([data-page="schedule"],[data-page="series"])[data-role="admin"] .cs-editor :is(.cs-repeat-days,.cs-series-period-presets)>button[aria-pressed="true"] {
   border-color:var(--cs-access-ink);

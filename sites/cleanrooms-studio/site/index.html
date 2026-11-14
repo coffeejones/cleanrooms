@@ -11439,103 +11439,126 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   background:var(--cs-compass-selected);
 }
 
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-main&gt;.cs-page-head #cs-title {
+  font-size:var(--cs-planning-title-size,22px);
+  line-height:30px;
+  letter-spacing:-.4px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-main&gt;.cs-page-head .cs-compass-context {display:none}
+#cleanrooms-studio[data-page=&quot;hours&quot;] #cs-week-toolbar {padding-block-end:10px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] #cs-week-toolbar .cs-week-nav {gap:6px}
+
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-navigation {
-  border-bottom-color:var(--cs-compass-rule);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-tabs {
-  gap:4px;
-  border-bottom-color:var(--cs-compass-rule);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-tab {
-  position:relative;
-  height:44px;
-  min-height:44px;
-  margin:0;
-  padding:0 14px;
-  border:0;
-  color:var(--cs-access-muted);
-  font-size:14px;
-  font-weight:600;
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-tab:is([aria-selected=&quot;true&quot;], :hover) {
-  color:var(--cs-access-primary);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-tab[aria-selected=&quot;true&quot;]::after {
-  content:&quot;&quot;;
-  position:absolute;
-  inset:auto 0 0;
-  height:4px;
-  border-radius:4px 4px 0 0;
-  background:var(--cs-compass-indicator);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-summary {
+  display:flex;
+  flex:0 0 auto;
   flex-wrap:wrap;
-  width:100%;
-  margin:0;
-  padding:0;
+  align-items:center;
+  gap:8px 12px;
+  margin:0 0 10px;
   border:0;
-  border-bottom:1px solid var(--cs-compass-rule);
-  border-radius:0;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] :is(.cs-time-tabs,.cs-time-review-summary) {
+  flex:0 1 auto;
+  gap:2px;
+  width:auto;
+  max-width:100%;
+  margin:0;
+  padding:2px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page :is(.cs-time-tab,.cs-time-review-queue) {
+  justify-content:center;
+  gap:5px;
+  height:auto;
+  min-height:calc(var(--cs-ui-height) - 4px);
+  margin:0;
+  padding:3px 9px;
+  border:0;
+  border-radius:4px;
   background:transparent;
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar {
-  display:grid;
-  gap:12px;
-  margin:0;
-  padding:12px 0 18px;
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue {
-  padding-inline:12px;
-  border:0;
-  border-radius:0;
   color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
   box-shadow:none;
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue:hover {
-  background:transparent;
-  color:var(--cs-access-ink);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue[aria-pressed=&quot;true&quot;] {
-  background:transparent;
-  color:var(--cs-access-ink);
-  box-shadow:inset 0 -2px 0 var(--cs-access-ink);
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-queue[aria-pressed=&quot;true&quot;] .cs-time-review-title {
-  font-weight:700;
-}
-
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue .cs-time-review-count {
-  min-width:22px;
-  padding-inline:6px;
-  border-radius:10px;
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page :is(.cs-time-tab,.cs-time-review-queue):hover:not(:disabled) {
   background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-review-queue[data-bucket=&quot;attention&quot;][data-empty=&quot;false&quot;] .cs-time-review-count {
-  background:#f6ead7;
-  color:#775017;
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-tab[aria-selected=&quot;true&quot;] {
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-review-queue[aria-pressed=&quot;true&quot;] {
+  background:var(--cs-access-ink);
+  color:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-summary .cs-time-review-queue .cs-time-review-count {
+  min-width:0;
+  height:auto;
+  padding:0;
+  background:transparent;
+  color:inherit;
+  font-size:11px;
+  font-weight:500;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-title {
+  line-height:16px;
+  overflow-wrap:normal;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:0;
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar .cs-time-tools {
   display:flex;
-  justify-content:space-between;
+  flex:1 1 190px;
   flex-wrap:nowrap;
-  margin:0;
+  gap:6px;
+  max-width:360px;
+  margin:0 0 0 auto;
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar .cs-time-search {
-  flex:1 1 260px;
-  max-width:360px;
+  position:relative;
+  flex:1 1 auto;
+  max-width:none;
+  --cs-ui-field-background:var(--cs-access-soft);
+  --cs-ui-field-border:var(--cs-compass-rule);
+  --cs-ui-field-font:12px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-search:has(svg) {--cs-ui-field-inset-start:29px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-search&gt;svg {
+  position:absolute;
+  inset-inline-start:9px;
+  top:50%;
+  transform:translateY(-50%);
+  width:14px;
+  height:14px;
+  color:var(--cs-access-muted);
+  pointer-events:none;
+}
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-refresh:has(svg) {
+  width:var(--cs-ui-height);
+  min-width:var(--cs-ui-height);
+  padding:0;
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-button:not(.cs-chrome-quiet) {
@@ -11629,11 +11652,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   accent-color:var(--cs-access-primary);
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-selection {width:42px}
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-times {width:22%}
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-duration {width:20%}
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-status {width:20%}
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-action {width:116px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-selection {width:36px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-times {width:20%}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-duration {width:17%}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-status {width:18%}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-col-action {width:140px}
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-work-net {
   display:flex;
@@ -11658,12 +11681,59 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   line-height:16px;
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-entries-table .cs-time-row-action .cs-button {
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect {
+  justify-content:flex-end;
   min-width:0;
-  padding-inline:9px;
+  min-height:34px;
+  height:auto;
+  gap:6px;
+  padding:3px 4px 3px 7px;
+  border-color:transparent;
+  border-radius:6px;
+  background:transparent;
   font-size:12px;
+  font-weight:600;
   white-space:nowrap;
 }
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect:hover:not(:disabled) {
+  background:var(--cs-compass-selected);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-table .cs-time-row-action {text-align:end}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-inspect-arrow {
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:23px;
+  height:23px;
+  border-radius:4px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-inspect:hover .cs-time-inspect-arrow {background:var(--cs-access-surface)}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-inspect-arrow svg {width:13px;height:13px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body {padding-inline-end:0;scrollbar-gutter:auto}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body .cs-time-empty {
+  padding:16px 14px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  font-size:13px;
+}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-person {gap:9px}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-avatar {
+  display:inline-flex;
+  flex-basis:32px;
+  width:32px;
+  height:32px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-size:11px;
+}
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-caption {margin-top:0}
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body[data-time-tab=&quot;week&quot;] .cs-time-section-head {
   flex-wrap:wrap;
@@ -11687,8 +11757,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   grid-template-columns:repeat(3,minmax(0,1fr));
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
-  padding-inline:16px;
-  background:var(--cs-access-soft);
+  gap:12px;
+  margin-bottom:14px;
+  padding:10px 14px;
+  background:var(--cs-access-surface);
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-metrics dd {
@@ -11697,40 +11769,170 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   line-height:30px;
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-page :is(.cs-time-approval-bar, .cs-time-bulk-confirm, .cs-time-detail-focused .cs-time-lock-note) {
-  border:1px solid var(--cs-access-success-edge);
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-page :is(.cs-time-approval-bar, .cs-time-bulk-confirm) {
+  margin-bottom:10px;
+  padding:8px 12px;
+  border:1px solid var(--cs-compass-rule);
   border-radius:7px;
-  background:var(--cs-access-success-soft);
+  background:var(--cs-access-soft);
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-detail-back {
-  color:var(--cs-access-primary);
+/* A registration keeps the identity, the times and the actions in clear reading order. */
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused {
+  padding-block:10px 24px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-detail-focused .cs-time-detail-back {
+  min-height:var(--cs-ui-height);
+  margin:0 0 10px;
+  padding-inline:6px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-detail-head {
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 18px;
+  margin:0 0 16px;
+  padding-bottom:14px;
+  border-color:var(--cs-compass-rule);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-identity {
+  gap:10px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-identity .cs-time-avatar {
+  width:40px;
+  height:40px;
+  flex-basis:40px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-size:13px;
   font-weight:700;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-detail-head .cs-time-heading {
+  font-size:22px;
+  line-height:28px;
+  overflow-wrap:anywhere;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-head .cs-time-caption {
+  margin:2px 0 0;
+  font-size:12px;
+  line-height:18px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-state {
+  max-width:100%;
+  text-align:end;
+  overflow-wrap:anywhere;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-state .cs-time-status {
+  min-height:24px;
+  padding:1px 8px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:5px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-weight:600;
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-layout {
   display:grid;
-  gap:18px;
-  margin-bottom:18px;
+  gap:14px;
+  margin-bottom:14px;
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-facts {
   min-width:0;
 }
 
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-detail-section-title {
+  margin:0 0 9px;
+  font-size:14px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison :is(th,td) {
+  padding:8px 12px;
+  border-color:var(--cs-compass-rule);
+  font-size:13px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison thead th {
+  font-size:12px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison tr[data-fact=&quot;net&quot;] :is(th,td) {
+  border-top:0;
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison tr[data-fact=&quot;net&quot;] td[data-changed=&quot;true&quot;] {
+  color:#775017;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison-result {
+  display:table-row;
+  background:var(--cs-access-soft);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison-result :is(th,td) {
+  border-top:1px solid var(--cs-compass-rule);
+  border-bottom:0;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison-result th {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-layout .cs-time-decision {
   align-self:start;
   min-width:0;
-  padding:16px;
+  padding:12px;
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
   background:var(--cs-access-soft);
 }
 
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-decision&gt;.cs-time-caption {
+  margin-bottom:10px;
+}
+
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-decision .cs-time-detail-actions {
-  display:flex;
-  align-items:stretch;
-  flex-direction:column;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:6px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-detail-focused .cs-time-detail-actions&gt;.cs-button {
+  justify-content:flex-start;
+  width:100%;
+  height:auto;
+  min-height:var(--cs-ui-height);
+  padding:6px 10px;
+  text-align:start;
+  white-space:normal;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-detail-focused .cs-time-detail-actions&gt;.cs-button:not(.cs-primary) {
+  background:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-time-detail-focused .cs-time-detail-actions&gt;.cs-button:not(.cs-primary):hover:not(:disabled) {
+  background:var(--cs-compass-selected);
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-decision .cs-time-form {
@@ -11742,25 +11944,54 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-facts .cs-time-review-context {
-  margin-top:16px;
-  padding:16px 0 0;
+  margin-top:14px;
+  padding:12px 0 0;
+  border-color:var(--cs-compass-rule);
 }
 
 @media(min-width:1050px) {
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-layout[data-has-actions=&quot;true&quot;] {
-    grid-template-columns:minmax(0,1.75fr) minmax(255px,1fr);
+    grid-template-columns:minmax(0,1fr) minmax(240px,32%);
   }
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-detail-head,
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused :is(.cs-time-review-context, .cs-time-decision, .cs-time-secondary, .cs-time-detail-links) {
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused :is(.cs-time-secondary,.cs-time-detail-links) {
   border-color:var(--cs-compass-rule);
 }
 
-#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-comment-block {
-  border-color:var(--cs-compass-rule);
-  border-radius:7px;
-  background:var(--cs-access-soft);
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comment-block {
+  margin-top:10px;
+  padding:0 0 0 11px;
+  border:0;
+  border-inline-start:2px solid var(--cs-compass-rule);
+  border-radius:0;
+  background:transparent;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comment-block .cs-time-subheading {
+  margin-bottom:2px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comment-block .cs-time-note {
+  font-size:13px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-secondary&gt;summary {
+  padding-block:10px;
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-focused .cs-time-comparison :is(th,td) {
+    padding-inline:8px;
+    font-size:12px;
+  }
+
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-detail-state {
+    text-align:start;
+  }
 }
 
 #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-page :is(button,input,select,textarea,summary):focus-visible {
@@ -11769,7 +12000,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 @media(min-width:901px) {
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-table td {
-    padding-block:12px;
+    padding-block:7px;
   }
 
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table :is(.cs-time-col-selection,.cs-time-selection-cell) {
@@ -11810,6 +12041,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     margin-bottom:2px;
   }
 
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-person-cell {grid-row:1}
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-selection-cell {align-self:center;z-index:1}
+
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table .cs-time-row-action {
     align-self:end;
     justify-self:end;
@@ -11823,13 +12057,27 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 @media(max-width:760px) {
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-main&gt;.cs-page-head #cs-title {--cs-planning-title-size:19px}
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-navigation {align-items:stretch}
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-summary {
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    width:100%;
   }
 
-  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-queue[data-bucket=&quot;all&quot;] {
-    grid-column:1/-1;
+  #cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-review-queue {
+    grid-column:span 2;
+    padding-inline:4px;
   }
+
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-page .cs-time-review-queue:is([data-bucket=&quot;all&quot;],[data-bucket=&quot;attention&quot;]) {
+    grid-column:span 3;
+  }
+
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-review-toolbar .cs-time-tools {max-width:none;margin:0}
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-entries-table tbody&gt;tr {gap:6px 10px;padding:10px 12px}
+  #cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect {min-height:40px}
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body:is([data-time-tab=&quot;week&quot;],[data-time-tab=&quot;payroll&quot;]) {padding-top:4px}
 
   #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-timekeeping-body[data-time-tab=&quot;payroll&quot;] .cs-time-metrics {
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -11837,17 +12085,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 @media(max-width:430px) {
-  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-tabs {
-    max-width:100%;
-    margin-inline-end:0;
-    overflow-x:auto;
-  }
-
-  #cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-tab {
-    flex:0 0 auto;
-    padding-inline:8px;
-    font-size:13px;
-  }
+  #cleanrooms-studio[data-page=&quot;hours&quot;] .cs-time-tabs {overflow-x:auto}
+  #cleanrooms-studio[data-page=&quot;hours&quot;][data-role] .cs-timekeeping-page .cs-time-tab {padding-inline:8px}
 }
 
 /* Keep the planner&#x27;s working geometry and use the same surfaces as the other ledgers. */
@@ -23680,7 +23919,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   };
   const PERIOD_PROBLEMS={unapproved:&#x27;Afventer godkendelse&#x27;,invalid_time:&#x27;Registreringer til rettelse&#x27;,missing_payroll:&#x27;Mangler løngrundlag&#x27;};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
+  function mount({element,icon,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
     if(!element?.ownerDocument)throw new TypeError(&#x27;Timeregistrering kræver et indholdsfelt.&#x27;);
     const doc=element.ownerDocument,page=doc.createElement(&#x27;div&#x27;);page.className=&#x27;cs-timekeeping-page&#x27;;element.replaceChildren(page);
     let periodPanel=null;
@@ -23912,7 +24151,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const tools=node(&#x27;div&#x27;,&#x27;cs-time-tools&#x27;);
       const searchField=field(&#x27;search&#x27;,&#x27;Søg i registreringer&#x27;,&#x27;search&#x27;,search);
       searchField.holder.classList.add(&#x27;cs-time-search&#x27;);
-      searchField.input.placeholder=&#x27;Søg medarbejder, arbejdssted eller dato…&#x27;;
+      if(icon)searchField.holder.append(icon(&#x27;search&#x27;));
+      searchField.input.placeholder=&#x27;Søg i registreringer&#x27;;
       searchField.input.maxLength=120;
       searchField.input.addEventListener(&#x27;input&#x27;,()=&gt;{
         search=searchField.input.value;
@@ -23924,7 +24164,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         paint(&#x27;field:search&#x27;);
         filterChanged();
       });
-      tools.append(searchField.holder,button(&#x27;Opdater&#x27;,refresh,&#x27;cs-button cs-quiet&#x27;,&#x27;reload&#x27;));
+      const reload=button(&#x27;Opdater&#x27;,refresh,&#x27;cs-button cs-chrome-quiet cs-time-refresh&#x27;,&#x27;reload&#x27;);
+      if(icon){
+        reload.replaceChildren(icon(&#x27;refresh-cw&#x27;));
+        reload.setAttribute(&#x27;aria-label&#x27;,&#x27;Opdater registreringer&#x27;);
+        reload.title=&#x27;Opdater registreringer&#x27;;
+      }
+      tools.append(searchField.holder,reload);
       toolbar.append(filters,tools);
       body.append(toolbar);
     }
@@ -23968,7 +24214,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         );
       }else{
         const total=ready.reduce((sum,entry)=&gt;sum+safeNumber(entry.workedMinutes),0);
-        const label=ready.length+&#x27; følger planen · &#x27;+minutes(total)+(serverPaged()?&#x27; på denne side&#x27;:&#x27;&#x27;);
+        const label=minutes(total)+&#x27; klar til godkendelse&#x27;+(serverPaged()?&#x27; på denne side&#x27;:&#x27;&#x27;);
         bar.append(node(&#x27;strong&#x27;,&#x27;&#x27;,label));
         actions.append(button(&#x27;Godkend &#x27;+ready.length+&#x27; der følger planen&#x27;,()=&gt;prepareApproval(true),&#x27;cs-button cs-primary&#x27;,&#x27;bulk:ready&#x27;));
       }
@@ -24069,7 +24315,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         }
         const action=node(&#x27;td&#x27;,&#x27;cs-time-row-action&#x27;);
         const label=result.bucket===&#x27;attention&#x27;?&#x27;Gennemgå&#x27;:result.bucket===&#x27;ready&#x27;&amp;&amp;options.canManage?&#x27;Se og godkend&#x27;:&#x27;Se timer&#x27;;
-        action.append(button(label,()=&gt;openEntry(entry),&#x27;cs-button&#x27;,&#x27;inspect:&#x27;+entry.id));
+        const inspect=button(label,()=&gt;openEntry(entry),&#x27;cs-button cs-time-inspect&#x27;,&#x27;inspect:&#x27;+entry.id);
+        if(icon){const arrow=node(&#x27;span&#x27;,&#x27;cs-time-inspect-arrow&#x27;);arrow.append(icon(&#x27;chevron-right&#x27;));inspect.append(arrow);}
+        action.append(inspect);
         row.append(identity,times,duration,state,action);
         rows.append(row);
       }
@@ -24146,11 +24394,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const detail=node(&#x27;section&#x27;,&#x27;cs-time-detail cs-time-detail-focused&#x27;);detail.setAttribute(&#x27;aria-label&#x27;,&#x27;Registrering for &#x27;+nameFor(entry));
       const reviewResult=review(entry);
       const back=button(&#x27;Tilbage til registreringer&#x27;,()=&gt;closeEntry(entry),&#x27;cs-button cs-quiet cs-time-detail-back cs-chrome-quiet&#x27;,&#x27;detail:close&#x27;);back.setAttribute(&#x27;aria-label&#x27;,&#x27;Luk registrering&#x27;);detail.append(back);
-      const head=node(&#x27;header&#x27;,&#x27;cs-time-detail-head&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-time-detail-identity&#x27;),avatar=node(&#x27;span&#x27;,&#x27;cs-time-avatar&#x27;,person(entry.personId).initials||initials(nameFor(entry))),copy=node(&#x27;div&#x27;);avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);copy.append(node(&#x27;h3&#x27;,&#x27;cs-time-heading&#x27;,nameFor(entry)),node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,dateLabel(entry.date)+&#x27; · &#x27;+siteLabel(entry.site)));identity.append(avatar,copy);head.append(identity,statusNode(entry,reviewResult));detail.append(head);
+      const head=node(&#x27;header&#x27;,&#x27;cs-time-detail-head&#x27;),identity=node(&#x27;div&#x27;,&#x27;cs-time-detail-identity&#x27;);
+      const avatar=node(&#x27;span&#x27;,&#x27;cs-time-avatar&#x27;,person(entry.personId).initials||initials(nameFor(entry))),copy=node(&#x27;div&#x27;);
+      avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
+      copy.append(node(&#x27;h3&#x27;,&#x27;cs-time-heading&#x27;,nameFor(entry)),node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,dateLabel(entry.date)+&#x27; · &#x27;+siteLabel(entry.site)));
+      identity.append(avatar,copy);
+      const state=node(&#x27;div&#x27;,&#x27;cs-time-detail-state&#x27;);
+      state.append(statusNode(entry,reviewResult));
       if(entry.status===&#x27;approved&#x27;){
-        const approval=[entry.approvedAt?stamp(entry.approvedAt):&#x27;&#x27;,entry.approvedBy?.name||(typeof entry.approvedBy===&#x27;string&#x27;?entry.approvedBy:&#x27;&#x27;)].filter(Boolean);
-        if(approval.length)detail.append(node(&#x27;p&#x27;,&#x27;cs-time-lock-note&#x27;,&#x27;Godkendt · &#x27;+approval.join(&#x27; · &#x27;)));
+        const approver=entry.approvedBy?.name||(typeof entry.approvedBy===&#x27;string&#x27;?entry.approvedBy:&#x27;&#x27;);
+        const approval=[approver,entry.approvedAt?stamp(entry.approvedAt):&#x27;&#x27;].filter(Boolean);
+        if(approval.length)state.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,approval.join(&#x27; · &#x27;)));
       }
+      head.append(identity,state);detail.append(head);
       const reviewLayout=node(&#x27;div&#x27;,&#x27;cs-time-review-layout&#x27;),factsColumn=node(&#x27;div&#x27;,&#x27;cs-time-review-facts&#x27;);
       if(options.canManage)reviewLayout.dataset.hasActions=&#x27;true&#x27;;
       reviewLayout.append(factsColumn);
@@ -24167,7 +24423,12 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         [&#x27;pause&#x27;,&#x27;Pause&#x27;,plannedData.breakMinutes===null?&#x27;—&#x27;:plannedData.breakMinutes+&#x27; min · ulønnet&#x27;,safeNumber(entry.breakMinutes)+&#x27; min&#x27;],
         [&#x27;net&#x27;,&#x27;Arbejdstid&#x27;,minutes(plannedData.minutes),entry.end?minutes(entry.workedMinutes):&#x27;Afventer afslutning&#x27;]
       ]){const row=node(&#x27;tr&#x27;);row.dataset.fact=key;const labelCell=node(&#x27;th&#x27;,&#x27;&#x27;,label);labelCell.scope=&#x27;row&#x27;;const plannedCell=node(&#x27;td&#x27;,&#x27;&#x27;,planned),actualCell=node(&#x27;td&#x27;,&#x27;&#x27;,actual);actualCell.dataset.changed=String(key===&#x27;start&#x27;?Boolean(entry.start&amp;&amp;plannedData.start&amp;&amp;entry.start!==plannedData.start):key===&#x27;end&#x27;?Boolean(entry.end&amp;&amp;plannedData.end&amp;&amp;(entry.end!==plannedData.end||entry.endDate&amp;&amp;entry.endDate!==plannedEndDate)):key===&#x27;pause&#x27;?plannedData.breakMinutes!==null&amp;&amp;entry.breakMinutes!==plannedData.breakMinutes:Boolean(entry.end&amp;&amp;Number.isFinite(plannedData.minutes)&amp;&amp;entry.workedMinutes!==plannedData.minutes));row.append(labelCell,plannedCell,actualCell);tbody.append(row);}facts.append(thead,tbody);comparison.append(facts);
-      if(entry.end&amp;&amp;Number.isFinite(plannedData.minutes)){const result=node(&#x27;p&#x27;,&#x27;cs-time-comparison-result&#x27;);result.append(node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Afvigelse&#x27;),differenceNode(entry.workedMinutes-plannedData.minutes));comparison.append(result);}
+      if(entry.end&amp;&amp;Number.isFinite(plannedData.minutes)){
+        const footer=node(&#x27;tfoot&#x27;),result=node(&#x27;tr&#x27;,&#x27;cs-time-comparison-result&#x27;);
+        const label=node(&#x27;th&#x27;,&#x27;&#x27;,&#x27;Afvigelse&#x27;);label.scope=&#x27;row&#x27;;label.colSpan=2;
+        const difference=node(&#x27;td&#x27;);difference.append(differenceNode(entry.workedMinutes-plannedData.minutes));
+        result.append(label,difference);footer.append(result);facts.append(footer);
+      }
       factsColumn.append(comparison);
       const rejection=[...(entry.audit||[])].reverse().find(item=&gt;(item.operation||item.action)===&#x27;reject&#x27;);
       if(reviewResult.reasons?.length||entry.comment||entry.correctionReason||entry.status===&#x27;rejected&#x27;&amp;&amp;rejection?.reason){
@@ -24177,7 +24438,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
         factsColumn.append(context);
       }
       if(options.canManage){
-        const decision=node(&#x27;section&#x27;,&#x27;cs-time-decision&#x27;);decision.setAttribute(&#x27;aria-label&#x27;,&#x27;Behandling af registrering&#x27;);decision.append(node(&#x27;h4&#x27;,&#x27;cs-time-detail-section-title&#x27;,&#x27;Behandl registreringen&#x27;));
+        const decision=node(&#x27;section&#x27;,&#x27;cs-time-decision&#x27;);decision.setAttribute(&#x27;aria-label&#x27;,&#x27;Behandling af registrering&#x27;);decision.append(node(&#x27;h4&#x27;,&#x27;cs-time-detail-section-title&#x27;,&#x27;Handlinger&#x27;));
         if(draft&amp;&amp;mode){const form=node(&#x27;form&#x27;,&#x27;cs-time-form&#x27;);form.noValidate=true;form.addEventListener(&#x27;submit&#x27;,event=&gt;{event.preventDefault();saveDraft();});form.append(node(&#x27;h5&#x27;,&#x27;cs-time-subheading&#x27;,mode===&#x27;reopen&#x27;?&#x27;Genåbn registrering&#x27;:mode===&#x27;reject&#x27;?&#x27;Bed om forklaring&#x27;:&#x27;Ret registrering&#x27;));
           if(mode===&#x27;reopen&#x27;)form.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Godkendelsen ophæves, og timerne skal gennemgås og godkendes igen.&#x27;));
           else if(mode===&#x27;reject&#x27;)form.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Bed medarbejderen supplere sin forklaring. Selve tiderne kan kun rettes af planlæggeren.&#x27;));
@@ -24196,9 +24457,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
           if(conflict||entry.version!==draft.version)form.append(node(&#x27;p&#x27;,&#x27;cs-time-error&#x27;,&#x27;Registreringen er ændret. Luk redigeringen og hent den seneste version.&#x27;));
           const actions=node(&#x27;div&#x27;,&#x27;cs-time-actions&#x27;);actions.append(button(&#x27;Annuller&#x27;,()=&gt;{clearDraft();paint();},&#x27;cs-button&#x27;,&#x27;draft:cancel&#x27;));const save=button(mode===&#x27;reopen&#x27;?&#x27;Genåbn registrering&#x27;:mode===&#x27;reject&#x27;?&#x27;Bed om forklaring&#x27;:&#x27;Gem og send til godkendelse&#x27;,saveDraft,&#x27;cs-button cs-primary&#x27;,&#x27;draft:save&#x27;);save.disabled=blocked()||conflict||entry.version!==draft.version;actions.append(save);form.append(actions);decision.append(form);
         }else{
-          if(entry.status===&#x27;approved&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Timerne er låst efter godkendelse. Genåbn for at rette.&#x27;));
-          else if(reviewResult.bucket===&#x27;ready&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Timerne følger den planlagte vagt.&#x27;));
-          else if(!entry.end)decision.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Timerne kan godkendes, når registreringen har en sluttid.&#x27;));
+          if(entry.status===&#x27;approved&#x27;)decision.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Genåbn registreringen for at rette timerne.&#x27;));
+          else if(!entry.end)decision.append(node(&#x27;p&#x27;,&#x27;cs-time-caption&#x27;,&#x27;Godkendelse kræver en sluttid.&#x27;));
           const actions=node(&#x27;div&#x27;,&#x27;cs-time-detail-actions&#x27;);
           if(approvable(entry))actions.append(button(&#x27;Godkend timer&#x27;,()=&gt;approve(entry),&#x27;cs-button cs-primary&#x27;,&#x27;entry:approve&#x27;));
           if(entry.status===&#x27;approved&#x27;)actions.append(button(&#x27;Genåbn registrering&#x27;,()=&gt;edit(entry,&#x27;reopen&#x27;),&#x27;cs-button&#x27;,&#x27;entry:reopen&#x27;));
@@ -29510,7 +29770,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function renderHours(){
     if(!timeElement?.isConnected){
       timeView?.destroy?.();timeElement=node(&#x27;div&#x27;,&#x27;cs-timekeeping-host&#x27;);timeElement.id=&#x27;cs-timekeeping-page&#x27;;q(&#x27;#cs-page-content&#x27;).replaceChildren(timeElement);
-      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=&gt;loadTimekeeping(true),onPayrollPeriodNavigate:navigatePayrollProblem,onClearPeriodFocus:()=&gt;clearTimeFocus(),onCloseFocusedEntry:()=&gt;clearTimeFocus({entryOnly:true}),onRefresh:()=&gt;loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=&gt;openEmployeeProfile(personId),onOpenShift:shift=&gt;{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
+      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,icon,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=&gt;loadTimekeeping(true),onPayrollPeriodNavigate:navigatePayrollProblem,onClearPeriodFocus:()=&gt;clearTimeFocus(),onCloseFocusedEntry:()=&gt;clearTimeFocus({entryOnly:true}),onRefresh:()=&gt;loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=&gt;openEmployeeProfile(personId),onOpenShift:shift=&gt;{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
     }
     loadTimekeeping();
     const current=timeLoadedKey===timeKey(),plannedByPerson=new Map((current?timeState.plannedRows:[]).map(row=&gt;[row.personId,row.plannedMinutes]));
@@ -30005,6 +30265,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       q(&#x27;#cs-week-toolbar&#x27;).hidden=false;
       activeWeek.hidden=true;
       activeWeek.textContent=&#x27;&#x27;;
+      q(&#x27;#cs-jump-go&#x27;).textContent=&#x27;Vis uge&#x27;;
       q(&#x27;#cs-week-title&#x27;).textContent=shortDate(range.from)+&#x27; – &#x27;+shortDate(range.to)+&#x27; &#x27;+date(range.to).getUTCFullYear();
       q(&#x27;#cs-prev-week&#x27;).disabled=state.week&lt;=-52;q(&#x27;#cs-next-week&#x27;).disabled=state.week&gt;=52;q(&#x27;#cs-prev-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Forrige uge&#x27;);q(&#x27;#cs-next-week&#x27;).setAttribute(&#x27;aria-label&#x27;,&#x27;Næste uge&#x27;);
       renderHours();icons();animateNavigation();return;
@@ -30019,6 +30280,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if (!reusableCalendar) { calendarDispose?.();calendarDispose=null;calendarViewportBoard=null; }
     const isSchedule = state.page === &#x27;schedule&#x27;, isDay = effectiveView() === &#x27;day&#x27;;
     const periodLabel=q(&#x27;#cs-week-title&#x27;),periodTrigger=q(&#x27;#cs-date-jump&#x27;);if(isSchedule&amp;&amp;periodLabel.parentElement!==periodTrigger)periodTrigger.append(periodLabel);
+    if(isSchedule)q(&#x27;#cs-jump-go&#x27;).textContent=&#x27;Vis i planen&#x27;;
     root.style.setProperty(&#x27;--cs-row&#x27;, design.rowHeight + &#x27;px&#x27;); root.dataset.view = effectiveView(); root.dataset.page = state.page;
     const titles = {schedule:&#x27;Vagtplan&#x27;,people:&#x27;Medarbejdere&#x27;,leave:&#x27;Fravær&#x27;,hours:&#x27;Timer&#x27;,series:&#x27;Vagtserier&#x27;,demo:&#x27;Eksempler&#x27;,accounts:&#x27;Brugere og roller&#x27;};
     q(&#x27;#cs-title&#x27;).textContent = titles[state.page]; q(&#x27;#cs-crumb&#x27;).textContent = titles[state.page];
@@ -31542,8 +31804,26 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     restoreFocus();if(planningReadBusy)planningReadPromise?.then(restoreFocus,()=&gt;{});
   });
   q(&#x27;#cs-calendar-display&#x27;).addEventListener(&#x27;focusout&#x27;,event=&gt;{const menu=q(&#x27;#cs-calendar-display&#x27;);if(menu.open&amp;&amp;event.relatedTarget&amp;&amp;!menu.contains(event.relatedTarget))menu.open=false;});
-  q(&#x27;#cs-date-jump&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; { const open = q(&#x27;#cs-date-jump-panel&#x27;).hidden; q(&#x27;#cs-date-jump-panel&#x27;).hidden = !open; q(&#x27;#cs-date-jump&#x27;).setAttribute(&#x27;aria-expanded&#x27;,String(open)); if (open) { q(&#x27;#cs-jump-date&#x27;).value = selectedDate(); q(&#x27;#cs-jump-date&#x27;).min = addDays(anchor,-364); q(&#x27;#cs-jump-date&#x27;).max = addDays(anchor,370); q(&#x27;#cs-jump-date&#x27;).focus({preventScroll:true}); } });
-  q(&#x27;#cs-jump-go&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; { if (q(&#x27;#cs-jump-date&#x27;).value &amp;&amp; q(&#x27;#cs-jump-date&#x27;).reportValidity()) navigateTo(q(&#x27;#cs-jump-date&#x27;).value); });
+  q(&#x27;#cs-date-jump&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; {
+    const panel=q(&#x27;#cs-date-jump-panel&#x27;),trigger=q(&#x27;#cs-date-jump&#x27;),open=panel.hidden;
+    panel.hidden=!open;trigger.setAttribute(&#x27;aria-expanded&#x27;,String(open));
+    if(!open)return;
+    const input=q(&#x27;#cs-jump-date&#x27;),from=state.page===&#x27;hours&#x27;?timeRange().from:selectedDate();
+    input.min=addDays(anchor,-364);input.max=addDays(anchor,370);
+    input.value=from&gt;=input.min&amp;&amp;from&lt;=input.max?from:selectedDate();
+    input.focus({preventScroll:true});
+  });
+  q(&#x27;#cs-jump-go&#x27;).addEventListener(&#x27;click&#x27;,() =&gt; {
+    const input=q(&#x27;#cs-jump-date&#x27;);
+    if(!input.value||!input.reportValidity())return;
+    if(state.page!==&#x27;hours&#x27;){navigateTo(input.value);return;}
+    const dayOffset=Math.round((date(input.value)-date(anchor))/86400000),week=Math.floor(dayOffset/7);
+    if(!Number.isFinite(week)||week&lt; -52||week&gt;52)return;
+    timeFocus=null;state.week=week;state.day=dayOffset-week*7;state.pageIndex=0;
+    q(&#x27;#cs-date-jump-panel&#x27;).hidden=true;
+    const trigger=q(&#x27;#cs-date-jump&#x27;);trigger.setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);
+    render();trigger.focus({preventScroll:true});
+  });
   q(&#x27;#cs-jump-date&#x27;).addEventListener(&#x27;keydown&#x27;,event =&gt; { if (event.key === &#x27;Enter&#x27;) { event.preventDefault(); q(&#x27;#cs-jump-go&#x27;).click(); } if (event.key === &#x27;Escape&#x27;) { q(&#x27;#cs-date-jump-panel&#x27;).hidden = true; q(&#x27;#cs-date-jump&#x27;).setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;); q(&#x27;#cs-date-jump&#x27;).focus(); } });
   restore(window.openai?.widgetState);
   if (globalThis.CleanRoomsPersistence) persistence = globalThis.CleanRoomsPersistence.create({onAccessChanged:resetChangedAccess,onReconciled:reconcilePlanning,onSaved:result=&gt;{if(result.preferencesOnly!==true)employeeReader?.invalidate();if(result.publications)state.publications=clone(result.publications);if(result.activity)state.activity=clone(result.activity);if(result.leaveDecisions&amp;&amp;!state.demoSession)state.leaveDecisions=clone(result.leaveDecisions);if(result.checklistProgress)state.checklistProgress=clone(result.checklistProgress);if(result.reconciledStudio){render();paintEditorPlanningConflict();}if(!q(&#x27;#cs-changes-layer&#x27;).hidden&amp;&amp;!publicationBusy)renderChanges();},onStatus:status =&gt; { cloudStatus = status; renderCloudStatus(); if (cloudLoaded &amp;&amp; state.role === &#x27;employee&#x27;) renderEmployee(); }});
@@ -31570,6 +31850,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
 
 
 

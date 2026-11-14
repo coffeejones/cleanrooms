@@ -31,103 +31,126 @@
   background:var(--cs-compass-selected);
 }
 
+#cleanrooms-studio[data-page="hours"] .cs-main>.cs-page-head #cs-title {
+  font-size:var(--cs-planning-title-size,22px);
+  line-height:30px;
+  letter-spacing:-.4px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-main>.cs-page-head .cs-compass-context {display:none}
+#cleanrooms-studio[data-page="hours"] #cs-week-toolbar {padding-block-end:10px}
+#cleanrooms-studio[data-page="hours"] #cs-week-toolbar .cs-week-nav {gap:6px}
+
 #cleanrooms-studio[data-page="hours"] .cs-time-navigation {
-  border-bottom-color:var(--cs-compass-rule);
-}
-
-#cleanrooms-studio[data-page="hours"] .cs-time-tabs {
-  gap:4px;
-  border-bottom-color:var(--cs-compass-rule);
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-tab {
-  position:relative;
-  height:44px;
-  min-height:44px;
-  margin:0;
-  padding:0 14px;
-  border:0;
-  color:var(--cs-access-muted);
-  font-size:14px;
-  font-weight:600;
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-tab:is([aria-selected="true"], :hover) {
-  color:var(--cs-access-primary);
-}
-
-#cleanrooms-studio[data-page="hours"] .cs-time-tab[aria-selected="true"]::after {
-  content:"";
-  position:absolute;
-  inset:auto 0 0;
-  height:4px;
-  border-radius:4px 4px 0 0;
-  background:var(--cs-compass-indicator);
-}
-
-#cleanrooms-studio[data-page="hours"] .cs-time-review-summary {
+  display:flex;
+  flex:0 0 auto;
   flex-wrap:wrap;
-  width:100%;
-  margin:0;
-  padding:0;
+  align-items:center;
+  gap:8px 12px;
+  margin:0 0 10px;
   border:0;
-  border-bottom:1px solid var(--cs-compass-rule);
-  border-radius:0;
+}
+
+#cleanrooms-studio[data-page="hours"] :is(.cs-time-tabs,.cs-time-review-summary) {
+  flex:0 1 auto;
+  gap:2px;
+  width:auto;
+  max-width:100%;
+  margin:0;
+  padding:2px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page :is(.cs-time-tab,.cs-time-review-queue) {
+  justify-content:center;
+  gap:5px;
+  height:auto;
+  min-height:calc(var(--cs-ui-height) - 4px);
+  margin:0;
+  padding:3px 9px;
+  border:0;
+  border-radius:4px;
   background:transparent;
-}
-
-#cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar {
-  display:grid;
-  gap:12px;
-  margin:0;
-  padding:12px 0 18px;
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue {
-  padding-inline:12px;
-  border:0;
-  border-radius:0;
   color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
   box-shadow:none;
 }
 
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue:hover {
-  background:transparent;
-  color:var(--cs-access-ink);
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue[aria-pressed="true"] {
-  background:transparent;
-  color:var(--cs-access-ink);
-  box-shadow:inset 0 -2px 0 var(--cs-access-ink);
-}
-
-#cleanrooms-studio[data-page="hours"] .cs-time-review-queue[aria-pressed="true"] .cs-time-review-title {
-  font-weight:700;
-}
-
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue .cs-time-review-count {
-  min-width:22px;
-  padding-inline:6px;
-  border-radius:10px;
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page :is(.cs-time-tab,.cs-time-review-queue):hover:not(:disabled) {
   background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
 }
 
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-review-queue[data-bucket="attention"][data-empty="false"] .cs-time-review-count {
-  background:#f6ead7;
-  color:#775017;
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-tab[aria-selected="true"] {
+  background:var(--cs-compass-selected);
+  color:var(--cs-access-ink);
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-review-queue[aria-pressed="true"] {
+  background:var(--cs-access-ink);
+  color:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-summary .cs-time-review-queue .cs-time-review-count {
+  min-width:0;
+  height:auto;
+  padding:0;
+  background:transparent;
+  color:inherit;
+  font-size:11px;
+  font-weight:500;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-title {
+  line-height:16px;
+  overflow-wrap:normal;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:0;
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-tools {
   display:flex;
-  justify-content:space-between;
+  flex:1 1 190px;
   flex-wrap:nowrap;
-  margin:0;
+  gap:6px;
+  max-width:360px;
+  margin:0 0 0 auto;
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-search {
-  flex:1 1 260px;
-  max-width:360px;
+  position:relative;
+  flex:1 1 auto;
+  max-width:none;
+  --cs-ui-field-background:var(--cs-access-soft);
+  --cs-ui-field-border:var(--cs-compass-rule);
+  --cs-ui-field-font:12px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-search:has(svg) {--cs-ui-field-inset-start:29px}
+#cleanrooms-studio[data-page="hours"] .cs-time-search>svg {
+  position:absolute;
+  inset-inline-start:9px;
+  top:50%;
+  transform:translateY(-50%);
+  width:14px;
+  height:14px;
+  color:var(--cs-access-muted);
+  pointer-events:none;
+}
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-refresh:has(svg) {
+  width:var(--cs-ui-height);
+  min-width:var(--cs-ui-height);
+  padding:0;
 }
 
 #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-button:not(.cs-chrome-quiet) {
@@ -221,11 +244,11 @@
   accent-color:var(--cs-access-primary);
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-selection {width:42px}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-times {width:22%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-duration {width:20%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-status {width:20%}
-#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-action {width:116px}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-selection {width:36px}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-times {width:20%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-duration {width:17%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-status {width:18%}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-col-action {width:140px}
 
 #cleanrooms-studio[data-page="hours"] .cs-time-work-net {
   display:flex;
@@ -250,12 +273,59 @@
   line-height:16px;
 }
 
-#cleanrooms-studio[data-page="hours"][data-role] .cs-time-entries-table .cs-time-row-action .cs-button {
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect {
+  justify-content:flex-end;
   min-width:0;
-  padding-inline:9px;
+  min-height:34px;
+  height:auto;
+  gap:6px;
+  padding:3px 4px 3px 7px;
+  border-color:transparent;
+  border-radius:6px;
+  background:transparent;
   font-size:12px;
+  font-weight:600;
   white-space:nowrap;
 }
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect:hover:not(:disabled) {
+  background:var(--cs-compass-selected);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-table .cs-time-row-action {text-align:end}
+#cleanrooms-studio[data-page="hours"] .cs-time-inspect-arrow {
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:23px;
+  height:23px;
+  border-radius:4px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-muted);
+}
+#cleanrooms-studio[data-page="hours"] .cs-time-inspect:hover .cs-time-inspect-arrow {background:var(--cs-access-surface)}
+#cleanrooms-studio[data-page="hours"] .cs-time-inspect-arrow svg {width:13px;height:13px}
+#cleanrooms-studio[data-page="hours"] .cs-timekeeping-body {padding-inline-end:0;scrollbar-gutter:auto}
+#cleanrooms-studio[data-page="hours"] .cs-timekeeping-body .cs-time-empty {
+  padding:16px 14px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-surface);
+  font-size:13px;
+}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-person {gap:9px}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-avatar {
+  display:inline-flex;
+  flex-basis:32px;
+  width:32px;
+  height:32px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-size:11px;
+}
+#cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-caption {margin-top:0}
 
 #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="week"] .cs-time-section-head {
   flex-wrap:wrap;
@@ -279,8 +349,10 @@
   grid-template-columns:repeat(3,minmax(0,1fr));
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
-  padding-inline:16px;
-  background:var(--cs-access-soft);
+  gap:12px;
+  margin-bottom:14px;
+  padding:10px 14px;
+  background:var(--cs-access-surface);
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-metrics dd {
@@ -289,40 +361,170 @@
   line-height:30px;
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-timekeeping-page :is(.cs-time-approval-bar, .cs-time-bulk-confirm, .cs-time-detail-focused .cs-time-lock-note) {
-  border:1px solid var(--cs-access-success-edge);
+#cleanrooms-studio[data-page="hours"] .cs-timekeeping-page :is(.cs-time-approval-bar, .cs-time-bulk-confirm) {
+  margin-bottom:10px;
+  padding:8px 12px;
+  border:1px solid var(--cs-compass-rule);
   border-radius:7px;
-  background:var(--cs-access-success-soft);
+  background:var(--cs-access-soft);
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-back {
-  color:var(--cs-access-primary);
+/* A registration keeps the identity, the times and the actions in clear reading order. */
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused {
+  padding-block:10px 24px;
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-detail-focused .cs-time-detail-back {
+  min-height:var(--cs-ui-height);
+  margin:0 0 10px;
+  padding-inline:6px;
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-head {
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 18px;
+  margin:0 0 16px;
+  padding-bottom:14px;
+  border-color:var(--cs-compass-rule);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-identity {
+  gap:10px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-identity .cs-time-avatar {
+  width:40px;
+  height:40px;
+  flex-basis:40px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:6px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-size:13px;
   font-weight:700;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-head .cs-time-heading {
+  font-size:22px;
+  line-height:28px;
+  overflow-wrap:anywhere;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-head .cs-time-caption {
+  margin:2px 0 0;
+  font-size:12px;
+  line-height:18px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-state {
+  max-width:100%;
+  text-align:end;
+  overflow-wrap:anywhere;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-state .cs-time-status {
+  min-height:24px;
+  padding:1px 8px;
+  border:1px solid var(--cs-compass-rule);
+  border-radius:5px;
+  background:var(--cs-access-soft);
+  color:var(--cs-access-ink);
+  font-weight:600;
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-layout {
   display:grid;
-  gap:18px;
-  margin-bottom:18px;
+  gap:14px;
+  margin-bottom:14px;
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-facts {
   min-width:0;
 }
 
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-section-title {
+  margin:0 0 9px;
+  font-size:14px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison :is(th,td) {
+  padding:8px 12px;
+  border-color:var(--cs-compass-rule);
+  font-size:13px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison thead th {
+  font-size:12px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison tr[data-fact="net"] :is(th,td) {
+  border-top:0;
+  color:var(--cs-access-ink);
+  font-weight:700;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison tr[data-fact="net"] td[data-changed="true"] {
+  color:#775017;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison-result {
+  display:table-row;
+  background:var(--cs-access-soft);
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison-result :is(th,td) {
+  border-top:1px solid var(--cs-compass-rule);
+  border-bottom:0;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison-result th {
+  color:var(--cs-access-muted);
+  font-size:12px;
+  font-weight:600;
+}
+
 #cleanrooms-studio[data-page="hours"] .cs-time-review-layout .cs-time-decision {
   align-self:start;
   min-width:0;
-  padding:16px;
+  padding:12px;
   border:1px solid var(--cs-compass-rule);
   border-radius:7px;
   background:var(--cs-access-soft);
 }
 
+#cleanrooms-studio[data-page="hours"] .cs-time-decision>.cs-time-caption {
+  margin-bottom:10px;
+}
+
 #cleanrooms-studio[data-page="hours"] .cs-time-decision .cs-time-detail-actions {
-  display:flex;
-  align-items:stretch;
-  flex-direction:column;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:6px;
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-detail-focused .cs-time-detail-actions>.cs-button {
+  justify-content:flex-start;
+  width:100%;
+  height:auto;
+  min-height:var(--cs-ui-height);
+  padding:6px 10px;
+  text-align:start;
+  white-space:normal;
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-detail-focused .cs-time-detail-actions>.cs-button:not(.cs-primary) {
+  background:var(--cs-access-surface);
+}
+
+#cleanrooms-studio[data-page="hours"][data-role] .cs-time-detail-focused .cs-time-detail-actions>.cs-button:not(.cs-primary):hover:not(:disabled) {
+  background:var(--cs-compass-selected);
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-decision .cs-time-form {
@@ -334,25 +536,54 @@
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-time-review-facts .cs-time-review-context {
-  margin-top:16px;
-  padding:16px 0 0;
+  margin-top:14px;
+  padding:12px 0 0;
+  border-color:var(--cs-compass-rule);
 }
 
 @media(min-width:1050px) {
   #cleanrooms-studio[data-page="hours"] .cs-time-review-layout[data-has-actions="true"] {
-    grid-template-columns:minmax(0,1.75fr) minmax(255px,1fr);
+    grid-template-columns:minmax(0,1fr) minmax(240px,32%);
   }
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-detail-head,
-#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused :is(.cs-time-review-context, .cs-time-decision, .cs-time-secondary, .cs-time-detail-links) {
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused :is(.cs-time-secondary,.cs-time-detail-links) {
   border-color:var(--cs-compass-rule);
 }
 
-#cleanrooms-studio[data-page="hours"] .cs-time-comment-block {
-  border-color:var(--cs-compass-rule);
-  border-radius:7px;
-  background:var(--cs-access-soft);
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comment-block {
+  margin-top:10px;
+  padding:0 0 0 11px;
+  border:0;
+  border-inline-start:2px solid var(--cs-compass-rule);
+  border-radius:0;
+  background:transparent;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comment-block .cs-time-subheading {
+  margin-bottom:2px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comment-block .cs-time-note {
+  font-size:13px;
+  line-height:20px;
+}
+
+#cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-secondary>summary {
+  padding-block:10px;
+  color:var(--cs-access-ink);
+  font-weight:600;
+}
+
+@media(max-width:760px) {
+  #cleanrooms-studio[data-page="hours"] .cs-time-detail-focused .cs-time-comparison :is(th,td) {
+    padding-inline:8px;
+    font-size:12px;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-detail-state {
+    text-align:start;
+  }
 }
 
 #cleanrooms-studio[data-page="hours"] .cs-timekeeping-page :is(button,input,select,textarea,summary):focus-visible {
@@ -361,7 +592,7 @@
 
 @media(min-width:901px) {
   #cleanrooms-studio[data-page="hours"] .cs-time-table td {
-    padding-block:12px;
+    padding-block:7px;
   }
 
   #cleanrooms-studio[data-page="hours"] .cs-time-entries-table :is(.cs-time-col-selection,.cs-time-selection-cell) {
@@ -402,6 +633,9 @@
     margin-bottom:2px;
   }
 
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-person-cell {grid-row:1}
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-selection-cell {align-self:center;z-index:1}
+
   #cleanrooms-studio[data-page="hours"] .cs-time-entries-table .cs-time-row-action {
     align-self:end;
     justify-self:end;
@@ -415,13 +649,27 @@
 }
 
 @media(max-width:760px) {
+  #cleanrooms-studio[data-page="hours"] .cs-main>.cs-page-head #cs-title {--cs-planning-title-size:19px}
+  #cleanrooms-studio[data-page="hours"] .cs-time-navigation {align-items:stretch}
   #cleanrooms-studio[data-page="hours"] .cs-time-review-summary {
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    width:100%;
   }
 
-  #cleanrooms-studio[data-page="hours"] .cs-time-review-queue[data-bucket="all"] {
-    grid-column:1/-1;
+  #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-review-queue {
+    grid-column:span 2;
+    padding-inline:4px;
   }
+
+  #cleanrooms-studio[data-page="hours"] .cs-timekeeping-page .cs-time-review-queue:is([data-bucket="all"],[data-bucket="attention"]) {
+    grid-column:span 3;
+  }
+
+  #cleanrooms-studio[data-page="hours"] .cs-time-review-toolbar .cs-time-tools {max-width:none;margin:0}
+  #cleanrooms-studio[data-page="hours"] .cs-time-entries-table tbody>tr {gap:6px 10px;padding:10px 12px}
+  #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-entries-table .cs-time-inspect {min-height:40px}
+  #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body:is([data-time-tab="week"],[data-time-tab="payroll"]) {padding-top:4px}
 
   #cleanrooms-studio[data-page="hours"] .cs-timekeeping-body[data-time-tab="payroll"] .cs-time-metrics {
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -429,15 +677,6 @@
 }
 
 @media(max-width:430px) {
-  #cleanrooms-studio[data-page="hours"] .cs-time-tabs {
-    max-width:100%;
-    margin-inline-end:0;
-    overflow-x:auto;
-  }
-
-  #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-tab {
-    flex:0 0 auto;
-    padding-inline:8px;
-    font-size:13px;
-  }
+  #cleanrooms-studio[data-page="hours"] .cs-time-tabs {overflow-x:auto}
+  #cleanrooms-studio[data-page="hours"][data-role] .cs-timekeeping-page .cs-time-tab {padding-inline:8px}
 }

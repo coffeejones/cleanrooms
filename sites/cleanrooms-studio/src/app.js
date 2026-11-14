@@ -2134,7 +2134,7 @@
   function renderHours(){
     if(!timeElement?.isConnected){
       timeView?.destroy?.();timeElement=node('div','cs-timekeeping-host');timeElement.id='cs-timekeeping-page';q('#cs-page-content').replaceChildren(timeElement);
-      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=>loadTimekeeping(true),onPayrollPeriodNavigate:navigatePayrollProblem,onClearPeriodFocus:()=>clearTimeFocus(),onCloseFocusedEntry:()=>clearTimeFocus({entryOnly:true}),onRefresh:()=>loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
+      timeView=globalThis.CleanRoomsTimekeepingView?.mount({element:timeElement,icon,onAction:timeCommand,onPayrollPeriodAction:payrollPeriodAction,onPayrollPeriodChanged:()=>loadTimekeeping(true),onPayrollPeriodNavigate:navigatePayrollProblem,onClearPeriodFocus:()=>clearTimeFocus(),onCloseFocusedEntry:()=>clearTimeFocus({entryOnly:true}),onRefresh:()=>loadTimekeeping(true),onPageChange:changeTimePage,onFilterChange:changeTimeFilter,onOpenEmployee:personId=>openEmployeeProfile(personId),onOpenShift:shift=>{if(shift?.demo){openTimeDemoEmployee(shift.personId);state.employeeShift=shift.shiftId;state.employeeDate=shift.date;render();}else if(shift?.date)navigateTo(shift.date,shift.person||shift.personId);},onDemoEmployee:openTimeDemoEmployee});
     }
     loadTimekeeping();
     const current=timeLoadedKey===timeKey(),plannedByPerson=new Map((current?timeState.plannedRows:[]).map(row=>[row.personId,row.plannedMinutes]));
@@ -2629,6 +2629,7 @@
       q('#cs-week-toolbar').hidden=false;
       activeWeek.hidden=true;
       activeWeek.textContent='';
+      q('#cs-jump-go').textContent='Vis uge';
       q('#cs-week-title').textContent=shortDate(range.from)+' – '+shortDate(range.to)+' '+date(range.to).getUTCFullYear();
       q('#cs-prev-week').disabled=state.week<=-52;q('#cs-next-week').disabled=state.week>=52;q('#cs-prev-week').setAttribute('aria-label','Forrige uge');q('#cs-next-week').setAttribute('aria-label','Næste uge');
       renderHours();icons();animateNavigation();return;
@@ -2643,6 +2644,7 @@
     if (!reusableCalendar) { calendarDispose?.();calendarDispose=null;calendarViewportBoard=null; }
     const isSchedule = state.page === 'schedule', isDay = effectiveView() === 'day';
     const periodLabel=q('#cs-week-title'),periodTrigger=q('#cs-date-jump');if(isSchedule&&periodLabel.parentElement!==periodTrigger)periodTrigger.append(periodLabel);
+    if(isSchedule)q('#cs-jump-go').textContent='Vis i planen';
     root.style.setProperty('--cs-row', design.rowHeight + 'px'); root.dataset.view = effectiveView(); root.dataset.page = state.page;
     const titles = {schedule:'Vagtplan',people:'Medarbejdere',leave:'Fravær',hours:'Timer',series:'Vagtserier',demo:'Eksempler',accounts:'Brugere og roller'};
     q('#cs-title').textContent = titles[state.page]; q('#cs-crumb').textContent = titles[state.page];
@@ -4166,8 +4168,26 @@
     restoreFocus();if(planningReadBusy)planningReadPromise?.then(restoreFocus,()=>{});
   });
   q('#cs-calendar-display').addEventListener('focusout',event=>{const menu=q('#cs-calendar-display');if(menu.open&&event.relatedTarget&&!menu.contains(event.relatedTarget))menu.open=false;});
-  q('#cs-date-jump').addEventListener('click',() => { const open = q('#cs-date-jump-panel').hidden; q('#cs-date-jump-panel').hidden = !open; q('#cs-date-jump').setAttribute('aria-expanded',String(open)); if (open) { q('#cs-jump-date').value = selectedDate(); q('#cs-jump-date').min = addDays(anchor,-364); q('#cs-jump-date').max = addDays(anchor,370); q('#cs-jump-date').focus({preventScroll:true}); } });
-  q('#cs-jump-go').addEventListener('click',() => { if (q('#cs-jump-date').value && q('#cs-jump-date').reportValidity()) navigateTo(q('#cs-jump-date').value); });
+  q('#cs-date-jump').addEventListener('click',() => {
+    const panel=q('#cs-date-jump-panel'),trigger=q('#cs-date-jump'),open=panel.hidden;
+    panel.hidden=!open;trigger.setAttribute('aria-expanded',String(open));
+    if(!open)return;
+    const input=q('#cs-jump-date'),from=state.page==='hours'?timeRange().from:selectedDate();
+    input.min=addDays(anchor,-364);input.max=addDays(anchor,370);
+    input.value=from>=input.min&&from<=input.max?from:selectedDate();
+    input.focus({preventScroll:true});
+  });
+  q('#cs-jump-go').addEventListener('click',() => {
+    const input=q('#cs-jump-date');
+    if(!input.value||!input.reportValidity())return;
+    if(state.page!=='hours'){navigateTo(input.value);return;}
+    const dayOffset=Math.round((date(input.value)-date(anchor))/86400000),week=Math.floor(dayOffset/7);
+    if(!Number.isFinite(week)||week< -52||week>52)return;
+    timeFocus=null;state.week=week;state.day=dayOffset-week*7;state.pageIndex=0;
+    q('#cs-date-jump-panel').hidden=true;
+    const trigger=q('#cs-date-jump');trigger.setAttribute('aria-expanded','false');
+    render();trigger.focus({preventScroll:true});
+  });
   q('#cs-jump-date').addEventListener('keydown',event => { if (event.key === 'Enter') { event.preventDefault(); q('#cs-jump-go').click(); } if (event.key === 'Escape') { q('#cs-date-jump-panel').hidden = true; q('#cs-date-jump').setAttribute('aria-expanded','false'); q('#cs-date-jump').focus(); } });
   restore(window.openai?.widgetState);
   if (globalThis.CleanRoomsPersistence) persistence = globalThis.CleanRoomsPersistence.create({onAccessChanged:resetChangedAccess,onReconciled:reconcilePlanning,onSaved:result=>{if(result.preferencesOnly!==true)employeeReader?.invalidate();if(result.publications)state.publications=clone(result.publications);if(result.activity)state.activity=clone(result.activity);if(result.leaveDecisions&&!state.demoSession)state.leaveDecisions=clone(result.leaveDecisions);if(result.checklistProgress)state.checklistProgress=clone(result.checklistProgress);if(result.reconciledStudio){render();paintEditorPlanningConflict();}if(!q('#cs-changes-layer').hidden&&!publicationBusy)renderChanges();},onStatus:status => { cloudStatus = status; renderCloudStatus(); if (cloudLoaded && state.role === 'employee') renderEmployee(); }});

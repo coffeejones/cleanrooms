@@ -43,7 +43,7 @@
   };
   const PERIOD_PROBLEMS={unapproved:'Afventer godkendelse',invalid_time:'Registreringer til rettelse',missing_payroll:'Mangler løngrundlag'};
 
-  function mount({element,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
+  function mount({element,icon,onAction,onOpenEmployee,onOpenShift,onRefresh,onDemoEmployee,onPageChange,onFilterChange,onPayrollPeriodAction,onPayrollPeriodChanged,onPayrollPeriodNavigate,onClearPeriodFocus,onCloseFocusedEntry}={}) {
     if(!element?.ownerDocument)throw new TypeError('Timeregistrering kræver et indholdsfelt.');
     const doc=element.ownerDocument,page=doc.createElement('div');page.className='cs-timekeeping-page';element.replaceChildren(page);
     let periodPanel=null;
@@ -275,7 +275,8 @@
       const tools=node('div','cs-time-tools');
       const searchField=field('search','Søg i registreringer','search',search);
       searchField.holder.classList.add('cs-time-search');
-      searchField.input.placeholder='Søg medarbejder, arbejdssted eller dato…';
+      if(icon)searchField.holder.append(icon('search'));
+      searchField.input.placeholder='Søg i registreringer';
       searchField.input.maxLength=120;
       searchField.input.addEventListener('input',()=>{
         search=searchField.input.value;
@@ -287,7 +288,13 @@
         paint('field:search');
         filterChanged();
       });
-      tools.append(searchField.holder,button('Opdater',refresh,'cs-button cs-quiet','reload'));
+      const reload=button('Opdater',refresh,'cs-button cs-chrome-quiet cs-time-refresh','reload');
+      if(icon){
+        reload.replaceChildren(icon('refresh-cw'));
+        reload.setAttribute('aria-label','Opdater registreringer');
+        reload.title='Opdater registreringer';
+      }
+      tools.append(searchField.holder,reload);
       toolbar.append(filters,tools);
       body.append(toolbar);
     }
@@ -331,7 +338,7 @@
         );
       }else{
         const total=ready.reduce((sum,entry)=>sum+safeNumber(entry.workedMinutes),0);
-        const label=ready.length+' følger planen · '+minutes(total)+(serverPaged()?' på denne side':'');
+        const label=minutes(total)+' klar til godkendelse'+(serverPaged()?' på denne side':'');
         bar.append(node('strong','',label));
         actions.append(button('Godkend '+ready.length+' der følger planen',()=>prepareApproval(true),'cs-button cs-primary','bulk:ready'));
       }
@@ -432,7 +439,9 @@
         }
         const action=node('td','cs-time-row-action');
         const label=result.bucket==='attention'?'Gennemgå':result.bucket==='ready'&&options.canManage?'Se og godkend':'Se timer';
-        action.append(button(label,()=>openEntry(entry),'cs-button','inspect:'+entry.id));
+        const inspect=button(label,()=>openEntry(entry),'cs-button cs-time-inspect','inspect:'+entry.id);
+        if(icon){const arrow=node('span','cs-time-inspect-arrow');arrow.append(icon('chevron-right'));inspect.append(arrow);}
+        action.append(inspect);
         row.append(identity,times,duration,state,action);
         rows.append(row);
       }
@@ -509,11 +518,19 @@
       const detail=node('section','cs-time-detail cs-time-detail-focused');detail.setAttribute('aria-label','Registrering for '+nameFor(entry));
       const reviewResult=review(entry);
       const back=button('Tilbage til registreringer',()=>closeEntry(entry),'cs-button cs-quiet cs-time-detail-back cs-chrome-quiet','detail:close');back.setAttribute('aria-label','Luk registrering');detail.append(back);
-      const head=node('header','cs-time-detail-head'),identity=node('div','cs-time-detail-identity'),avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('div');avatar.setAttribute('aria-hidden','true');copy.append(node('h3','cs-time-heading',nameFor(entry)),node('p','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));identity.append(avatar,copy);head.append(identity,statusNode(entry,reviewResult));detail.append(head);
+      const head=node('header','cs-time-detail-head'),identity=node('div','cs-time-detail-identity');
+      const avatar=node('span','cs-time-avatar',person(entry.personId).initials||initials(nameFor(entry))),copy=node('div');
+      avatar.setAttribute('aria-hidden','true');
+      copy.append(node('h3','cs-time-heading',nameFor(entry)),node('p','cs-time-caption',dateLabel(entry.date)+' · '+siteLabel(entry.site)));
+      identity.append(avatar,copy);
+      const state=node('div','cs-time-detail-state');
+      state.append(statusNode(entry,reviewResult));
       if(entry.status==='approved'){
-        const approval=[entry.approvedAt?stamp(entry.approvedAt):'',entry.approvedBy?.name||(typeof entry.approvedBy==='string'?entry.approvedBy:'')].filter(Boolean);
-        if(approval.length)detail.append(node('p','cs-time-lock-note','Godkendt · '+approval.join(' · ')));
+        const approver=entry.approvedBy?.name||(typeof entry.approvedBy==='string'?entry.approvedBy:'');
+        const approval=[approver,entry.approvedAt?stamp(entry.approvedAt):''].filter(Boolean);
+        if(approval.length)state.append(node('p','cs-time-caption',approval.join(' · ')));
       }
+      head.append(identity,state);detail.append(head);
       const reviewLayout=node('div','cs-time-review-layout'),factsColumn=node('div','cs-time-review-facts');
       if(options.canManage)reviewLayout.dataset.hasActions='true';
       reviewLayout.append(factsColumn);
@@ -530,7 +547,12 @@
         ['pause','Pause',plannedData.breakMinutes===null?'—':plannedData.breakMinutes+' min · ulønnet',safeNumber(entry.breakMinutes)+' min'],
         ['net','Arbejdstid',minutes(plannedData.minutes),entry.end?minutes(entry.workedMinutes):'Afventer afslutning']
       ]){const row=node('tr');row.dataset.fact=key;const labelCell=node('th','',label);labelCell.scope='row';const plannedCell=node('td','',planned),actualCell=node('td','',actual);actualCell.dataset.changed=String(key==='start'?Boolean(entry.start&&plannedData.start&&entry.start!==plannedData.start):key==='end'?Boolean(entry.end&&plannedData.end&&(entry.end!==plannedData.end||entry.endDate&&entry.endDate!==plannedEndDate)):key==='pause'?plannedData.breakMinutes!==null&&entry.breakMinutes!==plannedData.breakMinutes:Boolean(entry.end&&Number.isFinite(plannedData.minutes)&&entry.workedMinutes!==plannedData.minutes));row.append(labelCell,plannedCell,actualCell);tbody.append(row);}facts.append(thead,tbody);comparison.append(facts);
-      if(entry.end&&Number.isFinite(plannedData.minutes)){const result=node('p','cs-time-comparison-result');result.append(node('span','','Afvigelse'),differenceNode(entry.workedMinutes-plannedData.minutes));comparison.append(result);}
+      if(entry.end&&Number.isFinite(plannedData.minutes)){
+        const footer=node('tfoot'),result=node('tr','cs-time-comparison-result');
+        const label=node('th','','Afvigelse');label.scope='row';label.colSpan=2;
+        const difference=node('td');difference.append(differenceNode(entry.workedMinutes-plannedData.minutes));
+        result.append(label,difference);footer.append(result);facts.append(footer);
+      }
       factsColumn.append(comparison);
       const rejection=[...(entry.audit||[])].reverse().find(item=>(item.operation||item.action)==='reject');
       if(reviewResult.reasons?.length||entry.comment||entry.correctionReason||entry.status==='rejected'&&rejection?.reason){
@@ -540,7 +562,7 @@
         factsColumn.append(context);
       }
       if(options.canManage){
-        const decision=node('section','cs-time-decision');decision.setAttribute('aria-label','Behandling af registrering');decision.append(node('h4','cs-time-detail-section-title','Behandl registreringen'));
+        const decision=node('section','cs-time-decision');decision.setAttribute('aria-label','Behandling af registrering');decision.append(node('h4','cs-time-detail-section-title','Handlinger'));
         if(draft&&mode){const form=node('form','cs-time-form');form.noValidate=true;form.addEventListener('submit',event=>{event.preventDefault();saveDraft();});form.append(node('h5','cs-time-subheading',mode==='reopen'?'Genåbn registrering':mode==='reject'?'Bed om forklaring':'Ret registrering'));
           if(mode==='reopen')form.append(node('p','cs-time-caption','Godkendelsen ophæves, og timerne skal gennemgås og godkendes igen.'));
           else if(mode==='reject')form.append(node('p','cs-time-caption','Bed medarbejderen supplere sin forklaring. Selve tiderne kan kun rettes af planlæggeren.'));
@@ -559,9 +581,8 @@
           if(conflict||entry.version!==draft.version)form.append(node('p','cs-time-error','Registreringen er ændret. Luk redigeringen og hent den seneste version.'));
           const actions=node('div','cs-time-actions');actions.append(button('Annuller',()=>{clearDraft();paint();},'cs-button','draft:cancel'));const save=button(mode==='reopen'?'Genåbn registrering':mode==='reject'?'Bed om forklaring':'Gem og send til godkendelse',saveDraft,'cs-button cs-primary','draft:save');save.disabled=blocked()||conflict||entry.version!==draft.version;actions.append(save);form.append(actions);decision.append(form);
         }else{
-          if(entry.status==='approved')decision.append(node('p','cs-time-caption','Timerne er låst efter godkendelse. Genåbn for at rette.'));
-          else if(reviewResult.bucket==='ready')decision.append(node('p','cs-time-caption','Timerne følger den planlagte vagt.'));
-          else if(!entry.end)decision.append(node('p','cs-time-caption','Timerne kan godkendes, når registreringen har en sluttid.'));
+          if(entry.status==='approved')decision.append(node('p','cs-time-caption','Genåbn registreringen for at rette timerne.'));
+          else if(!entry.end)decision.append(node('p','cs-time-caption','Godkendelse kræver en sluttid.'));
           const actions=node('div','cs-time-detail-actions');
           if(approvable(entry))actions.append(button('Godkend timer',()=>approve(entry),'cs-button cs-primary','entry:approve'));
           if(entry.status==='approved')actions.append(button('Genåbn registrering',()=>edit(entry,'reopen'),'cs-button','entry:reopen'));

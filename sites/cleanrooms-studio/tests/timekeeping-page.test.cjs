@@ -25,12 +25,44 @@ test('planner pages return at most50 DTOs while exact queue and person summaries
   const legacy=await action(db,'timeRead',range);assert.equal(legacy.status,200);
   const shifts=new Map(legacy.body.shifts.map(shift=>[shift.id,shift])),expected={all:entries.length,attention:0,ready:0,progress:0,approved:0};
   for(const entry of legacy.body.entries)expected[Time.review(entry,{shift:shifts.get(entry.shiftId),canViewPayroll:true}).bucket]++;
+  expected.review=expected.attention+expected.ready;
   const page=await read(db);assert.equal(page.status,200,JSON.stringify(page));assert.equal(page.body.entries.length,50);assert.ok(page.body.nextCursor);assert.deepEqual(page.body.summary.counts,expected);assert.equal(page.body.matchedCount,125);assert.equal(page.body.summary.registeredMinutes,125*450);assert.equal(page.body.summary.approvedMinutes,25*450);assert.equal(page.body.summary.approvedCents,entries.filter(entry=>entry.status==='approved').reduce((sum,entry)=>sum+entry.payroll.totalCents,0));assert.equal(page.body.summary.people.length,2);assert.equal(page.body.plannedRows.length,2);
   for(const entry of page.body.entries)assert.deepEqual(entry.review,Time.review(entry,{shift:shifts.get(entry.shiftId),canViewPayroll:true}));
   const seen=[...page.body.entries.map(entry=>entry.id)];let cursor=page.body.nextCursor;
   while(cursor){const next=await read(db,{cursor});assert.equal(next.status,200,JSON.stringify(next));assert.ok(next.body.entries.length<=50);assert.deepEqual(next.body.summary,page.body.summary);assert.equal(next.body.plannedRows.length,2);seen.push(...next.body.entries.map(entry=>entry.id));cursor=next.body.nextCursor;}
   assert.equal(seen.length,125);assert.equal(new Set(seen).size,125);
   const ready=await read(db,{queue:'ready'});assert.equal(ready.status,200,JSON.stringify(ready));assert.deepEqual(ready.body.summary.counts,expected);assert.ok(ready.body.entries.every(entry=>entry.review.bucket==='ready'));
+});
+
+test('the review queue includes attention and ready in date and ID order across pages',async t=>{
+  t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-26T08:00:00Z')});
+  const {db,entries}=await setup(19);t.after(()=>db.sqlite.close());
+  const running={...entries[2],status:'running',end:null};
+  db.sqlite.prepare('UPDATE workspace_time_entries SET status=?,config=? WHERE id=?').run(running.status,JSON.stringify(running),running.id);
+  const later={...entries[4],date:'2026-10-27',endDate:'2026-10-27'};
+  db.sqlite.prepare('UPDATE workspace_time_entries SET work_date=?,end_date=?,config=? WHERE id=?').run(later.date,later.endDate,JSON.stringify(later),later.id);
+  const all=await read(db);assert.equal(all.status,200,JSON.stringify(all));
+  const {counts}=all.body.summary;
+  assert.ok(counts.attention>0&&counts.ready>0&&counts.approved>0);
+  assert.equal(counts.progress,1);
+  const expected=all.body.entries.filter(entry=>['attention','ready'].includes(entry.review.bucket)).map(entry=>entry.id);
+  assert.equal(expected.at(-1),later.id);
+  const options={queue:'review',pageSize:3};
+  const seen=[];let cursor;
+  do{
+    const page=await read(db,{...options,cursor});assert.equal(page.status,200,JSON.stringify(page));
+    assert.deepEqual(page.body.summary.counts,counts);
+    assert.equal(page.body.matchedCount,counts.attention+counts.ready);
+    assert.equal(page.body.matchedCount,counts.review);
+    assert.ok(page.body.entries.length<=options.pageSize);
+    seen.push(...page.body.entries.map(entry=>entry.id));
+    cursor=page.body.nextCursor;
+    if(seen.length===options.pageSize){
+      assert.ok(cursor);
+      assert.equal((await read(db,{...options,queue:'attention',cursor})).status,409);
+    }
+  }while(cursor);
+  assert.deepEqual(seen,expected);
 });
 
 test('queue filters, search, demo scope and planner-only wages never change legacy/native reads',async t=>{

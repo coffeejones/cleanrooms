@@ -53,7 +53,7 @@ test('Hours receives actual selected week and plan totals without turning reads 
   assert.equal(app.lastAdmin().from,'2026-10-26');assert.equal(app.lastAdmin().to,'2026-11-01');assert.ok(app.lastAdmin().plannedRows.length>0);assert.ok(app.lastAdmin().plannedRows.every(row=>Number.isInteger(row.plannedMinutes)&&row.plannedMinutes>=0));
   assert.equal(app.lastAdmin().plannedRows.find(row=>row.personId==='p0').plannedMinutes,345,'The weekly overview uses the targeted server draft total, not a partially loaded local plan');
   app.state.week=1;app.renderHours();await settle();assert.equal(app.lastAdmin().from,'2026-11-02');assert.equal(app.lastAdmin().to,'2026-11-08');
-  assert.deepEqual(app.actions.filter(a=>a.action==='timeRead').map(a=>a.payload),[{from:'2026-10-26',to:'2026-11-01',queue:'all',search:'',scope:'real',pageSize:50},{from:'2026-11-02',to:'2026-11-08',queue:'all',search:'',scope:'real',pageSize:50}]);assert.equal(app.fullSaves.length,0);
+  assert.deepEqual(app.actions.filter(a=>a.action==='timeRead').map(a=>a.payload),[{from:'2026-10-26',to:'2026-11-01',queue:'review',search:'',scope:'real',pageSize:50},{from:'2026-11-02',to:'2026-11-08',queue:'review',search:'',scope:'real',pageSize:50}]);assert.equal(app.fullSaves.length,0);
 });
 
 test('explicit demo preview uses only isolated synthetic shifts and never merges them into the real editable plan',async()=>{
@@ -140,7 +140,7 @@ test('server queue and search changes reset cursors, preserve summary totals and
 
 test('rapid server searches coalesce and a late former filter cannot replace the newest result',async()=>{
  const app=application();app.configure({userId:'planner'},{plan:true,viewPayroll:false});app.state.page='hours';await app.loadTimekeeping();const before=app.actions.filter(call=>call.action==='timeRead').length;
- app.setTimeRead(query=>({...plain(app.bundle),entries:[{...app.bundle.entries[0],id:query.search}]}));const first=app.changeTimeFilter({queue:'all',search:'J',scope:'real'}),second=app.changeTimeFilter({queue:'all',search:'Jo',scope:'real'}),third=app.changeTimeFilter({queue:'all',search:'Jonas',scope:'real'});await Promise.all([first,second,third]);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before+1);assert.equal(app.timeState.entries[0].id,'Jonas');
+ app.setTimeRead(query=>({...plain(app.bundle),entries:[{...app.bundle.entries[0],id:query.search}]}));const first=app.changeTimeFilter({queue:'review',search:'J',scope:'real'}),second=app.changeTimeFilter({queue:'review',search:'Jo',scope:'real'}),third=app.changeTimeFilter({queue:'review',search:'Jonas',scope:'real'});await Promise.all([first,second,third]);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before+1);assert.equal(app.timeState.entries[0].id,'Jonas');
 });
 
 
@@ -149,6 +149,6 @@ test('page-cache reuse does not extend server freshness and a renewed page does 
 });
 
 
-test('focus freshness waits for a correction draft and refreshes only the current bounded period once it is safe',async()=>{
- const app=application();app.configure({userId:'planner'},{plan:true,viewPayroll:false});app.state.page='hours';await app.loadTimekeeping();const before=app.actions.filter(call=>call.action==='timeRead').length;app.advance(31000);app.guardTimeView({hasDraft:true});assert.equal(await app.refreshOnReturn(true),false);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before);app.guardTimeView({hasDraft:false});assert.equal(await app.refreshOnReturn(true),true);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before+1);assert.equal(app.actions.at(-1).payload.pageSize,50);assert.equal(app.fullSaves.length,0);
+test('focus keeps a fresh time page in place, waits for drafts, and refreshes an older page once safe',async()=>{
+ const app=application();app.configure({userId:'planner'},{plan:true,viewPayroll:false});app.state.page='hours';await app.loadTimekeeping();const before=app.actions.filter(call=>call.action==='timeRead').length;await app.refreshOnReturn();assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before);app.advance(31000);app.guardTimeView({hasDraft:true});assert.equal(await app.refreshOnReturn(),false);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before);app.guardTimeView({hasDraft:false});assert.equal(await app.refreshOnReturn(),true);assert.equal(app.actions.filter(call=>call.action==='timeRead').length,before+1);assert.equal(app.actions.at(-1).payload.pageSize,50);assert.equal(app.fullSaves.length,0);
 });

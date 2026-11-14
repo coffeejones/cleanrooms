@@ -89,7 +89,7 @@
   const payrollPolicyState={policy:null,version:0,people:[],history:[],loaded:false,loading:false,error:''};
   let timeFocus=null;
   let timeView=null,timeElement=null,timeEpoch=0,timeLoadedKey='',timeLoadingKey='',timeRequest=null,timeBusy=false,timeDemoEmployee=false,timeContext='',timeLastRead=0;
-  const timePaging={context:'',page:0,cursors:[null],offsets:[0],nextCursor:null,generation:null,filter:{queue:'all',search:'',scope:'real'}};
+  const timePaging={context:'',page:0,cursors:[null],offsets:[0],nextCursor:null,generation:null,filter:{queue:'review',search:'',scope:'real'}};
   const timePageCache=new Map();let timeFilterTimer=null,timeFilterWaiters=[];
   const timeState={entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:'',canManage:false,canViewPayroll:false};
   let publicationBusy=false,includeRelatedPublication=false,publicationSiteSelection=null,publicationRange=null,publicationRangeView=null,publicationRangeValid=true,publicationReviewView=null,publicationReviewElement=null;
@@ -1356,7 +1356,7 @@
     lastFreshnessCheck=Date.now();freshnessDeferred=false;
     freshnessRequest=(async()=>{
       if(state.role==='employee'){if(scopedEmployee())await loadEmployeeRead(true);if(employeeWorkspace!=='chat')await loadWorkflow(true);}
-      else if(state.page==='hours')await loadTimekeeping(true);
+      else if(state.page==='hours')await loadTimekeeping(force);
       else if(state.page==='workflow')await loadWorkflow(true);
       else if(usesViewportCalendar())await loadPlannerViewport(viewportRange(),{force:true});
       else if(state.page==='leave'){leaveRefresh++;renderLeave();}
@@ -1963,7 +1963,7 @@
     adminSurface(result.wrap,title,caption,total);
   }
   function clearTimekeeping(){
-    timeEpoch++;timeLoadedKey='';timeLoadingKey='';timeRequest=null;timeBusy=false;timeDemoEmployee=false;timeFocus=null;timeLastRead=0;timePageCache.clear();if(timeFilterTimer)clearTimeout(timeFilterTimer);timeFilterTimer=null;timeFilterWaiters.splice(0).forEach(resolve=>resolve(false));timePaging.context='';timePaging.filter={queue:'all',search:'',scope:'real'};resetTimePaging();delete timeState.summary;delete timeState.serverFilter;delete timeState.pagination;delete timeState.filterKey;
+    timeEpoch++;timeLoadedKey='';timeLoadingKey='';timeRequest=null;timeBusy=false;timeDemoEmployee=false;timeFocus=null;timeLastRead=0;timePageCache.clear();if(timeFilterTimer)clearTimeout(timeFilterTimer);timeFilterTimer=null;timeFilterWaiters.splice(0).forEach(resolve=>resolve(false));timePaging.context='';timePaging.filter={queue:'review',search:'',scope:'real'};resetTimePaging();delete timeState.summary;delete timeState.serverFilter;delete timeState.pagination;delete timeState.filterKey;
     timeView?.destroy?.();timeView=null;timeElement=null;
     Object.assign(timeState,{entries:[],shifts:[],plannedRows:[],demo:{active:false},loading:false,error:'',canManage:false,canViewPayroll:false});
   }
@@ -1980,7 +1980,7 @@
   function resetTimePaging(){timePaging.page=0;timePaging.cursors=[null];timePaging.offsets=[0];timePaging.nextCursor=null;timePaging.generation=null;}
   function changeTimeFilter(filter){
     if(timeBusy)return Promise.resolve(false);
-    const next={queue:['all','attention','ready','progress','approved'].includes(filter?.queue)?filter.queue:'all',search:typeof filter?.search==='string'?filter.search.slice(0,120):'',scope:filter?.scope==='demo'?'demo':'real'};
+    const next={queue:['review','all','attention','ready','progress','approved'].includes(filter?.queue)?filter.queue:'review',search:typeof filter?.search==='string'?filter.search.slice(0,120):'',scope:filter?.scope==='demo'?'demo':'real'};
     const searchOnly=next.queue===timePaging.filter.queue&&next.scope===timePaging.filter.scope&&next.search!==timePaging.filter.search;
     if(next.scope==='demo')timeFocus=null;else if(next.queue==='approved'&&timeFocus){timeFocus={from:timeFocus.from,to:timeFocus.to};}timePaging.filter=next;resetTimePaging();timeLoadedKey='';clearTimeout(timeFilterTimer);
     // Supersede old filter reads immediately; the latest search is sent once.

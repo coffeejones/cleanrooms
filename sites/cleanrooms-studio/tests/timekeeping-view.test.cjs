@@ -92,7 +92,7 @@ test('an entirely incomplete approved payroll period displays an unknown total r
 });
 
 test('rejected entries without an end count as unfinished and never display zero net or delta',async()=>{
- const fixture=app({entries:[entry({id:'missing-end',status:'rejected',end:null,workedMinutes:0,deltaMinutes:0,flags:['missing_end']}),entry({id:'finished',status:'submitted'})]});assert.equal(fixture.key('queue:attention').querySelector('.cs-time-review-count').textContent,'2');const table=fixture.byClass('cs-time-entries-table'),row=table.querySelector('tbody').children.find(item=>item.dataset.entryId==='missing-end');assert.ok(row.querySelector('.cs-time-review-reason').textContent.includes('Mangler afslutning'));assert.equal(row.querySelector('.cs-time-net-time').textContent,'—');assert.equal(row.querySelector('.cs-time-delta-value').textContent,'—');assert.equal(row.querySelector('.cs-time-delta-description').textContent,'Afventer afslutning');assert.ok(fixture.host.textContent.includes('Arbejdstid'));assert.ok(fixture.host.textContent.includes('Kræver opmærksomhed'));
+ const fixture=app({entries:[entry({id:'missing-end',status:'rejected',end:null,workedMinutes:0,deltaMinutes:0,flags:['missing_end']}),entry({id:'finished',status:'submitted'})]});assert.equal(fixture.key('queue:attention').querySelector('.cs-time-review-count').textContent,'2');const table=fixture.byClass('cs-time-entries-table'),row=table.querySelector('tbody').children.find(item=>item.dataset.entryId==='missing-end');assert.ok(row.querySelector('.cs-time-review-reason').textContent.includes('Mangler afslutning'));assert.equal(row.querySelector('.cs-time-net-time').textContent,'—');assert.equal(row.querySelector('.cs-time-delta-value').textContent,'—');assert.equal(row.querySelector('.cs-time-delta-description').textContent,'Afventer afslutning');assert.ok(fixture.host.textContent.includes('Arbejdstid'));assert.ok(fixture.host.textContent.includes('Skal gennemgås'));
  assert.equal(fixture.nodes().filter(node=>node.tagName==='SELECT').length,0);await fixture.key('inspect:missing-end').click();assert.ok(fixture.byClass('cs-time-comparison').textContent.includes('Afventer afslutning'));
 });
 
@@ -108,6 +108,35 @@ const readyEntry=(patch={})=>entry({breakMinutes:0,workedMinutes:480,deltaMinute
 const linkedShift=record=>({id:record.shiftId,person:record.personId,date:record.date,site:record.site,start:record.plannedStart,end:record.plannedEnd,...(record.demo?{demo:true}:{})});
 const reviewFixture=(records,extra={},callbacks={})=>app({entries:records,shifts:records.map(linkedShift),serverNow:'2026-11-02T12:00:00Z',...extra},callbacks);
 const rowIds=fixture=>fixture.byClass('cs-time-entries-table')?.querySelector('tbody').children.map(row=>row.dataset.entryId)||[];
+test('review queue approves a matching row in place with the guarded write and keeps exceptions for review',async()=>{
+ const matching=readyEntry({id:'matching',shiftId:'matching-shift'}),exception=readyEntry({id:'exception',shiftId:'exception-shift',comment:'En bemærkning'}),approved=readyEntry({id:'approved',shiftId:'approved-shift',status:'approved'});
+ const writes=[];
+ const fixture=reviewFixture([matching,exception,approved],{
+  pagination:{server:true,page:0},serverFilter:{queue:'review',scope:'real'},summary:{counts:{all:3,review:2,attention:1,ready:1,progress:0,approved:1}}
+ },{onAction:async(_action,payload)=>{writes.push(payload);return {ok:true,entry:{...matching,version:3,status:'approved'}};}});
+ assert.deepEqual(new Set(rowIds(fixture)),new Set(['matching','exception']));
+ assert.equal(fixture.key('queue:review').getAttribute('aria-pressed'),'true');
+ assert.equal(fixture.key('quick:approve:exception'),undefined);
+ await fixture.key('quick:approve:matching').click();
+ assert.deepEqual(writes,[{operation:'approve',entryId:'matching',version:2,shiftId:'matching-shift',personId:'emma',onlyIfMatchesPlan:true}]);
+ assert.deepEqual(rowIds(fixture),['exception']);
+ assert.equal(fixture.host.ownerDocument.activeElement,fixture.key('inspect:exception'));
+});
+
+test('row correction opens the draft directly and cancel restores the list and row focus',async()=>{
+ const record=readyEntry({comment:'Sen stempling bekræftet'}),fixture=reviewFixture([record]);
+ fixture.byClass('cs-timekeeping-body').scrollTop=120;
+ await fixture.key('correct:'+record.id).click();
+ assert.ok(fixture.key('field:start'));
+ assert.ok(fixture.byClass('cs-time-comparison'));
+ assert.equal(fixture.calls.length,0);
+ await fixture.key('draft:cancel').click();
+ assert.equal(fixture.byClass('cs-timekeeping-body').scrollTop,120);
+ assert.equal(fixture.host.ownerDocument.activeElement,fixture.key('correct:'+record.id));
+ fixture.render({canManage:false});
+ assert.equal(fixture.key('correct:'+record.id),undefined);
+});
+
 test('large time lists stay bounded while page selection and quick approval retain their distinct scopes',async()=>{
  const records=Array.from({length:125},(_,index)=>readyEntry({id:'record-'+String(index).padStart(3,'0'),shiftId:'shift-'+index})),fixture=reviewFixture(records);
  assert.equal(rowIds(fixture).length,50);assert.equal(fixture.byClass('cs-time-pagination').children[0].textContent,'1–50 af 125');assert.equal(fixture.key('page:entries:previous').disabled,true);

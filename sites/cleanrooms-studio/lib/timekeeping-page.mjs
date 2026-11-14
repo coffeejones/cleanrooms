@@ -6,7 +6,9 @@ import {readPublishedTimeShifts} from './publication-time-store.mjs';
 import {classifyPayrollEntry,payrollProblemKeys} from './payroll-period-problems.mjs';
 import {TIME_WORK_DATE_LOOKAROUND_DAYS} from './time-entry-store.mjs';
 
-const BATCH=500,PAGE_BYTES=1536*1024,queues=new Set(['all','attention','ready','progress','approved']);
+const BATCH=500,PAGE_BYTES=1536*1024;
+const reviewBuckets=new Set(['attention','ready']);
+const queues=new Set(['all','review',...reviewBuckets,'progress','approved']);
 const query=(db,sql,...values)=>db.prepare(sql).bind(...values);
 const rows=async(db,sql,...values)=>(await db.batch([query(db,sql,...values)]))[0]?.results||[];
 const first=async(...args)=>(await rows(...args))[0]||null;
@@ -102,14 +104,18 @@ export async function readPlannerTimePage({db,context,payload,range,frame,header
       const review=Time.review(entry,{shift:shifts.get(entry.shiftId),canViewPayroll:caps.viewPayroll===true,today:filter.scope==='demo'?(document.demo?.demoClockDate||document.demo?.clockDate):Time.localNow(new Date(stamp)).date});
       if(!reuse){add(summary,entry,review.bucket,caps.viewPayroll);if(!people.has(entry.personId))people.set(entry.personId,totals(entry.personId));add(people.get(entry.personId),entry,review.bucket,caps.viewPayroll);}
       if(after&&(meta.work_date<after[0]||meta.work_date===after[0]&&meta.id<=after[1]))continue;
-      if(filter.queue!=='all'&&review.bucket!==filter.queue)continue;
+      const matchesQueue=filter.queue==='all'||review.bucket===filter.queue||filter.queue==='review'&&reviewBuckets.has(review.bucket);
+      if(!matchesQueue)continue;
       if(selectionClosed||selected.length>=filter.pageSize||bytes+meta.bytes>PAGE_BYTES){selectionClosed=true;if(!selected.length)h.fail(413,'time_entry_full','En tidsregistrering fylder for meget. Kontakt administratoren.');more=true;continue;}
       selected.push({id:meta.id,version:meta.version,bytes:meta.bytes});selectedReviews.set(meta.id,review);selectedOverlaps.set(meta.id,batch[index].has_overlap===1);bytes+=meta.bytes;
     }
     position=[batch.at(-1).work_date,batch.at(-1).id];
     if(reuse&&more)break;
   }
-  if(!reuse){summary.people=[...people.values()];summary.canViewPayroll=caps.viewPayroll===true;if(!caps.viewPayroll)for(const item of [summary,...summary.people]){delete item.approvedCents;delete item.baseCents;delete item.supplementCents;delete item.missingPayrollCount;}if(JSON.stringify(summary).length<2*1024*1024){cache.set(summaryKey,{at:Date.now(),summary});while(cache.size>4)cache.delete(cache.keys().next().value);}}
+  if(!reuse){
+    summary.counts.review=summary.counts.attention+summary.counts.ready;
+    summary.people=[...people.values()];summary.canViewPayroll=caps.viewPayroll===true;if(!caps.viewPayroll)for(const item of [summary,...summary.people]){delete item.approvedCents;delete item.baseCents;delete item.supplementCents;delete item.missingPayrollCount;}if(JSON.stringify(summary).length<2*1024*1024){cache.set(summaryKey,{at:Date.now(),summary});while(cache.size>4)cache.delete(cache.keys().next().value);}
+  }
   const data=selected.length?await rows(db,`SELECT attendance.config FROM json_each(?) chosen CROSS JOIN workspace_time_entries attendance WHERE attendance.workspace_id=? AND attendance.id=json_extract(chosen.value,'$.id') AND attendance.version=json_extract(chosen.value,'$.version') AND length(CAST(attendance.config AS BLOB))<=json_extract(chosen.value,'$.bytes') ORDER BY attendance.work_date,attendance.id`,JSON.stringify(selected),workspaceId):[];
   if(data.length!==selected.length)h.fail(409,'time_conflict','Registreringerne ændrede sig under indlæsningen. Hent timerne igen.');
   const rawEntries=data.map(row=>{const entry=JSON.parse(row.config);entry._hasOverlap=selectedOverlaps.get(entry.id);return entry;});

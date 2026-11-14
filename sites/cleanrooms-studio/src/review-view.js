@@ -208,6 +208,7 @@
     if(create){if(icon)create.replaceChildren(icon('plus'),node('span','','Opret fravær'));createActions.append(create);}
     if(actionsHost)actionsHost.replaceChildren(createActions);
     let data={requests:[],canDecide:false},status='pending',offset=0,modal=null,modalRequest=null,deciding=null,destroyed=false,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error='',timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
+    let datePickers;
     const limit=40,statusButtons={},server=()=>typeof onQuery==='function'&&data.server!==false,filters=()=>Object.fromEntries(Object.entries({q:search.value.trim(),status,type:type.value,from:from.value,to:to.value}).filter(([,value])=>value&&value!=='all'));
     search.placeholder='Søg medarbejder';search.maxLength=120;type.setAttribute('data-select-only','');
     const closeModal=()=>{modal?.close({force:true,restoreFocus:false});modal=null;modalRequest=null;};
@@ -301,9 +302,9 @@
       resetQuery();draw();if(debounce){timer=setTimeout(()=>load('reset'),180);return;}return load('reset');
     }
     for(const key of ['pending','approved','rejected','all']){const el=button('',()=>{status=key;return changed();},'cs-review-status');statusButtons[key]=el;tabs.append(el);}
-    const datesPanel=node('div','cs-review-extra-filters'),datesToggle=button('Periode',()=>{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},'cs-button cs-leave-period-toggle');
+    const datesPanel=node('div','cs-review-extra-filters cs-leave-period-fields'),datesToggle=button('Periode',()=>{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},'cs-button cs-leave-period-toggle');
     const periodText=node('span','','Periode');datesToggle.replaceChildren(...(icon?[icon('calendar-range')]:[]),periodText);
-    function setPeriodOpen(value){datesPanel.hidden=!value;datesToggle.setAttribute('aria-expanded',String(value));}
+    function setPeriodOpen(value){if(!value)datePickers?.close();datesPanel.hidden=!value;datesToggle.setAttribute('aria-expanded',String(value));}
     function syncPeriod(){const value=from.value&&to.value?periodLabel({days:[from.value,to.value]}):from.value?'Fra '+dateLabel(from.value):to.value?'Til '+dateLabel(to.value):'Periode';periodText.textContent=value;datesToggle.setAttribute('aria-label','Filtrér fravær efter periode'+(value==='Periode'?'':': '+value));}
     setPeriodOpen(false);syncPeriod();
     const reset=button('Nulstil',()=>{search.value='';type.value='all';from.value=to.value='';syncPeriod();search.focus();return changed();},'cs-button cs-chrome-quiet');
@@ -318,12 +319,13 @@
     for(const control of [search,type,from,to])control.addEventListener(control===search?'input':'change',()=>changed(control===search));const navigation=node('div','cs-leave-navigation');navigation.append(tabs,tools);if(!actionsHost)navigation.append(createActions);page.append(navigation,datesPanel,feedback,results);element.replaceChildren(page);
     return {render(options){
       if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;data={...data,...options};
+      if(element.isConnected&&datePickers===undefined)datePickers=scope.CleanRoomsShiftEditorPickers?.mount(datesPanel,icon,{scrollArea:page})??null;
       createActions.hidden=!create||data.canCreate===false;if(actionsHost)actionsHost.hidden=createActions.hidden;
       const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value='';type.value='all';status='pending';offset=0;setPeriodOpen(false);syncPeriod();}
       if(!server()||loaded&&!busy&&oldRefresh===data.refreshKey)checkModal(server()?records:data.requests);
       else if(modalRequest?.canDecide&&!data.canDecide)closeModal();
       refreshTypes();if(server()&&(!loaded||contextChanged||oldRefresh!==data.refreshKey))return load('reset');draw();
-    },refresh(){return server()?load('reset'):draw();},destroy(){destroyed=true;resetQuery();closeModal();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
+    },refresh(){return server()?load('reset'):draw();},destroy(){destroyed=true;resetQuery();closeModal();datePickers?.destroy();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
   }
   function mountHistory({element,onQuery,onRestore,formatValue=(_key,value)=>JSON.stringify(value),onBackup}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-activity-page cs-history-review'),form=node('form','cs-review-tools cs-history-filters'),from=input('date','Historik fra dato'),to=input('date','Historik til dato'),actor=select('Udført af',[['all','Alle brugere']]),person=select('Berørt medarbejder',[['all','Alle medarbejdere']]),area=select('Område',[['all','Alle områder'],...Object.entries(AREAS)]),kind=select('Handlingstype',[['all','Alle handlinger'],...Object.entries(KINDS)]),search=input('search','Søg i historik'),feedback=node('p','cs-review-error'),notice=node('p','cs-review-muted cs-history-notice'),count=node('p','cs-review-muted cs-history-count'),list=node('div','cs-history-days'),more=button('Vis flere',()=>load(true)),refresh=button('Opdater',()=>load(false)),reset=button('Nulstil filtre',()=>{for(const control of [actor,person,area,kind])control.value='all';from.value=to.value=search.value='';load(false);},'cs-button cs-quiet');

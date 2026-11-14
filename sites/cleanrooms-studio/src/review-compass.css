@@ -119,6 +119,7 @@
   border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);
 }
 #cleanrooms-studio[data-page="leave"] .cs-review-extra-filters>.cs-review-field{gap:3px;min-width:0;max-width:165px}
+#cleanrooms-studio[data-page="leave"] .cs-leave-period-fields .cs-review-label{display:block}
 #cleanrooms-studio[data-page="leave"] .cs-leave-review-page>.cs-review-error{
   margin:0 0 10px;padding:9px 12px;border:1px solid #efdcd5;border-radius:6px;background:#fcf7f5;
 }

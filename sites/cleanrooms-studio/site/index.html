@@ -11233,6 +11233,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   border:1px solid var(--cs-compass-rule);border-radius:6px;background:var(--cs-access-soft);
 }
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-review-extra-filters&gt;.cs-review-field{gap:3px;min-width:0;max-width:165px}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-period-fields .cs-review-label{display:block}
 #cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-review-page&gt;.cs-review-error{
   margin:0 0 10px;padding:9px 12px;border:1px solid #efdcd5;border-radius:6px;background:#fcf7f5;
 }
@@ -14382,22 +14383,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 /* Keep the native input editable and give both picker buttons the combobox inset. */
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field {
   position: relative;
   min-width: 0;
   --cs-ui-field-inset-start: 10px;
   --cs-ui-field-inset-end: 34px;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field &gt; input {
   align-items: center;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input::-webkit-datetime-edit {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field &gt; input::-webkit-datetime-edit {
   padding: 0;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input::-webkit-calendar-picker-indicator {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field &gt; input::-webkit-calendar-picker-indicator {
   display: none;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger {
   position: absolute;
   inset-block: 1px;
   inset-inline-end: 1px;
@@ -14411,26 +14412,26 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color: var(--cs-access-muted);
   cursor: pointer;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger &gt; svg {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger &gt; svg {
   width: 15px;
   height: 15px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input[type=&quot;date&quot;] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field &gt; input[type=&quot;date&quot;] {
   /* The button handles pointer input across the field. The native input remains
      available for direct keyboard entry and form validation. */
   pointer-events: none;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind=&quot;date&quot;] {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[data-kind=&quot;date&quot;] {
   inset-inline: 1px;
   width: auto;
   justify-items: end;
   padding-inline-end: calc((var(--cs-ui-field-inset-end) - 16px) / 2);
   border-radius: calc(var(--cs-ui-radius) - 1px);
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind=&quot;date&quot;]:is(:hover, [aria-expanded=&quot;true&quot;]) {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[data-kind=&quot;date&quot;]:is(:hover, [aria-expanded=&quot;true&quot;]) {
   background: color-mix(in srgb, var(--cs-combobox-active) 42%, transparent);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
   display: none;
 }
 #cleanrooms-studio #cs-edit-form .cs-day-time-row .cs-shift-picker-field {
@@ -14438,7 +14439,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   --cs-ui-field-inset-end: 23px;
 }
 
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker {
   position: fixed;
   inset: auto;
   box-sizing: border-box;
@@ -14454,22 +14455,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-head {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 0 2px 5px 6px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-title {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-title {
   font-weight: 650;
   text-transform: capitalize;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-nav {
   display: flex;
   gap: 2px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button) {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button) {
   min-width: 0;
   height: 34px;
   padding: 0;
@@ -14480,34 +14481,34 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font: inherit;
   cursor: pointer;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav &gt; button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-nav &gt; button {
   width: 34px;
   font-size: 21px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-grid {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 2px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-weekday {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-weekday {
   padding: 4px 0;
   color: var(--cs-access-muted);
   font-size: 11px;
   text-align: center;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[data-today] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-day[data-today] {
   box-shadow: inset 0 0 0 1px var(--cs-combobox-edge);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button):disabled {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button):disabled {
   color: var(--cs-access-disabled);
   cursor: default;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav &gt; button):hover:not(:disabled),
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav &gt; button):hover:not(:disabled),
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option:hover {
   background: var(--cs-combobox-active);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[aria-expanded=&quot;true&quot;],
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[aria-pressed=&quot;true&quot;],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[aria-expanded=&quot;true&quot;],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-day[aria-pressed=&quot;true&quot;],
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option[aria-selected=&quot;true&quot;] {
   background: var(--cs-combobox-active);
   color: var(--cs-access-ink);
@@ -24461,6 +24462,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     if(create){if(icon)create.replaceChildren(icon(&#x27;plus&#x27;),node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Opret fravær&#x27;));createActions.append(create);}
     if(actionsHost)actionsHost.replaceChildren(createActions);
     let data={requests:[],canDecide:false},status=&#x27;pending&#x27;,offset=0,modal=null,modalRequest=null,deciding=null,destroyed=false,queryGeneration=0,records=[],counts=null,nextCursor=null,hasMore=false,busy=false,loaded=false,error=&#x27;&#x27;,timer=null,pageIndex=0,pages=[{cursor:null,start:0}];
+    let datePickers;
     const limit=40,statusButtons={},server=()=&gt;typeof onQuery===&#x27;function&#x27;&amp;&amp;data.server!==false,filters=()=&gt;Object.fromEntries(Object.entries({q:search.value.trim(),status,type:type.value,from:from.value,to:to.value}).filter(([,value])=&gt;value&amp;&amp;value!==&#x27;all&#x27;));
     search.placeholder=&#x27;Søg medarbejder&#x27;;search.maxLength=120;type.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
     const closeModal=()=&gt;{modal?.close({force:true,restoreFocus:false});modal=null;modalRequest=null;};
@@ -24554,9 +24556,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       resetQuery();draw();if(debounce){timer=setTimeout(()=&gt;load(&#x27;reset&#x27;),180);return;}return load(&#x27;reset&#x27;);
     }
     for(const key of [&#x27;pending&#x27;,&#x27;approved&#x27;,&#x27;rejected&#x27;,&#x27;all&#x27;]){const el=button(&#x27;&#x27;,()=&gt;{status=key;return changed();},&#x27;cs-review-status&#x27;);statusButtons[key]=el;tabs.append(el);}
-    const datesPanel=node(&#x27;div&#x27;,&#x27;cs-review-extra-filters&#x27;),datesToggle=button(&#x27;Periode&#x27;,()=&gt;{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},&#x27;cs-button cs-leave-period-toggle&#x27;);
+    const datesPanel=node(&#x27;div&#x27;,&#x27;cs-review-extra-filters cs-leave-period-fields&#x27;),datesToggle=button(&#x27;Periode&#x27;,()=&gt;{setPeriodOpen(datesPanel.hidden);if(!datesPanel.hidden)from.focus();},&#x27;cs-button cs-leave-period-toggle&#x27;);
     const periodText=node(&#x27;span&#x27;,&#x27;&#x27;,&#x27;Periode&#x27;);datesToggle.replaceChildren(...(icon?[icon(&#x27;calendar-range&#x27;)]:[]),periodText);
-    function setPeriodOpen(value){datesPanel.hidden=!value;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,String(value));}
+    function setPeriodOpen(value){if(!value)datePickers?.close();datesPanel.hidden=!value;datesToggle.setAttribute(&#x27;aria-expanded&#x27;,String(value));}
     function syncPeriod(){const value=from.value&amp;&amp;to.value?periodLabel({days:[from.value,to.value]}):from.value?&#x27;Fra &#x27;+dateLabel(from.value):to.value?&#x27;Til &#x27;+dateLabel(to.value):&#x27;Periode&#x27;;periodText.textContent=value;datesToggle.setAttribute(&#x27;aria-label&#x27;,&#x27;Filtrér fravær efter periode&#x27;+(value===&#x27;Periode&#x27;?&#x27;&#x27;:&#x27;: &#x27;+value));}
     setPeriodOpen(false);syncPeriod();
     const reset=button(&#x27;Nulstil&#x27;,()=&gt;{search.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;from.value=to.value=&#x27;&#x27;;syncPeriod();search.focus();return changed();},&#x27;cs-button cs-chrome-quiet&#x27;);
@@ -24571,12 +24573,13 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     for(const control of [search,type,from,to])control.addEventListener(control===search?&#x27;input&#x27;:&#x27;change&#x27;,()=&gt;changed(control===search));const navigation=node(&#x27;div&#x27;,&#x27;cs-leave-navigation&#x27;);navigation.append(tabs,tools);if(!actionsHost)navigation.append(createActions);page.append(navigation,datesPanel,feedback,results);element.replaceChildren(page);
     return {render(options){
       if(destroyed)return;const oldMode=server(),oldContext=data.contextKey,oldRefresh=data.refreshKey;data={...data,...options};
+      if(element.isConnected&amp;&amp;datePickers===undefined)datePickers=scope.CleanRoomsShiftEditorPickers?.mount(datesPanel,icon,{scrollArea:page})??null;
       createActions.hidden=!create||data.canCreate===false;if(actionsHost)actionsHost.hidden=createActions.hidden;
       const contextChanged=oldContext!==data.contextKey||oldMode!==server();if(contextChanged){closeModal();resetQuery();search.value=from.value=to.value=&#x27;&#x27;;type.value=&#x27;all&#x27;;status=&#x27;pending&#x27;;offset=0;setPeriodOpen(false);syncPeriod();}
       if(!server()||loaded&amp;&amp;!busy&amp;&amp;oldRefresh===data.refreshKey)checkModal(server()?records:data.requests);
       else if(modalRequest?.canDecide&amp;&amp;!data.canDecide)closeModal();
       refreshTypes();if(server()&amp;&amp;(!loaded||contextChanged||oldRefresh!==data.refreshKey))return load(&#x27;reset&#x27;);draw();
-    },refresh(){return server()?load(&#x27;reset&#x27;):draw();},destroy(){destroyed=true;resetQuery();closeModal();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
+    },refresh(){return server()?load(&#x27;reset&#x27;):draw();},destroy(){destroyed=true;resetQuery();closeModal();datePickers?.destroy();createActions.remove();if(actionsHost)actionsHost.hidden=true;page.remove();}};
   }
   function mountHistory({element,onQuery,onRestore,formatValue=(_key,value)=&gt;JSON.stringify(value),onBackup}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node(&#x27;section&#x27;,&#x27;cs-activity-page cs-history-review&#x27;),form=node(&#x27;form&#x27;,&#x27;cs-review-tools cs-history-filters&#x27;),from=input(&#x27;date&#x27;,&#x27;Historik fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Historik til dato&#x27;),actor=select(&#x27;Udført af&#x27;,[[&#x27;all&#x27;,&#x27;Alle brugere&#x27;]]),person=select(&#x27;Berørt medarbejder&#x27;,[[&#x27;all&#x27;,&#x27;Alle medarbejdere&#x27;]]),area=select(&#x27;Område&#x27;,[[&#x27;all&#x27;,&#x27;Alle områder&#x27;],...Object.entries(AREAS)]),kind=select(&#x27;Handlingstype&#x27;,[[&#x27;all&#x27;,&#x27;Alle handlinger&#x27;],...Object.entries(KINDS)]),search=input(&#x27;search&#x27;,&#x27;Søg i historik&#x27;),feedback=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;),notice=node(&#x27;p&#x27;,&#x27;cs-review-muted cs-history-notice&#x27;),count=node(&#x27;p&#x27;,&#x27;cs-review-muted cs-history-count&#x27;),list=node(&#x27;div&#x27;,&#x27;cs-history-days&#x27;),more=button(&#x27;Vis flere&#x27;,()=&gt;load(true)),refresh=button(&#x27;Opdater&#x27;,()=&gt;load(false)),reset=button(&#x27;Nulstil filtre&#x27;,()=&gt;{for(const control of [actor,person,area,kind])control.value=&#x27;all&#x27;;from.value=to.value=search.value=&#x27;&#x27;;load(false);},&#x27;cs-button cs-quiet&#x27;);
@@ -31567,6 +31570,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 

@@ -99,22 +99,22 @@
 }
 
 /* Keep the native input editable and give both picker buttons the combobox inset. */
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field {
   position: relative;
   min-width: 0;
   --cs-ui-field-inset-start: 10px;
   --cs-ui-field-inset-end: 34px;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field > input {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field > input {
   align-items: center;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field > input::-webkit-datetime-edit {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field > input::-webkit-datetime-edit {
   padding: 0;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field > input::-webkit-calendar-picker-indicator {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field > input::-webkit-calendar-picker-indicator {
   display: none;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger {
   position: absolute;
   inset-block: 1px;
   inset-inline-end: 1px;
@@ -128,26 +128,26 @@
   color: var(--cs-access-muted);
   cursor: pointer;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger > svg {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger > svg {
   width: 15px;
   height: 15px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field > input[type="date"] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field > input[type="date"] {
   /* The button handles pointer input across the field. The native input remains
      available for direct keyboard entry and form validation. */
   pointer-events: none;
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind="date"] {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[data-kind="date"] {
   inset-inline: 1px;
   width: auto;
   justify-items: end;
   padding-inline-end: calc((var(--cs-ui-field-inset-end) - 16px) / 2);
   border-radius: calc(var(--cs-ui-radius) - 1px);
 }
-#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind="date"]:is(:hover, [aria-expanded="true"]) {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[data-kind="date"]:is(:hover, [aria-expanded="true"]) {
   background: color-mix(in srgb, var(--cs-combobox-active) 42%, transparent);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field > input:is(:read-only, :disabled) + button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-field > input:is(:read-only, :disabled) + button {
   display: none;
 }
 #cleanrooms-studio #cs-edit-form .cs-day-time-row .cs-shift-picker-field {
@@ -155,7 +155,7 @@
   --cs-ui-field-inset-end: 23px;
 }
 
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker {
   position: fixed;
   inset: auto;
   box-sizing: border-box;
@@ -171,22 +171,22 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-head {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 0 2px 5px 6px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-title {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-title {
   font-weight: 650;
   text-transform: capitalize;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-nav {
   display: flex;
   gap: 2px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav > button) {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-date-day, .cs-shift-date-nav > button) {
   min-width: 0;
   height: 34px;
   padding: 0;
@@ -197,34 +197,34 @@
   font: inherit;
   cursor: pointer;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav > button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-nav > button {
   width: 34px;
   font-size: 21px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-grid {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 2px;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-weekday {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-weekday {
   padding: 4px 0;
   color: var(--cs-access-muted);
   font-size: 11px;
   text-align: center;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[data-today] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-day[data-today] {
   box-shadow: inset 0 0 0 1px var(--cs-combobox-edge);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav > button):disabled {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-date-day, .cs-shift-date-nav > button):disabled {
   color: var(--cs-access-disabled);
   cursor: default;
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav > button):hover:not(:disabled),
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav > button):hover:not(:disabled),
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option:hover {
   background: var(--cs-combobox-active);
 }
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[aria-expanded="true"],
-#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[aria-pressed="true"],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-picker-trigger[aria-expanded="true"],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog, .cs-leave-period-fields) .cs-shift-date-day[aria-pressed="true"],
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option[aria-selected="true"] {
   background: var(--cs-combobox-active);
   color: var(--cs-access-ink);

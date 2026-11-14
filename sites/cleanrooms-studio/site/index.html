@@ -8200,6 +8200,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #cleanrooms-studio .cs-leave-message &gt; p + .cs-review-muted {margin-top:5px}
 #cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
 #cleanrooms-studio .cs-leave-dialog .cs-review-label {color:var(--cs-access-muted,#5c6c75);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page=&quot;leave&quot;] .cs-leave-form-dates .cs-review-label {display:block}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog :is(.cs-review-input,.cs-review-textarea,.cs-publication-combobox-input) {--cs-ui-radius:6px;border-radius:6px}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-review-textarea {min-height:82px;padding:8px 10px}
 #cleanrooms-studio .cs-leave-rejection &gt; .cs-review-muted {margin-top:4px}
@@ -14381,22 +14382,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 }
 
 /* Keep the native input editable and give both picker buttons the combobox inset. */
-#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field {
   position: relative;
   min-width: 0;
   --cs-ui-field-inset-start: 10px;
   --cs-ui-field-inset-end: 34px;
 }
-#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-field &gt; input {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input {
   align-items: center;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input::-webkit-datetime-edit {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input::-webkit-datetime-edit {
   padding: 0;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input::-webkit-calendar-picker-indicator {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input::-webkit-calendar-picker-indicator {
   display: none;
 }
-#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger {
   position: absolute;
   inset-block: 1px;
   inset-inline-end: 1px;
@@ -14410,26 +14411,26 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   color: var(--cs-access-muted);
   cursor: pointer;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger &gt; svg {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger &gt; svg {
   width: 15px;
   height: 15px;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input[type=&quot;date&quot;] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input[type=&quot;date&quot;] {
   /* The button handles pointer input across the field. The native input remains
      available for direct keyboard entry and form validation. */
   pointer-events: none;
 }
-#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind=&quot;date&quot;] {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind=&quot;date&quot;] {
   inset-inline: 1px;
   width: auto;
   justify-items: end;
   padding-inline-end: calc((var(--cs-ui-field-inset-end) - 16px) / 2);
   border-radius: calc(var(--cs-ui-radius) - 1px);
 }
-#cleanrooms-studio[data-page][data-role] #cs-edit-form .cs-shift-picker-trigger[data-kind=&quot;date&quot;]:is(:hover, [aria-expanded=&quot;true&quot;]) {
+#cleanrooms-studio[data-page][data-role] :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[data-kind=&quot;date&quot;]:is(:hover, [aria-expanded=&quot;true&quot;]) {
   background: color-mix(in srgb, var(--cs-combobox-active) 42%, transparent);
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-field &gt; input:is(:read-only, :disabled) + button {
   display: none;
 }
 #cleanrooms-studio #cs-edit-form .cs-day-time-row .cs-shift-picker-field {
@@ -14437,7 +14438,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   --cs-ui-field-inset-end: 23px;
 }
 
-#cleanrooms-studio #cs-edit-form .cs-shift-picker {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker {
   position: fixed;
   inset: auto;
   box-sizing: border-box;
@@ -14453,22 +14454,22 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-head {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 0 2px 5px 6px;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-title {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-title {
   font-weight: 650;
   text-transform: capitalize;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-nav {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav {
   display: flex;
   gap: 2px;
 }
-#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button) {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button) {
   min-width: 0;
   height: 34px;
   padding: 0;
@@ -14479,34 +14480,34 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   font: inherit;
   cursor: pointer;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-nav &gt; button {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-nav &gt; button {
   width: 34px;
   font-size: 21px;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-grid {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 2px;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-weekday {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-weekday {
   padding: 4px 0;
   color: var(--cs-access-muted);
   font-size: 11px;
   text-align: center;
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-date-day[data-today] {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[data-today] {
   box-shadow: inset 0 0 0 1px var(--cs-combobox-edge);
 }
-#cleanrooms-studio #cs-edit-form :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button):disabled {
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-date-day, .cs-shift-date-nav &gt; button):disabled {
   color: var(--cs-access-disabled);
   cursor: default;
 }
-#cleanrooms-studio #cs-edit-form :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav &gt; button):hover:not(:disabled),
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) :is(.cs-shift-picker-trigger, .cs-shift-date-day, .cs-shift-date-nav &gt; button):hover:not(:disabled),
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option:hover {
   background: var(--cs-combobox-active);
 }
-#cleanrooms-studio #cs-edit-form .cs-shift-picker-trigger[aria-expanded=&quot;true&quot;],
-#cleanrooms-studio #cs-edit-form .cs-shift-date-day[aria-pressed=&quot;true&quot;],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-picker-trigger[aria-expanded=&quot;true&quot;],
+#cleanrooms-studio :is(#cs-edit-form, .cs-leave-dialog) .cs-shift-date-day[aria-pressed=&quot;true&quot;],
 #cleanrooms-studio #cs-edit-form .cs-shift-time-option[aria-selected=&quot;true&quot;] {
   background: var(--cs-combobox-active);
   color: var(--cs-access-ink);
@@ -24280,7 +24281,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const start=new Date(first+&#x27;T12:00:00Z&#x27;),end=new Date(last+&#x27;T12:00:00Z&#x27;);
     return first===last?leaveDate.format(start):leaveDate.formatRange(start,end);
   }
-  function leaveDialog({element,title,tag=&#x27;section&#x27;,trigger,onClose,focusFallback}){
+  function leaveDialog({element,title,tag=&#x27;section&#x27;,trigger,onClose,focusFallback,dismissOnBackdrop=false}){
     const doc=element.ownerDocument,{node,button}=kit(doc),owner=element.closest?.(&#x27;#cleanrooms-studio&#x27;)||element;
     const layer=node(&#x27;dialog&#x27;,&#x27;cs-review-modal cs-leave-modal&#x27;),panel=node(tag,&#x27;cs-review-dialog cs-leave-dialog&#x27;);
     const header=node(&#x27;header&#x27;,&#x27;cs-leave-dialog-header&#x27;),heading=node(&#x27;h3&#x27;,&#x27;&#x27;,title);
@@ -24303,6 +24304,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     dismiss.setAttribute(&#x27;aria-label&#x27;,&#x27;Luk &#x27;+title.toLocaleLowerCase(&#x27;da-DK&#x27;));
     layer.setAttribute(&#x27;aria-label&#x27;,title);layer.setAttribute(&#x27;aria-modal&#x27;,&#x27;true&#x27;);panel.tabIndex=-1;
     header.append(heading,dismiss);panel.append(header,body,error,actions);layer.append(panel);
+    if(dismissOnBackdrop){
+      let startedOnBackdrop=false;
+      layer.addEventListener(&#x27;pointerdown&#x27;,event=&gt;{
+        startedOnBackdrop=event.target===layer;
+      });
+      layer.addEventListener(&#x27;click&#x27;,event=&gt;{
+        const backdropClick=startedOnBackdrop&amp;&amp;event.target===layer;
+        startedOnBackdrop=false;
+        if(!backdropClick)return;
+        const {left,right,top,bottom}=panel.getBoundingClientRect();
+        if(event.clientX&lt;left||event.clientX&gt;right||event.clientY&lt;top||event.clientY&gt;bottom)close();
+      });
+    }
     layer.addEventListener(&#x27;cancel&#x27;,event=&gt;{event.preventDefault();close();});
     layer.addEventListener(&#x27;keydown&#x27;,event=&gt;{if(event.key===&#x27;Escape&#x27;&amp;&amp;!event.defaultPrevented){event.preventDefault();event.stopPropagation();close();}});
     function open(initialFocus){
@@ -24324,23 +24338,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
     const {node,button,field}=kit(element.ownerDocument);
     const title=initialRejection?&#x27;Afvis fraværsanmodning&#x27;:&#x27;Fraværsanmodning&#x27;;
-    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
+    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback,dismissOnBackdrop:!initialRejection});
     const canRespond=Boolean(canDecide&amp;&amp;typeof onDecision===&#x27;function&#x27;&amp;&amp;(request.status===&#x27;pending&#x27;||initialRejection));
     const name=text(request.name)||&#x27;Medarbejder&#x27;,status=request.status||&#x27;pending&#x27;;
     dialog.layer.className+=&#x27; cs-leave-detail-modal&#x27;;
-    if(!initialRejection){
-      let startedOnBackdrop=false;
-      dialog.layer.addEventListener(&#x27;pointerdown&#x27;,event=&gt;{
-        startedOnBackdrop=event.target===dialog.layer;
-      });
-      dialog.layer.addEventListener(&#x27;click&#x27;,event=&gt;{
-        const backdropClick=startedOnBackdrop&amp;&amp;event.target===dialog.layer;
-        startedOnBackdrop=false;
-        if(!backdropClick)return;
-        const {left,right,top,bottom}=dialog.panel.getBoundingClientRect();
-        if(event.clientX&lt;left||event.clientX&gt;right||event.clientY&lt;top||event.clientY&gt;bottom)dialog.close();
-      });
-    }
     const identity=node(&#x27;div&#x27;,&#x27;cs-leave-identity&#x27;),copy=node(&#x27;div&#x27;,&#x27;cs-leave-identity-copy&#x27;);
     const avatar=node(&#x27;span&#x27;,&#x27;cs-leave-avatar&#x27;,request.initials||name.split(/\s+/).slice(0,2).map(part=&gt;part[0]).join(&#x27;&#x27;));
     avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
@@ -24406,15 +24407,21 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     showRejection(initialRejection);dialog.open(initialRejection?reason:null);return dialog;
   }
   function rejection(options){return leaveDetails({...options,canDecide:true,initialRejection:true});}
-  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
+  function requestAbsence({element,people=[],personId=null,today,icon,onSubmit}){
     const {node,button,field,input,select}=kit(element.ownerDocument);
-    const title=personId?&#x27;Anmod om fravær&#x27;:&#x27;Opret fravær&#x27;,dialog=leaveDialog({element,title,tag:&#x27;form&#x27;});
+    const title=personId?&#x27;Anmod om fravær&#x27;:&#x27;Opret fravær&#x27;;
+    let datePickers;
+    const dialog=leaveDialog({element,title,tag:&#x27;form&#x27;,dismissOnBackdrop:!personId,onClose:()=&gt;datePickers?.destroy()});
     const available=people.filter(person=&gt;person.active!==false);
     const person=select(&#x27;Medarbejder&#x27;,available.map(person=&gt;[person.id,person.name]),available[0]?.id||&#x27;&#x27;);
     const type=select(&#x27;Fraværstype&#x27;,[[&#x27;Ferie&#x27;,&#x27;Ferie&#x27;],[&#x27;Friønske&#x27;,&#x27;Friønske&#x27;],[&#x27;Sygdom&#x27;,&#x27;Sygdom&#x27;],[&#x27;Andet&#x27;,&#x27;Andet&#x27;]],&#x27;Ferie&#x27;);
     const from=input(&#x27;date&#x27;,&#x27;Fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Til dato&#x27;),comment=node(&#x27;textarea&#x27;,&#x27;cs-review-textarea&#x27;);
     person.required=true;type.setAttribute(&#x27;data-select-only&#x27;,&#x27;&#x27;);
     from.value=to.value=today;from.required=to.required=true;comment.rows=3;comment.setAttribute(&#x27;aria-label&#x27;,&#x27;Kommentar&#x27;);
+    for(const date of [from,to]){
+      date.min=scope.CleanRoomsData?.minDate||&#x27;&#x27;;
+      date.max=scope.CleanRoomsData?.maxDate||&#x27;&#x27;;
+    }
     const cancel=button(&#x27;Annuller&#x27;,()=&gt;dialog.close(),&#x27;cs-button cs-chrome-quiet&#x27;);
     const submit=button(&#x27;Send anmodning&#x27;,submitRequest,&#x27;cs-button cs-primary&#x27;);
     if(!personId)dialog.body.append(field(&#x27;Medarbejder&#x27;,person));
@@ -24443,7 +24450,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       if(event.key!==&#x27;Enter&#x27;||event.defaultPrevented||event.isComposing||![&#x27;INPUT&#x27;,&#x27;SELECT&#x27;].includes(event.target?.tagName)||event.target.getAttribute(&#x27;role&#x27;)===&#x27;combobox&#x27;)return;
       event.preventDefault();return submitRequest();
     });
-    dialog.open(personId?from:person);return dialog;
+    dialog.open(personId?from:person);
+    if(!personId)datePickers=scope.CleanRoomsShiftEditorPickers?.mount(dialog.panel,icon,{scrollArea:dialog.body});
+    return dialog;
   }
   function mountLeave({element,actionsHost,icon,onDecision,onCreate,onQuery}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node(&#x27;section&#x27;,&#x27;cs-leave-review-page&#x27;),tools=node(&#x27;div&#x27;,&#x27;cs-review-tools&#x27;),search=input(&#x27;search&#x27;,&#x27;Søg medarbejder&#x27;),type=select(&#x27;Fraværstype&#x27;,[[&#x27;all&#x27;,&#x27;Alle typer&#x27;]]),from=input(&#x27;date&#x27;,&#x27;Fravær fra dato&#x27;),to=input(&#x27;date&#x27;,&#x27;Fravær til dato&#x27;),tabs=node(&#x27;div&#x27;,&#x27;cs-review-statuses&#x27;),results=node(&#x27;div&#x27;,&#x27;cs-review-results&#x27;),feedback=node(&#x27;p&#x27;,&#x27;cs-review-error&#x27;);
@@ -27222,19 +27231,23 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 (() =&gt; {
   &#x27;use strict&#x27;;
 
-  function mount(form, icon) {
+  let nextId = 0;
+
+  function mount(form, icon, {scrollArea = form?.querySelector(&#x27;.cs-editor-fields&#x27;)} = {}) {
     const date = globalThis.CleanRoomsShiftDateCalendar;
     const time = globalThis.CleanRoomsShiftTimeOptions;
-    if (!form || !date || !time) return null;
+    if (!form || typeof icon !== &#x27;function&#x27; || !date || !time) return null;
     const doc = form.ownerDocument, win = doc.defaultView;
     const panel = doc.createElement(&#x27;div&#x27;);
     if (typeof panel.showPopover !== &#x27;function&#x27;) return null;
-    panel.id = &#x27;cs-shift-picker&#x27;;
+    panel.id = &#x27;cs-shift-picker-&#x27; + ++nextId;
     panel.className = &#x27;cs-shift-picker&#x27;;
     panel.setAttribute(&#x27;role&#x27;, &#x27;dialog&#x27;);
     panel.setAttribute(&#x27;popover&#x27;, &#x27;manual&#x27;);
     panel.hidden = true;
     form.append(panel);
+    const listeners = new win.AbortController();
+    const {signal} = listeners;
     let current = null;
 
     function position() {
@@ -27245,8 +27258,8 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       const viewport = win.visualViewport;
       const left = viewport?.offsetLeft ?? 0, top = viewport?.offsetTop ?? 0;
       const right = left + (viewport?.width ?? win.innerWidth), bottom = top + (viewport?.height ?? win.innerHeight);
-      const scrollArea = form.querySelector(&#x27;.cs-editor-fields&#x27;).getBoundingClientRect();
-      if (rect.bottom &lt;= scrollArea.top || rect.top &gt;= scrollArea.bottom) { close(); return; }
+      const bounds = scrollArea?.getBoundingClientRect();
+      if (bounds &amp;&amp; (rect.bottom &lt;= bounds.top || rect.top &gt;= bounds.bottom)) { close(); return; }
       const inset = 8, gap = 6;
       const width = Math.min(panel.dataset.kind === &#x27;date&#x27; ? 288 : 208, right - left - inset * 2);
       panel.style.inlineSize = width + &#x27;px&#x27;;
@@ -27293,7 +27306,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       updateLabel();
       if (kind === &#x27;date&#x27;) {
         for (const label of input.labels) label.addEventListener(&#x27;click&#x27;, event =&gt; {
-          if (input.disabled || input.readOnly) return;
+          if (input.disabled || input.readOnly || event.composedPath().includes(wrapper)) return;
           event.preventDefault();
           trigger.click();
         });
@@ -27301,7 +27314,11 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
       // An editor scope can rename Startdato to Gælder fra.
       if (input.id === &#x27;cs-repeat-start&#x27;) {
         const label = input.labels[0];
-        if (label) new win.MutationObserver(updateLabel).observe(label, {childList: true});
+        if (label) {
+          const observer = new win.MutationObserver(updateLabel);
+          observer.observe(label, {childList: true});
+          signal.addEventListener(&#x27;abort&#x27;, () =&gt; observer.disconnect(), {once: true});
+        }
       }
       trigger.addEventListener(&#x27;click&#x27;, () =&gt; {
         if (current?.trigger === trigger) { close(true); return; }
@@ -27329,22 +27346,26 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     form.querySelectorAll(&#x27;input[type=&quot;date&quot;],input[type=&quot;time&quot;]&#x27;).forEach(attach);
     doc.addEventListener(&#x27;pointerdown&#x27;, event =&gt; {
       if (current &amp;&amp; !panel.contains(event.target) &amp;&amp; !current.trigger.contains(event.target)) close();
-    }, true);
+    }, {capture: true, signal});
     doc.addEventListener(&#x27;focusin&#x27;, event =&gt; {
       if (current &amp;&amp; !panel.contains(event.target) &amp;&amp; current.trigger !== event.target) close();
-    });
+    }, {signal});
     form.addEventListener(&#x27;keydown&#x27;, event =&gt; {
       if (current &amp;&amp; event.key === &#x27;Escape&#x27;) {
         event.preventDefault();
         event.stopPropagation();
         close(true);
       }
-    });
-    win.addEventListener(&#x27;resize&#x27;, position);
-    win.addEventListener(&#x27;scroll&#x27;, position, true);
-    win.visualViewport?.addEventListener(&#x27;resize&#x27;, position);
-    win.visualViewport?.addEventListener(&#x27;scroll&#x27;, position);
-    return {attach, close};
+    }, {signal});
+    win.addEventListener(&#x27;resize&#x27;, position, {signal});
+    win.addEventListener(&#x27;scroll&#x27;, position, {capture: true, signal});
+    win.visualViewport?.addEventListener(&#x27;resize&#x27;, position, {signal});
+    win.visualViewport?.addEventListener(&#x27;scroll&#x27;, position, {signal});
+    return {attach, close, destroy() {
+      close();
+      listeners.abort();
+      panel.remove();
+    }};
   }
 
   globalThis.CleanRoomsShiftEditorPickers = Object.freeze({mount});
@@ -29513,7 +29534,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
   function pendingLeaveCount(){return !state.demoSession&amp;&amp;leavePending!==null?leavePending:leaveRequests.filter(request=&gt;(state.requests[request.id]||request.status)===&#x27;pending&#x27;).length;}
   function openAbsenceRequest(personId=null){
     if(state.demoSession){notify(&#x27;Afslut planlægningseksemplet, før du opretter en rigtig fraværsanmodning.&#x27;);return;}
-    globalThis.CleanRoomsReview.requestAbsence({element:root,people:staff,personId,today:PlanData.todayFor(),onSubmit:async payload=&gt;{
+    globalThis.CleanRoomsReview.requestAbsence({element:root,people:staff,personId,today:PlanData.todayFor(),icon,onSubmit:async payload=&gt;{
       const result=await accountAction(&#x27;leaveCreate&#x27;,payload);
       if(result.ok){const item=result.request;leaveDecisionRows.set(item.id,item);state.requests[item.id]=item.status;leaveRefresh++;persistence?.invalidateCoverage?.();if(realEmployee()&amp;&amp;employeeData)employeeData.leaveRequests=[item,...(employeeData.leaveRequests||[])];render();notify(&#x27;Fraværsanmodningen er gemt.&#x27;);}
       return result;
@@ -31546,6 +31567,10 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
+
+
+
 
 
 

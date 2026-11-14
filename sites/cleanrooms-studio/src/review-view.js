@@ -28,7 +28,7 @@
     const start=new Date(first+'T12:00:00Z'),end=new Date(last+'T12:00:00Z');
     return first===last?leaveDate.format(start):leaveDate.formatRange(start,end);
   }
-  function leaveDialog({element,title,tag='section',trigger,onClose,focusFallback}){
+  function leaveDialog({element,title,tag='section',trigger,onClose,focusFallback,dismissOnBackdrop=false}){
     const doc=element.ownerDocument,{node,button}=kit(doc),owner=element.closest?.('#cleanrooms-studio')||element;
     const layer=node('dialog','cs-review-modal cs-leave-modal'),panel=node(tag,'cs-review-dialog cs-leave-dialog');
     const header=node('header','cs-leave-dialog-header'),heading=node('h3','',title);
@@ -51,6 +51,19 @@
     dismiss.setAttribute('aria-label','Luk '+title.toLocaleLowerCase('da-DK'));
     layer.setAttribute('aria-label',title);layer.setAttribute('aria-modal','true');panel.tabIndex=-1;
     header.append(heading,dismiss);panel.append(header,body,error,actions);layer.append(panel);
+    if(dismissOnBackdrop){
+      let startedOnBackdrop=false;
+      layer.addEventListener('pointerdown',event=>{
+        startedOnBackdrop=event.target===layer;
+      });
+      layer.addEventListener('click',event=>{
+        const backdropClick=startedOnBackdrop&&event.target===layer;
+        startedOnBackdrop=false;
+        if(!backdropClick)return;
+        const {left,right,top,bottom}=panel.getBoundingClientRect();
+        if(event.clientX<left||event.clientX>right||event.clientY<top||event.clientY>bottom)close();
+      });
+    }
     layer.addEventListener('cancel',event=>{event.preventDefault();close();});
     layer.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();event.stopPropagation();close();}});
     function open(initialFocus){
@@ -72,23 +85,10 @@
   function leaveDetails({element,request,canDecide,onDecision,trigger,onClose,focusFallback,initialRejection=false}){
     const {node,button,field}=kit(element.ownerDocument);
     const title=initialRejection?'Afvis fraværsanmodning':'Fraværsanmodning';
-    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback});
+    const dialog=leaveDialog({element,title,trigger,onClose,focusFallback,dismissOnBackdrop:!initialRejection});
     const canRespond=Boolean(canDecide&&typeof onDecision==='function'&&(request.status==='pending'||initialRejection));
     const name=text(request.name)||'Medarbejder',status=request.status||'pending';
     dialog.layer.className+=' cs-leave-detail-modal';
-    if(!initialRejection){
-      let startedOnBackdrop=false;
-      dialog.layer.addEventListener('pointerdown',event=>{
-        startedOnBackdrop=event.target===dialog.layer;
-      });
-      dialog.layer.addEventListener('click',event=>{
-        const backdropClick=startedOnBackdrop&&event.target===dialog.layer;
-        startedOnBackdrop=false;
-        if(!backdropClick)return;
-        const {left,right,top,bottom}=dialog.panel.getBoundingClientRect();
-        if(event.clientX<left||event.clientX>right||event.clientY<top||event.clientY>bottom)dialog.close();
-      });
-    }
     const identity=node('div','cs-leave-identity'),copy=node('div','cs-leave-identity-copy');
     const avatar=node('span','cs-leave-avatar',request.initials||name.split(/\s+/).slice(0,2).map(part=>part[0]).join(''));
     avatar.setAttribute('aria-hidden','true');
@@ -154,15 +154,21 @@
     showRejection(initialRejection);dialog.open(initialRejection?reason:null);return dialog;
   }
   function rejection(options){return leaveDetails({...options,canDecide:true,initialRejection:true});}
-  function requestAbsence({element,people=[],personId=null,today,onSubmit}){
+  function requestAbsence({element,people=[],personId=null,today,icon,onSubmit}){
     const {node,button,field,input,select}=kit(element.ownerDocument);
-    const title=personId?'Anmod om fravær':'Opret fravær',dialog=leaveDialog({element,title,tag:'form'});
+    const title=personId?'Anmod om fravær':'Opret fravær';
+    let datePickers;
+    const dialog=leaveDialog({element,title,tag:'form',dismissOnBackdrop:!personId,onClose:()=>datePickers?.destroy()});
     const available=people.filter(person=>person.active!==false);
     const person=select('Medarbejder',available.map(person=>[person.id,person.name]),available[0]?.id||'');
     const type=select('Fraværstype',[['Ferie','Ferie'],['Friønske','Friønske'],['Sygdom','Sygdom'],['Andet','Andet']],'Ferie');
     const from=input('date','Fra dato'),to=input('date','Til dato'),comment=node('textarea','cs-review-textarea');
     person.required=true;type.setAttribute('data-select-only','');
     from.value=to.value=today;from.required=to.required=true;comment.rows=3;comment.setAttribute('aria-label','Kommentar');
+    for(const date of [from,to]){
+      date.min=scope.CleanRoomsData?.minDate||'';
+      date.max=scope.CleanRoomsData?.maxDate||'';
+    }
     const cancel=button('Annuller',()=>dialog.close(),'cs-button cs-chrome-quiet');
     const submit=button('Send anmodning',submitRequest,'cs-button cs-primary');
     if(!personId)dialog.body.append(field('Medarbejder',person));
@@ -191,7 +197,9 @@
       if(event.key!=='Enter'||event.defaultPrevented||event.isComposing||!['INPUT','SELECT'].includes(event.target?.tagName)||event.target.getAttribute('role')==='combobox')return;
       event.preventDefault();return submitRequest();
     });
-    dialog.open(personId?from:person);return dialog;
+    dialog.open(personId?from:person);
+    if(!personId)datePickers=scope.CleanRoomsShiftEditorPickers?.mount(dialog.panel,icon,{scrollArea:dialog.body});
+    return dialog;
   }
   function mountLeave({element,actionsHost,icon,onDecision,onCreate,onQuery}){
     const doc=element.ownerDocument,{node,button,field,input,select}=kit(doc),page=node('section','cs-leave-review-page'),tools=node('div','cs-review-tools'),search=input('search','Søg medarbejder'),type=select('Fraværstype',[['all','Alle typer']]),from=input('date','Fravær fra dato'),to=input('date','Fravær til dato'),tabs=node('div','cs-review-statuses'),results=node('div','cs-review-results'),feedback=node('p','cs-review-error');

@@ -1,19 +1,23 @@
 (() => {
   'use strict';
 
-  function mount(form, icon) {
+  let nextId = 0;
+
+  function mount(form, icon, {scrollArea = form?.querySelector('.cs-editor-fields')} = {}) {
     const date = globalThis.CleanRoomsShiftDateCalendar;
     const time = globalThis.CleanRoomsShiftTimeOptions;
-    if (!form || !date || !time) return null;
+    if (!form || typeof icon !== 'function' || !date || !time) return null;
     const doc = form.ownerDocument, win = doc.defaultView;
     const panel = doc.createElement('div');
     if (typeof panel.showPopover !== 'function') return null;
-    panel.id = 'cs-shift-picker';
+    panel.id = 'cs-shift-picker-' + ++nextId;
     panel.className = 'cs-shift-picker';
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('popover', 'manual');
     panel.hidden = true;
     form.append(panel);
+    const listeners = new win.AbortController();
+    const {signal} = listeners;
     let current = null;
 
     function position() {
@@ -24,8 +28,8 @@
       const viewport = win.visualViewport;
       const left = viewport?.offsetLeft ?? 0, top = viewport?.offsetTop ?? 0;
       const right = left + (viewport?.width ?? win.innerWidth), bottom = top + (viewport?.height ?? win.innerHeight);
-      const scrollArea = form.querySelector('.cs-editor-fields').getBoundingClientRect();
-      if (rect.bottom <= scrollArea.top || rect.top >= scrollArea.bottom) { close(); return; }
+      const bounds = scrollArea?.getBoundingClientRect();
+      if (bounds && (rect.bottom <= bounds.top || rect.top >= bounds.bottom)) { close(); return; }
       const inset = 8, gap = 6;
       const width = Math.min(panel.dataset.kind === 'date' ? 288 : 208, right - left - inset * 2);
       panel.style.inlineSize = width + 'px';
@@ -72,7 +76,7 @@
       updateLabel();
       if (kind === 'date') {
         for (const label of input.labels) label.addEventListener('click', event => {
-          if (input.disabled || input.readOnly) return;
+          if (input.disabled || input.readOnly || event.composedPath().includes(wrapper)) return;
           event.preventDefault();
           trigger.click();
         });
@@ -80,7 +84,11 @@
       // An editor scope can rename Startdato to Gælder fra.
       if (input.id === 'cs-repeat-start') {
         const label = input.labels[0];
-        if (label) new win.MutationObserver(updateLabel).observe(label, {childList: true});
+        if (label) {
+          const observer = new win.MutationObserver(updateLabel);
+          observer.observe(label, {childList: true});
+          signal.addEventListener('abort', () => observer.disconnect(), {once: true});
+        }
       }
       trigger.addEventListener('click', () => {
         if (current?.trigger === trigger) { close(true); return; }
@@ -108,22 +116,26 @@
     form.querySelectorAll('input[type="date"],input[type="time"]').forEach(attach);
     doc.addEventListener('pointerdown', event => {
       if (current && !panel.contains(event.target) && !current.trigger.contains(event.target)) close();
-    }, true);
+    }, {capture: true, signal});
     doc.addEventListener('focusin', event => {
       if (current && !panel.contains(event.target) && current.trigger !== event.target) close();
-    });
+    }, {signal});
     form.addEventListener('keydown', event => {
       if (current && event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
         close(true);
       }
-    });
-    win.addEventListener('resize', position);
-    win.addEventListener('scroll', position, true);
-    win.visualViewport?.addEventListener('resize', position);
-    win.visualViewport?.addEventListener('scroll', position);
-    return {attach, close};
+    }, {signal});
+    win.addEventListener('resize', position, {signal});
+    win.addEventListener('scroll', position, {capture: true, signal});
+    win.visualViewport?.addEventListener('resize', position, {signal});
+    win.visualViewport?.addEventListener('scroll', position, {signal});
+    return {attach, close, destroy() {
+      close();
+      listeners.abort();
+      panel.remove();
+    }};
   }
 
   globalThis.CleanRoomsShiftEditorPickers = Object.freeze({mount});

@@ -2161,7 +2161,7 @@
   function pendingLeaveCount(){return !state.demoSession&&leavePending!==null?leavePending:leaveRequests.filter(request=>(state.requests[request.id]||request.status)==='pending').length;}
   function openAbsenceRequest(personId=null){
     if(state.demoSession){notify('Afslut planlægningseksemplet, før du opretter en rigtig fraværsanmodning.');return;}
-    globalThis.CleanRoomsReview.requestAbsence({element:root,people:staff,personId,today:PlanData.todayFor(),onSubmit:async payload=>{
+    globalThis.CleanRoomsReview.requestAbsence({element:root,people:staff,personId,today:PlanData.todayFor(),icon,onSubmit:async payload=>{
       const result=await accountAction('leaveCreate',payload);
       if(result.ok){const item=result.request;leaveDecisionRows.set(item.id,item);state.requests[item.id]=item.status;leaveRefresh++;persistence?.invalidateCoverage?.();if(realEmployee()&&employeeData)employeeData.leaveRequests=[item,...(employeeData.leaveRequests||[])];render();notify('Fraværsanmodningen er gemt.');}
       return result;

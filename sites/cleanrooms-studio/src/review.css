@@ -226,6 +226,7 @@
 #cleanrooms-studio .cs-leave-message > p + .cs-review-muted {margin-top:5px}
 #cleanrooms-studio .cs-leave-dialog .cs-review-field {gap:4px;min-width:0}
 #cleanrooms-studio .cs-leave-dialog .cs-review-label {color:var(--cs-access-muted,#5c6c75);font-size:12px;font-weight:600}
+#cleanrooms-studio[data-page="leave"] .cs-leave-form-dates .cs-review-label {display:block}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog :is(.cs-review-input,.cs-review-textarea,.cs-publication-combobox-input) {--cs-ui-radius:6px;border-radius:6px}
 #cleanrooms-studio[data-page][data-role] .cs-leave-dialog .cs-review-textarea {min-height:82px;padding:8px 10px}
 #cleanrooms-studio .cs-leave-rejection > .cs-review-muted {margin-top:4px}

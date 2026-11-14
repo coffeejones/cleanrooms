@@ -76,6 +76,19 @@
     const canRespond=Boolean(canDecide&&typeof onDecision==='function'&&(request.status==='pending'||initialRejection));
     const name=text(request.name)||'Medarbejder',status=request.status||'pending';
     dialog.layer.className+=' cs-leave-detail-modal';
+    if(!initialRejection){
+      let startedOnBackdrop=false;
+      dialog.layer.addEventListener('pointerdown',event=>{
+        startedOnBackdrop=event.target===dialog.layer;
+      });
+      dialog.layer.addEventListener('click',event=>{
+        const backdropClick=startedOnBackdrop&&event.target===dialog.layer;
+        startedOnBackdrop=false;
+        if(!backdropClick)return;
+        const {left,right,top,bottom}=dialog.panel.getBoundingClientRect();
+        if(event.clientX<left||event.clientX>right||event.clientY<top||event.clientY>bottom)dialog.close();
+      });
+    }
     const identity=node('div','cs-leave-identity'),copy=node('div','cs-leave-identity-copy');
     const avatar=node('span','cs-leave-avatar',request.initials||name.split(/\s+/).slice(0,2).map(part=>part[0]).join(''));
     avatar.setAttribute('aria-hidden','true');

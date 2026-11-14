@@ -24328,6 +24328,19 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
     const canRespond=Boolean(canDecide&amp;&amp;typeof onDecision===&#x27;function&#x27;&amp;&amp;(request.status===&#x27;pending&#x27;||initialRejection));
     const name=text(request.name)||&#x27;Medarbejder&#x27;,status=request.status||&#x27;pending&#x27;;
     dialog.layer.className+=&#x27; cs-leave-detail-modal&#x27;;
+    if(!initialRejection){
+      let startedOnBackdrop=false;
+      dialog.layer.addEventListener(&#x27;pointerdown&#x27;,event=&gt;{
+        startedOnBackdrop=event.target===dialog.layer;
+      });
+      dialog.layer.addEventListener(&#x27;click&#x27;,event=&gt;{
+        const backdropClick=startedOnBackdrop&amp;&amp;event.target===dialog.layer;
+        startedOnBackdrop=false;
+        if(!backdropClick)return;
+        const {left,right,top,bottom}=dialog.panel.getBoundingClientRect();
+        if(event.clientX&lt;left||event.clientX&gt;right||event.clientY&lt;top||event.clientY&gt;bottom)dialog.close();
+      });
+    }
     const identity=node(&#x27;div&#x27;,&#x27;cs-leave-identity&#x27;),copy=node(&#x27;div&#x27;,&#x27;cs-leave-identity-copy&#x27;);
     const avatar=node(&#x27;span&#x27;,&#x27;cs-leave-avatar&#x27;,request.initials||name.split(/\s+/).slice(0,2).map(part=&gt;part[0]).join(&#x27;&#x27;));
     avatar.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);
@@ -31533,6 +31546,7 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 
 &lt;/script&gt;
 &lt;/div&gt;
+
 
 
 
